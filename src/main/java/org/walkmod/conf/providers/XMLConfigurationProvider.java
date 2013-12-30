@@ -51,8 +51,6 @@ import org.walkmod.conf.entities.impl.DefaultTransformationConfig;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.WalkerConfigImpl;
 import org.walkmod.conf.entities.impl.WriterConfigImpl;
-import org.walkmod.javalang.ast.Comment;
-import org.walkmod.javalang.ast.body.FieldDeclaration;
 import org.walkmod.readers.DefaultFileReader;
 import org.walkmod.util.DomHelper;
 import org.xml.sax.InputSource;
@@ -641,6 +639,11 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 			}
 		}
 
+		addDefaultMergePolicyConfig(mergePolicies);
+		configuration.setMergePolicies(mergePolicies);
+	}
+	
+	public void addDefaultMergePolicyConfig(Collection<MergePolicyConfig> mergePolicies){
 		MergePolicyConfig defaultMergePolicy = new DefaultMergePolicyConfig();
 		defaultMergePolicy.setName("default");
 		defaultMergePolicy
@@ -649,11 +652,14 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 				.setDefaultTypePolicy("walkmod:commons:default-type-policy");
 
 		Map<String, String> policyEntries = new HashMap<String, String>();
+		//TODO: Read from Spring
+		/*
 		policyEntries.put(FieldDeclaration.class.getName(),
 				"walkmod:commons:field-policy");
 		
 		policyEntries.put(Comment.class.getName(),
 		"walkmod:commons:comment-policy");
+		*/
 		defaultMergePolicy.setPolicyEntries(policyEntries);
 
 		if (mergePolicies.isEmpty()
@@ -661,7 +667,6 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 
 			mergePolicies.add(defaultMergePolicy);
 		}
-		configuration.setMergePolicies(mergePolicies);
 	}
 
 	private void loadPlugins() {

@@ -57,7 +57,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 		return this.outputDirectory;
 	}
 	
-	public abstract void createOutputDirectory(Object o);
+	public abstract File createOutputDirectory(Object o);
 
 	public void write(Object n, VisitorContext vc) throws Exception {
 		File out = null;
@@ -65,7 +65,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 			out = (File) vc.get(AbstractWalker.ORIGINAL_FILE_KEY);
 		}
 		if (out == null) {
-			createOutputDirectory(n);
+			out = createOutputDirectory(n);
 		}
 		boolean write = true;
 		if (out != null) {

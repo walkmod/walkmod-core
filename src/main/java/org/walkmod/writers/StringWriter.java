@@ -15,6 +15,8 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.writers;
 
+import java.io.File;
+
 import org.walkmod.walkers.VisitorContext;
 
 public class StringWriter extends AbstractFileWriter {
@@ -25,8 +27,8 @@ public class StringWriter extends AbstractFileWriter {
 	}
 
 	@Override
-	public void createOutputDirectory(Object o) {
-		
+	public File createOutputDirectory(Object o) {
+		return null;
 	}
 
 
