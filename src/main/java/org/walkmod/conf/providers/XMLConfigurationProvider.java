@@ -28,20 +28,21 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.walkmod.conf.ArchitectureProvider;
+import org.walkmod.conf.ChainProvider;
 import org.walkmod.conf.ConfigurationException;
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
+import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.MergePolicyConfig;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ReaderConfig;
-import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.conf.entities.WriterConfig;
@@ -51,7 +52,6 @@ import org.walkmod.conf.entities.impl.DefaultTransformationConfig;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.WalkerConfigImpl;
 import org.walkmod.conf.entities.impl.WriterConfigImpl;
-import org.walkmod.readers.DefaultFileReader;
 import org.walkmod.util.DomHelper;
 import org.xml.sax.InputSource;
 
@@ -61,7 +61,7 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 
 public class XMLConfigurationProvider implements ConfigurationProvider,
-		ArchitectureProvider {
+		ChainProvider {
 
 	/**
 	 * Configuration file.
@@ -82,11 +82,6 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 	 * Set of supported versions of dtdMappings
 	 */
 	private Map<String, String> dtdMappings;
-	
-	
-	private static final String DEFAULT_WALKER="org.walkmod.javalang.walkers.DefaultJavaWalker";
-	
-	private static final String DEFAULT_WRITER="org.walkmod.javalang.writers.EclipseWriter";
 
 	/**
 	 * XML structure
@@ -270,7 +265,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 	}
 
 	@Override
-	public void loadArchitectures() throws ConfigurationException {
+	public void loadChains() throws ConfigurationException {
 		Element rootElement = document.getDocumentElement();
 		NodeList children = rootElement.getChildNodes();
 		int childSize = children.getLength();
@@ -342,7 +337,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 					List<TransformationConfig> transformationConfigs = getTransformationItems(
 							rootElement, true);
 					WalkerConfig wc = new WalkerConfigImpl();
-					wc.setType(DEFAULT_WALKER);
+					wc.setType(null);
 					wc.setTransformations(transformationConfigs);
 					addDefaultReaderConfig(ac);
 					ac.setWalkerConfig(wc);
@@ -357,8 +352,8 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 
 	public void addDefaultReaderConfig(ChainConfig ac) {
 		ReaderConfig readerConfig = new ReaderConfig();
-		readerConfig.setPath("src/main/java");
-		readerConfig.setType(DefaultFileReader.class.getName());
+		readerConfig.setPath(null);
+		readerConfig.setType(null);
 		ac.setReaderConfig(readerConfig);
 	}
 
@@ -372,7 +367,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 			}
 			readerConfig.setPath(element.getAttribute("path"));
 			if ("".equals(element.getAttribute("type"))) {
-				readerConfig.setType(DefaultFileReader.class.getName());
+				readerConfig.setType(null);
 			} else {
 				readerConfig.setType(element.getAttribute("type"));
 			}
@@ -426,7 +421,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 
 	public void addDefaultWalker(ChainConfig ac, Element parentWalkerNode) {
 		WalkerConfig wc = new WalkerConfigImpl();
-		wc.setType(DEFAULT_WALKER);
+		wc.setType(null);
 		wc.setTransformations(getTransformationItems(parentWalkerNode, false));
 		ac.setWalkerConfig(wc);
 	}
@@ -438,7 +433,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 			WalkerConfig wc = new WalkerConfigImpl();
 			String type = ((Element) walkerNode).getAttribute("type");
 			if ("".equals(type)) {
-				wc.setType(DEFAULT_WALKER);
+				wc.setType(null);
 			} else {
 				wc.setType(type);
 			}
@@ -513,7 +508,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 	public void addDefaultWriterConfig(ChainConfig ac) {
 		WriterConfig wc = new WriterConfigImpl();
 		wc.setPath(ac.getReaderConfig().getPath());
-		wc.setType(DEFAULT_WALKER);
+		wc.setType(null);
 		ac.setWriterConfig(wc);
 	}
 
@@ -528,7 +523,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 			wc.setPath(path);
 			String type = child.getAttribute("type");
 			if ("".equals(type)) {
-				wc.setType(DEFAULT_WRITER);
+				wc.setType(null);
 			} else {
 				wc.setType(type);
 			}
@@ -579,7 +574,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 	public void load() throws ConfigurationException {
 		loadPlugins();
 		loadMergePolicies();
-		loadArchitectures();
+		loadChains();
 	}
 
 	private void loadMergePolicies() {
@@ -605,14 +600,14 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 						if (!"".equals(defaultOP.trim())) {
 							policy.setDefaultObjectPolicy(defaultOP);
 						} else {
-							policy.setDefaultObjectPolicy("walkmod:commons:default-object-policy");
+							policy.setDefaultObjectPolicy(null);
 						}
 						String defaultTP = policyElem
 								.getAttribute("default-type-policy");
 						if (!"".equals(defaultTP)) {
 							policy.setDefaultTypePolicy(defaultTP);
 						} else {
-							policy.setDefaultTypePolicy("walkmod:commons:default-type-policy");
+							policy.setDefaultTypePolicy(null);
 						}
 						NodeList entriesNodes = policyElem.getChildNodes();
 						int entriesSize = entriesNodes.getLength();
@@ -639,35 +634,10 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 			}
 		}
 
-		addDefaultMergePolicyConfig(mergePolicies);
 		configuration.setMergePolicies(mergePolicies);
 	}
 	
-	public void addDefaultMergePolicyConfig(Collection<MergePolicyConfig> mergePolicies){
-		MergePolicyConfig defaultMergePolicy = new DefaultMergePolicyConfig();
-		defaultMergePolicy.setName("default");
-		defaultMergePolicy
-				.setDefaultObjectPolicy("walkmod:commons:default-object-policy");
-		defaultMergePolicy
-				.setDefaultTypePolicy("walkmod:commons:default-type-policy");
 
-		Map<String, String> policyEntries = new HashMap<String, String>();
-		//TODO: Read from Spring
-		/*
-		policyEntries.put(FieldDeclaration.class.getName(),
-				"walkmod:commons:field-policy");
-		
-		policyEntries.put(Comment.class.getName(),
-		"walkmod:commons:comment-policy");
-		*/
-		defaultMergePolicy.setPolicyEntries(policyEntries);
-
-		if (mergePolicies.isEmpty()
-				|| !mergePolicies.contains(defaultMergePolicy)) {
-
-			mergePolicies.add(defaultMergePolicy);
-		}
-	}
 
 	private void loadPlugins() {
 		Element rootElement = document.getDocumentElement();

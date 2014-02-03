@@ -72,11 +72,11 @@ public class DefaultChainWalkerAdapter implements ChainWalkerAdapter {
 		walker.setResource(getModel());
 		walker.setRootNamespace(config.getRootNamespace());
 		ChainWriter mw = ap.getChainWriter();
-		mw.setExcludes(config.getArchitectureConfig().getWriterConfig().getExcludes());
-		mw.setIncludes(config.getArchitectureConfig().getWriterConfig().getIncludes());
+		mw.setExcludes(config.getChainConfig().getWriterConfig().getExcludes());
+		mw.setIncludes(config.getChainConfig().getWriterConfig().getIncludes());
 		walker.setWriter(ap.getChainWriter());
-		walker.setChainConfig(config.getArchitectureConfig());
-		ChainConfig ac = config.getArchitectureConfig();
+		walker.setChainConfig(config.getChainConfig());
+		ChainConfig ac = config.getChainConfig();
 		Object visitor;
 		for (TransformationConfig config : getTransformationConfig()) {
 			setName(config.getName());

@@ -83,7 +83,7 @@ public class WalkerConfigImpl implements WalkerConfig {
 	}
 
 	@Override
-	public ChainConfig getArchitectureConfig() {
+	public ChainConfig getChainConfig() {
 		return architectureConfig;
 	}
 

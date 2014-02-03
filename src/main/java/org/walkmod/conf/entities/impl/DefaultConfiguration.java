@@ -46,12 +46,15 @@ public class DefaultConfiguration implements Configuration {
 	private Collection<MergePolicyConfig> mergePolicies;
 	
 	private Map<String, MergeEngine> mergeEngines;
+	
+	private String defaultLanguage;
 
 	public DefaultConfiguration() {
 		this.parameters = new HashMap<String, Object>();
 		this.architectures = new HashMap<String, ChainConfig>();
 		this.mergeEngines = new HashMap<String, MergeEngine>();
 		this.beanFactory = null;
+		this.defaultLanguage = "java";
 	}
 
 	public Map<String, Object> getParameters() {
@@ -62,7 +65,7 @@ public class DefaultConfiguration implements Configuration {
 		this.parameters = parameters;
 	}
 
-	public Collection<ChainConfig> getArchitectures() {
+	public Collection<ChainConfig> getChainConfigs() {
 		return architectures.values();
 	}
 
@@ -129,8 +132,8 @@ public class DefaultConfiguration implements Configuration {
 
 	public Collection<VisitorMessage> getVisitorMessages() {
 		Collection<VisitorMessage> result = new LinkedList<VisitorMessage>();
-		if (getArchitectures() != null) {
-			for (ChainConfig aqConfig : getArchitectures()) {
+		if (getChainConfigs() != null) {
+			for (ChainConfig aqConfig : getChainConfigs()) {
 				result.addAll(aqConfig.getWalkerConfig().getWalker()
 						.getVisitorMessages());
 			}
@@ -180,5 +183,16 @@ public class DefaultConfiguration implements Configuration {
 	@Override
 	public MergeEngine getMergeEngine(String name) {			
 		return mergeEngines.get(name);
+	}
+
+	@Override
+	public String getDefaultLanguage() {
+		
+		return defaultLanguage;
+	}
+
+	@Override
+	public void setDefaultLanguage(String defaults) {
+		this.defaultLanguage = defaults;
 	}
 }

@@ -27,7 +27,7 @@ public interface Configuration {
 
 	public void setParameters(Map<String, Object> parameters);
 
-	public Collection<ChainConfig> getArchitectures();
+	public Collection<ChainConfig> getChainConfigs();
 	
 	public Collection<PluginConfig> getPlugins();
 	
@@ -57,4 +57,8 @@ public interface Configuration {
 	public MergeEngine getMergeEngine(String name);
 	
 	public void populate(Object element, Map<?, ?> parameters);
+	
+	public String getDefaultLanguage();
+	
+	public void setDefaultLanguage(String language);
 }

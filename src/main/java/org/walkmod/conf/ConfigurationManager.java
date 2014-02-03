@@ -23,6 +23,7 @@ import java.util.List;
 import org.walkmod.ConfigurationAdapter;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.impl.DefaultConfiguration;
+import org.walkmod.conf.providers.LanguageConfigurationProvider;
 import org.walkmod.conf.providers.SpringConfigurationProvider;
 import org.walkmod.conf.providers.XMLConfigurationProvider;
 import org.walkmod.impl.DefaultConfigurationAdapter;
@@ -48,6 +49,7 @@ public class ConfigurationManager {
 				this.configurationProviders.add(cp);
 			}
 		}
+		this.configurationProviders.add(new LanguageConfigurationProvider());
 		//the class loader can be modified before
 		this.configurationProviders.add(new SpringConfigurationProvider());
 		executeConfigurationProviders();

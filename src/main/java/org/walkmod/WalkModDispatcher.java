@@ -153,7 +153,7 @@ public class WalkModDispatcher {
 							cfg, cp);
 					Configuration config = cfgManager.getConfiguration();
 					ChainAdapterFactory apf = new DefaultChainAdapterFactory();
-					Collection<ChainConfig> tcgfs = config.getArchitectures();
+					Collection<ChainConfig> tcgfs = config.getChainConfigs();
 					for (ChainConfig tcfg : tcgfs) {
 						tcfg.getWriterConfig().setType(
 								VisitorMessagesWriter.class.getName());
@@ -274,7 +274,7 @@ public class WalkModDispatcher {
 
 	private static void executeAllChains(ChainAdapterFactory apf,
 			Configuration conf, boolean printException) {
-		Collection<ChainConfig> tcgfs = conf.getArchitectures();
+		Collection<ChainConfig> tcgfs = conf.getChainConfigs();
 		log.info("** THE TRANSFORMATIONS CHAINS START **");
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");

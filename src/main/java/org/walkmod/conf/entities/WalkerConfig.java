@@ -41,7 +41,7 @@ public interface WalkerConfig {
 
 	public void setArchitectureConfig(ChainConfig architectureConfig);
 
-	public ChainConfig getArchitectureConfig();
+	public ChainConfig getChainConfig();
 
 	public ChainWalker getWalker();
 

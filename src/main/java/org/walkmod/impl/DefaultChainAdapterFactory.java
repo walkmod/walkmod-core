@@ -34,7 +34,7 @@ public class DefaultChainAdapterFactory implements ChainAdapterFactory {
 	public ChainAdapter createChainProxy(Configuration configuration,
 			String chain) {
 
-		Collection<ChainConfig> acs = configuration.getArchitectures();
+		Collection<ChainConfig> acs = configuration.getChainConfigs();
 		Iterator<ChainConfig> it = acs.iterator();
 		boolean end = false;
 		ChainConfig acfg = null;
