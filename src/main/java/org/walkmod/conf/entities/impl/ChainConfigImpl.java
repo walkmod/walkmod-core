@@ -24,7 +24,7 @@ import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.conf.entities.WriterConfig;
 
-public class DefaultTransformationChainConfig implements ChainConfig {
+public class ChainConfigImpl implements ChainConfig {
 
 	private String name;
 
@@ -84,7 +84,7 @@ public class DefaultTransformationChainConfig implements ChainConfig {
 
 	@Override
 	public void setWalkerConfig(WalkerConfig wc) {
-		wc.setArchitectureConfig(this);
+		wc.setChainConfig(this);
 		this.walkerConfig = wc;
 	}
 

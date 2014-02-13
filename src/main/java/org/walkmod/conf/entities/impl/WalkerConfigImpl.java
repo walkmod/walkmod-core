@@ -78,7 +78,7 @@ public class WalkerConfigImpl implements WalkerConfig {
 	}
 
 	@Override
-	public void setArchitectureConfig(ChainConfig architectureConfig) {
+	public void setChainConfig(ChainConfig architectureConfig) {
 		this.architectureConfig = architectureConfig;
 	}
 

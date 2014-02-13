@@ -33,10 +33,10 @@ public interface Configuration {
 	
 	public void setPlugins(Collection<PluginConfig> plugins);
 
-	public void setTransformationChainConfigs(
-			Collection<ChainConfig> architectures);
+	public void setChainConfigs(
+			Collection<ChainConfig> chainConfigs);
 
-	public boolean addTransformationChainConfig(ChainConfig architecture);
+	public boolean addChainConfig(ChainConfig architecture);
 
 	public void setBeanFactory(BeanFactory beanFactory);
 

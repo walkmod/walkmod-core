@@ -1,0 +1,20 @@
+<!DOCTYPE language PUBLIC "-//WALKMOD//DTD"  "http://www.walkmod.com/dtd/walkmod-lang-1.0.dtd">
+<language
+ 	reader ="org.walkmod.readers.DefaultFileReader"
+	walker="org.walkmod.javalang.walkers.DefaultJavaWalker" 
+	writer="org.walkmod.javaformatter.writers.EclipseWriter"
+	path = "src/main/java" >	
+	<policy
+			default-object-policy="org.walkmod.merger.AppendMergePolicy" 
+			default-type-policy="org.walkmod.merger.AssignMergePolicy">
+			
+		<policy-entry 
+			policy-type="org.walkmod.javalang.merger.FieldDeclarationPolicy" 
+			object-type="org.walkmod.javalang.ast.body.FieldDeclaration"/>
+		
+		<policy-entry 
+			policy-type="org.walkmod.merger.AddAllMergePolicy" 
+			object-type="org.walkmod.javalang.ast.Comment"/>
+			
+	</policy>
+</language>

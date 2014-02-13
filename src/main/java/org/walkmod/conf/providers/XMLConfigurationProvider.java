@@ -46,9 +46,9 @@ import org.walkmod.conf.entities.ReaderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.conf.entities.WriterConfig;
-import org.walkmod.conf.entities.impl.DefaultMergePolicyConfig;
-import org.walkmod.conf.entities.impl.DefaultTransformationChainConfig;
-import org.walkmod.conf.entities.impl.DefaultTransformationConfig;
+import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
+import org.walkmod.conf.entities.impl.ChainConfigImpl;
+import org.walkmod.conf.entities.impl.TransformationConfigImpl;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.WalkerConfigImpl;
 import org.walkmod.conf.entities.impl.WriterConfigImpl;
@@ -275,7 +275,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 				Element child = (Element) childNode;
 				final String nodeName = child.getNodeName();
 				if ("chain".equals(nodeName)) {
-					ChainConfig ac = new DefaultTransformationChainConfig();
+					ChainConfig ac = new ChainConfigImpl();
 					if ("".equals(child.getAttribute("name"))) {
 						if (i == 0) {
 							ac.setName("chain_" + (i + 1));
@@ -330,9 +330,9 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 					if (!found) {
 						addDefaultWriterConfig(ac);
 					}
-					configuration.addTransformationChainConfig(ac);
+					configuration.addChainConfig(ac);
 				} else if ("transformation".equals(nodeName)) {
-					ChainConfig ac = new DefaultTransformationChainConfig();
+					ChainConfig ac = new ChainConfigImpl();
 					ac.setName("chain_1");
 					List<TransformationConfig> transformationConfigs = getTransformationItems(
 							rootElement, true);
@@ -342,7 +342,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 					addDefaultReaderConfig(ac);
 					ac.setWalkerConfig(wc);
 					addDefaultWriterConfig(ac);
-					configuration.addTransformationChainConfig(ac);
+					configuration.addChainConfig(ac);
 					i = i + transformationConfigs.size() - 1;
 				}
 			}
@@ -463,7 +463,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		for (int j = 0; j < transfNodes.getLength(); j++) {
 			element = (Element) transfNodes.item(j);
 			if ("transformation".equals(element.getNodeName())) {
-				TransformationConfig tc = new DefaultTransformationConfig();
+				TransformationConfig tc = new TransformationConfigImpl();
 				String name = element.getAttribute("name");
 				String visitor = element.getAttribute("type");
 				String isMergeable = element.getAttribute("isMergeable");
@@ -593,7 +593,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 					Node policyNode = policiesNodes.item(j);
 					if ("policy".equals(policyNode.getNodeName())) {
 						Element policyElem = (Element) policyNode;
-						MergePolicyConfig policy = new DefaultMergePolicyConfig();
+						MergePolicyConfig policy = new MergePolicyConfigImpl();
 						policy.setName(policyElem.getAttribute("name"));
 						String defaultOP = policyElem
 								.getAttribute("default-object-policy");

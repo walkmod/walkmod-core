@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.BeanFactory;
@@ -31,12 +32,12 @@ import org.walkmod.exceptions.WalkModException;
 import org.walkmod.merger.MergeEngine;
 import org.walkmod.walkers.VisitorMessage;
 
-public class DefaultConfiguration implements Configuration {
+public class ConfigurationImpl implements Configuration {
 
 	private Map<String, Object> parameters;
 
-	private Map<String, ChainConfig> architectures;
-
+	private Map<String, ChainConfig> chainConfigs;
+	
 	private BeanFactory beanFactory;
 	
 	private Collection<PluginConfig> plugins;
@@ -49,9 +50,9 @@ public class DefaultConfiguration implements Configuration {
 	
 	private String defaultLanguage;
 
-	public DefaultConfiguration() {
+	public ConfigurationImpl() {
 		this.parameters = new HashMap<String, Object>();
-		this.architectures = new HashMap<String, ChainConfig>();
+		this.chainConfigs = new HashMap<String, ChainConfig>();
 		this.mergeEngines = new HashMap<String, MergeEngine>();
 		this.beanFactory = null;
 		this.defaultLanguage = "java";
@@ -66,25 +67,27 @@ public class DefaultConfiguration implements Configuration {
 	}
 
 	public Collection<ChainConfig> getChainConfigs() {
-		return architectures.values();
+		return chainConfigs.values();
 	}
 
-	public void setTransformationChainConfigs(
-			Collection<ChainConfig> architectures) {
-		this.architectures.clear();
-		Iterator<ChainConfig> it = architectures.iterator();
+	public void setChainConfigs(
+			Collection<ChainConfig> chainConfigs) {
+		
+		this.chainConfigs.clear();
+		Iterator<ChainConfig> it = chainConfigs.iterator();
 		while (it.hasNext()) {
 			ChainConfig current = it.next();
 			current.setConfiguration(this);
-			this.architectures.put(current.getName(), current);
+			this.chainConfigs.put(current.getName(), current);
 		}
 	}
 
-	public boolean addTransformationChainConfig(ChainConfig architecture) {
-		boolean result = architectures.containsKey(architecture.getName());
+	public boolean addChainConfig(ChainConfig architecture) {
+		boolean result = chainConfigs.containsKey(architecture.getName());
 		if (!result) {
 			architecture.setConfiguration(this);
-			architectures.put(architecture.getName(), architecture);
+			chainConfigs.put(architecture.getName(), architecture);
+		
 		}
 		return result;
 	}

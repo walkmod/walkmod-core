@@ -18,7 +18,7 @@ package org.walkmod.conf.entities.impl;
 import java.util.Map;
 import org.walkmod.conf.entities.TransformationConfig;
 
-public class DefaultTransformationConfig implements TransformationConfig {
+public class TransformationConfigImpl implements TransformationConfig {
 
 	private String name;
 

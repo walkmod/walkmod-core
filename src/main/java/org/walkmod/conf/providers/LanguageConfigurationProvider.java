@@ -25,8 +25,9 @@ import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.MergePolicyConfig;
 import org.walkmod.conf.entities.ReaderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
+import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.conf.entities.WriterConfig;
-import org.walkmod.conf.entities.impl.DefaultMergePolicyConfig;
+import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
 import org.walkmod.util.DomHelper;
 import org.xml.sax.InputSource;
 
@@ -149,48 +150,59 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 		updateNulls();
 		loadMergePolicies();
 	}
-	
-	private void updateNulls(){
+
+	private void updateNulls() {
 		Collection<ChainConfig> ccs = configuration.getChainConfigs();
 		Element rootElement = document.getDocumentElement();
-		
-		if(ccs != null){
-			for (ChainConfig cc: ccs){
+
+		if (ccs != null) {
+
+			for (ChainConfig cc : ccs) {
 				ReaderConfig rc = cc.getReaderConfig();
-				if(rc.getType() == null){
+				if (rc.getType() == null) {
 					rc.setType(rootElement.getAttribute("reader"));
 				}
-				if(rc.getPath() == null){
-					rc.setType(rootElement.getAttribute("path"));
+				if (rc.getPath() == null) {
+					rc.setPath(rootElement.getAttribute("path"));
 				}
 				WriterConfig wc = cc.getWriterConfig();
-				if(wc.getType() == null){
+				if (wc.getType() == null) {
 					wc.setType(rootElement.getAttribute("writer"));
 				}
-				if(wc.getPath() == null){
-					wc.setType(rootElement.getAttribute("path"));
+				if (wc.getPath() == null) {
+					wc.setPath(rootElement.getAttribute("path"));
 				}
-				
-				List<TransformationConfig> transformations = cc.getWalkerConfig().getTransformations();
-				if(transformations != null){
-					for(TransformationConfig tc : transformations){
-						if(tc.isMergeable()){
-							if (tc.getMergePolicy() == null){
+				WalkerConfig walkc = cc.getWalkerConfig();
+				if (walkc.getType() == null) {
+					walkc.setType(rootElement.getAttribute("walker"));
+				}
+
+				List<TransformationConfig> transformations = walkc
+						.getTransformations();
+				if (transformations != null) {
+					for (TransformationConfig tc : transformations) {
+						if (tc.isMergeable()) {
+							if (tc.getMergePolicy() == null) {
 								tc.setMergePolicy(DEFAULT_MERGE_ENGINE_NAME);
 							}
 						}
 					}
+
 				}
+
 			}
+
 		}
+
 	}
 
 	private void loadMergePolicies() {
 		Element rootElement = document.getDocumentElement();
 		NodeList children = rootElement.getChildNodes();
 		int childSize = children.getLength();
-		Collection<MergePolicyConfig> mergePolicies = configuration.getMergePolicies();
-		if (mergePolicies == null){
+		Collection<MergePolicyConfig> mergePolicies = configuration
+				.getMergePolicies();
+		if (mergePolicies == null) {
 			mergePolicies = new LinkedList<MergePolicyConfig>();
 			configuration.setMergePolicies(mergePolicies);
 		}
@@ -199,7 +211,7 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 			Node childNode = children.item(j);
 			if ("policy".equals(childNode.getNodeName())) {
 				Element policyElem = (Element) childNode;
-				policy = new DefaultMergePolicyConfig();
+				policy = new MergePolicyConfigImpl();
 				policy.setName(DEFAULT_MERGE_ENGINE_NAME);
 				String defaultOP = policyElem
 						.getAttribute("default-object-policy");
@@ -233,11 +245,9 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 				}
 			}
 		}
-		if(policy != null){
+		if (policy != null) {
 			mergePolicies.add(policy);
 		}
 	}
-
-	
 
 }

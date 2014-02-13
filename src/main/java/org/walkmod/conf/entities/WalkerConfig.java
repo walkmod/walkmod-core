@@ -39,7 +39,7 @@ public interface WalkerConfig {
 
 	public void setRootNamespace(String rootNamespace);
 
-	public void setArchitectureConfig(ChainConfig architectureConfig);
+	public void setChainConfig(ChainConfig chainConfig);
 
 	public ChainConfig getChainConfig();
 

@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.walkmod.ConfigurationAdapter;
 import org.walkmod.conf.entities.Configuration;
-import org.walkmod.conf.entities.impl.DefaultConfiguration;
+import org.walkmod.conf.entities.impl.ConfigurationImpl;
 import org.walkmod.conf.providers.LanguageConfigurationProvider;
 import org.walkmod.conf.providers.SpringConfigurationProvider;
 import org.walkmod.conf.providers.XMLConfigurationProvider;
@@ -41,7 +41,7 @@ public class ConfigurationManager {
 
 	
 	public ConfigurationManager(File walkmodcfg, ConfigurationProvider... configurationProviders){
-		setConfiguration(new DefaultConfiguration());
+		setConfiguration(new ConfigurationImpl());
 		this.configurationProviders.add(new XMLConfigurationProvider(walkmodcfg
 				.getAbsolutePath(), false));
 		if(configurationProviders != null){

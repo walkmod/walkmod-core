@@ -35,3 +35,4 @@
 <!ATTLIST policy default-type-policy CDATA #IMPLIED>
 <!ATTLIST policy-entry object-type CDATA #REQUIRED>
 <!ATTLIST policy-entry policy-type CDATA #REQUIRED>
+
