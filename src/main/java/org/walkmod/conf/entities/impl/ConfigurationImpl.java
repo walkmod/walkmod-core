@@ -55,7 +55,7 @@ public class ConfigurationImpl implements Configuration {
 		this.chainConfigs = new HashMap<String, ChainConfig>();
 		this.mergeEngines = new HashMap<String, MergeEngine>();
 		this.beanFactory = null;
-		this.defaultLanguage = "java";
+		this.defaultLanguage = null;
 	}
 
 	public Map<String, Object> getParameters() {

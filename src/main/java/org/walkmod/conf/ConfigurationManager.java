@@ -24,6 +24,7 @@ import org.walkmod.ConfigurationAdapter;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.impl.ConfigurationImpl;
 import org.walkmod.conf.providers.LanguageConfigurationProvider;
+import org.walkmod.conf.providers.PluginsConfigurationProvider;
 import org.walkmod.conf.providers.SpringConfigurationProvider;
 import org.walkmod.conf.providers.XMLConfigurationProvider;
 import org.walkmod.impl.DefaultConfigurationAdapter;
@@ -44,6 +45,7 @@ public class ConfigurationManager {
 		setConfiguration(new ConfigurationImpl());
 		this.configurationProviders.add(new XMLConfigurationProvider(walkmodcfg
 				.getAbsolutePath(), false));
+		this.configurationProviders.add(new PluginsConfigurationProvider());
 		if(configurationProviders != null){
 			for(ConfigurationProvider cp : configurationProviders){
 				this.configurationProviders.add(cp);

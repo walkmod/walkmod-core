@@ -10,6 +10,7 @@
 <!ELEMENT transformation (param*)>
 <!ELEMENT transformations (transformation+)>
 <!ELEMENT param (#PCDATA)>
+<!ELEMENT plugin (#PCDATA)>
 <!ELEMENT exclude (#PCDATA)>
 <!ELEMENT include (#PCDATA)>
 <!ATTLIST chain name CDATA #IMPLIED>

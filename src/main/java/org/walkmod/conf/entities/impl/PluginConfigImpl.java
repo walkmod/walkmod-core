@@ -54,4 +54,18 @@ public class PluginConfigImpl implements PluginConfig {
 	public void setVersion(String version) {
 		this.version = version;
 	}
+
+	@Override
+	public boolean equals(Object pc) {
+		if (pc instanceof PluginConfig) {
+			if (groupId != null && artifactId != null) {
+				PluginConfig aux = (PluginConfig) pc;
+				return groupId.equals(aux.getGroupId())
+						&& artifactId.equals(aux.getArtifactId());
+			}
+			return false;
+		}
+		return false;
+
+	}
 }

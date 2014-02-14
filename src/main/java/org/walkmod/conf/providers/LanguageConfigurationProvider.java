@@ -98,7 +98,7 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 		String defaults = configuration.getDefaultLanguage();
 		String fileName;
 		if (defaults == null) {
-			fileName = "walkmod-defaults.xml";
+			fileName = "default-config.xml";
 		} else {
 			fileName = "walkmod-" + defaults + "-" + suffixFileName;
 		}
@@ -112,7 +112,7 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 			}
 		}
 		if (url == null) {
-			url = ClassLoader.getSystemResource(fileName);
+			url = configuration.getClassLoader().getResource(fileName);
 		}
 		InputStream is = null;
 		if (url == null) {

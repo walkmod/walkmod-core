@@ -1,0 +1,5 @@
+<!DOCTYPE plugins PUBLIC "-//WALKMOD//DTD"  "http://www.walkmod.com/dtd/walkmod-plugins-1.0.dtd">
+<plugins>
+	<plugin groupId="org.walkmod" artifactId="walkmod-javalang-plugin" version="1.0"/>
+	<plugin groupId="org.walkmod" artifactId="walkmod-java-formatter-plugin" version="1.0"/>
+</plugins>

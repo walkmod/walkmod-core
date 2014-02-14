@@ -1,0 +1,5 @@
+<!ELEMENT plugins (plugin+)>
+<!ELEMENT plugin (#PCDATA)>
+<!ATTLIST plugin groupId CDATA #IMPLIED>
+<!ATTLIST plugin artifactId CDATA #IMPLIED>
+<!ATTLIST plugin version CDATA #IMPLIED>

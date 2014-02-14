@@ -3,7 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.walkmod</groupId>
 	<artifactId>walkmod-core</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0</version>
+	<url>https://github.com/rpau/walkmod-core</url>
+	<licenses>
+		<license>
+			<name>GNU General Public License (GPL v.3)</name>
+			<url>http://www.gnu.org/licenses/gpl.txt</url>
+		</license>
+	</licenses>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
@@ -19,6 +26,30 @@
 					<source>1.6</source>
 					<target>1.6</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -92,8 +123,8 @@
 	</profiles>
 	<name>walkmod-core</name>
 	<scm>
-		<url>https://github.com/rpau/javalang</url>
-		<connection>https://github.com/rpau/javalang.git</connection>
+		<url>https://github.com/rpau/walkmod-core</url>
+		<connection>https://github.com/rpau/walkmod-core.git</connection>
 	</scm>
 	<developers>
 		<developer>
