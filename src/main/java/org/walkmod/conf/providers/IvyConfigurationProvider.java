@@ -118,7 +118,7 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 				false, true);
 		md.addDependency(dd);
 		ExcludeRule er = new DefaultExcludeRule(new ArtifactId(new ModuleId(
-				"org.walkmod", "walkmod"), PatternMatcher.ANY_EXPRESSION,
+				"org.walkmod", "walkmod-core"), PatternMatcher.ANY_EXPRESSION,
 				PatternMatcher.ANY_EXPRESSION, PatternMatcher.ANY_EXPRESSION),
 				ExactPatternMatcher.INSTANCE, null);
 		dd.addExcludeRule(null, er);
