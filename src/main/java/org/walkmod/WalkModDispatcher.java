@@ -68,46 +68,44 @@ public class WalkModDispatcher {
 		System.out.println("----------------------------------------");
 		System.out
 				.println("An open source tool for apply code conventions into your project");
-		System.out.println("version 1.0 - May 2013 -");
+		System.out.println("version 1.0 - March 2014 -");
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
 	}
 
-	public static void main(String[] args){
-		if (args == null || args.length == 0) {
-			printHeader();
-			log.error("You must specify at least one goal to apply code transformations.");
+	public static void main(String[] args) {
+		if (args == null || args.length == 0 || "--help".equals(args[0])) {
+			
+			if(args== null || args.length == 0){
+				printHeader();
+				log.error("You must specify at least one goal to apply code transformations.");
+			}
 			System.out
 					.println("The following list ilustrates some commonly used build commands.");
 			System.out.println("walkmod install");
 			System.out
-					.println("        Downloads and installes a walkmod plugin");
-			System.out.println("walkmod apply");
+					.println("        Downloads and installs a walkmod plugin");
+			System.out.println("walkmod apply [chain]");
 			System.out
 					.println("        Upgrade your code to apply your development conventions");
-			System.out.println("walkmod check");
+			System.out.println("walkmod check [chain]");
 			System.out
 					.println("        Checks and shows witch classes must be reviewed");
 			System.out
-					.println("Please, see URL for a complete description of available plugins");
-			System.out
-					.println("Use \"walkmod --help\" to show general usage information about WalkMod command's line");
-			//TODO: backup, restore, search
+					.println("Please, see http://www.walkmod.com for more information.");
+			if(args== null || args.length == 0){
+				System.out.println("Use \"walkmod --help\" to show general usage information about WalkMod command's line");
+			}
+			// TODO: backup, restore, search
 		} else {
-			
-			List<String> paramsList;
-			if(args.length > 1){
-				paramsList = Arrays.asList(args).subList(1, args.length-1);
-			}
-			else{
-				paramsList = new LinkedList<String>();
-			}
 
-			boolean offline = args.length > 1
-					&& args[1].equals("--offline");
-			boolean showException = paramsList.contains("-e");
-			
-			if ("--version".equals(args[0])) {
+			List<String> paramsList = new LinkedList<String>(
+					Arrays.asList(args));
+
+			boolean offline = paramsList.remove("--offline");
+			boolean showException = paramsList.remove("-e");
+
+			if (paramsList.contains("--version")) {
 				System.out.println("Walkmod version \"1.0\"");
 				System.out.println("Java version: "
 						+ System.getProperty("java.version"));
@@ -115,27 +113,23 @@ public class WalkModDispatcher {
 						+ System.getProperty("java.home"));
 				System.out.println("OS: " + System.getProperty("os.name")
 						+ ", Vesion: " + System.getProperty("os.version"));
-			} else if ("apply".equals(args[0])) {
+			} else if (paramsList.contains("apply")) {
+				paramsList.remove("apply");
 				printHeader();
 				File cfg = new File("walkmod.xml");
 				if (cfg.exists()) {
 					log.info(cfg.getAbsoluteFile() + " [ok]");
-					
+
 					ConfigurationProvider cp = new IvyConfigurationProvider(
 							offline);
 					ConfigurationManager cfgManager = new ConfigurationManager(
 							cfg, cp);
 					Configuration config = cfgManager.getConfiguration();
 					ChainAdapterFactory apf = new DefaultChainAdapterFactory();
-					if (args.length > 1) {
-						if (offline) {
-							if (args.length > 2) {
-								executeChainAdapter(apf, config, args[2], showException);
-							} else {
-								executeAllChains(apf, config, showException);
-							}
-						}
-						executeChainAdapter(apf, config, args[1], showException);
+
+					if (paramsList.size() > 0) {
+						executeChainAdapter(apf, config, paramsList.get(0),
+								showException);
 					} else {
 						executeAllChains(apf, config, showException);
 					}
@@ -143,7 +137,8 @@ public class WalkModDispatcher {
 					log.error(cfg.getAbsolutePath()
 							+ " does not exist. The root directory of your project must contain a walkmod.xml");
 				}
-			} else if ("check".equals(args[0])) {
+			} else if (paramsList.contains("check")) {
+				paramsList.remove("check");
 				printHeader();
 				File cfg = new File("walkmod.xml");
 				if (cfg.exists()) {
@@ -161,15 +156,9 @@ public class WalkModDispatcher {
 								new VisitorMessagesWriter());
 					}
 					log.info(cfg.getAbsoluteFile() + " [ok]");
-					if (args.length > 1) {
-						if (offline) {
-							if (args.length > 2) {
-								executeChainAdapter(apf, config, args[2],showException);
-							} else {
-								executeAllChains(apf, config, showException);
-							}
-						}
-						executeChainAdapter(apf, config, args[1], showException);
+					if (paramsList.size() > 0) {
+						executeChainAdapter(apf, config, paramsList.get(0),
+								showException);
 					} else {
 						executeAllChains(apf, config, showException);
 					}
@@ -177,7 +166,7 @@ public class WalkModDispatcher {
 					log.error(cfg.getAbsolutePath()
 							+ " does not exist. The root directory of your project must contain a walkmod.xml");
 				}
-			} else if ("install".equals(args[0])) {
+			} else if (paramsList.contains("install")) {
 				printHeader();
 				File cfg = new File("walkmod.xml");
 				if (cfg.exists()) {
@@ -227,10 +216,9 @@ public class WalkModDispatcher {
 								.print("----------------------------------------");
 						System.out
 								.println("----------------------------------------");
-						if(showException){
+						if (showException) {
 							log.error("Plugin installations fails", e);
-						}
-						else{
+						} else {
 							log.info("Plugin installations fails. Please, execute walkmod with -e to see the details");
 						}
 					}
@@ -314,11 +302,13 @@ public class WalkModDispatcher {
 				System.out.print("----------------------------------------");
 				System.out.println("----------------------------------------");
 				log.info("Please, see the walkmod log file for details");
-				if(printException){
-					log.error("TRANSFORMATION CHAIN (" +  tcfg.getName() + ") FAILS", e);
-				}
-				else{
-					log.error("TRANSFORMATION CHAIN (" +  tcfg.getName() + ") FAILS. Execute walkmod with -e to see the error details.");
+				if (printException) {
+					log.error("TRANSFORMATION CHAIN (" + tcfg.getName()
+							+ ") FAILS", e);
+				} else {
+					log.error("TRANSFORMATION CHAIN ("
+							+ tcfg.getName()
+							+ ") FAILS. Execute walkmod with -e to see the error details.");
 				}
 				return;
 			}
@@ -421,12 +411,13 @@ public class WalkModDispatcher {
 						+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
 				System.out.print("----------------------------------------");
 				System.out.println("----------------------------------------");
-				log.info("Please, see the walkmod log file for details");				
-				if(printException){
+				log.info("Please, see the walkmod log file for details");
+				if (printException) {
 					log.error("TRANSFORMATION CHAIN (" + name + ") FAILS", e);
-				}
-				else{
-					log.error("TRANSFORMATION CHAIN (" + name + ") FAILS. Execute walkmod with -e to see the error details.");
+				} else {
+					log.error("TRANSFORMATION CHAIN ("
+							+ name
+							+ ") FAILS. Execute walkmod with -e to see the error details.");
 				}
 				return;
 			}

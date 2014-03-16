@@ -102,14 +102,14 @@ public class FileResource implements Resource<File> {
 		}
 
 		if (file.isDirectory()) {
-
+			/*
 			if (includes != null) {
 				for (int i = 0; i < includes.length; i++) {
 					if (!includes[i].startsWith(getFile().getName())) {
 						if (includes[i].startsWith("/")) {
-							includes[i] = getFile().getName() + includes[i];
+							includes[i] = getFile().getPath() + includes[i];
 						} else {
-							includes[i] = getFile().getName()
+							includes[i] = getFile().getPath()
 									+ "/" + includes[i];
 						}
 					}
@@ -120,14 +120,14 @@ public class FileResource implements Resource<File> {
 				for (int i = 0; i < excludes.length; i++) {
 					if (!excludes[i].startsWith(getFile().getName())) {
 						if (excludes[i].startsWith("/")) {
-							excludes[i] = getFile().getName() + excludes[i];
+							excludes[i] = getFile().getPath() + excludes[i];
 						} else {
-							excludes[i] = getFile().getName()
+							excludes[i] = getFile().getPath()
 									+ "/" + excludes[i];
 						}
 					}
 				}
-			}
+			}*/
 			IOFileFilter filter = null;
 
 			IOFileFilter directoryFilter = TrueFileFilter.INSTANCE;
