@@ -572,6 +572,8 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 
 	@Override
 	public void load() throws ConfigurationException {
+		Map<String, Object> params = getParams(document.getDocumentElement());
+		configuration.setParameters(params);
 		loadPlugins();
 		loadMergePolicies();
 		loadChains();

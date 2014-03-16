@@ -131,11 +131,15 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 		} else {
 			Map<String, Object> params = configuration.getParameters();
 			if (params != null) {
-				String offlineOpt = params.get("offline").toString();
-				if (offlineOpt != null) {
-					boolean offline = Boolean.parseBoolean(offlineOpt);
-					if (offline) {
-						resolveOptions = resolveOptions.setUseCacheOnly(true);
+				Object value = params.get("offline");
+				if (value != null) {
+					String offlineOpt = value.toString();
+					if (offlineOpt != null) {
+						boolean offline = Boolean.parseBoolean(offlineOpt);
+						if (offline) {
+							resolveOptions = resolveOptions
+									.setUseCacheOnly(true);
+						}
 					}
 				}
 			}
