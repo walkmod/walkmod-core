@@ -15,6 +15,8 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.scripting;
 
+import groovy.lang.GroovyClassLoader;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -31,12 +33,14 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.apache.log4j.Logger;
+import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.query.QueryEngine;
 import org.walkmod.query.QueryEngineAware;
 import org.walkmod.walkers.VisitorContext;
 
-public class ScriptProcessor implements QueryEngineAware{
+public class ScriptProcessor implements QueryEngineAware {
 
 	private String language = "groovy";
 
@@ -45,25 +49,30 @@ public class ScriptProcessor implements QueryEngineAware{
 	private String location;
 
 	private String content;
-	
+
 	private static Logger log = Logger.getLogger(ScriptProcessor.class);
-	
+
 	private QueryEngine queryEngine;
-	
+
 	public void initialize(VisitorContext context, Object node) {
 		if (engine == null) {
 			ScriptEngineManager factory = new ScriptEngineManager(
 					context.getClassLoader());
 			engine = factory.getEngineByName(language);
+			if (engine instanceof GroovyScriptEngineImpl) {
+				((GroovyScriptEngineImpl) engine)
+						.setClassLoader(new GroovyClassLoader(context
+								.getClassLoader(), new CompilerConfiguration()));
+			}
 		}
-		
+
 		if (queryEngine == null) {
 			Map<String, Object> parameters = new HashMap<String, Object>();
 			parameters.put("language", "groovy");
 			List<String> includes = new LinkedList<String>();
 			includes.add("query.alias.groovy");
 			parameters.put("includes", includes);
-			
+
 			Object bean = context.getBean(
 					"org.walkmod.query.ScriptingQueryEngine", parameters);
 			if (bean != null) {
@@ -75,7 +84,7 @@ public class ScriptProcessor implements QueryEngineAware{
 				throw new WalkModException("Query Engine not found");
 			}
 		}
-		
+
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("node", node);
 		queryEngine.initialize(context, params);
@@ -83,7 +92,7 @@ public class ScriptProcessor implements QueryEngineAware{
 
 	public void visit(Object node, VisitorContext ctx) {
 		initialize(ctx, node);
-		
+
 		Bindings bindings = engine.createBindings();
 		bindings.put("node", node);
 		bindings.put("context", ctx);
@@ -92,7 +101,9 @@ public class ScriptProcessor implements QueryEngineAware{
 			try {
 				engine.eval(content, bindings);
 			} catch (ScriptException e) {
-				log.error("The file "+e.getFileName()+" has an error at line: "+e.getLineNumber()+", column: "+e.getColumnNumber());				
+				log.error("The file " + e.getFileName()
+						+ " has an error at line: " + e.getLineNumber()
+						+ ", column: " + e.getColumnNumber());
 				throw new WalkModException(e);
 			}
 		} else {
@@ -145,19 +156,19 @@ public class ScriptProcessor implements QueryEngineAware{
 	public QueryEngine getQueryEngine() {
 		return queryEngine;
 	}
-	
-	public Object query(String query){
-		if(queryEngine!=null){
+
+	public Object query(String query) {
+		if (queryEngine != null) {
 			return queryEngine.resolve(query);
 		}
 		return null;
 	}
 
-	public Object query(Object context, String query){
-		if(queryEngine != null){
+	public Object query(Object context, String query) {
+		if (queryEngine != null) {
 			return queryEngine.resolve(context, query);
 		}
 		return null;
-	}	
+	}
 
 }

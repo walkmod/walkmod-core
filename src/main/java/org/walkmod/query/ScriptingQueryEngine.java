@@ -15,6 +15,8 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.query;
 
+import groovy.lang.GroovyClassLoader;
+
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +27,8 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import org.apache.log4j.Logger;
+import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.scripting.ScriptProcessor;
 import org.walkmod.walkers.VisitorContext;
@@ -59,6 +63,12 @@ public class ScriptingQueryEngine implements QueryEngine {
 			ScriptEngineManager factory = new ScriptEngineManager(
 					context.getClassLoader());
 			engine = factory.getEngineByName(language);
+			if (engine instanceof GroovyScriptEngineImpl) {
+				((GroovyScriptEngineImpl) engine)
+						.setClassLoader(new GroovyClassLoader(context
+								.getClassLoader(), new CompilerConfiguration()));
+			}
+			
 		}
 		this.context = context;
 		bindings = engine.createBindings();
