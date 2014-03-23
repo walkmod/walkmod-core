@@ -49,6 +49,14 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 
 	private boolean isOffLine;
 
+	private Ivy ivy = null;
+
+	private File ivyfile;
+
+	private ResolveOptions resolveOptions;
+
+	private DefaultModuleDescriptor md;
+
 	public IvyConfigurationProvider() {
 		this(false);
 	}
@@ -62,40 +70,7 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 		this.configuration = configuration;
 	}
 
-	@Override
-	public void load() throws ConfigurationException {
-		Collection<PluginConfig> plugins = configuration.getPlugins();
-		PluginConfig plugin = null;
-		Collection<File> jarsToLoad = new LinkedList<File>();
-		try {
-			if (plugins != null) {
-				Iterator<PluginConfig> it = plugins.iterator();
-				while (it.hasNext()) {
-					plugin = it.next();
-					Collection<File> dependencies = resolveArtifact(
-							plugin.getGroupId(), plugin.getArtifactId(),
-							plugin.getVersion());
-					jarsToLoad.addAll(dependencies);
-				}
-				URL[] urls = new URL[jarsToLoad.size()];
-				int i = 0;
-				for (File jar : jarsToLoad) {
-					urls[i] = jar.toURI().toURL();
-					i++;
-				}
-				URLClassLoader childClassLoader = new URLClassLoader(urls,
-						configuration.getClassLoader());
-				configuration.setClassLoader(childClassLoader);
-			}
-		} catch (Exception e) {
-			throw new ConfigurationException("Unable to resolve the plugin: "
-					+ plugin.getGroupId() + " : " + plugin.getArtifactId()
-					+ " : " + plugin.getVersion(), e);
-		}
-	}
-
-	public Collection<File> resolveArtifact(String groupId, String artifactId,
-			String version) throws Exception {
+	public void initIvy() throws Exception {
 		// creates clear ivy settings
 		IvySettings ivySettings = new IvySettings();
 		File settings = new File("ivysettings.xml");
@@ -105,27 +80,13 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 		}
 		ivySettings.load(settings);
 		// creates an Ivy instance with settings
-		Ivy ivy = Ivy.newInstance(ivySettings);
-		File ivyfile = File.createTempFile("ivy", ".xml");
+		ivy = Ivy.newInstance(ivySettings);
+
+		ivyfile = File.createTempFile("ivy", ".xml");
 		ivyfile.deleteOnExit();
-		String[] dep = null;
-		dep = new String[] { groupId, artifactId, version };
-		DefaultModuleDescriptor md = DefaultModuleDescriptor
-				.newDefaultInstance(ModuleRevisionId.newInstance(dep[0], dep[1]
-						+ "-caller", "working"));
-		DefaultDependencyDescriptor dd = new DefaultDependencyDescriptor(md,
-				ModuleRevisionId.newInstance(dep[0], dep[1], dep[2]), false,
-				false, true);
-		md.addDependency(dd);
-		ExcludeRule er = new DefaultExcludeRule(new ArtifactId(new ModuleId(
-				"org.walkmod", "walkmod-core"), PatternMatcher.ANY_EXPRESSION,
-				PatternMatcher.ANY_EXPRESSION, PatternMatcher.ANY_EXPRESSION),
-				ExactPatternMatcher.INSTANCE, null);
-		dd.addExcludeRule(null, er);
-		// creates an ivy configuration file
-		XmlModuleDescriptorWriter.write(md, ivyfile);
+
 		String[] confs = new String[] { "default" };
-		ResolveOptions resolveOptions = new ResolveOptions().setConfs(confs);
+		resolveOptions = new ResolveOptions().setConfs(confs);
 		if (isOffLine) {
 			resolveOptions = resolveOptions.setUseCacheOnly(true);
 		} else {
@@ -144,16 +105,76 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 				}
 			}
 		}
-		// init resolve report
-		ResolveReport report = ivy.resolve(ivyfile.toURL(), resolveOptions);
-		ArtifactDownloadReport[] artifacts = report.getAllArtifactsReports();
-		Collection<File> result = new LinkedList<File>();
-		int i = 0;
-		for (ArtifactDownloadReport item : artifacts) {
-			result.add(item.getLocalFile());
-			i++;
+	}
+
+	@Override
+	public void load() throws ConfigurationException {
+		Collection<PluginConfig> plugins = configuration.getPlugins();
+		PluginConfig plugin = null;
+		Collection<File> jarsToLoad = new LinkedList<File>();
+		try {
+			if (plugins != null) {
+				Iterator<PluginConfig> it = plugins.iterator();
+				initIvy();
+				while (it.hasNext()) {
+					plugin = it.next();
+					addArtifact(plugin.getGroupId(), plugin.getArtifactId(),
+							plugin.getVersion());
+
+				}
+				jarsToLoad = resolveArtifacts();
+				URL[] urls = new URL[jarsToLoad.size()];
+				int i = 0;
+				for (File jar : jarsToLoad) {
+					urls[i] = jar.toURI().toURL();
+					i++;
+				}
+				URLClassLoader childClassLoader = new URLClassLoader(urls,
+						configuration.getClassLoader());
+				configuration.setClassLoader(childClassLoader);
+			}
+		} catch (Exception e) {
+			throw new ConfigurationException("Unable to resolve the plugin: "
+					+ plugin.getGroupId() + " : " + plugin.getArtifactId()
+					+ " : " + plugin.getVersion(), e);
 		}
-		return result;
+	}
+
+	public void addArtifact(String groupId, String artifactId, String version)
+			throws Exception {
+		String[] dep = null;
+		dep = new String[] { groupId, artifactId, version };
+		if (md == null) {
+			md = DefaultModuleDescriptor.newDefaultInstance(ModuleRevisionId
+					.newInstance(dep[0], dep[1] + "-caller", "working"));
+		}
+		DefaultDependencyDescriptor dd = new DefaultDependencyDescriptor(md,
+				ModuleRevisionId.newInstance(dep[0], dep[1], dep[2]), false,
+				false, true);
+		md.addDependency(dd);
+		ExcludeRule er = new DefaultExcludeRule(new ArtifactId(new ModuleId(
+				"org.walkmod", "walkmod-core"), PatternMatcher.ANY_EXPRESSION,
+				PatternMatcher.ANY_EXPRESSION, PatternMatcher.ANY_EXPRESSION),
+				ExactPatternMatcher.INSTANCE, null);
+		dd.addExcludeRule(null, er);
+	}
+
+	public Collection<File> resolveArtifacts() throws Exception {
+
+		if (ivy != null) {
+			XmlModuleDescriptorWriter.write(md, ivyfile);
+			ResolveReport report = ivy.resolve(ivyfile.toURL(), resolveOptions);
+			ArtifactDownloadReport[] artifacts = report
+					.getAllArtifactsReports();
+			Collection<File> result = new LinkedList<File>();
+
+			for (ArtifactDownloadReport item : artifacts) {
+				result.add(item.getLocalFile());
+
+			}
+			return result;
+		}
+		return null;
 	}
 
 	public void setOffLine(boolean isOffLine) {

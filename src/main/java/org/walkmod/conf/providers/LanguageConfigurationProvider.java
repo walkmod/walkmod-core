@@ -100,7 +100,7 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 		if (defaults == null) {
 			fileName = "default-config.xml";
 		} else {
-			fileName = "walkmod-" + defaults + "-" + suffixFileName;
+			fileName = "META-INF/walkmod/walkmod-" + defaults + "-" + suffixFileName;
 		}
 		File f = new File(fileName);
 		if (f.exists()) {
@@ -175,6 +175,12 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 				WalkerConfig walkc = cc.getWalkerConfig();
 				if (walkc.getType() == null) {
 					walkc.setType(rootElement.getAttribute("walker"));
+				}
+				
+				if(walkc.getParserConfig().getType() == null){
+					if(!"".equals(rootElement.getAttribute("parser"))){
+						walkc.getParserConfig().setType(rootElement.getAttribute("parser"));
+					}
 				}
 
 				List<TransformationConfig> transformations = walkc

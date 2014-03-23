@@ -1,18 +1,20 @@
 <!ELEMENT walkmod (param*, plugins?, merge-policies?, (chain+|transformation+))>
 <!ELEMENT chain (param*, (reader?, (walker|transformation+), writer?))>
 <!ELEMENT reader (param*, include*, exclude*)>
-<!ELEMENT walker (param*, transformations)>
+<!ELEMENT walker (param*, parser?, transformations)>
 <!ELEMENT writer (param*, include*, exclude*)>
 <!ELEMENT plugins (plugin+)>
 <!ELEMENT merge-policies (policy+)>
 <!ELEMENT policy (policy-entry*)>
 <!ELEMENT policy-entry (#PCDATA)>
+<!ELEMENT parser (param*)>
 <!ELEMENT transformation (param*)>
 <!ELEMENT transformations (transformation+)>
 <!ELEMENT param (#PCDATA)>
 <!ELEMENT plugin (#PCDATA)>
 <!ELEMENT exclude (#PCDATA)>
 <!ELEMENT include (#PCDATA)>
+<!ATTLIST parser type CDATA #IMPLIED>
 <!ATTLIST chain name CDATA #IMPLIED>
 <!ATTLIST chain description CDATA #IMPLIED>
 <!ATTLIST transformation name CDATA #IMPLIED>

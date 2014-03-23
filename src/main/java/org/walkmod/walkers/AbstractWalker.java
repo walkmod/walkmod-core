@@ -38,7 +38,7 @@ import org.walkmod.merger.IdentificableNode;
 import org.walkmod.merger.MergeEngine;
 import org.walkmod.merger.Mergeable;
 
-public abstract class AbstractWalker implements ChainWalker {
+public abstract class AbstractWalker implements ChainWalker{
 
 	public static final String NAMESPACE_SEPARATOR = "::";
 

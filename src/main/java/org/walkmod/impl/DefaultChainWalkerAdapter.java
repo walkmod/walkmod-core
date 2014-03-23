@@ -32,6 +32,8 @@ import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.exceptions.WalkModException;
+import org.walkmod.walkers.Parser;
+import org.walkmod.walkers.ParserAware;
 
 public class DefaultChainWalkerAdapter implements ChainWalkerAdapter {
 
@@ -67,6 +69,7 @@ public class DefaultChainWalkerAdapter implements ChainWalkerAdapter {
 		return walker;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void prepare() throws WalkModException {
 		walker.setResource(getModel());
@@ -78,15 +81,38 @@ public class DefaultChainWalkerAdapter implements ChainWalkerAdapter {
 		walker.setChainConfig(config.getChainConfig());
 		ChainConfig ac = config.getChainConfig();
 		Object visitor;
+		Configuration c = ac.getConfiguration();
+		Parser parser = null;
+		String parserType = config.getParserConfig().getType();
+		if (parserType != null) {
+			Object parserInstance = c.getBean(parserType, config.getParserConfig()
+					.getParameters());
+			if (parserInstance != null) {
+				if (parserInstance instanceof Parser) {
+					parser = (Parser) parserInstance;
+					walker.setParser(parser);
+				} else {
+					throw new WalkModException("The parser " + parserType
+							+ " must implement " + Parser.class.getName());
+				}
+			}
+			else{
+				throw new WalkModException("The parser " + parserType
+						+ " does not exist.");
+			}
+		}
+
 		for (TransformationConfig config : getTransformationConfig()) {
 			setName(config.getName());
-			Configuration c = ac.getConfiguration();
 			visitor = config.getVisitorInstance();
 			if (visitor == null || "".equals(config.getType())) {
 				visitor = c.getBean(config.getType(), config.getParameters());
 			}
 			if (visitor instanceof ResourceModifier) {
 				((ResourceModifier) visitor).setResource(getModel());
+			}
+			if(visitor instanceof ParserAware){
+				((ParserAware) visitor).setParser(parser);
 			}
 			if (visitor != null) {
 				LOG.debug("setting chain[\"" + ac.getName()

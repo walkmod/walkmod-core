@@ -2,11 +2,12 @@
 <language
  	reader ="org.walkmod.readers.DefaultFileReader"
 	walker="org.walkmod.javalang.walkers.DefaultJavaWalker" 
+	parser="org.walkmod.javalang.walkers.DefaultJavaParser" 
 	writer="org.walkmod.javaformatter.writers.EclipseWriter"
 	path = "src/main/java" >	
 	<policy
 			default-object-policy="org.walkmod.merger.AppendMergePolicy" 
-			default-type-policy="org.walkmod.merger.AssignMergePolicy">
+			default-type-policy="org.walkmod.merger.UnmodifyMergePolicy">
 			
 		<policy-entry 
 			policy-type="org.walkmod.javalang.merger.FieldDeclarationPolicy" 

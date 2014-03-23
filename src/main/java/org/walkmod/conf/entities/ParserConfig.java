@@ -15,39 +15,20 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.entities;
 
-import java.util.List;
 import java.util.Map;
 
-import org.walkmod.ChainWalker;
-
-public interface WalkerConfig {
+public interface ParserConfig {
 
 	public String getType();
 
 	public void setType(String type);
 
-	public List<TransformationConfig> getTransformations();
+	public Map<String, Object> getParameters();
 
-	public void setTransformations(
-			List<TransformationConfig> transformations);
-
-	public Map<String, Object> getParams();
-
-	public void setParams(Map<String, Object> params);
-
-	public String getRootNamespace();
-
-	public void setRootNamespace(String rootNamespace);
-
-	public void setChainConfig(ChainConfig chainConfig);
-
-	public ChainConfig getChainConfig();
-
-	public ChainWalker getWalker();
-
-	public void setWalker(ChainWalker walker);
+	public void setParameters(Map<String, Object> parameters);
 	
-	public void setParserConfig(ParserConfig parserConfig);
-	
-	public ParserConfig getParserConfig();
+	public Object getParserInstance();
+
+	public void setParserInstance(Object parserInstance);
+
 }

@@ -41,6 +41,7 @@ import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.MergePolicyConfig;
+import org.walkmod.conf.entities.ParserConfig;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ReaderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
@@ -48,6 +49,7 @@ import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.conf.entities.WriterConfig;
 import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
 import org.walkmod.conf.entities.impl.ChainConfigImpl;
+import org.walkmod.conf.entities.impl.ParserConfigImpl;
 import org.walkmod.conf.entities.impl.TransformationConfigImpl;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.WalkerConfigImpl;
@@ -422,6 +424,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 	public void addDefaultWalker(ChainConfig ac, Element parentWalkerNode) {
 		WalkerConfig wc = new WalkerConfigImpl();
 		wc.setType(null);
+		wc.setParserConfig(new ParserConfigImpl());
 		wc.setTransformations(getTransformationItems(parentWalkerNode, false));
 		ac.setWalkerConfig(wc);
 	}
@@ -446,13 +449,35 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 						"Invalid walker definition in the " + "architecture"
 								+ ac.getName() + ". Please, verify the dtd");
 			}
-			loadTransformationConfigs((Element) children.item(0), wc);
+			int transformationIndex = 0;
+			final String nodeName = ((Element) children.item(transformationIndex)).getNodeName();
+			if(("parser").equals(nodeName)){
+				loadParserConfig((Element) children.item(transformationIndex), wc);
+				transformationIndex = 1;
+			}
+			else{
+				wc.setParserConfig(new ParserConfigImpl());
+			}
+			loadTransformationConfigs((Element) children.item(transformationIndex), wc);
 			ac.setWalkerConfig(wc);
 		} else {
 			throw new ConfigurationException(
 					"Invalid architecture definition. "
 							+ "A walker element must be defined in the architecture element "
 							+ ac.getName());
+		}
+	}
+	
+	public void loadParserConfig(Element element, WalkerConfig wc){
+		final String nodeName = element.getNodeName();
+		if ("parser".equals(nodeName)) {
+			ParserConfig pc = new ParserConfigImpl();			
+			if ("".equals(element.getAttribute("type"))) {
+				pc.setType(null);
+			} else {
+				pc.setType(element.getAttribute("type"));
+			}
+			pc.setParameters(getParams(element));
 		}
 	}
 

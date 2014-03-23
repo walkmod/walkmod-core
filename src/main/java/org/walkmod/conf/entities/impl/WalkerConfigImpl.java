@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import org.walkmod.ChainWalker;
 import org.walkmod.conf.entities.ChainConfig;
+import org.walkmod.conf.entities.ParserConfig;
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
 
@@ -36,6 +37,8 @@ public class WalkerConfigImpl implements WalkerConfig {
 	private ChainConfig architectureConfig;
 
 	private ChainWalker walker;
+	
+	private ParserConfig parserConfig;
 
 	@Override
 	public String getType() {
@@ -93,5 +96,15 @@ public class WalkerConfigImpl implements WalkerConfig {
 
 	public void setWalker(ChainWalker walker) {
 		this.walker = walker;
+	}
+
+	@Override
+	public void setParserConfig(ParserConfig parserConfig) {
+		this.parserConfig = parserConfig;
+	}
+
+	@Override
+	public ParserConfig getParserConfig() {
+		return parserConfig;
 	}
 }

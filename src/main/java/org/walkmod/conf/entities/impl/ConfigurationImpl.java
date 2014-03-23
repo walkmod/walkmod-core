@@ -121,6 +121,9 @@ public class ConfigurationImpl implements Configuration {
 		}
 		if (result != null) {
 			BeanWrapper bw = new BeanWrapperImpl(result);
+			if(this.parameters != null){
+				bw.setPropertyValues(this.parameters);
+			}
 			bw.setPropertyValues(parameters);
 		}
 		return result;
@@ -129,6 +132,9 @@ public class ConfigurationImpl implements Configuration {
 	public void populate(Object element, Map<?, ?> parameters){
 		if (element != null) {
 			BeanWrapper bw = new BeanWrapperImpl(element);
+			if(this.parameters != null){
+				bw.setPropertyValues(this.parameters);
+			}
 			bw.setPropertyValues(parameters);
 		}
 	}
