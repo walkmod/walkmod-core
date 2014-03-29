@@ -17,6 +17,7 @@ package org.walkmod.conf.entities;
 
 import java.util.Collection;
 import java.util.Map;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.walkmod.merger.MergeEngine;
 import org.walkmod.walkers.VisitorMessage;
@@ -61,4 +62,8 @@ public interface Configuration {
 	public String getDefaultLanguage();
 	
 	public void setDefaultLanguage(String language);
+	
+	public Collection<ProviderConfig> getProviderConfigurations();
+	
+	public void setProviderConfigurations(Collection<ProviderConfig> providers);
 }

@@ -28,6 +28,7 @@ import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.MergePolicyConfig;
 import org.walkmod.conf.entities.PluginConfig;
+import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.merger.MergeEngine;
 import org.walkmod.walkers.VisitorMessage;
@@ -37,18 +38,20 @@ public class ConfigurationImpl implements Configuration {
 	private Map<String, Object> parameters;
 
 	private Map<String, ChainConfig> chainConfigs;
-	
+
 	private BeanFactory beanFactory;
-	
+
 	private Collection<PluginConfig> plugins;
-	
+
 	private ClassLoader classLoader = null;
-	
+
 	private Collection<MergePolicyConfig> mergePolicies;
-	
+
 	private Map<String, MergeEngine> mergeEngines;
-	
+
 	private String defaultLanguage;
+
+	private Collection<ProviderConfig> providers;
 
 	public ConfigurationImpl() {
 		this.parameters = new HashMap<String, Object>();
@@ -70,9 +73,8 @@ public class ConfigurationImpl implements Configuration {
 		return chainConfigs.values();
 	}
 
-	public void setChainConfigs(
-			Collection<ChainConfig> chainConfigs) {
-		
+	public void setChainConfigs(Collection<ChainConfig> chainConfigs) {
+
 		this.chainConfigs.clear();
 		Iterator<ChainConfig> it = chainConfigs.iterator();
 		while (it.hasNext()) {
@@ -87,7 +89,7 @@ public class ConfigurationImpl implements Configuration {
 		if (!result) {
 			architecture.setConfiguration(this);
 			chainConfigs.put(architecture.getName(), architecture);
-		
+
 		}
 		return result;
 	}
@@ -104,6 +106,9 @@ public class ConfigurationImpl implements Configuration {
 	@Override
 	public Object getBean(String name, Map<?, ?> parameters) {
 		Object result = null;
+		if (name == null || "".equals(name)) {
+			return result;
+		}
 		if (beanFactory != null && beanFactory.containsBean(name)) {
 			result = beanFactory.getBean(name);
 		}
@@ -121,18 +126,18 @@ public class ConfigurationImpl implements Configuration {
 		}
 		if (result != null) {
 			BeanWrapper bw = new BeanWrapperImpl(result);
-			if(this.parameters != null){
+			if (this.parameters != null) {
 				bw.setPropertyValues(this.parameters);
 			}
 			bw.setPropertyValues(parameters);
 		}
 		return result;
 	}
-	
-	public void populate(Object element, Map<?, ?> parameters){
+
+	public void populate(Object element, Map<?, ?> parameters) {
 		if (element != null) {
 			BeanWrapper bw = new BeanWrapperImpl(element);
-			if(this.parameters != null){
+			if (this.parameters != null) {
 				bw.setPropertyValues(this.parameters);
 			}
 			bw.setPropertyValues(parameters);
@@ -163,7 +168,7 @@ public class ConfigurationImpl implements Configuration {
 
 	@Override
 	public ClassLoader getClassLoader() {
-		if(classLoader == null){
+		if (classLoader == null) {
 			return getClass().getClassLoader();
 		}
 		return classLoader;
@@ -190,13 +195,13 @@ public class ConfigurationImpl implements Configuration {
 	}
 
 	@Override
-	public MergeEngine getMergeEngine(String name) {			
+	public MergeEngine getMergeEngine(String name) {
 		return mergeEngines.get(name);
 	}
 
 	@Override
 	public String getDefaultLanguage() {
-		
+
 		return defaultLanguage;
 	}
 
@@ -204,4 +209,15 @@ public class ConfigurationImpl implements Configuration {
 	public void setDefaultLanguage(String defaults) {
 		this.defaultLanguage = defaults;
 	}
+
+	@Override
+	public Collection<ProviderConfig> getProviderConfigurations() {
+		return providers;
+	}
+
+	@Override
+	public void setProviderConfigurations(Collection<ProviderConfig> providers) {
+		this.providers = providers;
+	}
+
 }

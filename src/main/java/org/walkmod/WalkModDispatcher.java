@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -272,11 +273,30 @@ public class WalkModDispatcher {
 		DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss",
 				Locale.US);
 		int num = 0;
-		for (ChainConfig tcfg : tcgfs) {
+		Iterator<ChainConfig> it = tcgfs.iterator();
+		int pos = 1;
+		while (it.hasNext()) {
+			ChainConfig tcfg = it.next();
+			
+			if(tcgfs.size() > 1){
+				String label = "";
+				if(tcfg.getName() != null && !tcfg.getName().startsWith("chain_")){
+					label = "["+tcfg.getName()+"]("+pos+"/"+tcgfs.size()+") ";
+				}
+				else{
+					label="("+pos+"/"+tcgfs.size()+")";
+				}
+				log.info("TRANSFORMATION CHAIN "+label+" STARTS");
+			}
 			try {
 				ChainAdapter ap = apf.createChainProxy(conf, tcfg.getName());
 				ap.execute();
 				num += ap.getWalkerAdapter().getWalker().getNumModifications();
+				pos++;
+				if(it.hasNext()){
+					System.out
+					.print("----------------------------------------");
+				}
 			} catch (Throwable e) {
 				endTime = System.currentTimeMillis();
 				double time = 0;

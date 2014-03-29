@@ -1,9 +1,10 @@
-<!ELEMENT walkmod (param*, plugins?, merge-policies?, (chain+|transformation+))>
+<!ELEMENT walkmod (param*, plugins?, conf-providers?, merge-policies?, (chain+|transformation+))>
 <!ELEMENT chain (param*, (reader?, (walker|transformation+), writer?))>
 <!ELEMENT reader (param*, include*, exclude*)>
 <!ELEMENT walker (param*, parser?, transformations)>
 <!ELEMENT writer (param*, include*, exclude*)>
 <!ELEMENT plugins (plugin+)>
+<!ELEMENT conf-providers (conf-provider+)>
 <!ELEMENT merge-policies (policy+)>
 <!ELEMENT policy (policy-entry*)>
 <!ELEMENT policy-entry (#PCDATA)>
@@ -14,6 +15,7 @@
 <!ELEMENT plugin (#PCDATA)>
 <!ELEMENT exclude (#PCDATA)>
 <!ELEMENT include (#PCDATA)>
+<!ELEMENT conf-provider(param*)>
 <!ATTLIST parser type CDATA #IMPLIED>
 <!ATTLIST chain name CDATA #IMPLIED>
 <!ATTLIST chain description CDATA #IMPLIED>
@@ -38,4 +40,4 @@
 <!ATTLIST policy default-type-policy CDATA #IMPLIED>
 <!ATTLIST policy-entry object-type CDATA #REQUIRED>
 <!ATTLIST policy-entry policy-type CDATA #REQUIRED>
-
+<!ATTLIST conf-provider type CDATA #REQUIRED>

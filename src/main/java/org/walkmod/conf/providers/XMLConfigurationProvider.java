@@ -43,6 +43,7 @@ import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.MergePolicyConfig;
 import org.walkmod.conf.entities.ParserConfig;
 import org.walkmod.conf.entities.PluginConfig;
+import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.ReaderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
@@ -50,6 +51,7 @@ import org.walkmod.conf.entities.WriterConfig;
 import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
 import org.walkmod.conf.entities.impl.ChainConfigImpl;
 import org.walkmod.conf.entities.impl.ParserConfigImpl;
+import org.walkmod.conf.entities.impl.ProviderConfigImpl;
 import org.walkmod.conf.entities.impl.TransformationConfigImpl;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.WalkerConfigImpl;
@@ -450,15 +452,17 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 								+ ac.getName() + ". Please, verify the dtd");
 			}
 			int transformationIndex = 0;
-			final String nodeName = ((Element) children.item(transformationIndex)).getNodeName();
-			if(("parser").equals(nodeName)){
-				loadParserConfig((Element) children.item(transformationIndex), wc);
+			final String nodeName = ((Element) children
+					.item(transformationIndex)).getNodeName();
+			if (("parser").equals(nodeName)) {
+				loadParserConfig((Element) children.item(transformationIndex),
+						wc);
 				transformationIndex = 1;
-			}
-			else{
+			} else {
 				wc.setParserConfig(new ParserConfigImpl());
 			}
-			loadTransformationConfigs((Element) children.item(transformationIndex), wc);
+			loadTransformationConfigs(
+					(Element) children.item(transformationIndex), wc);
 			ac.setWalkerConfig(wc);
 		} else {
 			throw new ConfigurationException(
@@ -467,11 +471,11 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 							+ ac.getName());
 		}
 	}
-	
-	public void loadParserConfig(Element element, WalkerConfig wc){
+
+	public void loadParserConfig(Element element, WalkerConfig wc) {
 		final String nodeName = element.getNodeName();
 		if ("parser".equals(nodeName)) {
-			ParserConfig pc = new ParserConfigImpl();			
+			ParserConfig pc = new ParserConfigImpl();
 			if ("".equals(element.getAttribute("type"))) {
 				pc.setType(null);
 			} else {
@@ -600,8 +604,37 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		Map<String, Object> params = getParams(document.getDocumentElement());
 		configuration.setParameters(params);
 		loadPlugins();
+		loadProviders();
 		loadMergePolicies();
 		loadChains();
+	}
+
+	private void loadProviders() {
+		Element rootElement = document.getDocumentElement();
+		NodeList children = rootElement.getChildNodes();
+		Collection<ProviderConfig> providers = new LinkedList<ProviderConfig>();
+		int childSize = children.getLength();
+
+		for (int i = 0; i < childSize; i++) {
+			Node childNode = children.item(i);
+			if ("providers".equals(childNode.getNodeName())) {
+				Element child = (Element) childNode;
+				NodeList providersNodes = child.getChildNodes();
+				int providersSize = providersNodes.getLength();
+				for (int j = 0; j < providersSize; j++) {
+					Node providerNode = providersNodes.item(j);
+					if ("provider".equals(providerNode.getNodeName())) {
+						Element providerElem = (Element) providerNode;
+						ProviderConfig pc = new ProviderConfigImpl();
+						pc.setType(providerElem.getAttribute("type"));
+						pc.setParameters(getParams(providerElem));
+						providers.add(pc);
+					}
+				}
+			}
+		}
+		
+		configuration.setProviderConfigurations(providers);
 	}
 
 	private void loadMergePolicies() {
@@ -663,8 +696,6 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 
 		configuration.setMergePolicies(mergePolicies);
 	}
-	
-
 
 	private void loadPlugins() {
 		Element rootElement = document.getDocumentElement();

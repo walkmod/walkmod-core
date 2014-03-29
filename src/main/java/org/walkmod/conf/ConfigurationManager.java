@@ -36,7 +36,7 @@ public class ConfigurationManager {
 	private List<ConfigurationProvider> configurationProviders = new LinkedList<ConfigurationProvider>();
 
 	public ConfigurationManager(Configuration conf) {
-		this.configuration = conf;
+		setConfiguration(conf);
 	}
 
 
@@ -65,7 +65,7 @@ public class ConfigurationManager {
 	}
 
 	public void setConfiguration(Configuration configuration) {
-		this.configuration = configuration;
+		this.configuration = configuration;		
 	}
 
 	public Configuration getConfiguration() {

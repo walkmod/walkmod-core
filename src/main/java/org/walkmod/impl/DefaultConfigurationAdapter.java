@@ -19,8 +19,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.walkmod.ConfigurationAdapter;
+import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.MergePolicyConfig;
+import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.merger.MergeEngine;
 import org.walkmod.merger.MergePolicy;
@@ -41,6 +43,22 @@ public class DefaultConfigurationAdapter implements ConfigurationAdapter {
 
 	@Override
 	public void prepare() {
+
+		Collection<ProviderConfig> providers = config
+				.getProviderConfigurations();
+
+		if (providers != null) {
+			for (ProviderConfig pc : providers) {
+				Object aux = config.getBean(pc.getType(), pc.getParameters());
+				if (aux instanceof ConfigurationProvider) {
+					ConfigurationProvider cp = ((ConfigurationProvider) aux);
+					cp.init(config);
+					cp.load();
+
+				}
+			}
+		}
+
 		Collection<MergePolicyConfig> mergePolicies = config.getMergePolicies();
 		if (mergePolicies != null) {
 			Map<String, MergeEngine> mergeEngines = new HashMap<String, MergeEngine>();
