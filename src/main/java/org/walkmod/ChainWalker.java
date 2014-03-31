@@ -53,5 +53,7 @@ public interface ChainWalker extends ParserAware{
 	public boolean reportChanges();
 	
 	public void setReportChanges(boolean reportChanges);
+	
+	public boolean hasChanges();
 
 }

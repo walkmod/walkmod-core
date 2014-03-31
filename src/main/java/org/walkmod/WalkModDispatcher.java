@@ -264,7 +264,7 @@ public class WalkModDispatcher {
 	private static void executeAllChains(ChainAdapterFactory apf,
 			Configuration conf, boolean printException) {
 		Collection<ChainConfig> tcgfs = conf.getChainConfigs();
-		log.info("** THE TRANSFORMATIONS CHAINS START **");
+		log.info("** STARTING TRANSFORMATIONS CHAINS **");
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
 		long startTime = System.currentTimeMillis();
@@ -286,16 +286,19 @@ public class WalkModDispatcher {
 				else{
 					label="("+pos+"/"+tcgfs.size()+")";
 				}
-				log.info("TRANSFORMATION CHAIN "+label+" STARTS");
+				log.info("TRANSFORMATION CHAIN "+label);
+				System.out.println();
 			}
 			try {
 				ChainAdapter ap = apf.createChainProxy(conf, tcfg.getName());
 				ap.execute();
 				num += ap.getWalkerAdapter().getWalker().getNumModifications();
 				pos++;
+				if (!ap.getWalkerAdapter().getWalker().hasChanges()) {
+					log.info("**No sources changed**");
+				}
 				if(it.hasNext()){
-					System.out
-					.print("----------------------------------------");
+					System.out.println();					
 				}
 			} catch (Throwable e) {
 				endTime = System.currentTimeMillis();
@@ -389,8 +392,8 @@ public class WalkModDispatcher {
 					System.out
 							.println("----------------------------------------");
 				} else {
-					if (ap.getWalkerAdapter().getWalker().reportChanges()) {
-						log.info("No sources changed");
+					if (!ap.getWalkerAdapter().getWalker().hasChanges()) {
+						log.info("**No sources changed**");
 					}
 				}
 				System.out.println();

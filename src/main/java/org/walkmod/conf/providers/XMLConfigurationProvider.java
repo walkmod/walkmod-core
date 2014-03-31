@@ -617,13 +617,13 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 
 		for (int i = 0; i < childSize; i++) {
 			Node childNode = children.item(i);
-			if ("providers".equals(childNode.getNodeName())) {
+			if ("conf-providers".equals(childNode.getNodeName())) {
 				Element child = (Element) childNode;
 				NodeList providersNodes = child.getChildNodes();
 				int providersSize = providersNodes.getLength();
 				for (int j = 0; j < providersSize; j++) {
 					Node providerNode = providersNodes.item(j);
-					if ("provider".equals(providerNode.getNodeName())) {
+					if ("conf-provider".equals(providerNode.getNodeName())) {
 						Element providerElem = (Element) providerNode;
 						ProviderConfig pc = new ProviderConfigImpl();
 						pc.setType(providerElem.getAttribute("type"));

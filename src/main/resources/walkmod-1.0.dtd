@@ -15,7 +15,7 @@
 <!ELEMENT plugin (#PCDATA)>
 <!ELEMENT exclude (#PCDATA)>
 <!ELEMENT include (#PCDATA)>
-<!ELEMENT conf-provider(param*)>
+<!ELEMENT conf-provider (param*)>
 <!ATTLIST parser type CDATA #IMPLIED>
 <!ATTLIST chain name CDATA #IMPLIED>
 <!ATTLIST chain description CDATA #IMPLIED>

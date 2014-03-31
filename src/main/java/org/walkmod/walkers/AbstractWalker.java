@@ -352,4 +352,10 @@ public abstract class AbstractWalker implements ChainWalker{
 		}
 		return local;
 	}
+	
+	@Override
+	public boolean hasChanges() {
+		return !(getNumModifications() == 0 && getNumAdditions() == 0
+				&& getNumDeletions() == 0);
+	}
 }
