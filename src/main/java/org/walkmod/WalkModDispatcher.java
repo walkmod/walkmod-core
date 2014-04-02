@@ -69,15 +69,15 @@ public class WalkModDispatcher {
 		System.out.println("----------------------------------------");
 		System.out
 				.println("An open source tool for apply code conventions into your project");
-		System.out.println("version 1.0 - March 2014 -");
+		System.out.println("version 1.0 - April 2014 -");
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
 	}
 
 	public static void main(String[] args) {
 		if (args == null || args.length == 0 || "--help".equals(args[0])) {
-			
-			if(args== null || args.length == 0){
+
+			if (args == null || args.length == 0) {
 				printHeader();
 				log.error("You must specify at least one goal to apply code transformations.");
 			}
@@ -94,8 +94,9 @@ public class WalkModDispatcher {
 					.println("        Checks and shows witch classes must be reviewed");
 			System.out
 					.println("Please, see http://www.walkmod.com for more information.");
-			if(args== null || args.length == 0){
-				System.out.println("Use \"walkmod --help\" to show general usage information about WalkMod command's line");
+			if (args == null || args.length == 0) {
+				System.out
+						.println("Use \"walkmod --help\" to show general usage information about WalkMod command's line");
 			}
 			// TODO: backup, restore, search
 		} else {
@@ -123,11 +124,36 @@ public class WalkModDispatcher {
 
 					ConfigurationProvider cp = new IvyConfigurationProvider(
 							offline);
-					ConfigurationManager cfgManager = new ConfigurationManager(
-							cfg, cp);
-					Configuration config = cfgManager.getConfiguration();
-					ChainAdapterFactory apf = new DefaultChainAdapterFactory();
+					ConfigurationManager cfgManager = null;
+					Configuration config = null;
+					ChainAdapterFactory apf = null;
+					try {
+						cfgManager = new ConfigurationManager(cfg, cp);
+						config = cfgManager.getConfiguration();
+						apf = new DefaultChainAdapterFactory();
+					} catch (Exception e) {
+						System.out
+								.print("----------------------------------------");
+						System.out
+								.println("----------------------------------------");
+						log.info("CONFIGURATION FAILURE");
+						System.out.println();
+						System.out
+								.print("----------------------------------------");
+						System.out
+								.println("----------------------------------------");
 
+						System.out
+								.print("----------------------------------------");
+						System.out
+								.println("----------------------------------------");
+						if (showException) {
+							log.error("Invalid configuration.", e);
+						} else {
+							log.info("Invalid walkmod configuration. Please, execute walkmod with -e to see the details");
+						}
+						return;
+					}
 					if (paramsList.size() > 0) {
 						executeChainAdapter(apf, config, paramsList.get(0),
 								showException);
@@ -145,10 +171,36 @@ public class WalkModDispatcher {
 				if (cfg.exists()) {
 					ConfigurationProvider cp = new IvyConfigurationProvider(
 							offline);
-					ConfigurationManager cfgManager = new ConfigurationManager(
-							cfg, cp);
-					Configuration config = cfgManager.getConfiguration();
-					ChainAdapterFactory apf = new DefaultChainAdapterFactory();
+					ConfigurationManager cfgManager = null;
+					Configuration config = null;
+					ChainAdapterFactory apf = null;
+					try {
+						cfgManager = new ConfigurationManager(cfg, cp);
+						config = cfgManager.getConfiguration();
+						apf = new DefaultChainAdapterFactory();
+					} catch (Exception e) {
+						System.out
+								.print("----------------------------------------");
+						System.out
+								.println("----------------------------------------");
+						log.info("CONFIGURATION FAILURE");
+						System.out.println();
+						System.out
+								.print("----------------------------------------");
+						System.out
+								.println("----------------------------------------");
+
+						System.out
+								.print("----------------------------------------");
+						System.out
+								.println("----------------------------------------");
+						if (showException) {
+							log.error("Invalid configuration.", e);
+						} else {
+							log.info("Invalid walkmod configuration. Please, execute walkmod with -e to see the details");
+						}
+						return;
+					}
 					Collection<ChainConfig> tcgfs = config.getChainConfigs();
 					for (ChainConfig tcfg : tcgfs) {
 						tcfg.getWriterConfig().setType(
@@ -277,16 +329,17 @@ public class WalkModDispatcher {
 		int pos = 1;
 		while (it.hasNext()) {
 			ChainConfig tcfg = it.next();
-			
-			if(tcgfs.size() > 1){
+
+			if (tcgfs.size() > 1) {
 				String label = "";
-				if(tcfg.getName() != null && !tcfg.getName().startsWith("chain_")){
-					label = "["+tcfg.getName()+"]("+pos+"/"+tcgfs.size()+") ";
+				if (tcfg.getName() != null
+						&& !tcfg.getName().startsWith("chain_")) {
+					label = "[" + tcfg.getName() + "](" + pos + "/"
+							+ tcgfs.size() + ") ";
+				} else {
+					label = "(" + pos + "/" + tcgfs.size() + ")";
 				}
-				else{
-					label="("+pos+"/"+tcgfs.size()+")";
-				}
-				log.info("TRANSFORMATION CHAIN "+label);
+				log.info("TRANSFORMATION CHAIN " + label);
 				System.out.println();
 			}
 			try {
@@ -297,8 +350,8 @@ public class WalkModDispatcher {
 				if (!ap.getWalkerAdapter().getWalker().hasChanges()) {
 					log.info("**No sources changed**");
 				}
-				if(it.hasNext()){
-					System.out.println();					
+				if (it.hasNext()) {
+					System.out.println();
 				}
 			} catch (Throwable e) {
 				endTime = System.currentTimeMillis();
