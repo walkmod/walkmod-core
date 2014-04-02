@@ -16,25 +16,11 @@
 
 package org.walkmod;
 
-import java.io.File;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
+
 import org.apache.log4j.Logger;
-import org.walkmod.conf.ConfigurationManager;
-import org.walkmod.conf.ConfigurationProvider;
-import org.walkmod.conf.entities.ChainConfig;
-import org.walkmod.conf.entities.Configuration;
-import org.walkmod.conf.providers.IvyConfigurationProvider;
-import org.walkmod.impl.DefaultChainAdapterFactory;
-import org.walkmod.writers.VisitorMessagesWriter;
 
 public class WalkModDispatcher {
 
@@ -74,7 +60,7 @@ public class WalkModDispatcher {
 		System.out.println("----------------------------------------");
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception{
 		if (args == null || args.length == 0 || "--help".equals(args[0])) {
 
 			if (args == null || args.length == 0) {
@@ -106,6 +92,8 @@ public class WalkModDispatcher {
 
 			boolean offline = paramsList.remove("--offline");
 			boolean showException = paramsList.remove("-e");
+			WalkModFacade facade = new WalkModFacade(offline, true,
+					showException);
 
 			if (paramsList.contains("--version")) {
 				System.out.println("Walkmod version \"1.0\"");
@@ -118,385 +106,21 @@ public class WalkModDispatcher {
 			} else if (paramsList.contains("apply")) {
 				paramsList.remove("apply");
 				printHeader();
-				File cfg = new File("walkmod.xml");
-				if (cfg.exists()) {
-					log.info(cfg.getAbsoluteFile() + " [ok]");
+				String[] params = new String[paramsList.size()];
+				facade.apply(paramsList.toArray(params));
 
-					ConfigurationProvider cp = new IvyConfigurationProvider(
-							offline);
-					ConfigurationManager cfgManager = null;
-					Configuration config = null;
-					ChainAdapterFactory apf = null;
-					try {
-						cfgManager = new ConfigurationManager(cfg, cp);
-						config = cfgManager.getConfiguration();
-						apf = new DefaultChainAdapterFactory();
-					} catch (Exception e) {
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
-						log.info("CONFIGURATION FAILURE");
-						System.out.println();
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
-
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
-						if (showException) {
-							log.error("Invalid configuration.", e);
-						} else {
-							log.info("Invalid walkmod configuration. Please, execute walkmod with -e to see the details");
-						}
-						return;
-					}
-					if (paramsList.size() > 0) {
-						executeChainAdapter(apf, config, paramsList.get(0),
-								showException);
-					} else {
-						executeAllChains(apf, config, showException);
-					}
-				} else {
-					log.error(cfg.getAbsolutePath()
-							+ " does not exist. The root directory of your project must contain a walkmod.xml");
-				}
 			} else if (paramsList.contains("check")) {
 				paramsList.remove("check");
 				printHeader();
-				File cfg = new File("walkmod.xml");
-				if (cfg.exists()) {
-					ConfigurationProvider cp = new IvyConfigurationProvider(
-							offline);
-					ConfigurationManager cfgManager = null;
-					Configuration config = null;
-					ChainAdapterFactory apf = null;
-					try {
-						cfgManager = new ConfigurationManager(cfg, cp);
-						config = cfgManager.getConfiguration();
-						apf = new DefaultChainAdapterFactory();
-					} catch (Exception e) {
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
-						log.info("CONFIGURATION FAILURE");
-						System.out.println();
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
+				String[] params = new String[paramsList.size()];
+				facade.check(paramsList.toArray(params));
 
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
-						if (showException) {
-							log.error("Invalid configuration.", e);
-						} else {
-							log.info("Invalid walkmod configuration. Please, execute walkmod with -e to see the details");
-						}
-						return;
-					}
-					Collection<ChainConfig> tcgfs = config.getChainConfigs();
-					for (ChainConfig tcfg : tcgfs) {
-						tcfg.getWriterConfig().setType(
-								VisitorMessagesWriter.class.getName());
-						tcfg.getWriterConfig().setModelWriter(
-								new VisitorMessagesWriter());
-					}
-					log.info(cfg.getAbsoluteFile() + " [ok]");
-					if (paramsList.size() > 0) {
-						executeChainAdapter(apf, config, paramsList.get(0),
-								showException);
-					} else {
-						executeAllChains(apf, config, showException);
-					}
-				} else {
-					log.error(cfg.getAbsolutePath()
-							+ " does not exist. The root directory of your project must contain a walkmod.xml");
-				}
 			} else if (paramsList.contains("install")) {
 				printHeader();
-				File cfg = new File("walkmod.xml");
-				if (cfg.exists()) {
-					ConfigurationProvider cp = new IvyConfigurationProvider();
-					log.info("** THE PLUGIN INSTALLATION STARTS **");
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
-					long startTime = System.currentTimeMillis();
-					long endTime = startTime;
-					DecimalFormat myFormatter = new DecimalFormat("###.###");
-					DateFormat df = new SimpleDateFormat(
-							"EEE, d MMM yyyy HH:mm:ss", Locale.US);
-					boolean error = false;
-					try {
-						ConfigurationManager cfgManager = new ConfigurationManager(
-								cfg, cp);
-						Configuration cf = cfgManager.getConfiguration();
-					} catch (Exception e) {
-						error = true;
-						endTime = System.currentTimeMillis();
-						double time = 0;
-						if (endTime > startTime) {
-							time = (double) ((double) (endTime - startTime) / (double) 1000);
-						}
-						String timeMsg = myFormatter.format(time);
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
-						log.info("PLUGIN INSTALLATION FAILS");
-						System.out.println();
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
-						log.info("Total time: " + timeMsg + " seconds");
-						log.info("Finished at: " + df.format(new Date()));
-						log.info("Final memory: "
-								+ (Runtime.getRuntime().freeMemory())
-								/ 1048576
-								+ " M/ "
-								+ (Runtime.getRuntime().totalMemory() / 1048576)
-								+ " M");
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
-						if (showException) {
-							log.error("Plugin installations fails", e);
-						} else {
-							log.info("Plugin installations fails. Please, execute walkmod with -e to see the details");
-						}
-					}
-					if (!error) {
-						endTime = System.currentTimeMillis();
-						double time = 0;
-						if (endTime > startTime) {
-							time = (double) ((double) (endTime - startTime) / (double) 1000);
-						}
-						String timeMsg = myFormatter.format(time);
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
-						System.out.println();
-						log.info("PLUGIN INSTALLATION COMPLETE");
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
-						log.info("Total time: " + timeMsg + " seconds");
-						log.info("Finished at: " + df.format(new Date()));
-						log.info("Final memory: "
-								+ (Runtime.getRuntime().freeMemory())
-								/ 1048576
-								+ " M/ "
-								+ (Runtime.getRuntime().totalMemory() / 1048576)
-								+ " M");
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
-					}
-				} else {
-					log.error(cfg.getAbsolutePath()
-							+ " does not exist. The root directory of your project must contain a walkmod.xml");
-				}
+				facade.install();
 			}
 		}
 	}
 
-	private static void executeAllChains(ChainAdapterFactory apf,
-			Configuration conf, boolean printException) {
-		Collection<ChainConfig> tcgfs = conf.getChainConfigs();
-		log.info("** STARTING TRANSFORMATIONS CHAINS **");
-		System.out.print("----------------------------------------");
-		System.out.println("----------------------------------------");
-		long startTime = System.currentTimeMillis();
-		long endTime = startTime;
-		DecimalFormat myFormatter = new DecimalFormat("###.###");
-		DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss",
-				Locale.US);
-		int num = 0;
-		Iterator<ChainConfig> it = tcgfs.iterator();
-		int pos = 1;
-		while (it.hasNext()) {
-			ChainConfig tcfg = it.next();
-
-			if (tcgfs.size() > 1) {
-				String label = "";
-				if (tcfg.getName() != null
-						&& !tcfg.getName().startsWith("chain_")) {
-					label = "[" + tcfg.getName() + "](" + pos + "/"
-							+ tcgfs.size() + ") ";
-				} else {
-					label = "(" + pos + "/" + tcgfs.size() + ")";
-				}
-				log.info("TRANSFORMATION CHAIN " + label);
-				System.out.println();
-			}
-			try {
-				ChainAdapter ap = apf.createChainProxy(conf, tcfg.getName());
-				ap.execute();
-				num += ap.getWalkerAdapter().getWalker().getNumModifications();
-				pos++;
-				if (!ap.getWalkerAdapter().getWalker().hasChanges()) {
-					log.info("**No sources changed**");
-				}
-				if (it.hasNext()) {
-					System.out.println();
-				}
-			} catch (Throwable e) {
-				endTime = System.currentTimeMillis();
-				double time = 0;
-				if (endTime > startTime) {
-					time = (double) ((double) (endTime - startTime) / (double) 1000);
-				}
-				String timeMsg = myFormatter.format(time);
-				if (num != 0) {
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
-				}
-				log.info("TRANSFORMATION CHAIN FAILS");
-				System.out.println();
-				System.out.print("----------------------------------------");
-				System.out.println("----------------------------------------");
-				log.info("Total time: " + timeMsg + " seconds");
-				log.info("Finished at: " + df.format(new Date()));
-				log.info("Final memory: " + (Runtime.getRuntime().freeMemory())
-						/ 1048576 + " M/ "
-						+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
-				System.out.print("----------------------------------------");
-				System.out.println("----------------------------------------");
-				log.info("Please, see the walkmod log file for details");
-				if (printException) {
-					log.error("TRANSFORMATION CHAIN (" + tcfg.getName()
-							+ ") FAILS", e);
-				} else {
-					log.error("TRANSFORMATION CHAIN ("
-							+ tcfg.getName()
-							+ ") FAILS. Execute walkmod with -e to see the error details.");
-				}
-				return;
-			}
-		}
-		endTime = System.currentTimeMillis();
-		double time = 0;
-		if (endTime > startTime) {
-			time = (double) ((double) (endTime - startTime) / (double) 1000);
-		}
-		String timeMsg = myFormatter.format(time);
-		if (num != 0) {
-			System.out.print("----------------------------------------");
-			System.out.println("----------------------------------------");
-		}
-		System.out.println();
-		log.info("TRANSFORMATION CHAIN SUCCESS");
-		System.out.print("----------------------------------------");
-		System.out.println("----------------------------------------");
-		log.info("Total time: " + timeMsg + " seconds");
-		log.info("Finished at: " + df.format(new Date()));
-		log.info("Final memory: " + (Runtime.getRuntime().freeMemory())
-				/ 1048576 + " M/ "
-				+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
-		log.info("Total modified files: " + num);
-		System.out.print("----------------------------------------");
-		System.out.println("----------------------------------------");
-	}
-
-	private static void executeChainAdapter(ChainAdapterFactory apf,
-			Configuration conf, String name, boolean printException) {
-		ChainAdapter ap = apf.createChainProxy(conf, name);
-		if (ap == null) {
-			log.error("The chain " + name + " is not found");
-			System.out.print("----------------------------------------");
-			System.out.println("----------------------------------------");
-		} else {
-			log.info("** THE TRANSFORMATION CHAIN " + name + " STARTS **");
-			System.out.print("----------------------------------------");
-			System.out.println("----------------------------------------");
-			long startTime = System.currentTimeMillis();
-			long endTime = startTime;
-			DecimalFormat myFormatter = new DecimalFormat("###.###");
-			DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss",
-					Locale.US);
-			int num = 0;
-			try {
-				ap.execute();
-				num = ap.getWalkerAdapter().getWalker().getNumModifications();
-				endTime = System.currentTimeMillis();
-				double time = 0;
-				if (endTime > startTime) {
-					time = (double) ((double) (endTime - startTime) / (double) 1000);
-				}
-				String timeMsg = myFormatter.format(time);
-				if (num != 0) {
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
-				} else {
-					if (!ap.getWalkerAdapter().getWalker().hasChanges()) {
-						log.info("**No sources changed**");
-					}
-				}
-				System.out.println();
-				log.info("TRANSFORMATION CHAIN SUCCESS");
-				System.out.print("----------------------------------------");
-				System.out.println("----------------------------------------");
-				log.info("Total time: " + timeMsg + " seconds");
-				log.info("Finished at: " + df.format(new Date()));
-				log.info("Final memory: " + (Runtime.getRuntime().freeMemory())
-						/ 1048576 + " M/ "
-						+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
-				if (ap.getWalkerAdapter().getWalker().reportChanges()) {
-					log.info("Total modified files: " + num);
-				}
-				System.out.print("----------------------------------------");
-				System.out.println("----------------------------------------");
-			} catch (Throwable e) {
-				endTime = System.currentTimeMillis();
-				double time = 0;
-				if (endTime > startTime) {
-					time = (double) ((double) (endTime - startTime) / (double) 1000);
-				}
-				String timeMsg = myFormatter.format(time);
-				if (num != 0) {
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
-				}
-				log.info("TRANSFORMATION CHAIN FAILS");
-				System.out.println();
-				System.out.print("----------------------------------------");
-				System.out.println("----------------------------------------");
-				log.info("Total time: " + timeMsg + " seconds");
-				log.info("Finished at: " + df.format(new Date()));
-				log.info("Final memory: " + (Runtime.getRuntime().freeMemory())
-						/ 1048576 + " M/ "
-						+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
-				System.out.print("----------------------------------------");
-				System.out.println("----------------------------------------");
-				log.info("Please, see the walkmod log file for details");
-				if (printException) {
-					log.error("TRANSFORMATION CHAIN (" + name + ") FAILS", e);
-				} else {
-					log.error("TRANSFORMATION CHAIN ("
-							+ name
-							+ ") FAILS. Execute walkmod with -e to see the error details.");
-				}
-				return;
-			}
-		}
-	}
+	
 }
