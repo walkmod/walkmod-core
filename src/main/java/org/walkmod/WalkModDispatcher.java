@@ -22,6 +22,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Walkmod shell
+ * @author Raquel Pau
+ *
+ */
 public class WalkModDispatcher {
 
 	private static Logger log = Logger.getLogger(WalkModDispatcher.class);

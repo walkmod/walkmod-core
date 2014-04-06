@@ -35,6 +35,11 @@ import org.walkmod.exceptions.WalkModException;
 import org.walkmod.impl.DefaultChainAdapterFactory;
 import org.walkmod.writers.VisitorMessagesWriter;
 
+/**
+ * Facade to execute walkmod services.
+ * @author Raquel Pau
+ *
+ */
 public class WalkModFacade {
 
 	private static Logger log = Logger.getLogger(WalkModFacade.class);
