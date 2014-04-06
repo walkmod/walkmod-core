@@ -16,8 +16,8 @@
 package org.walkmod.conf.entities.impl;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -54,9 +54,9 @@ public class ConfigurationImpl implements Configuration {
 	private Collection<ProviderConfig> providers;
 
 	public ConfigurationImpl() {
-		this.parameters = new HashMap<String, Object>();
-		this.chainConfigs = new HashMap<String, ChainConfig>();
-		this.mergeEngines = new HashMap<String, MergeEngine>();
+		this.parameters = new LinkedHashMap<String, Object>();
+		this.chainConfigs = new LinkedHashMap<String, ChainConfig>();
+		this.mergeEngines = new LinkedHashMap<String, MergeEngine>();
 		this.beanFactory = null;
 		this.defaultLanguage = null;
 	}
