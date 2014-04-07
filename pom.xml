@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.walkmod</groupId>
 	<artifactId>walkmod-core</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.4</version>
 	<url>https://github.com/rpau/walkmod-core</url>
 	<licenses>
 		<license>
@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>org.walkmod</groupId>
 			<artifactId>merger</artifactId>
-			<version>1.0</version>
+			<version>[1.0.1, 2.0)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
