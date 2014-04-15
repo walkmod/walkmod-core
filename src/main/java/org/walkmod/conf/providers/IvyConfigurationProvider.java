@@ -1,23 +1,26 @@
 /* 
   Copyright (C) 2013 Raquel Pau and Albert Coroleu.
- 
+
  Walkmod is free software: you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  Walkmod is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU Lesser General Public License for more details.
- 
+
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.providers;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.text.ParseException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -57,6 +60,8 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 
 	private DefaultModuleDescriptor md;
 
+	private static final String IVY_SETTINGS_FILE = "ivysettings.xml";
+
 	public IvyConfigurationProvider() {
 		this(false);
 	}
@@ -70,15 +75,35 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 		this.configuration = configuration;
 	}
 
-	public void initIvy() throws Exception {
+	/**
+	 * Ivy configuration initialization
+	 * 
+	 * @throws ConfigurationException
+	 *             if ivy settings file (ivysettings.xml) is not found in
+	 *             classpath
+	 * */
+	public void initIvy() throws URISyntaxException, ParseException,
+			IOException, ConfigurationException {
 		// creates clear ivy settings
 		IvySettings ivySettings = new IvySettings();
-		File settings = new File("ivysettings.xml");
-		if (!settings.exists()) {
-			settings = new File(ClassLoader
-					.getSystemResource("ivysettings.xml").toURI());
+		File settingsFile = new File(IVY_SETTINGS_FILE);
+		if (settingsFile.exists()) {
+			ivySettings.load(settingsFile);
+		} else {
+			URL settingsURL = ClassLoader.getSystemResource(IVY_SETTINGS_FILE);
+			if (settingsURL == null) {
+				// file not found in System classloader, we try the current one
+				settingsURL = this.getClass().getClassLoader()
+						.getResource(IVY_SETTINGS_FILE);
+				// extra validation to avoid uncontrolled NullPointerException
+				// when invoking toURI()
+				if (settingsURL == null)
+					throw new ConfigurationException("Ivy settings file ("
+							+ IVY_SETTINGS_FILE
+							+ ") could not be found in classpath");
+			}
+			ivySettings.load(settingsURL);
 		}
-		ivySettings.load(settings);
 		// creates an Ivy instance with settings
 		ivy = Ivy.newInstance(ivySettings);
 
@@ -133,10 +158,18 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 						configuration.getClassLoader());
 				configuration.setClassLoader(childClassLoader);
 			}
+		} catch (ConfigurationException e) {
+			throw e;
 		} catch (Exception e) {
-			throw new ConfigurationException("Unable to resolve the plugin: "
-					+ plugin.getGroupId() + " : " + plugin.getArtifactId()
-					+ " : " + plugin.getVersion(), e);
+			if (plugin == null) {
+				throw new ConfigurationException(
+						"Unable to initialize ivy configuration", e);
+			} else {
+				throw new ConfigurationException(
+						"Unable to resolve the plugin: " + plugin.getGroupId()
+								+ " : " + plugin.getArtifactId() + " : "
+								+ plugin.getVersion(), e);
+			}
 		}
 	}
 
