@@ -2,6 +2,8 @@ walkmod-core
 ============
 Raquel Pau <raquelpau@gmail.com>
 
+image:https://travis-ci.org/rpau/walkmod-core.svg?branch=master["Build Status", link="https://travis-ci.org/rpau/walkmod-core"]
+
 This project, called http://www.walkmod.com[walkmod], is an open source tool to apply coding conventions. Walkmod can support with 
 any programing language if a set of interfaces are implemented as a third party plugin. The first (and current)
 supported language is Java. So, walkmod is completely modularized and you can extend their features (like Maven), 
