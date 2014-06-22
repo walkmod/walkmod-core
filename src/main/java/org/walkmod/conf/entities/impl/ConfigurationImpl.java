@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanFactory;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
@@ -127,9 +128,15 @@ public class ConfigurationImpl implements Configuration {
 		if (result != null) {
 			BeanWrapper bw = new BeanWrapperImpl(result);
 			if (this.parameters != null) {
-				bw.setPropertyValues(this.parameters);
+				MutablePropertyValues pvs = new MutablePropertyValues(
+						this.parameters);
+				bw.setPropertyValues(pvs, true, true);
 			}
-			bw.setPropertyValues(parameters);
+			if (parameters != null) {
+				MutablePropertyValues pvs = new MutablePropertyValues(
+						parameters);
+				bw.setPropertyValues(pvs, true, true);
+			}
 		}
 		return result;
 	}
