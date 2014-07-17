@@ -75,7 +75,7 @@ public class FileResource implements Resource<File> {
 
 	@Override
 	public Iterator<File> iterator() {
-		String fileNormalized = FilenameUtils.normalize(file.getPath(), true);
+		String fileNormalized = FilenameUtils.normalize(file.getAbsolutePath(), true);
 		if (includes != null) {
 			for (int i = 0; i < includes.length; i++) {
 				if (!includes[i].startsWith(fileNormalized)) {
@@ -163,7 +163,7 @@ public class FileResource implements Resource<File> {
 						boolean excludesEval = false;
 						boolean includesEval = false;
 
-						String aux = FilenameUtils.normalize(file.getPath(),
+						String aux = FilenameUtils.normalize(file.getAbsolutePath(),
 								true);
 						if (excludes != null) {
 
