@@ -19,10 +19,8 @@ import groovy.io.PlatformLineWriter;
 import groovy.text.GStringTemplateEngine;
 import groovy.text.Template;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.LinkedList;
@@ -83,14 +81,13 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 			for (File template : templateFiles) {
 				String templateResult = templateEngine.applyTemplate(template,
 						propertiesFile);
-				Object producedNode;
+				Object producedNode = null;
+				
 				if (parser != null) {
 					try {
 						producedNode = parser.parse(templateResult, true);
-
-						context.addResultNode(producedNode);
-
 					} catch (ParseException e) {
+
 						if (output != null) {
 							doPlainOutput(templateResult, context);
 						} else {
@@ -98,14 +95,21 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 								// it is java code. we need to know which line
 								// fails.
 								parser.parse(templateResult, false);
-							} catch (Exception e2) {
-								throw new WalkModException(e2.getCause());
+							} catch (ParseException e2) {
+								throw new WalkModException(
+										"Error parsing the template "
+												+ template.getAbsolutePath(),
+										e2.getCause());
 							}
 						}
 					}
 
 				} else {
 					doPlainOutput(templateResult, context);
+				}
+				if (producedNode != null) {
+					log.debug("Template successfuly parsed");
+					context.addResultNode(producedNode);
 				}
 			}
 		} else {
@@ -143,19 +147,19 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 				outputFile = platformWriter.toString();
 
 			}
-			PrintWriter out = null;
+			FileWriter fw = null;
 			File file = new File(outputFile);
-			if (file.createNewFile()) {
-				try {
-					out = new PrintWriter(new BufferedWriter(new FileWriter(
-							outputFile, true)));
-					out.println(templateResult);
-				} finally {
-					if (out != null) {
-						out.close();
-					}
+			file.createNewFile();
+			try {
+				fw = new FileWriter(outputFile, true);
+
+				fw.write(templateResult);
+			} finally {
+				if (fw != null) {
+					fw.close();
 				}
 			}
+
 		}
 	}
 
