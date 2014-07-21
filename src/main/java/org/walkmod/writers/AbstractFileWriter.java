@@ -61,12 +61,14 @@ public abstract class AbstractFileWriter implements ChainWriter {
 
 	public void write(Object n, VisitorContext vc) throws Exception {
 		File out = null;
+		boolean createdEmptyFile = false;
 		if (vc != null) {
 			out = (File) vc.get(AbstractWalker.ORIGINAL_FILE_KEY);
 		}
 		if (out == null) {
 			log.debug("Creating the target source file. This is not the original source file.");
 			out = createOutputDirectory(n);
+			createdEmptyFile = true;
 		} else {
 			log.debug("The system will overwrite the original source file.");
 		}
@@ -137,6 +139,9 @@ public abstract class AbstractFileWriter implements ChainWriter {
 					}
 				}
 			} else {
+				if(createdEmptyFile && out != null && out.isFile()){
+					out.delete();
+				}
 				log.debug("skipping " + out.getParent());
 			}
 		} else {
