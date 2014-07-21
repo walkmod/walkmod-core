@@ -20,14 +20,16 @@ import groovy.text.GStringTemplateEngine;
 import groovy.text.Template;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.walkmod.ChainWriter;
+import org.walkmod.conf.entities.WriterConfig;
 import org.walkmod.exceptions.WalkModException;
+import org.walkmod.walkers.AbstractWalker;
 import org.walkmod.walkers.ParseException;
 import org.walkmod.walkers.Parser;
 import org.walkmod.walkers.ParserAware;
@@ -45,6 +47,9 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 	private String output;
 	private Parser<?> parser;
 	private static Logger log = Logger.getLogger(DefaultTemplateVisitor.class);
+	private File currentTemplate;
+
+	private String suffix = ".result";
 
 	public DefaultTemplateVisitor() {
 	}
@@ -79,29 +84,21 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 				&& templateFiles.size() == templates.size()) {
 
 			for (File template : templateFiles) {
+
 				String templateResult = templateEngine.applyTemplate(template,
 						propertiesFile);
 				Object producedNode = null;
-				
+				currentTemplate = template;
+
 				if (parser != null) {
 					try {
 						producedNode = parser.parse(templateResult, true);
 					} catch (ParseException e) {
+						log.warn("Error parsing the template "
+								+ template.getAbsolutePath()
+								+ ". Dumping contents..");
 
-						if (output != null) {
-							doPlainOutput(templateResult, context);
-						} else {
-							try {
-								// it is java code. we need to know which line
-								// fails.
-								parser.parse(templateResult, false);
-							} catch (ParseException e2) {
-								throw new WalkModException(
-										"Error parsing the template "
-												+ template.getAbsolutePath(),
-										e2.getCause());
-							}
-						}
+						doPlainOutput(templateResult, context);
 					}
 
 				} else {
@@ -124,9 +121,67 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 
 	}
 
+	public void setSuffix(String suffix) {
+		if (suffix != null) {
+			suffix = suffix.trim();
+			if (suffix.startsWith(".")) {
+				if (suffix.length() > 1) {
+					suffix = suffix.substring(1);
+				} else {
+					throw new IllegalArgumentException(
+							"The suffix must have at least one letter");
+				}
+			}
+			else if("".equals(suffix)){
+				throw new IllegalArgumentException(
+						"The suffix must have at least one letter");
+			}
+			this.suffix = suffix;
+		}
+	}
+
 	public void doPlainOutput(String templateResult, VisitorContext context)
 			throws Exception {
-		if (output != null) {
+		WriterConfig writerConfig = context.getArchitectureConfig()
+				.getWriterConfig();
+		ChainWriter chainWriter = writerConfig.getModelWriter();
+		if (output == null) {
+			String fileName = currentTemplate.getName();
+			if (context.containsKey(AbstractWalker.ORIGINAL_FILE_KEY)) {
+				log.debug("Original file path found");
+				File originalFile = (File) context
+						.get(AbstractWalker.ORIGINAL_FILE_KEY);
+				String fullPath = originalFile.getPath();
+				String readerPath = context.getArchitectureConfig()
+						.getReaderConfig().getPath();
+				fileName = fullPath.substring(readerPath.length());
+				if(fileName.startsWith(File.separator)){
+					fileName = fileName.substring(1);
+				}
+
+			} else {
+				log.debug("working with the template name");
+			}
+			int pos = fileName.lastIndexOf(".");
+
+			if (pos != -1) {
+				log.debug("Removing the existing suffix");
+				fileName = fileName.substring(0, pos);
+			}
+
+			log.warn("Setting a default output file! [" + fileName + ".result]");
+			VisitorContext auxCtxt = new VisitorContext();
+			File defaultOutputFile = new File(writerConfig.getPath(), fileName
+					+ "." + suffix);
+			if (!defaultOutputFile.exists()) {
+				log.info("++" + defaultOutputFile.getAbsolutePath());
+				defaultOutputFile.getParentFile().mkdirs();
+				defaultOutputFile.createNewFile();
+			}
+			auxCtxt.put(AbstractWalker.ORIGINAL_FILE_KEY, defaultOutputFile);
+			chainWriter.write(templateResult, auxCtxt);
+
+		} else {
 			String outputFile = output;
 
 			// validates if it is a template name to reduce
@@ -147,19 +202,17 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 				outputFile = platformWriter.toString();
 
 			}
-			FileWriter fw = null;
+
 			File file = new File(outputFile);
-			file.createNewFile();
-			try {
-				fw = new FileWriter(outputFile, true);
-
-				fw.write(templateResult);
-			} finally {
-				if (fw != null) {
-					fw.close();
-				}
+			VisitorContext auxCtxt = new VisitorContext();
+			auxCtxt.put(AbstractWalker.ORIGINAL_FILE_KEY, file);
+			auxCtxt.put("append", Boolean.TRUE);
+			if (!file.exists()) {
+				log.info("++" + file.getAbsolutePath());
+				file.getParentFile().mkdirs();
+				file.createNewFile();
 			}
-
+			chainWriter.write(templateResult, auxCtxt);
 		}
 	}
 

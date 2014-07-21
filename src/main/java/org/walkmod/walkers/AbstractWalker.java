@@ -107,6 +107,7 @@ public abstract class AbstractWalker implements ChainWalker{
 						params[0] = element;
 						VisitorContext args = new VisitorContext(
 								getChainConfig());
+						args.putAll(context);
 						if (paramsLength == 2) {
 							params[1] = args;
 						}

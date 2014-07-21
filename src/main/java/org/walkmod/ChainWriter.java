@@ -18,6 +18,8 @@ package org.walkmod;
 import java.io.Closeable;
 import java.io.Flushable;
 
+import org.walkmod.walkers.VisitorContext;
+
 public interface ChainWriter extends Closeable, Flushable {
 
 	public String getPath();
@@ -31,4 +33,6 @@ public interface ChainWriter extends Closeable, Flushable {
 	public void setIncludes(String[] includes);
 	
 	public String[] getIncludes();
+	
+	public void write(Object n, VisitorContext vc) throws Exception;
 }

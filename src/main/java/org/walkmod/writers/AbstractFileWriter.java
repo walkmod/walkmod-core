@@ -39,9 +39,9 @@ public abstract class AbstractFileWriter implements ChainWriter {
 	private File outputDirectory;
 
 	private String normalizedOutputDirectory;
-	
+
 	private String encoding = "UTF-8";
-	
+
 	private static Logger log = Logger.getLogger(AbstractFileWriter.class);
 
 	public void setOutputDirectory(String outputDirectory) {
@@ -50,13 +50,13 @@ public abstract class AbstractFileWriter implements ChainWriter {
 			this.outputDirectory.mkdir();
 		}
 		normalizedOutputDirectory = FilenameUtils.normalize(
-				this.outputDirectory.getPath(), true);
+				this.outputDirectory.getAbsolutePath(), true);
 	}
 
 	public File getOutputDirectory() {
 		return this.outputDirectory;
 	}
-	
+
 	public abstract File createOutputDirectory(Object o);
 
 	public void write(Object n, VisitorContext vc) throws Exception {
@@ -65,11 +65,15 @@ public abstract class AbstractFileWriter implements ChainWriter {
 			out = (File) vc.get(AbstractWalker.ORIGINAL_FILE_KEY);
 		}
 		if (out == null) {
+			log.debug("Creating the target source file. This is not the original source file.");
 			out = createOutputDirectory(n);
+		} else {
+			log.debug("The system will overwrite the original source file.");
 		}
 		boolean write = true;
 		if (out != null) {
-			String aux = FilenameUtils.normalize(out.getPath(), true);
+			log.debug("Analyzing exclude and include rules");
+			String aux = FilenameUtils.normalize(out.getAbsolutePath(), true);
 			if (excludes != null) {
 				for (int i = 0; i < excludes.length && write; i++) {
 					if (!excludes[i].startsWith(normalizedOutputDirectory)) {
@@ -93,40 +97,50 @@ public abstract class AbstractFileWriter implements ChainWriter {
 						if (includes[i].endsWith("\\*\\*")) {
 							includes[i] = includes[i].substring(0,
 									includes[i].length() - 2);
-						}
+						} 
 					}
+
 					write = includes[i].startsWith(aux)
 							|| FilenameUtils.wildcardMatch(aux, includes[i]);
 				}
 			}
 			if (write) {
 				Writer writer = null;
-				
+
 				try {
-					
+
 					String content = getContent(n, vc);
-					if(content != null && !"".equals(content)){
-						
+					if (content != null && !"".equals(content)) {
+
 						writer = new BufferedWriter(new OutputStreamWriter(
-							    new FileOutputStream(out), getEncoding()));
-						writer.write(content);
-						log.debug(out.getPath()+" written ");
-					}
-					else{
-						log.error(out.getPath()+" does not have valid content");
+								new FileOutputStream(out), getEncoding()));
+						if (vc.get("append") == null) {
+							writer.write(content);
+						} else {
+							if (Boolean.TRUE.equals(vc.get("append"))) {
+								writer.append(content);
+							} else {
+								writer.write(content);
+							}
+						}
+
+						log.debug(out.getPath() + " written ");
+					} else {
+						log.error(out.getPath()
+								+ " does not have valid content");
 						throw new WalkModException("blank code is returned");
-					}					
-				} 
-				finally{
-					if(writer != null){						
+					}
+				} finally {
+					if (writer != null) {
 						writer.close();
-						
+
 					}
 				}
+			} else {
+				log.debug("skipping " + out.getParent());
 			}
-			else{
-				log.debug("skipping "+out.getParent());
-			}
+		} else {
+			log.debug("There is no place where to write.");
 		}
 	}
 
@@ -136,13 +150,9 @@ public abstract class AbstractFileWriter implements ChainWriter {
 	public void close() throws IOException {
 	}
 
-	
-
 	@Override
 	public void flush() throws IOException {
 	}
-
-	
 
 	public void setPath(String path) {
 		setOutputDirectory(path);
@@ -178,8 +188,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
-		log.debug("[encoding]:"+encoding);
+		log.debug("[encoding]:" + encoding);
 	}
-	
-	
+
 }

@@ -125,6 +125,7 @@ public class DefaultChainAdapter implements ChainAdapter {
 						+ " cannot be loaded ", e2);
 			}
 		}
+		readerConfig.setModelReader(reader);
 		reader.setPath(readerConfig.getPath());
 		reader.setExcludes(readerConfig.getExcludes());
 		reader.setIncludes(readerConfig.getIncludes());
@@ -144,6 +145,7 @@ public class DefaultChainAdapter implements ChainAdapter {
 			walker = (ChainWalker) ac.getConfiguration().getBean(wc.getType(),
 					Collections.EMPTY_MAP);
 		}
+		wc.setWalker(walker);
 		wa.setWalker(walker);
 		wa.setWalkerConfig(wc);
 		wa.setArchitectureProxy(this);
@@ -159,6 +161,7 @@ public class DefaultChainAdapter implements ChainAdapter {
 						+ getName() + " cannot be read ", e2);
 			}
 		}
+		writerConfig.setModelWriter(writer);
 		writer.setPath(writerConfig.getPath());
 		setChainWriter(writer);
 		wa.prepare();
