@@ -24,7 +24,7 @@ You just need the following dependency:
 <dependency>
     <groupId>org.walkmod</groupId>
     <artifactId>walkmod-core</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
 </dependency>
 ----
 
