@@ -1,0 +1,13 @@
+<!ELEMENT language (policy)>
+<!ATTLIST language name CDATA #IMPLIED>
+<!ATTLIST language reader CDATA #REQUIRED>
+<!ATTLIST language walker CDATA #REQUIRED>
+<!ATTLIST language writer CDATA #REQUIRED>
+<!ATTLIST language parser CDATA #REQUIRED>
+<!ATTLIST language path CDATA #IMPLIED>
+<!ELEMENT policy (policy-entry*)>
+<!ELEMENT policy-entry (#PCDATA)>
+<!ATTLIST policy default-object-policy CDATA #IMPLIED>
+<!ATTLIST policy default-type-policy CDATA #IMPLIED>
+<!ATTLIST policy-entry object-type CDATA #REQUIRED>
+<!ATTLIST policy-entry policy-type CDATA #REQUIRED>

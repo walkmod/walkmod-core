@@ -1,4 +1,4 @@
-<!DOCTYPE language PUBLIC "-//WALKMOD//DTD"  "http://www.walkmod.com/dtd/walkmod-lang-1.0.dtd">
+<!DOCTYPE language SYSTEM "walkmod-lang-1.0.dtd">
 <language
  	reader ="org.walkmod.readers.DefaultFileReader"
 	walker="org.walkmod.javalang.walkers.DefaultJavaWalker" 

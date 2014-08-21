@@ -1,0 +1,16 @@
+<ivysettings>
+	<settings defaultResolver="walkmod-core" />
+	<configurations defaultconfmapping="compile->compile">
+	</configurations>
+	<resolvers>
+		<chain name="walkmod-core">
+
+			<ibiblio name="maven2" m2compatible="true" />
+			<ibiblio name="jboss" root="http://repository.jboss.com/maven2" 
+                         m2compatible="true" usepoms="false"/> 
+			 <ibiblio name="springsource-external" m2compatible="true" root="http://repository.springsource.com/maven/bundles/external"/>
+            <ibiblio name="springsource-release" m2compatible="true" root="http://repository.springsource.com/maven/bundles/release"/>
+			
+		</chain>
+	</resolvers>
+</ivysettings>

@@ -24,8 +24,11 @@ import java.text.ParseException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.ivy.Ivy;
 import org.apache.ivy.core.module.descriptor.DefaultDependencyDescriptor;
 import org.apache.ivy.core.module.descriptor.DefaultExcludeRule;
@@ -61,6 +64,9 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 	private DefaultModuleDescriptor md;
 
 	private static final String IVY_SETTINGS_FILE = "ivysettings.xml";
+	
+	private static final Log LOG = LogFactory
+			.getLog(IvyConfigurationProvider.class);
 
 	public IvyConfigurationProvider() {
 		this(false);
@@ -137,6 +143,7 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 		Collection<PluginConfig> plugins = configuration.getPlugins();
 		PluginConfig plugin = null;
 		Collection<File> jarsToLoad = new LinkedList<File>();
+		ConfigurationException ce = null;
 		try {
 			if (plugins != null) {
 				Iterator<PluginConfig> it = plugins.iterator();
@@ -158,18 +165,27 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 						configuration.getClassLoader());
 				configuration.setClassLoader(childClassLoader);
 			}
-		} catch (ConfigurationException e) {
-			throw e;
 		} catch (Exception e) {
-			if (plugin == null) {
-				throw new ConfigurationException(
-						"Unable to initialize ivy configuration", e);
+			if (!(e instanceof ConfigurationException)) {
+
+				if (plugin == null) {
+					ce = new ConfigurationException(
+							"Unable to initialize ivy configuration:"
+									+ e.getMessage());
+				} else {
+					ce = new ConfigurationException(
+							"Unable to resolve the plugin: "
+									+ plugin.getGroupId() + " : "
+									+ plugin.getArtifactId() + " : "
+									+ plugin.getVersion() + ". Reason : "
+									+ e.getMessage());
+				}
+				
+
 			} else {
-				throw new ConfigurationException(
-						"Unable to resolve the plugin: " + plugin.getGroupId()
-								+ " : " + plugin.getArtifactId() + " : "
-								+ plugin.getVersion(), e);
+				ce = (ConfigurationException) e;
 			}
+			throw ce;
 		}
 	}
 
@@ -197,15 +213,40 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 		if (ivy != null) {
 			XmlModuleDescriptorWriter.write(md, ivyfile);
 			ResolveReport report = ivy.resolve(ivyfile.toURL(), resolveOptions);
-			ArtifactDownloadReport[] artifacts = report
-					.getAllArtifactsReports();
-			Collection<File> result = new LinkedList<File>();
+		
+			if (!report.hasError()) {
+				ArtifactDownloadReport[] artifacts = report
+						.getAllArtifactsReports();
+				Collection<File> result = new LinkedList<File>();
 
-			for (ArtifactDownloadReport item : artifacts) {
-				result.add(item.getLocalFile());
+				for (ArtifactDownloadReport item : artifacts) {
+					result.add(item.getLocalFile());
 
+				}
+				return result;
 			}
-			return result;
+			else{
+				List problems = report.getAllProblemMessages();
+				if(problems == null || problems.isEmpty()){
+					throw new ConfigurationException("Ivy can not resolve the artifacts. Undefined cause");
+				}
+				else{
+					String msg = "";
+					
+					Iterator it = problems.iterator();
+					while(it.hasNext()){
+						String error = it.next().toString();
+						LOG.warn(error);
+						if("".equals(msg)){
+							msg = error;
+						}
+						else{
+							msg= msg+";"+error;
+						}
+					}
+					throw new ConfigurationException("Ivy can not resolve the artifacts. Cause: "+msg);
+				}
+			}
 		}
 		return null;
 	}

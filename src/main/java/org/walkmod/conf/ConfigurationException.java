@@ -44,5 +44,8 @@ public class ConfigurationException extends RuntimeException {
 	 */
 	public ConfigurationException(String s, Throwable cause) {
 		super(s, cause);
+		if (cause != null) {
+			this.setStackTrace(cause.getStackTrace());
+		}
 	}
 }

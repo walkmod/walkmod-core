@@ -63,6 +63,9 @@ public class WalkModException extends RuntimeException {
 	 */
 	public WalkModException(Throwable cause) {
 		this(null, cause, null);
+		if (cause != null) {
+			this.setStackTrace(cause.getStackTrace());
+		}
 	}
 
 	/**
@@ -75,6 +78,9 @@ public class WalkModException extends RuntimeException {
 	 */
 	public WalkModException(Throwable cause, Object target) {
 		this(null, cause, target);
+		if (cause != null) {
+			this.setStackTrace(cause.getStackTrace());
+		}
 	}
 
 	/**
@@ -88,6 +94,9 @@ public class WalkModException extends RuntimeException {
 	 */
 	public WalkModException(String s, Throwable cause) {
 		this(s, cause, null);
+		if (cause != null) {
+			this.setStackTrace(cause.getStackTrace());
+		}
 	}
 
 	/**
@@ -106,6 +115,9 @@ public class WalkModException extends RuntimeException {
 		this.location = LocationUtils.getLocation(target);
 		if (this.location == LocationImpl.UNKNOWN) {
 			this.location = LocationUtils.getLocation(cause);
+		}
+		if (cause != null) {
+			this.setStackTrace(cause.getStackTrace());
 		}
 	}
 
