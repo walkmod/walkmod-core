@@ -59,7 +59,7 @@ public class WalkModDispatcher {
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
 		System.out
-				.println("An open source tool for apply code conventions into your project");
+				.println("An open source tool to apply code conventions");
 		System.out.println("version 1.0 - April 2014 -");
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
@@ -79,7 +79,7 @@ public class WalkModDispatcher {
 					.println("        Downloads and installs a walkmod plugin");
 			System.out.println("walkmod apply [chain]");
 			System.out
-					.println("        Upgrade your code to apply your development conventions");
+					.println("        Upgrades your code to apply your development conventions");
 			System.out.println("walkmod check [chain]");
 			System.out
 					.println("        Checks and shows witch classes must be reviewed");
