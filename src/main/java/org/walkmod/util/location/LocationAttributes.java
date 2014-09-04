@@ -150,8 +150,11 @@ public class LocationAttributes {
 	/**
 	 * Returns the {@link Location} of an element (DOM flavor).
 	 * 
-	 * @param elem the element that holds the location information
-	 * @param description a description for the location (if <code>null</code>, the element's name is used)
+	 * @param elem
+	 *            the element that holds the location information
+	 * @param description
+	 *            a description for the location (if <code>null</code>, the
+	 *            element's name is used)
 	 * @return a {@link Location} object
 	 */
 	public static Location getLocation(Element elem, String description) {
@@ -167,6 +170,10 @@ public class LocationAttributes {
 
 	/**
 	 * Same as <code>getLocation(elem, null)</code>.
+	 * 
+	 * @param elem
+	 *            the element that holds the location information
+	 * @return a {@link Location} object
 	 */
 	public static Location getLocation(Element elem) {
 		return getLocation(elem, null);
@@ -262,8 +269,8 @@ public class LocationAttributes {
 	 * <strong>Note:</strong> Although this adds a lot of information to the serialized form of the document,
 	 * the overhead in SAX events is not that big, as attribute names are interned, and all <code>src</code>
 	 * attributes point to the same string.
-	 * 
-	 * @see com.opensymphony.xwork2.util.location.LocationAttributes
+     *
+	 * see com.opensymphony.xwork2.util.location.LocationAttributes
 	 */
 	public static class Pipe implements ContentHandler {
 

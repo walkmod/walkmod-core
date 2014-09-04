@@ -44,11 +44,13 @@ public class DomHelper {
 	}
 
 	/**
-	 * Creates a W3C Document that remembers the location of each element in
-	 * the source file. The location of element nodes can then be retrieved
-	 * using the {@link #getLocationObject(Element)} method.
+	 * Creates a W3C Document that remembers the location of each element in the
+	 * source file. The location of element nodes can then be retrieved using
+	 * the {@link #getLocationObject(Element)} method.
 	 *
-	 * @param inputSource the inputSource to read the document from
+	 * @param inputSource
+	 *            the inputSource to read the document from
+	 * @return Document
 	 */
 	public static Document parse(InputSource inputSource) {
 		return parse(inputSource, null);
@@ -61,6 +63,7 @@ public class DomHelper {
 	 *
 	 * @param inputSource the inputSource to read the document from
 	 * @param dtdMappings a map of DTD names and public ids
+	 * @return Document
 	 */
 	public static Document parse(InputSource inputSource,
 			Map<String, String> dtdMappings) {
@@ -119,6 +122,9 @@ public class DomHelper {
 
 		/**
 		 * Construct a new instance of this DOMBuilder.
+		 * 
+		 * @param factory
+		 *            Transformer factory to use
 		 */
 		public DOMBuilder(SAXTransformerFactory factory) {
 			this(factory, null);
@@ -126,6 +132,9 @@ public class DomHelper {
 
 		/**
 		 * Constructs a new instance that appends nodes to the given parent node.
+		 * 
+		 * @param parentNode
+		 *            The parent node to use
 		 */
 		public DOMBuilder(Node parentNode) {
 			this(null, parentNode);
@@ -133,6 +142,11 @@ public class DomHelper {
 
 		/**
 		 * Construct a new instance of this DOMBuilder.
+		 * 
+		 * @param factory
+		 *            Transformer factory to use
+		 * @param parentNode
+		 *            The parent node to use
 		 */
 		public DOMBuilder(SAXTransformerFactory factory, Node parentNode) {
 			this.factory = factory == null ? FACTORY : factory;
@@ -162,6 +176,8 @@ public class DomHelper {
 
 		/**
 		 * Return the newly built Document.
+		 * 
+		 * @return Document
 		 */
 		public Document getDocument() {
 			if (this.result == null || this.result.getNode() == null) {
@@ -232,7 +248,11 @@ public class DomHelper {
 
 		/**
 		 * Create a filter that is chained to another handler.
-		 * @param next the next handler in the chain.
+		 * 
+		 * @param next
+		 *            the next handler in the chain.
+		 * @param dtdMappings
+		 *            Set of supported versions of dtdMappings
 		 */
 		public StartHandler(ContentHandler next, Map<String, String> dtdMappings) {
 			nextHandler = next;

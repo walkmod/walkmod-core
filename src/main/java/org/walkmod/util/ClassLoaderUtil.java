@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
 public class ClassLoaderUtil {
 
 	private static Map<String, Class<?>> primitiveClasses = new HashMap<String, Class<?>>();
@@ -74,24 +75,26 @@ public class ClassLoaderUtil {
 		wrapperClasses.put("java.lang.Float", "float");
 		wrapperClasses.put("java.lang.Double", "double");
 		wrapperClasses.put("java.lang.Boolean", "boolean");
-		compatibilityMatrix = new boolean[][]{
-				{true, true, true, true, true, true, true, false, false, true},
-				{false, true, false, true, true, true, true, false, false, true},
-				{false, false, true, true, true, true, true, false, false, true},
-				{false, false, false, true, true, true, true, false, false,
-						true},
-				{false, false, false, false, true, true, true, false, false,
-						true},
-				{false, false, false, false, false, true, true, false, false,
-						true},
-				{false, false, false, false, false, false, true, false, false,
-						true},
-				{false, false, false, false, false, false, false, true, false,
-						true},
-				{false, false, false, false, false, false, false, false, true,
-						true},
-				{false, false, false, false, false, false, false, false, false,
-						true}};
+		compatibilityMatrix = new boolean[][] {
+				{ true, true, true, true, true, true, true, false, false, true },
+				{ false, true, false, true, true, true, true, false, false,
+						true },
+				{ false, false, true, true, true, true, true, false, false,
+						true },
+				{ false, false, false, true, true, true, true, false, false,
+						true },
+				{ false, false, false, false, true, true, true, false, false,
+						true },
+				{ false, false, false, false, false, true, true, false, false,
+						true },
+				{ false, false, false, false, false, false, true, false, false,
+						true },
+				{ false, false, false, false, false, false, false, true, false,
+						true },
+				{ false, false, false, false, false, false, false, false, true,
+						true },
+				{ false, false, false, false, false, false, false, false,
+						false, true } };
 		langPackageContent = new HashSet<String>();
 		langPackageContent.add("Appendable");
 		langPackageContent.add("CharSequence");
@@ -234,8 +237,6 @@ public class ClassLoaderUtil {
 		return false;
 	}
 
-
-
 	/**
 	 * This method returns a method(public, protected or private) which appears
 	 * in the selected class or any of its parent (interface or superclass) or
@@ -244,9 +245,12 @@ public class ClassLoaderUtil {
 	 * selected typeArgs.
 	 * 
 	 * @param clazz
+	 *            Class to scan
 	 * @param methodName
+	 *            Method name
 	 * @param typeArgs
-	 * @return
+	 *            Method arguments
+	 * @return Method instance
 	 */
 	public Method getMethod(Class<?> clazz, String methodName,
 			Class<?>... typeArgs) {
@@ -300,19 +304,27 @@ public class ClassLoaderUtil {
 	}
 
 	/**
-	 * Load all resources with a given name, potentially aggregating all results 
-	 * from the searched classloaders.  If no results are found, the resource name
-	 * is prepended by '/' and tried again.
+	 * Load all resources with a given name, potentially aggregating all results
+	 * from the searched classloaders. If no results are found, the resource
+	 * name is prepended by '/' and tried again.
 	 *
-	 * This method will try to load the resources using the following methods (in order):
+	 * This method will try to load the resources using the following methods
+	 * (in order):
 	 * <ul>
-	 *  <li>From Thread.currentThread().getContextClassLoader()
-	 *  <li>From ClassLoaderUtil.class.getClassLoader()
-	 *  <li>callingClass.getClassLoader()
+	 * <li>From Thread.currentThread().getContextClassLoader()
+	 * <li>From ClassLoaderUtil.class.getClassLoader()
+	 * <li>callingClass.getClassLoader()
 	 * </ul>
 	 *
-	 * @param resourceName The name of the resources to load
-	 * @param callingClass The Class object of the calling object
+	 * @param resourceName
+	 *            The name of the resources to load
+	 * @param callingClass
+	 *            The Class object of the calling object
+	 * @param aggregate
+	 *            <code>true</code> to aggregate resources from all classloaders
+	 * @return Iterator of matching resources
+	 * @throws IOException
+	 *             If I/O errors occur
 	 */
 	public static Iterator<URL> getResources(String resourceName,
 			Class<?> callingClass, boolean aggregate) throws IOException {
@@ -340,15 +352,20 @@ public class ClassLoaderUtil {
 	/**
 	 * Load a given resource.
 	 *
-	 * This method will try to load the resource using the following methods (in order):
+	 * This method will try to load the resource using the following methods (in
+	 * order):
 	 * <ul>
-	 *  <li>From Thread.currentThread().getContextClassLoader()
-	 *  <li>From ClassLoaderUtil.class.getClassLoader()
-	 *  <li>callingClass.getClassLoader()
+	 * <li>From Thread.currentThread().getContextClassLoader()
+	 * <li>From ClassLoaderUtil.class.getClassLoader()
+	 * <li>callingClass.getClassLoader()
 	 * </ul>
 	 *
-	 * @param resourceName The name IllegalStateException("Unable to call ")of the resource to load
-	 * @param callingClass The Class object of the calling object
+	 * @param resourceName
+	 *            The name IllegalStateException("Unable to call ")of the
+	 *            resource to load
+	 * @param callingClass
+	 *            The Class object of the calling object
+	 * @return Matching resouce or null if not found
 	 */
 	public static URL getResource(String resourceName, Class<?> callingClass) {
 		URL url = Thread.currentThread().getContextClassLoader()
@@ -376,8 +393,11 @@ public class ClassLoaderUtil {
 	 *
 	 * The algorithm used to find the resource is given in getResource()
 	 *
-	 * @param resourceName The name of the resource to load
-	 * @param callingClass The Class object of the calling object
+	 * @param resourceName
+	 *            The name of the resource to load
+	 * @param callingClass
+	 *            The Class object of the calling object
+	 * @return Matching resouce or null if not found
 	 */
 	public static InputStream getResourceAsStream(String resourceName,
 			Class<?> callingClass) {
@@ -394,15 +414,19 @@ public class ClassLoaderUtil {
 	 *
 	 * It will try to load the class in the following order:
 	 * <ul>
-	 *  <li>From Thread.currentThread().getContextClassLoader()
-	 *  <li>Using the basic Class.forName()
-	 *  <li>From ClassLoaderUtil.class.getClassLoader()
-	 *  <li>From the callingClass.getClassLoader()
+	 * <li>From Thread.currentThread().getContextClassLoader()
+	 * <li>Using the basic Class.forName()
+	 * <li>From ClassLoaderUtil.class.getClassLoader()
+	 * <li>From the callingClass.getClassLoader()
 	 * </ul>
 	 *
-	 * @param className The name of the class to load
-	 * @param callingClass The Class object of the calling object
-	 * @throws ClassNotFoundException If the class cannot be found anywhere.
+	 * @param className
+	 *            The name of the class to load
+	 * @param callingClass
+	 *            The Class object of the calling object
+	 * @return Class definition
+	 * @throws ClassNotFoundException
+	 *             If the class cannot be found anywhere.
 	 */
 	public static Class<?> loadClass(String className, Class<?> callingClass)
 			throws ClassNotFoundException {
@@ -424,8 +448,9 @@ public class ClassLoaderUtil {
 	}
 
 	/**
-	 * Aggregates Enumeration instances into one iterator and filters out duplicates.  Always keeps one
-	 * ahead of the enumerator to protect against returning duplicates.
+	 * Aggregates Enumeration instances into one iterator and filters out
+	 * duplicates. Always keeps one ahead of the enumerator to protect against
+	 * returning duplicates.
 	 */
 	protected static class AggregateIterator<E> implements Iterator<E> {
 

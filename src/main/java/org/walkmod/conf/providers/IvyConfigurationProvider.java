@@ -83,13 +83,18 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 
 	/**
 	 * Ivy configuration initialization
-	 * 
+	 *
+	 * @throws ParseException
+	 *             If an error occurs when loading ivy settings file
+	 *             (ivysettings.xml)
+	 * @throws IOException
+	 *             If an error occurs when reading ivy settings file
+	 *             (ivysettings.xml)
 	 * @throws ConfigurationException
-	 *             if ivy settings file (ivysettings.xml) is not found in
+	 *             If ivy settings file (ivysettings.xml) is not found in
 	 *             classpath
-	 * */
-	public void initIvy() throws URISyntaxException, ParseException,
-			IOException, ConfigurationException {
+	 */
+	public void initIvy() throws ParseException, IOException, ConfigurationException {
 		// creates clear ivy settings
 		IvySettings ivySettings = new IvySettings();
 		File settingsFile = new File(IVY_SETTINGS_FILE);

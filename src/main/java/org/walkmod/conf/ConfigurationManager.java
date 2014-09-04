@@ -38,8 +38,6 @@ public class ConfigurationManager {
 	public ConfigurationManager(Configuration conf) {
 		setConfiguration(conf);
 	}
-
-
 	
 	public ConfigurationManager(File walkmodcfg, ConfigurationProvider... configurationProviders){
 		setConfiguration(new ConfigurationImpl());
@@ -97,7 +95,7 @@ public class ConfigurationManager {
 	/**
 	 * Set the list of configuration providers
 	 *
-	 * @param configurationProviders
+	 * @param configurationProviders the ConfigurationProvider to register
 	 */
 	public void setConfigurationProviders(
 			List<ConfigurationProvider> configurationProviders) {
@@ -105,11 +103,10 @@ public class ConfigurationManager {
 	}
 
 	/**
-	 * adds a configuration provider to the List of ConfigurationProviders.  a given ConfigurationProvider may be added
+	 * Adds a configuration provider to the List of ConfigurationProviders.  a given ConfigurationProvider may be added
 	 * more than once
 	 *
 	 * @param provider the ConfigurationProvider to register
-	 * 
 	 */
 	public void addConfigurationProvider(ConfigurationProvider provider) {
 		if (!configurationProviders.contains(provider)) {
