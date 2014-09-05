@@ -57,9 +57,10 @@ public class LocationUtils {
 	/**
 	 * Builds a string representation of a location, in the
 	 * "<code><em>descripton</em> - <em>uri</em>:<em>line</em>:<em>column</em></code>"
-	 * format (e.g. "<code>foo - file://path/to/file.xml:3:40</code>"). For {@link Location#UNKNOWN an unknown location}, returns
+	 * format (e.g. "<code>foo - file://path/to/file.xml:3:40</code>"). For {@link LocationImpl#UNKNOWN an unknown location}, returns
 	 * {@link #UNKNOWN_STRING}.
 	 * 
+	 * @param location source location
 	 * @return the string representation
 	 */
 	public static String toString(Location location) {
@@ -122,7 +123,7 @@ public class LocationUtils {
 	}
 
 	/**
-	 * Checks if a location is known, i.e. it is not null nor equal to {@link Location#UNKNOWN}.
+	 * Checks if a location is known, i.e. it is not null nor equal to {@link LocationImpl#UNKNOWN}.
 	 * 
 	 * @param location the location to check
 	 * @return <code>true</code> if the location is known
@@ -132,7 +133,7 @@ public class LocationUtils {
 	}
 
 	/**
-	 * Checks if a location is unknown, i.e. it is either null or equal to {@link Location#UNKNOWN}.
+	 * Checks if a location is unknown, i.e. it is either null or equal to {@link LocationImpl#UNKNOWN}.
 	 * 
 	 * @param location the location to check
 	 * @return <code>true</code> if the location is unknown
@@ -182,7 +183,7 @@ public class LocationUtils {
 	 * by this method. Handling of other located classes can be handled by adding new location finders.
 	 * 
 	 * @param obj the object of which to get the location
-	 * @return the object's location, or {@link Location#UNKNOWN} if no location could be found
+	 * @return the object's location, or {@link LocationImpl#UNKNOWN} if no location could be found
 	 */
 	public static Location getLocation(Object obj) {
 		return getLocation(obj, null);
@@ -195,7 +196,7 @@ public class LocationUtils {
 	 * @param obj the object of which to get the location
 	 * @param description an optional description of the object's location, used if a Location object
 	 *        has to be created.
-	 * @return the object's location, or {@link Location#UNKNOWN} if no location could be found
+	 * @return the object's location, or {@link LocationImpl#UNKNOWN} if no location could be found
 	 */
 	public static Location getLocation(Object obj, String description) {
 		if (obj instanceof Location) {
