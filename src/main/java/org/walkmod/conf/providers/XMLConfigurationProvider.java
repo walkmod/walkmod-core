@@ -446,12 +446,12 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 			wc.setRootNamespace(((Element) walkerNode)
 					.getAttribute("root-namespace"));
 			children = walkerNode.getChildNodes();
-			if (children.getLength() > 2) {
+			if (children.getLength() > 3) {
 				throw new ConfigurationException(
 						"Invalid walker definition in the " + "architecture"
 								+ ac.getName() + ". Please, verify the dtd");
 			}
-			int transformationIndex = 0;
+			int transformationIndex = wc.getParams().size();
 			final String nodeName = ((Element) children
 					.item(transformationIndex)).getNodeName();
 			if (("parser").equals(nodeName)) {

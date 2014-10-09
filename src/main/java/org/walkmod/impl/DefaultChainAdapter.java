@@ -143,7 +143,7 @@ public class DefaultChainAdapter implements ChainAdapter {
 		ChainWalker walker = wc.getWalker();
 		if (walker == null) {
 			walker = (ChainWalker) ac.getConfiguration().getBean(wc.getType(),
-					Collections.EMPTY_MAP);
+					wc.getParams());
 		}
 		wc.setWalker(walker);
 		wa.setWalker(walker);
