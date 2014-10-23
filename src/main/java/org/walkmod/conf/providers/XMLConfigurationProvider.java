@@ -317,7 +317,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 						throw new ConfigurationException(
 								"Invalid transformation chain. A walker or at least one transformation must be specified");
 					}
-					if (index >= childrenModel.getLength()) {
+					if (index > childrenModel.getLength()) {
 						throw new ConfigurationException(
 								"Invalid architecture definition for the "
 										+ "element" + ac.getName());
