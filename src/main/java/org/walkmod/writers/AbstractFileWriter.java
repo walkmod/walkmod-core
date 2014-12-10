@@ -60,6 +60,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 	public abstract File createOutputDirectory(Object o);
 
 	public void write(Object n, VisitorContext vc) throws Exception {
+
 		File out = null;
 		boolean createdEmptyFile = false;
 		if (vc != null) {
@@ -99,7 +100,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 						if (includes[i].endsWith("\\*\\*")) {
 							includes[i] = includes[i].substring(0,
 									includes[i].length() - 2);
-						} 
+						}
 					}
 
 					write = includes[i].startsWith(aux)
@@ -125,7 +126,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 								writer.write(content);
 							}
 						}
-
+						Summary.getInstance().addFile(out);
 						log.debug(out.getPath() + " written ");
 					} else {
 						log.error(out.getPath()
@@ -139,7 +140,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 					}
 				}
 			} else {
-				if(createdEmptyFile && out != null && out.isFile()){
+				if (createdEmptyFile && out != null && out.isFile()) {
 					out.delete();
 				}
 				log.debug("skipping " + out.getParent());

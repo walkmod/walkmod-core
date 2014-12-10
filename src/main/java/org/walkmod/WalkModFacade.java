@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
@@ -33,6 +34,7 @@ import org.walkmod.conf.providers.IvyConfigurationProvider;
 import org.walkmod.exceptions.InvalidConfigurationException;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.impl.DefaultChainAdapterFactory;
+import org.walkmod.writers.Summary;
 import org.walkmod.writers.VisitorMessagesWriter;
 
 /**
@@ -75,6 +77,14 @@ public class WalkModFacade {
 		this.printError = printError;
 	}
 
+	public WalkModFacade(String cfg, boolean offline, boolean verbose,
+			boolean printError) {
+		this.cfg = new File(cfg);
+		this.offline = offline;
+		this.verbose = verbose;
+		this.printError = printError;
+	}
+
 	/**
 	 * Facade constructor using the walkmod.xml configuration file.
 	 * 
@@ -107,7 +117,7 @@ public class WalkModFacade {
 	 *             if the walkmod configuration is invalid and it is working in
 	 *             no verbose mode.
 	 */
-	public void apply(String... chains) throws InvalidConfigurationException {
+	public List<File> apply(String... chains) throws InvalidConfigurationException {
 		if (cfg.exists()) {
 			if (verbose) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
@@ -128,11 +138,12 @@ public class WalkModFacade {
 					} else {
 						log.error("Invalid configuration", e);
 					}
-					return;
+					return null;
 				} else {
 					throw new InvalidConfigurationException(e);
 				}
 			}
+			Summary.getInstance().clear();
 			if (chains == null || chains.length == 0) {
 				executeAllChains(apf, config);
 			} else {
@@ -150,6 +161,7 @@ public class WalkModFacade {
 								+ " does not exist. The root directory of your project must contain a walkmod.xml");
 			}
 		}
+		return Summary.getInstance().getWrittenFiles();
 	}
 
 	/**
@@ -161,7 +173,7 @@ public class WalkModFacade {
 	 *             if the walkmod configuration is invalid and it is working in
 	 *             no verbose mode.
 	 */
-	public void check(String... chains) throws InvalidConfigurationException {
+	public List<File> check(String... chains) throws InvalidConfigurationException {
 
 		if (cfg.exists()) {
 			if (verbose) {
@@ -183,7 +195,7 @@ public class WalkModFacade {
 					} else {
 						log.error("Invalid configuration", e);
 					}
-					return;
+					return null;
 				} else {
 					throw new InvalidConfigurationException(e);
 				}
@@ -195,6 +207,7 @@ public class WalkModFacade {
 				tcfg.getWriterConfig().setModelWriter(
 						new VisitorMessagesWriter());
 			}
+			Summary.getInstance().clear();
 			if (chains == null || chains.length == 0) {
 				executeAllChains(apf, config);
 			} else {
@@ -212,6 +225,7 @@ public class WalkModFacade {
 								+ " does not exist. The root directory of your project must contain a walkmod.xml");
 			}
 		}
+		return Summary.getInstance().getWrittenFiles();
 	}
 
 	/**
