@@ -570,7 +570,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 					} else if ("include".equals(nodeName)) {
 						Element include = (Element) n;
 						includes.add(include.getAttribute("wildcard"));
-					} else {
+					} else if(!"param".equals(nodeName)){
 						throw new ConfigurationException(
 								"Invalid writer definition. Only exclude or include tags are supported");
 					}
