@@ -13,22 +13,22 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.conf.entities;
 
 import java.util.Map;
 
 public interface ParserConfig {
 
-	public String getType();
+    public String getType();
 
-	public void setType(String type);
+    public void setType(String type);
 
-	public Map<String, Object> getParameters();
+    public Map<String, Object> getParameters();
 
-	public void setParameters(Map<String, Object> parameters);
-	
-	public Object getParserInstance();
+    public void setParameters(Map<String, Object> parameters);
 
-	public void setParserInstance(Object parserInstance);
+    public Object getParserInstance();
 
+    public void setParserInstance(Object parserInstance);
 }

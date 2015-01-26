@@ -13,46 +13,47 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod;
 
 public abstract class ChainReader {
 
-	private String path;
+    private String path;
 
-	private String[] includes;
+    private String[] includes;
 
-	private String[] excludes;
+    private String[] excludes;
 
-	public ChainReader() {
-	}
+    public ChainReader() {
+    }
 
-	public ChainReader(String path) {
-		setPath(path);
-	}
+    public ChainReader(String path) {
+        setPath(path);
+    }
 
-	public String getPath() {
-		return path;
-	}
+    public String getPath() {
+        return path;
+    }
 
-	public void setPath(String path) {
-		this.path = path;
-	}
+    public void setPath(String path) {
+        this.path = path;
+    }
 
-	public String[] getIncludes() {
-		return includes;
-	}
+    public String[] getIncludes() {
+        return includes;
+    }
 
-	public void setIncludes(String[] includes) {
-		this.includes = includes;
-	}
+    public void setIncludes(String[] includes) {
+        this.includes = includes;
+    }
 
-	public String[] getExcludes() {
-		return excludes;
-	}
+    public String[] getExcludes() {
+        return excludes;
+    }
 
-	public void setExcludes(String[] excludes) {
-		this.excludes = excludes;
-	}
+    public void setExcludes(String[] excludes) {
+        this.excludes = excludes;
+    }
 
-	public abstract Resource<?> read() throws Exception;
+    public abstract Resource<?> read() throws Exception;
 }

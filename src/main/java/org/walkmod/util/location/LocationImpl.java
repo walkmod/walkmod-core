@@ -13,6 +13,7 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.util.location;
 
 import java.io.BufferedReader;
@@ -24,72 +25,70 @@ import java.util.List;
 
 public class LocationImpl implements Location {
 
-	private final String description;
+    private final String description;
 
-	private final String URI;
+    private final String URI;
 
-	private final int lineNumber;
+    private final int lineNumber;
 
-	private final int columnNumber;
+    private final int columnNumber;
 
-	public static final LocationImpl UNKNOWN = new LocationImpl(null, null, -1,
-			-1);
+    public static final LocationImpl UNKNOWN = new LocationImpl(null, null, -1, -1);
 
-	public LocationImpl(String description, String uri) {
-		this(description, uri, -1, -1);
-	}
+    public LocationImpl(String description, String uri) {
+        this(description, uri, -1, -1);
+    }
 
-	public LocationImpl(String description, String uri, int line, int column) {
-		if (uri == null || uri.length() == 0) {
-			this.URI = null;
-			this.lineNumber = -1;
-			this.columnNumber = -1;
-		} else {
-			this.URI = uri;
-			this.lineNumber = line;
-			this.columnNumber = column;
-		}
-		if (description != null && description.length() == 0) {
-			description = null;
-		}
-		this.description = description;
-	}
+    public LocationImpl(String description, String uri, int line, int column) {
+        if (uri == null || uri.length() == 0) {
+            this.URI = null;
+            this.lineNumber = -1;
+            this.columnNumber = -1;
+        } else {
+            this.URI = uri;
+            this.lineNumber = line;
+            this.columnNumber = column;
+        }
+        if (description != null && description.length() == 0) {
+            description = null;
+        }
+        this.description = description;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public String getURI() {
-		return URI;
-	}
+    public String getURI() {
+        return URI;
+    }
 
-	public int getLineNumber() {
-		return lineNumber;
-	}
+    public int getLineNumber() {
+        return lineNumber;
+    }
 
-	public int getColumnNumber() {
-		return columnNumber;
-	}
+    public int getColumnNumber() {
+        return columnNumber;
+    }
 
-	public List<String> getSnippet(int padding) {
-		List<String> snippet = new ArrayList<String>();
-		if (getLineNumber() > 0) {
-			try {
-				InputStream in = new URL(getURI()).openStream();
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(in));
-				int lineno = 0;
-				int errno = getLineNumber();
-				String line;
-				while ((line = reader.readLine()) != null) {
-					lineno++;
-					if (lineno >= errno - padding && lineno <= errno + padding) {
-						snippet.add(line);
-					}
-				}
-			} catch (Exception ex) {
-			}
-		}
-		return snippet;
-	}
+    public List<String> getSnippet(int padding) {
+        List<String> snippet = new ArrayList<String>();
+        if (getLineNumber() > 0) {
+            try {
+                InputStream in = new URL(getURI()).openStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                int lineno = 0;
+                int errno = getLineNumber();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    lineno++;
+                    if (lineno >= errno - padding && lineno <= errno + padding) {
+                        snippet.add(line);
+                    }
+                }
+            } catch (Exception ex) {
+            }
+        }
+        return snippet;
+    }
 }

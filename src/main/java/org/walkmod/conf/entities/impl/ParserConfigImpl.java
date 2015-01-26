@@ -13,49 +13,47 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.conf.entities.impl;
 
 import java.util.Map;
-
 import org.walkmod.conf.entities.ParserConfig;
 
-public class ParserConfigImpl implements ParserConfig{
-	
-	private String type;
-	
-	private  Map<String, Object> parameters;
-	
-	private Object parserInstance;
-	
+public class ParserConfigImpl implements ParserConfig {
 
-	@Override
-	public String getType() {		
-		return type;
-	}
+    private String type;
 
-	@Override
-	public void setType(String type) {
-		this.type = type;
-	}
+    private Map<String, Object> parameters;
 
-	@Override
-	public Map<String, Object> getParameters() {		
-		return parameters;
-	}
+    private Object parserInstance;
 
-	@Override
-	public void setParameters(Map<String, Object> parameters) {
-		this.parameters = parameters;
-	}
+    @Override
+    public String getType() {
+        return type;
+    }
 
-	@Override
-	public Object getParserInstance() {		
-		return parserInstance;
-	}
+    @Override
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	@Override
-	public void setParserInstance(Object parserInstance) {
-		this.parserInstance = parserInstance;
-	}
+    @Override
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
 
+    @Override
+    public void setParameters(Map<String, Object> parameters) {
+        this.parameters = parameters;
+    }
+
+    @Override
+    public Object getParserInstance() {
+        return parserInstance;
+    }
+
+    @Override
+    public void setParserInstance(Object parserInstance) {
+        this.parserInstance = parserInstance;
+    }
 }

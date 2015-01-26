@@ -13,21 +13,22 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.templates;
 
 import java.util.List;
 
 public interface TemplatesAware {
 
-	public List<String> getTemplates();
+    public List<String> getTemplates();
 
-	public void setTemplates(List<String> templates);
+    public void setTemplates(List<String> templates);
 
-	public void setTemplateEngine(TemplateEngine templateEngine);
+    public void setTemplateEngine(TemplateEngine templateEngine);
 
-	public TemplateEngine getTemplateEngine();
+    public TemplateEngine getTemplateEngine();
 
-	public String getRootLabel();
+    public String getRootLabel();
 
-	public void setRootLabel(String rootLabel);
+    public void setRootLabel(String rootLabel);
 }

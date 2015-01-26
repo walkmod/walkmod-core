@@ -13,11 +13,12 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod;
 
 public interface Resource<T> extends Iterable<T> {
 
-	public String getNearestNamespace(Object element, String regexSeparator);
+    public String getNearestNamespace(Object element, String regexSeparator);
 
-	public String getOwnerNamespace(Object element, String regexSeparator);
+    public String getOwnerNamespace(Object element, String regexSeparator);
 }

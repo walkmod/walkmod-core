@@ -13,10 +13,10 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.scripting;
 
 import groovy.lang.GroovyClassLoader;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -26,12 +26,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-
 import org.apache.log4j.Logger;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
@@ -55,44 +53,35 @@ public class ScriptProcessor implements QueryEngineAware {
 	private QueryEngine queryEngine;
 
 	public void initialize(VisitorContext context, Object node) {
-		if (engine == null) {
-			ScriptEngineManager factory = new ScriptEngineManager(
-					context.getClassLoader());
-			engine = factory.getEngineByName(language);
-			if (engine instanceof GroovyScriptEngineImpl) {
-				((GroovyScriptEngineImpl) engine)
-						.setClassLoader(new GroovyClassLoader(context
-								.getClassLoader(), new CompilerConfiguration()));
-			}
-		}
-
-		if (queryEngine == null) {
-			Map<String, Object> parameters = new HashMap<String, Object>();
-			parameters.put("language", "groovy");
-			List<String> includes = new LinkedList<String>();
-			includes.add("query.alias.groovy");
-			parameters.put("includes", includes);
-
-			Object bean = context.getBean(
-					"org.walkmod.query.ScriptingQueryEngine", parameters);
-			if (bean != null) {
-				if (bean instanceof QueryEngine) {
-					queryEngine = (QueryEngine) bean;
-				}
-
-			} else {
-				throw new WalkModException("Query Engine not found");
-			}
-		}
-
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("node", node);
-		queryEngine.initialize(context, params);
-	}
+        if (engine == null) {
+            ScriptEngineManager factory = new ScriptEngineManager(context.getClassLoader());
+            engine = factory.getEngineByName(language);
+            if (engine instanceof GroovyScriptEngineImpl) {
+                ((GroovyScriptEngineImpl) engine).setClassLoader(new GroovyClassLoader(context.getClassLoader(), new CompilerConfiguration()));
+            }
+        }
+        if (queryEngine == null) {
+            Map<String, Object> parameters = new HashMap<String, Object>();
+            parameters.put("language", "groovy");
+            List<String> includes = new LinkedList<String>();
+            includes.add("query.alias.groovy");
+            parameters.put("includes", includes);
+            Object bean = context.getBean("org.walkmod.query.ScriptingQueryEngine", parameters);
+            if (bean != null) {
+                if (bean instanceof QueryEngine) {
+                    queryEngine = (QueryEngine) bean;
+                }
+            } else {
+                throw new WalkModException("Query Engine not found");
+            }
+        }
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("node", node);
+        queryEngine.initialize(context, params);
+    }
 
 	public void visit(Object node, VisitorContext ctx) {
 		initialize(ctx, node);
-
 		Bindings bindings = engine.createBindings();
 		bindings.put("node", node);
 		bindings.put("context", ctx);
@@ -170,5 +159,4 @@ public class ScriptProcessor implements QueryEngineAware {
 		}
 		return null;
 	}
-
 }

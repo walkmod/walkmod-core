@@ -13,19 +13,19 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.query;
 
 import java.util.Map;
-
 import org.walkmod.walkers.VisitorContext;
 
 public interface QueryEngine {
 
-	public void initialize(VisitorContext context);
-	
-	public void initialize(VisitorContext context, Map<String, Object> parameters);
+    public void initialize(VisitorContext context);
 
-	public Object resolve(String query);
-	
-	public Object resolve(Object context, String query);
+    public void initialize(VisitorContext context, Map<String, Object> parameters);
+
+    public Object resolve(String query);
+
+    public Object resolve(Object context, String query);
 }

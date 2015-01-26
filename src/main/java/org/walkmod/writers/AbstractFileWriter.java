@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.walkmod.ChainWriter;
@@ -32,169 +31,153 @@ import org.walkmod.walkers.VisitorContext;
 
 public abstract class AbstractFileWriter implements ChainWriter {
 
-	private String[] excludes;
+    private String[] excludes;
 
-	private String[] includes;
+    private String[] includes;
 
-	private File outputDirectory;
+    private File outputDirectory;
 
-	private String normalizedOutputDirectory;
+    private String normalizedOutputDirectory;
 
-	private String encoding = "UTF-8";
+    private String encoding = "UTF-8";
 
-	private static Logger log = Logger.getLogger(AbstractFileWriter.class);
+    private static Logger log = Logger.getLogger(AbstractFileWriter.class);
 
-	public void setOutputDirectory(String outputDirectory) {
-		this.outputDirectory = new File(outputDirectory);
-		if (!this.outputDirectory.exists()) {
-			this.outputDirectory.mkdir();
-		}
-		normalizedOutputDirectory = FilenameUtils.normalize(
-				this.outputDirectory.getAbsolutePath(), true);
-	}
+    public void setOutputDirectory(String outputDirectory) {
+        this.outputDirectory = new File(outputDirectory);
+        if (!this.outputDirectory.exists()) {
+            this.outputDirectory.mkdir();
+        }
+        normalizedOutputDirectory = FilenameUtils.normalize(this.outputDirectory.getAbsolutePath(), true);
+    }
 
-	public File getOutputDirectory() {
-		return this.outputDirectory;
-	}
+    public File getOutputDirectory() {
+        return this.outputDirectory;
+    }
 
-	public abstract File createOutputDirectory(Object o);
+    public abstract File createOutputDirectory(Object o);
 
-	public void write(Object n, VisitorContext vc) throws Exception {
+    public void write(Object n, VisitorContext vc) throws Exception {
+        File out = null;
+        boolean createdEmptyFile = false;
+        if (vc != null) {
+            out = (File) vc.get(AbstractWalker.ORIGINAL_FILE_KEY);
+        }
+        if (out == null) {
+            log.debug("Creating the target source file. This is not the original source file.");
+            out = createOutputDirectory(n);
+            createdEmptyFile = true;
+        } else {
+            log.debug("The system will overwrite the original source file.");
+        }
+        boolean write = true;
+        if (out != null) {
+            log.debug("Analyzing exclude and include rules");
+            String aux = FilenameUtils.normalize(out.getAbsolutePath(), true);
+            if (excludes != null) {
+                for (int i = 0; i < excludes.length && write; i++) {
+                    if (!excludes[i].startsWith(normalizedOutputDirectory)) {
+                        excludes[i] = normalizedOutputDirectory + "/" + excludes[i];
+                        if (excludes[i].endsWith("\\*\\*")) {
+                            excludes[i] = excludes[i].substring(0, excludes[i].length() - 2);
+                        }
+                    }
+                    write = !(excludes[i].startsWith(aux) || FilenameUtils.wildcardMatch(aux, excludes[i]));
+                }
+            }
+            if (includes != null && write) {
+                write = false;
+                for (int i = 0; i < includes.length && !write; i++) {
+                    if (!includes[i].startsWith(normalizedOutputDirectory)) {
+                        includes[i] = normalizedOutputDirectory + "/" + includes[i];
+                        if (includes[i].endsWith("\\*\\*")) {
+                            includes[i] = includes[i].substring(0, includes[i].length() - 2);
+                        }
+                    }
+                    write = includes[i].startsWith(aux) || FilenameUtils.wildcardMatch(aux, includes[i]);
+                }
+            }
+            if (write) {
+                Writer writer = null;
+                try {
+                    String content = getContent(n, vc);
+                    if (content != null && !"".equals(content)) {
+                        writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(out), getEncoding()));
+                        if (vc.get("append") == null) {
+                            writer.write(content);
+                        } else {
+                            if (Boolean.TRUE.equals(vc.get("append"))) {
+                                writer.append(content);
+                            } else {
+                                writer.write(content);
+                            }
+                        }
+                        Summary.getInstance().addFile(out);
+                        log.debug(out.getPath() + " written ");
+                    } else {
+                        log.error(out.getPath() + " does not have valid content");
+                        throw new WalkModException("blank code is returned");
+                    }
+                } finally {
+                    if (writer != null) {
+                        writer.close();
+                    }
+                }
+            } else {
+                if (createdEmptyFile && out != null && out.isFile()) {
+                    out.delete();
+                }
+                log.debug("skipping " + out.getParent());
+            }
+        } else {
+            log.debug("There is no place where to write.");
+        }
+    }
 
-		File out = null;
-		boolean createdEmptyFile = false;
-		if (vc != null) {
-			out = (File) vc.get(AbstractWalker.ORIGINAL_FILE_KEY);
-		}
-		if (out == null) {
-			log.debug("Creating the target source file. This is not the original source file.");
-			out = createOutputDirectory(n);
-			createdEmptyFile = true;
-		} else {
-			log.debug("The system will overwrite the original source file.");
-		}
-		boolean write = true;
-		if (out != null) {
-			log.debug("Analyzing exclude and include rules");
-			String aux = FilenameUtils.normalize(out.getAbsolutePath(), true);
-			if (excludes != null) {
-				for (int i = 0; i < excludes.length && write; i++) {
-					if (!excludes[i].startsWith(normalizedOutputDirectory)) {
-						excludes[i] = normalizedOutputDirectory + "/"
-								+ excludes[i];
-						if (excludes[i].endsWith("\\*\\*")) {
-							excludes[i] = excludes[i].substring(0,
-									excludes[i].length() - 2);
-						}
-					}
-					write = !(excludes[i].startsWith(aux) || FilenameUtils
-							.wildcardMatch(aux, excludes[i]));
-				}
-			}
-			if (includes != null && write) {
-				write = false;
-				for (int i = 0; i < includes.length && !write; i++) {
-					if (!includes[i].startsWith(normalizedOutputDirectory)) {
-						includes[i] = normalizedOutputDirectory + "/"
-								+ includes[i];
-						if (includes[i].endsWith("\\*\\*")) {
-							includes[i] = includes[i].substring(0,
-									includes[i].length() - 2);
-						}
-					}
+    public abstract String getContent(Object n, VisitorContext vc);
 
-					write = includes[i].startsWith(aux)
-							|| FilenameUtils.wildcardMatch(aux, includes[i]);
-				}
-			}
-			if (write) {
-				Writer writer = null;
+    @Override
+    public void close() throws IOException {
+    }
 
-				try {
+    @Override
+    public void flush() throws IOException {
+    }
 
-					String content = getContent(n, vc);
-					if (content != null && !"".equals(content)) {
+    public void setPath(String path) {
+        setOutputDirectory(path);
+    }
 
-						writer = new BufferedWriter(new OutputStreamWriter(
-								new FileOutputStream(out), getEncoding()));
-						if (vc.get("append") == null) {
-							writer.write(content);
-						} else {
-							if (Boolean.TRUE.equals(vc.get("append"))) {
-								writer.append(content);
-							} else {
-								writer.write(content);
-							}
-						}
-						Summary.getInstance().addFile(out);
-						log.debug(out.getPath() + " written ");
-					} else {
-						log.error(out.getPath()
-								+ " does not have valid content");
-						throw new WalkModException("blank code is returned");
-					}
-				} finally {
-					if (writer != null) {
-						writer.close();
+    public String getPath() {
+        return this.outputDirectory.getPath();
+    }
 
-					}
-				}
-			} else {
-				if (createdEmptyFile && out != null && out.isFile()) {
-					out.delete();
-				}
-				log.debug("skipping " + out.getParent());
-			}
-		} else {
-			log.debug("There is no place where to write.");
-		}
-	}
+    @Override
+    public void setExcludes(String[] excludes) {
+        this.excludes = excludes;
+    }
 
-	public abstract String getContent(Object n, VisitorContext vc);
+    @Override
+    public String[] getExcludes() {
+        return excludes;
+    }
 
-	@Override
-	public void close() throws IOException {
-	}
+    @Override
+    public void setIncludes(String[] includes) {
+        this.includes = includes;
+    }
 
-	@Override
-	public void flush() throws IOException {
-	}
+    @Override
+    public String[] getIncludes() {
+        return includes;
+    }
 
-	public void setPath(String path) {
-		setOutputDirectory(path);
-	}
+    public String getEncoding() {
+        return encoding;
+    }
 
-	public String getPath() {
-		return this.outputDirectory.getPath();
-	}
-
-	@Override
-	public void setExcludes(String[] excludes) {
-		this.excludes = excludes;
-	}
-
-	@Override
-	public String[] getExcludes() {
-		return excludes;
-	}
-
-	@Override
-	public void setIncludes(String[] includes) {
-		this.includes = includes;
-	}
-
-	@Override
-	public String[] getIncludes() {
-		return includes;
-	}
-
-	public String getEncoding() {
-		return encoding;
-	}
-
-	public void setEncoding(String encoding) {
-		this.encoding = encoding;
-		log.debug("[encoding]:" + encoding);
-	}
-
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+        log.debug("[encoding]:" + encoding);
+    }
 }

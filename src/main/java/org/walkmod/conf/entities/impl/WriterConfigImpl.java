@@ -13,6 +13,7 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.conf.entities.impl;
 
 import java.util.Map;
@@ -21,77 +22,75 @@ import org.walkmod.conf.entities.WriterConfig;
 
 public class WriterConfigImpl implements WriterConfig {
 
-	private String path;
+    private String path;
 
-	private String type;
-	
-	private String[] excludes;
-	
-	private String[] includes;
+    private String type;
 
-	private Map<String, Object> params;
+    private String[] excludes;
 
-	private ChainWriter modelWriter;
+    private String[] includes;
 
-	@Override
-	public String getPath() {
-		return path;
-	}
+    private Map<String, Object> params;
 
-	@Override
-	public void setPath(String path) {
-		this.path = path;
-	}
+    private ChainWriter modelWriter;
 
-	@Override
-	public String getType() {
-		return type;
-	}
+    @Override
+    public String getPath() {
+        return path;
+    }
 
-	@Override
-	public void setType(String type) {
-		this.type = type;
-	}
+    @Override
+    public void setPath(String path) {
+        this.path = path;
+    }
 
-	@Override
-	public Map<String, Object> getParams() {
-		return params;
-	}
+    @Override
+    public String getType() {
+        return type;
+    }
 
-	@Override
-	public void setParams(Map<String, Object> params) {
-		this.params = params;
-	}
+    @Override
+    public void setType(String type) {
+        this.type = type;
+    }
 
+    @Override
+    public Map<String, Object> getParams() {
+        return params;
+    }
 
-	@Override
-	public ChainWriter getModelWriter() {
-		return modelWriter;
-	}
+    @Override
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
 
-	@Override
-	public void setModelWriter(ChainWriter modelWriter) {
-		this.modelWriter = modelWriter;
-	}
+    @Override
+    public ChainWriter getModelWriter() {
+        return modelWriter;
+    }
 
-	@Override
-	public void setExcludes(String[] excludes) {
-		this.excludes = excludes;
-	}
+    @Override
+    public void setModelWriter(ChainWriter modelWriter) {
+        this.modelWriter = modelWriter;
+    }
 
-	@Override
-	public String[] getExcludes() {
-		
-		return excludes;
-	}
+    @Override
+    public void setExcludes(String[] excludes) {
+        this.excludes = excludes;
+    }
 
-	@Override
-	public void setIncludes(String[] includes) {
-		this.includes = includes;
-	}
+    @Override
+    public String[] getExcludes() {
+        return excludes;
+    }
 
-	@Override
-	public String[] getIncludes() {		
-		return includes;
-	}
+    @Override
+    public void setIncludes(String[] includes) {
+        this.includes = includes;
+    }
+
+    @Override
+    public String[] getIncludes() {
+        return includes;
+    }
 }
