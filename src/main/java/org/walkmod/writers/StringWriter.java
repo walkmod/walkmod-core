@@ -13,23 +13,21 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.writers;
 
 import java.io.File;
-
 import org.walkmod.walkers.VisitorContext;
 
 public class StringWriter extends AbstractFileWriter {
 
-	@Override
-	public String getContent(Object n, VisitorContext vc) {
-		return n.toString();
-	}
+    @Override
+    public String getContent(Object n, VisitorContext vc) {
+        return n.toString();
+    }
 
-	@Override
-	public File createOutputDirectory(Object o) {
-		return null;
-	}
-
-
+    @Override
+    public File createOutputDirectory(Object o) {
+        return null;
+    }
 }

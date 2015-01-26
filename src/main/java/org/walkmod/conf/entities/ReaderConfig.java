@@ -13,6 +13,7 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.conf.entities;
 
 import java.util.Map;
@@ -20,65 +21,63 @@ import org.walkmod.ChainReader;
 
 public class ReaderConfig {
 
-	private String path;
+    private String path;
 
-	private String type;
+    private String type;
 
-	private ChainReader modelReader;
+    private ChainReader modelReader;
 
-	private Map<String, Object> parameters;
-	
-	private String[] includes;
-	
-	private String[] excludes;
+    private Map<String, Object> parameters;
 
-	public String getPath() {
-		return path;
-	}
+    private String[] includes;
 
-	public void setPath(String path) {
-		this.path = path;
-	}
+    private String[] excludes;
 
-	public String getType() {
-		return type;
-	}
+    public String getPath() {
+        return path;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public void setPath(String path) {
+        this.path = path;
+    }
 
-	public Map<String, Object> getParameters() {
-		return parameters;
-	}
+    public String getType() {
+        return type;
+    }
 
-	public void setParameters(Map<String, Object> parameters) {
-		this.parameters = parameters;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public ChainReader getModelReader() {
-		return modelReader;
-	}
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
 
-	public void setModelReader(ChainReader modelReader) {
-		this.modelReader = modelReader;
-	}
+    public void setParameters(Map<String, Object> parameters) {
+        this.parameters = parameters;
+    }
 
-	public String[] getIncludes() {
-		return includes;
-	}
+    public ChainReader getModelReader() {
+        return modelReader;
+    }
 
-	public void setIncludes(String[] includes) {
-		this.includes = includes;
-	}
+    public void setModelReader(ChainReader modelReader) {
+        this.modelReader = modelReader;
+    }
 
-	public String[] getExcludes() {
-		return excludes;
-	}
+    public String[] getIncludes() {
+        return includes;
+    }
 
-	public void setExcludes(String[] excludes) {
-		this.excludes = excludes;
-	}
-	
-	
+    public void setIncludes(String[] includes) {
+        this.includes = includes;
+    }
+
+    public String[] getExcludes() {
+        return excludes;
+    }
+
+    public void setExcludes(String[] excludes) {
+        this.excludes = excludes;
+    }
 }

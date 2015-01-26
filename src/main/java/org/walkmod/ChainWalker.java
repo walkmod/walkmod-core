@@ -13,47 +13,46 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod;
 
 import java.util.Collection;
 import java.util.List;
-
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.walkers.ParserAware;
 import org.walkmod.walkers.VisitorMessage;
 
-public interface ChainWalker extends ParserAware{
+public interface ChainWalker extends ParserAware {
 
-	public void setResource(Resource<?> resource);
+    public void setResource(Resource<?> resource);
 
-	public void setVisitors(List<Object> visitor);
+    public void setVisitors(List<Object> visitor);
 
-	public void setWriter(Object writer);
+    public void setWriter(Object writer);
 
-	public void setRootNamespace(String namespace);
+    public void setRootNamespace(String namespace);
 
-	public void setChainConfig(ChainConfig ac);
+    public void setChainConfig(ChainConfig ac);
 
-	public String getRootNamespace();
+    public String getRootNamespace();
 
-	public List<Object> getVisitors();
+    public List<Object> getVisitors();
 
-	public Object getWriter();
+    public Object getWriter();
 
-	public void execute() throws Exception;
+    public void execute() throws Exception;
 
-	public Collection<VisitorMessage> getVisitorMessages();
-	
-	public int getNumModifications();
-	
-	public int getNumAdditions();
-	
-	public int getNumDeletions();
-	
-	public boolean reportChanges();
-	
-	public void setReportChanges(boolean reportChanges);
-	
-	public boolean hasChanges();
+    public Collection<VisitorMessage> getVisitorMessages();
 
+    public int getNumModifications();
+
+    public int getNumAdditions();
+
+    public int getNumDeletions();
+
+    public boolean reportChanges();
+
+    public void setReportChanges(boolean reportChanges);
+
+    public boolean hasChanges();
 }

@@ -13,6 +13,7 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.conf.entities.impl;
 
 import java.util.List;
@@ -26,82 +27,80 @@ import org.walkmod.conf.entities.WriterConfig;
 
 public class ChainConfigImpl implements ChainConfig {
 
-	private String name;
+    private String name;
 
-	private ReaderConfig model;
+    private ReaderConfig model;
 
-	private Map<String, Object> parameters;
+    private Map<String, Object> parameters;
 
-	private List<TransformationConfig> transformations;
+    private List<TransformationConfig> transformations;
 
-	private Configuration configuration;
+    private Configuration configuration;
 
-	private WriterConfig writerConfig;
+    private WriterConfig writerConfig;
 
-	private WalkerConfig walkerConfig;
+    private WalkerConfig walkerConfig;
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public List<TransformationConfig> getTransformations() {
-		return transformations;
-	}
+    public List<TransformationConfig> getTransformations() {
+        return transformations;
+    }
 
-	public void setParameters(Map<String, Object> parameters) {
-		this.parameters = parameters;
-	}
+    public void setParameters(Map<String, Object> parameters) {
+        this.parameters = parameters;
+    }
 
-	public Map<String, Object> getParameters() {
-		return parameters;
-	}
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
 
-	public void setTransformations(List<TransformationConfig> transformations) {
-		this.transformations = transformations;
-	}
+    public void setTransformations(List<TransformationConfig> transformations) {
+        this.transformations = transformations;
+    }
 
-	public ReaderConfig getReaderConfig() {
-		return model;
-	}
+    public ReaderConfig getReaderConfig() {
+        return model;
+    }
 
-	public void setReaderConfig(ReaderConfig model) {
-		this.model = model;
-	}
+    public void setReaderConfig(ReaderConfig model) {
+        this.model = model;
+    }
 
-	@Override
-	public Configuration getConfiguration() {
-		return configuration;
-	}
+    @Override
+    public Configuration getConfiguration() {
+        return configuration;
+    }
 
-	@Override
-	public void setConfiguration(Configuration configuration) {
-		this.configuration = configuration;
-	}
+    @Override
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
 
-	@Override
-	public void setWalkerConfig(WalkerConfig wc) {
-		wc.setChainConfig(this);
-		this.walkerConfig = wc;
-	}
+    @Override
+    public void setWalkerConfig(WalkerConfig wc) {
+        wc.setChainConfig(this);
+        this.walkerConfig = wc;
+    }
 
-	@Override
-	public WalkerConfig getWalkerConfig() {
-		return walkerConfig;
-	}
+    @Override
+    public WalkerConfig getWalkerConfig() {
+        return walkerConfig;
+    }
 
-	@Override
-	public void setWriterConfig(WriterConfig wc) {
-		this.writerConfig = wc;
-	}
+    @Override
+    public void setWriterConfig(WriterConfig wc) {
+        this.writerConfig = wc;
+    }
 
-	@Override
-	public WriterConfig getWriterConfig() {
-		return writerConfig;
-	}
-	
-	
+    @Override
+    public WriterConfig getWriterConfig() {
+        return writerConfig;
+    }
 }

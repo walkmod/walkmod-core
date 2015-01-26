@@ -13,12 +13,12 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.walkers;
 
 public interface ParserAware {
 
-	public void setParser(Parser<?> parser);
-	
-	public Parser<?> getParser();
-	
+    public void setParser(Parser<?> parser);
+
+    public Parser<?> getParser();
 }

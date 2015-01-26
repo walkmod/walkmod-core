@@ -13,6 +13,7 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.conf.entities.impl;
 
 import java.util.Map;
@@ -20,73 +21,71 @@ import org.walkmod.conf.entities.TransformationConfig;
 
 public class TransformationConfigImpl implements TransformationConfig {
 
-	private String name;
+    private String name;
 
-	private String visitor;
+    private String visitor;
 
-	private Map<String, Object> parameters;
+    private Map<String, Object> parameters;
 
-	private Object visitorInstance;
-	
-	private boolean isMergeable = false;
-	
-	private String mergePolicy;
-	
+    private Object visitorInstance;
 
-	public String getName() {
-		return name;
-	}
+    private boolean isMergeable = false;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    private String mergePolicy;
 
-	public Map<String, Object> getParameters() {
-		return parameters;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setParameters(Map<String, Object> parameters) {
-		this.parameters = parameters;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@Override
-	public String getType() {
-		return visitor;
-	}
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
 
-	@Override
-	public void setType(String visitor) {
-		this.visitor = visitor;
-	}
+    public void setParameters(Map<String, Object> parameters) {
+        this.parameters = parameters;
+    }
 
-	@Override
-	public Object getVisitorInstance() {
-		return visitorInstance;
-	}
+    @Override
+    public String getType() {
+        return visitor;
+    }
 
-	@Override
-	public void setVisitorInstance(Object visitorInstance) {
-		this.visitorInstance = visitorInstance;
-	}
+    @Override
+    public void setType(String visitor) {
+        this.visitor = visitor;
+    }
 
-	@Override
-	public void isMergeable(boolean isMergeable) {
-		this.isMergeable = isMergeable;
-	}
+    @Override
+    public Object getVisitorInstance() {
+        return visitorInstance;
+    }
 
-	@Override
-	public boolean isMergeable() {
-		return isMergeable;
-	}
+    @Override
+    public void setVisitorInstance(Object visitorInstance) {
+        this.visitorInstance = visitorInstance;
+    }
 
-	@Override
-	public void setMergePolicy(String mergePolicy) {
-		this.mergePolicy = mergePolicy;
-	}
+    @Override
+    public void isMergeable(boolean isMergeable) {
+        this.isMergeable = isMergeable;
+    }
 
-	@Override
-	public String getMergePolicy() {		
-		return mergePolicy;
-	}
+    @Override
+    public boolean isMergeable() {
+        return isMergeable;
+    }
 
+    @Override
+    public void setMergePolicy(String mergePolicy) {
+        this.mergePolicy = mergePolicy;
+    }
+
+    @Override
+    public String getMergePolicy() {
+        return mergePolicy;
+    }
 }

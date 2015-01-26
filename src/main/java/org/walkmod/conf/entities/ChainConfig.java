@@ -13,33 +13,34 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.conf.entities;
 
 import java.util.Map;
 
 public interface ChainConfig {
 
-	public String getName();
+    public String getName();
 
-	public void setName(String name);
+    public void setName(String name);
 
-	public void setParameters(Map<String, Object> parameters);
+    public void setParameters(Map<String, Object> parameters);
 
-	public Map<String, Object> getParameters();
+    public Map<String, Object> getParameters();
 
-	public ReaderConfig getReaderConfig();
+    public ReaderConfig getReaderConfig();
 
-	public void setReaderConfig(ReaderConfig model);
+    public void setReaderConfig(ReaderConfig model);
 
-	public Configuration getConfiguration();
+    public Configuration getConfiguration();
 
-	public void setConfiguration(Configuration configuration);
+    public void setConfiguration(Configuration configuration);
 
-	public void setWalkerConfig(WalkerConfig wc);
+    public void setWalkerConfig(WalkerConfig wc);
 
-	public WalkerConfig getWalkerConfig();
+    public WalkerConfig getWalkerConfig();
 
-	public void setWriterConfig(WriterConfig wc);
+    public void setWriterConfig(WriterConfig wc);
 
-	public WriterConfig getWriterConfig();
+    public WriterConfig getWriterConfig();
 }
