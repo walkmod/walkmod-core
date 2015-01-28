@@ -45,6 +45,15 @@ public class AbstractFileWriterTest {
 
 		endLine = writer.getEndLineChar(fileWithCR);
 		Assert.assertEquals('\r', endLine);
+		
+		File nonExistent = new File("test");
+		endLine = writer.getEndLineChar(nonExistent);
+		char expected = '\n';
+		if (System.getProperty("os.name").toLowerCase().startsWith("Windows")){
+			expected = '\n';
+		}
+		
+		Assert.assertEquals(expected, endLine);
 	}
 
 	@Test

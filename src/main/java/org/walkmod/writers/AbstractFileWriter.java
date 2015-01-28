@@ -185,29 +185,37 @@ public abstract class AbstractFileWriter implements ChainWriter {
 
 	public char getEndLineChar(File file) throws IOException {
 		char endLineChar = '\n';
-		FileReader reader = new FileReader(file);
-		try {
-			char[] buffer = new char[150];
-			boolean detected = false;
-			int bytes = reader.read(buffer);
-			char previousChar = '\0';
-			while (bytes > 0 && !detected) {
-				for (int i = 0; i < bytes && !detected; i++) {
-					if (buffer[i] == '\r') {
-						endLineChar = '\r';
-						detected = true;
-					}
-					detected = detected
-							|| (previousChar == '\n' && buffer[i] != '\r');
-					previousChar = buffer[i];
+		if (file.exists()) {
+			FileReader reader = new FileReader(file);
+			try {
+				char[] buffer = new char[150];
+				boolean detected = false;
+				int bytes = reader.read(buffer);
+				char previousChar = '\0';
+				while (bytes > 0 && !detected) {
+					for (int i = 0; i < bytes && !detected; i++) {
+						if (buffer[i] == '\r') {
+							endLineChar = '\r';
+							detected = true;
+						}
+						detected = detected
+								|| (previousChar == '\n' && buffer[i] != '\r');
+						previousChar = buffer[i];
 
+					}
+					if (!detected) {
+						bytes = reader.read(buffer);
+					}
 				}
-				if (!detected) {
-					bytes = reader.read(buffer);
-				}
+			} finally {
+				reader.close();
 			}
-		} finally {
-			reader.close();
+		}
+		else{
+			String os = System.getProperty("os.name");
+			if(os.toLowerCase().startsWith("windows")){
+				endLineChar = '\r';
+			}
 		}
 		return endLineChar;
 	}
