@@ -13,7 +13,6 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
-
 package org.walkmod.conf.providers;
 
 import java.io.File;
@@ -28,7 +27,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -58,7 +56,6 @@ import org.walkmod.conf.entities.impl.WalkerConfigImpl;
 import org.walkmod.conf.entities.impl.WriterConfigImpl;
 import org.walkmod.util.DomHelper;
 import org.xml.sax.InputSource;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
@@ -570,7 +567,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 					} else if ("include".equals(nodeName)) {
 						Element include = (Element) n;
 						includes.add(include.getAttribute("wildcard"));
-					} else if(!"param".equals(nodeName)){
+					} else if (!"param".equals(nodeName)) {
 						throw new ConfigurationException(
 								"Invalid writer definition. Only exclude or include tags are supported");
 					}
@@ -614,7 +611,6 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		NodeList children = rootElement.getChildNodes();
 		Collection<ProviderConfig> providers = new LinkedList<ProviderConfig>();
 		int childSize = children.getLength();
-
 		for (int i = 0; i < childSize; i++) {
 			Node childNode = children.item(i);
 			if ("conf-providers".equals(childNode.getNodeName())) {
@@ -633,7 +629,6 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 				}
 			}
 		}
-		
 		configuration.setProviderConfigurations(providers);
 	}
 
@@ -642,7 +637,6 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		NodeList children = rootElement.getChildNodes();
 		int childSize = children.getLength();
 		Collection<MergePolicyConfig> mergePolicies = new LinkedList<MergePolicyConfig>();
-
 		for (int i = 0; i < childSize; i++) {
 			Node childNode = children.item(i);
 			if ("merge-policies".equals(childNode.getNodeName())) {
@@ -690,10 +684,8 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 						}
 					}
 				}
-
 			}
 		}
-
 		configuration.setMergePolicies(mergePolicies);
 	}
 
@@ -718,12 +710,10 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 						String artifactId = pluginElement
 								.getAttribute("artifactId");
 						String version = pluginElement.getAttribute("version");
-
 						if (groupId == null) {
 							throw new ConfigurationException(
 									"Invalid plugin definition. A groupId is necessary.");
 						}
-
 						if (artifactId == null) {
 							throw new ConfigurationException(
 									"Invalid plugin definition. A artifactId is necessary.");

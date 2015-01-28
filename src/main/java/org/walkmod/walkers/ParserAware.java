@@ -18,7 +18,6 @@ package org.walkmod.walkers;
 public interface ParserAware {
 
 	public void setParser(Parser<?> parser);
-	
+
 	public Parser<?> getParser();
-	
 }

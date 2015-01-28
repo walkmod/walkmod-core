@@ -16,7 +16,6 @@
 package org.walkmod.conf.providers;
 
 import java.util.Collection;
-
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
@@ -48,9 +47,7 @@ public class SpringConfigurationProvider implements ConfigurationProvider,
 
 	@Override
 	public void loadBeanFactory() throws ConfigurationException {
-
 		GenericApplicationContext ctx = new GenericApplicationContext();
-
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(ctx);
 		reader.setBeanClassLoader(configuration.getClassLoader());
 		reader.loadBeanDefinitions(new ClassPathResource(config, configuration
@@ -59,18 +56,17 @@ public class SpringConfigurationProvider implements ConfigurationProvider,
 		if (plugins != null) {
 			for (PluginConfig plugin : plugins) {
 				String descriptorName = plugin.getArtifactId();
-				if(!descriptorName.startsWith("walkmod-")){
-					descriptorName = "walkmod-"+descriptorName;
+				if (!descriptorName.startsWith("walkmod-")) {
+					descriptorName = "walkmod-" + descriptorName;
 				}
-				if(!descriptorName.endsWith("-plugin")){
-					descriptorName = descriptorName +"-plugin";
+				if (!descriptorName.endsWith("-plugin")) {
+					descriptorName = descriptorName + "-plugin";
 				}
 				reader.loadBeanDefinitions(new ClassPathResource(
-						"META-INF/walkmod/" + descriptorName
-								+ ".xml", configuration.getClassLoader()));
+						"META-INF/walkmod/" + descriptorName + ".xml",
+						configuration.getClassLoader()));
 			}
 		}
-
 		ctx.refresh();
 		configuration.setBeanFactory(ctx);
 	}

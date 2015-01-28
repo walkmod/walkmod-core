@@ -13,7 +13,6 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
-
 package org.walkmod.walkers;
 
 import java.lang.reflect.Method;
@@ -26,7 +25,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.apache.log4j.Logger;
 import org.walkmod.ChainWalker;
 import org.walkmod.Resource;
@@ -38,7 +36,7 @@ import org.walkmod.merger.IdentificableNode;
 import org.walkmod.merger.MergeEngine;
 import org.walkmod.merger.Mergeable;
 
-public abstract class AbstractWalker implements ChainWalker{
+public abstract class AbstractWalker implements ChainWalker {
 
 	public static final String NAMESPACE_SEPARATOR = "::";
 
@@ -57,7 +55,7 @@ public abstract class AbstractWalker implements ChainWalker{
 	private Collection<VisitorMessage> visitorMessages;
 
 	private static Logger log = Logger.getLogger(AbstractWalker.class);
-	
+
 	public static final String ORIGINAL_FILE_KEY = "original_file_key";
 
 	public AbstractWalker() {
@@ -120,22 +118,17 @@ public abstract class AbstractWalker implements ChainWalker{
 									mergePolicy);
 						}
 						if (args.hasResultNodes()) {
-
 							Iterator<Object> it = args.getResultNodes()
 									.iterator();
-
 							while (it.hasNext()) {
 								Object currentArg = it.next();
 								if (isMergeable) {
 									currentArg = merge(currentArg, me, context);
 								}
-								
-								context.addResultNode(currentArg);		
-								
+								context.addResultNode(currentArg);
 								visit(currentArg, restVisitors,
 										restTransformations, context);
 								return;
-
 							}
 						} else {
 							context.addResultNode(element);
@@ -313,7 +306,6 @@ public abstract class AbstractWalker implements ChainWalker{
 
 	protected Object merge(Object object, MergeEngine mergeEngine,
 			VisitorContext vc) {
-
 		Object local = null;
 		Collection<Object> rnodes = vc.getResultNodes();
 		boolean previousResult = false;
@@ -333,7 +325,6 @@ public abstract class AbstractWalker implements ChainWalker{
 		if (!previousResult) {
 			local = getSourceNode(object);
 		}
-
 		if (local != null) {
 			if (object instanceof Mergeable) {
 				((Mergeable) local).merge(object, mergeEngine);
@@ -353,10 +344,9 @@ public abstract class AbstractWalker implements ChainWalker{
 		}
 		return local;
 	}
-	
+
 	@Override
 	public boolean hasChanges() {
-		return !(getNumModifications() == 0 && getNumAdditions() == 0
-				&& getNumDeletions() == 0);
+		return !(getNumModifications() == 0 && getNumAdditions() == 0 && getNumDeletions() == 0);
 	}
 }

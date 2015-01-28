@@ -19,7 +19,6 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.walkmod.ConfigurationAdapter;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.impl.ConfigurationImpl;
@@ -38,14 +37,15 @@ public class ConfigurationManager {
 	public ConfigurationManager(Configuration conf) {
 		setConfiguration(conf);
 	}
-	
-	public ConfigurationManager(File walkmodcfg, ConfigurationProvider... configurationProviders){
+
+	public ConfigurationManager(File walkmodcfg,
+			ConfigurationProvider... configurationProviders) {
 		setConfiguration(new ConfigurationImpl());
 		this.configurationProviders.add(new XMLConfigurationProvider(walkmodcfg
 				.getAbsolutePath(), false));
 		this.configurationProviders.add(new PluginsConfigurationProvider());
-		if(configurationProviders != null){
-			for(ConfigurationProvider cp : configurationProviders){
+		if (configurationProviders != null) {
+			for (ConfigurationProvider cp : configurationProviders) {
 				this.configurationProviders.add(cp);
 			}
 		}
@@ -63,7 +63,7 @@ public class ConfigurationManager {
 	}
 
 	public void setConfiguration(Configuration configuration) {
-		this.configuration = configuration;		
+		this.configuration = configuration;
 	}
 
 	public Configuration getConfiguration() {

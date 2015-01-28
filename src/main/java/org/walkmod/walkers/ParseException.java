@@ -15,19 +15,19 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.walkers;
 
-public class ParseException extends Exception{
+public class ParseException extends Exception {
 
 	private static final long serialVersionUID = 1682701501960057442L;
 
-	public ParseException(){
+	public ParseException() {
 		super();
 	}
-	
-	public ParseException(String msg, Throwable cause){
+
+	public ParseException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
-	
-	public ParseException(Throwable cause){
+
+	public ParseException(Throwable cause) {
 		super(cause);
 	}
 }

@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-
 import org.apache.log4j.Logger;
 import org.walkmod.conf.ConfigurationManager;
 import org.walkmod.conf.ConfigurationProvider;
@@ -117,7 +116,8 @@ public class WalkModFacade {
 	 *             if the walkmod configuration is invalid and it is working in
 	 *             no verbose mode.
 	 */
-	public List<File> apply(String... chains) throws InvalidConfigurationException {
+	public List<File> apply(String... chains)
+			throws InvalidConfigurationException {
 		if (cfg.exists()) {
 			if (verbose) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
@@ -173,8 +173,8 @@ public class WalkModFacade {
 	 *             if the walkmod configuration is invalid and it is working in
 	 *             no verbose mode.
 	 */
-	public List<File> check(String... chains) throws InvalidConfigurationException {
-
+	public List<File> check(String... chains)
+			throws InvalidConfigurationException {
 		if (cfg.exists()) {
 			if (verbose) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
@@ -236,7 +236,6 @@ public class WalkModFacade {
 	 *             no verbose mode.
 	 */
 	public void install() throws InvalidConfigurationException {
-
 		if (cfg.exists()) {
 			if (verbose) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
@@ -356,7 +355,6 @@ public class WalkModFacade {
 		int pos = 1;
 		while (it.hasNext()) {
 			ChainConfig tcfg = it.next();
-
 			if (tcgfs.size() > 1) {
 				if (verbose) {
 					String label = "";
@@ -458,7 +456,6 @@ public class WalkModFacade {
 
 	private void executeChainAdapter(ChainAdapterFactory apf,
 			Configuration conf, String name) {
-
 		ChainAdapter ap = apf.createChainProxy(conf, name);
 		if (ap == null) {
 			if (verbose) {
@@ -566,5 +563,4 @@ public class WalkModFacade {
 			}
 		}
 	}
-
 }

@@ -17,7 +17,6 @@ package org.walkmod.impl;
 
 import java.util.Collection;
 import java.util.Iterator;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.walkmod.ChainAdapter;
@@ -33,7 +32,6 @@ public class DefaultChainAdapterFactory implements ChainAdapterFactory {
 	@Override
 	public ChainAdapter createChainProxy(Configuration configuration,
 			String chain) {
-
 		Collection<ChainConfig> acs = configuration.getChainConfigs();
 		Iterator<ChainConfig> it = acs.iterator();
 		boolean end = false;

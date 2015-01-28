@@ -2,7 +2,6 @@ package org.walkmod.conf.providers;
 
 import java.util.Collection;
 import java.util.LinkedList;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.walkmod.conf.ConfigurationException;
@@ -26,7 +25,6 @@ public class PluginsConfigurationProviderTest {
 
 	@Test
 	public void testInvalidPlugins() {
-
 		IvyConfigurationProvider provider = new IvyConfigurationProvider();
 		Configuration conf = new ConfigurationImpl();
 		provider.init(conf);
@@ -41,11 +39,7 @@ public class PluginsConfigurationProviderTest {
 			provider.load();
 		} catch (ConfigurationException e) {
 			exception = e;
-			
 		}
-		
 		Assert.assertNotNull(exception);
-
 	}
-
 }

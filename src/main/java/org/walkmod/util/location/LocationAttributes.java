@@ -66,8 +66,7 @@ public class LocationAttributes {
 		if (locator == null || attrs.getIndex(URI, SRC_ATTR) != -1) {
 			return attrs;
 		}
-		AttributesImpl newAttrs = attrs instanceof AttributesImpl
-				? (AttributesImpl) attrs
+		AttributesImpl newAttrs = attrs instanceof AttributesImpl ? (AttributesImpl) attrs
 				: new AttributesImpl(attrs);
 		newAttrs.addAttribute(URI, SRC_ATTR, Q_SRC_ATTR, "CDATA",
 				locator.getSystemId());
@@ -162,8 +161,7 @@ public class LocationAttributes {
 		if (srcAttr == null) {
 			return LocationImpl.UNKNOWN;
 		}
-		return new LocationImpl(description == null
-				? elem.getNodeName()
+		return new LocationImpl(description == null ? elem.getNodeName()
 				: description, srcAttr.getValue(), getLine(elem),
 				getColumn(elem));
 	}
@@ -269,7 +267,7 @@ public class LocationAttributes {
 	 * <strong>Note:</strong> Although this adds a lot of information to the serialized form of the document,
 	 * the overhead in SAX events is not that big, as attribute names are interned, and all <code>src</code>
 	 * attributes point to the same string.
-     *
+	 *
 	 * see com.opensymphony.xwork2.util.location.LocationAttributes
 	 */
 	public static class Pipe implements ContentHandler {

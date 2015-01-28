@@ -17,12 +17,11 @@ package org.walkmod;
 
 import java.util.Collection;
 import java.util.List;
-
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.walkers.ParserAware;
 import org.walkmod.walkers.VisitorMessage;
 
-public interface ChainWalker extends ParserAware{
+public interface ChainWalker extends ParserAware {
 
 	public void setResource(Resource<?> resource);
 
@@ -43,17 +42,16 @@ public interface ChainWalker extends ParserAware{
 	public void execute() throws Exception;
 
 	public Collection<VisitorMessage> getVisitorMessages();
-	
-	public int getNumModifications();
-	
-	public int getNumAdditions();
-	
-	public int getNumDeletions();
-	
-	public boolean reportChanges();
-	
-	public void setReportChanges(boolean reportChanges);
-	
-	public boolean hasChanges();
 
+	public int getNumModifications();
+
+	public int getNumAdditions();
+
+	public int getNumDeletions();
+
+	public boolean reportChanges();
+
+	public void setReportChanges(boolean reportChanges);
+
+	public boolean hasChanges();
 }
