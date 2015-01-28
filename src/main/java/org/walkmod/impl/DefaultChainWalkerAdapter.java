@@ -85,8 +85,8 @@ public class DefaultChainWalkerAdapter implements ChainWalkerAdapter {
 		Parser parser = null;
 		String parserType = config.getParserConfig().getType();
 		if (parserType != null) {
-			Object parserInstance = c.getBean(parserType, config.getParserConfig()
-					.getParameters());
+			Object parserInstance = c.getBean(parserType, config
+					.getParserConfig().getParameters());
 			if (parserInstance != null) {
 				if (parserInstance instanceof Parser) {
 					parser = (Parser) parserInstance;
@@ -95,13 +95,11 @@ public class DefaultChainWalkerAdapter implements ChainWalkerAdapter {
 					throw new WalkModException("The parser " + parserType
 							+ " must implement " + Parser.class.getName());
 				}
-			}
-			else{
+			} else {
 				throw new WalkModException("The parser " + parserType
 						+ " does not exist.");
 			}
 		}
-
 		for (TransformationConfig config : getTransformationConfig()) {
 			setName(config.getName());
 			visitor = config.getVisitorInstance();
@@ -111,7 +109,7 @@ public class DefaultChainWalkerAdapter implements ChainWalkerAdapter {
 			if (visitor instanceof ResourceModifier) {
 				((ResourceModifier) visitor).setResource(getModel());
 			}
-			if(visitor instanceof ParserAware){
+			if (visitor instanceof ParserAware) {
 				((ParserAware) visitor).setParser(parser);
 			}
 			if (visitor != null) {

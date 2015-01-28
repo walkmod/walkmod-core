@@ -16,7 +16,6 @@
 package org.walkmod.templates;
 
 import java.io.File;
-
 import org.walkmod.walkers.VisitorContext;
 
 public interface TemplateEngine {
@@ -24,6 +23,6 @@ public interface TemplateEngine {
 	public void initialize(VisitorContext context, Object rootNode);
 
 	public String applyTemplate(File template);
-	
+
 	public String applyTemplate(File template, File properties);
 }

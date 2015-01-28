@@ -16,7 +16,6 @@
 package org.walkmod.query;
 
 import groovy.lang.GroovyClassLoader;
-
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +67,6 @@ public class ScriptingQueryEngine implements QueryEngine {
 						.setClassLoader(new GroovyClassLoader(context
 								.getClassLoader(), new CompilerConfiguration()));
 			}
-			
 		}
 		this.context = context;
 		bindings = engine.createBindings();

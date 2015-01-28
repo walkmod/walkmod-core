@@ -24,9 +24,9 @@ public class WriterConfigImpl implements WriterConfig {
 	private String path;
 
 	private String type;
-	
+
 	private String[] excludes;
-	
+
 	private String[] includes;
 
 	private Map<String, Object> params;
@@ -63,7 +63,6 @@ public class WriterConfigImpl implements WriterConfig {
 		this.params = params;
 	}
 
-
 	@Override
 	public ChainWriter getModelWriter() {
 		return modelWriter;
@@ -81,7 +80,6 @@ public class WriterConfigImpl implements WriterConfig {
 
 	@Override
 	public String[] getExcludes() {
-		
 		return excludes;
 	}
 
@@ -91,7 +89,7 @@ public class WriterConfigImpl implements WriterConfig {
 	}
 
 	@Override
-	public String[] getIncludes() {		
+	public String[] getIncludes() {
 		return includes;
 	}
 }

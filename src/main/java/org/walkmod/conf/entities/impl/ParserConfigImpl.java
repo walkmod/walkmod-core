@@ -16,20 +16,18 @@
 package org.walkmod.conf.entities.impl;
 
 import java.util.Map;
-
 import org.walkmod.conf.entities.ParserConfig;
 
-public class ParserConfigImpl implements ParserConfig{
-	
+public class ParserConfigImpl implements ParserConfig {
+
 	private String type;
-	
-	private  Map<String, Object> parameters;
-	
+
+	private Map<String, Object> parameters;
+
 	private Object parserInstance;
-	
 
 	@Override
-	public String getType() {		
+	public String getType() {
 		return type;
 	}
 
@@ -39,7 +37,7 @@ public class ParserConfigImpl implements ParserConfig{
 	}
 
 	@Override
-	public Map<String, Object> getParameters() {		
+	public Map<String, Object> getParameters() {
 		return parameters;
 	}
 
@@ -49,7 +47,7 @@ public class ParserConfigImpl implements ParserConfig{
 	}
 
 	@Override
-	public Object getParserInstance() {		
+	public Object getParserInstance() {
 		return parserInstance;
 	}
 
@@ -57,5 +55,4 @@ public class ParserConfigImpl implements ParserConfig{
 	public void setParserInstance(Object parserInstance) {
 		this.parserInstance = parserInstance;
 	}
-
 }

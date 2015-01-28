@@ -16,7 +16,6 @@
 package org.walkmod.writers;
 
 import java.io.File;
-
 import org.walkmod.walkers.VisitorContext;
 
 public class StringWriter extends AbstractFileWriter {
@@ -30,6 +29,4 @@ public class StringWriter extends AbstractFileWriter {
 	public File createOutputDirectory(Object o) {
 		return null;
 	}
-
-
 }

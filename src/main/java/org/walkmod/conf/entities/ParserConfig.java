@@ -26,9 +26,8 @@ public interface ParserConfig {
 	public Map<String, Object> getParameters();
 
 	public void setParameters(Map<String, Object> parameters);
-	
+
 	public Object getParserInstance();
 
 	public void setParserInstance(Object parserInstance);
-
 }

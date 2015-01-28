@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import junit.framework.Assert;
-
 import org.junit.Test;
 import org.walkmod.walkers.VisitorContext;
 
@@ -29,30 +27,24 @@ public class AbstractFileWriterTest {
 
 	@Test
 	public void testEndLineChar() throws IOException {
-
 		File fileWithCR = File.createTempFile("test", "withCR.txt");
 		FileWriter fw = new FileWriter(fileWithCR);
 		fw.write("\r\n");
 		fw.close();
-
 		File fileWithoutCR = File.createTempFile("test", "withoutCR.txt");
 		fw = new FileWriter(fileWithoutCR);
 		fw.write("test\n");
 		fw.close();
-
 		char endLine = writer.getEndLineChar(fileWithoutCR);
 		Assert.assertEquals('\n', endLine);
-
 		endLine = writer.getEndLineChar(fileWithCR);
 		Assert.assertEquals('\r', endLine);
-		
 		File nonExistent = new File("test");
 		endLine = writer.getEndLineChar(nonExistent);
 		char expected = '\n';
-		if (System.getProperty("os.name").toLowerCase().startsWith("Windows")){
+		if (System.getProperty("os.name").toLowerCase().startsWith("Windows")) {
 			expected = '\n';
 		}
-		
 		Assert.assertEquals(expected, endLine);
 	}
 
@@ -73,6 +65,5 @@ public class AbstractFileWriterTest {
 		reader.read(buf);
 		reader.close();
 		Assert.assertEquals('\r', buf[4]);
-
 	}
 }

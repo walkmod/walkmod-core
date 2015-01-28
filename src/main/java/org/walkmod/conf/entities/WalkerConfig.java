@@ -17,7 +17,6 @@ package org.walkmod.conf.entities;
 
 import java.util.List;
 import java.util.Map;
-
 import org.walkmod.ChainWalker;
 
 public interface WalkerConfig {
@@ -28,8 +27,7 @@ public interface WalkerConfig {
 
 	public List<TransformationConfig> getTransformations();
 
-	public void setTransformations(
-			List<TransformationConfig> transformations);
+	public void setTransformations(List<TransformationConfig> transformations);
 
 	public Map<String, Object> getParams();
 
@@ -46,8 +44,8 @@ public interface WalkerConfig {
 	public ChainWalker getWalker();
 
 	public void setWalker(ChainWalker walker);
-	
+
 	public void setParserConfig(ParserConfig parserConfig);
-	
+
 	public ParserConfig getParserConfig();
 }

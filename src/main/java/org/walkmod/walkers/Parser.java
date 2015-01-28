@@ -29,5 +29,4 @@ public interface Parser<T> {
 	public T parse(File file, String encoding) throws ParseException;
 
 	public T parse(Reader reader) throws ParseException;
-
 }

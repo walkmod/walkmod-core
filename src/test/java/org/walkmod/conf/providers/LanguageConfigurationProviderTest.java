@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.walkmod.conf.entities.ChainConfig;
@@ -31,7 +30,6 @@ public class LanguageConfigurationProviderTest {
 		cc.setName("test-chain");
 		ReaderConfig reader = new ReaderConfig();
 		WalkerConfig walker = new WalkerConfigImpl();
-
 		TransformationConfig transformation = new TransformationConfigImpl();
 		transformation.isMergeable(true);
 		List<TransformationConfig> transf = new LinkedList<TransformationConfig>();
@@ -39,12 +37,10 @@ public class LanguageConfigurationProviderTest {
 		walker.setParserConfig(new ParserConfigImpl());
 		walker.setTransformations(transf);
 		WriterConfig writer = new WriterConfigImpl();
-
 		cc.setReaderConfig(reader);
 		cc.setWalkerConfig(walker);
 		cc.setWriterConfig(writer);
 		conf.addChainConfig(cc);
-
 		provider.init(conf);
 		provider.load();
 		Assert.assertNotNull(reader.getPath());
@@ -63,5 +59,4 @@ public class LanguageConfigurationProviderTest {
 		Map<String, String> entries = mpc.getPolicyEntries();
 		Assert.assertEquals(2, entries.size());
 	}
-
 }
