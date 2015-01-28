@@ -13,6 +13,7 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.conf.entities.impl;
 
 import java.util.Map;
@@ -20,61 +21,61 @@ import org.walkmod.conf.entities.MergePolicyConfig;
 
 public class MergePolicyConfigImpl implements MergePolicyConfig {
 
-	private String defaultObjectPolicy;
+    private String defaultObjectPolicy;
 
-	private String defaultTypePolicy;
+    private String defaultTypePolicy;
 
-	private String name;
+    private String name;
 
-	private Map<String, String> policyEntries;
+    private Map<String, String> policyEntries;
 
-	@Override
-	public void setDefaultObjectPolicy(String defaultObjectPolicy) {
-		this.defaultObjectPolicy = defaultObjectPolicy;
-	}
+    @Override
+    public void setDefaultObjectPolicy(String defaultObjectPolicy) {
+        this.defaultObjectPolicy = defaultObjectPolicy;
+    }
 
-	@Override
-	public void setDefaultTypePolicy(String defaultTypePolicy) {
-		this.defaultTypePolicy = defaultTypePolicy;
-	}
+    @Override
+    public void setDefaultTypePolicy(String defaultTypePolicy) {
+        this.defaultTypePolicy = defaultTypePolicy;
+    }
 
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public String getDefaultTypePolicy() {
-		return defaultTypePolicy;
-	}
+    @Override
+    public String getDefaultTypePolicy() {
+        return defaultTypePolicy;
+    }
 
-	@Override
-	public String getDefaultObjectPolicy() {
-		return defaultObjectPolicy;
-	}
+    @Override
+    public String getDefaultObjectPolicy() {
+        return defaultObjectPolicy;
+    }
 
-	@Override
-	public void setPolicyEntries(Map<String, String> policyEntries) {
-		this.policyEntries = policyEntries;
-	}
+    @Override
+    public void setPolicyEntries(Map<String, String> policyEntries) {
+        this.policyEntries = policyEntries;
+    }
 
-	@Override
-	public Map<String, String> getPolicyEntries() {
-		return policyEntries;
-	}
+    @Override
+    public Map<String, String> getPolicyEntries() {
+        return policyEntries;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (o instanceof MergePolicyConfig) {
-			String n1 = getName();
-			String n2 = ((MergePolicyConfig) o).getName();
-			return n1 != null && n2 != null && n1.equals(n2);
-		}
-		return false;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof MergePolicyConfig) {
+            String n1 = getName();
+            String n2 = ((MergePolicyConfig) o).getName();
+            return n1 != null && n2 != null && n1.equals(n2);
+        }
+        return false;
+    }
 }

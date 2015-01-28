@@ -13,6 +13,7 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod;
 
 import java.util.Map;
@@ -21,35 +22,35 @@ import org.walkmod.exceptions.WalkModException;
 
 public interface ChainAdapter {
 
-	public void setName(String name);
+    public void setName(String name);
 
-	public String getName();
+    public String getName();
 
-	public void setChainConfig(ChainConfig config);
+    public void setChainConfig(ChainConfig config);
 
-	public ChainConfig getChainConfig();
+    public ChainConfig getChainConfig();
 
-	public ChainInvocation getChainInvocation();
+    public ChainInvocation getChainInvocation();
 
-	public void setChainInvocation(ChainInvocation ai);
+    public void setChainInvocation(ChainInvocation ai);
 
-	public Resource<?> getResource();
+    public Resource<?> getResource();
 
-	public void setResource(Resource<?> model);
+    public void setResource(Resource<?> model);
 
-	public Map<String, Object> getParams();
+    public Map<String, Object> getParams();
 
-	public void setParams(Map<String, Object> params);
+    public void setParams(Map<String, Object> params);
 
-	public ChainWalkerAdapter getWalkerAdapter();
+    public ChainWalkerAdapter getWalkerAdapter();
 
-	public void setWalkerAdapter(ChainWalkerAdapter walkerAdapter);
+    public void setWalkerAdapter(ChainWalkerAdapter walkerAdapter);
 
-	public void setChainWriter(ChainWriter writer);
+    public void setChainWriter(ChainWriter writer);
 
-	public ChainWriter getChainWriter();
+    public ChainWriter getChainWriter();
 
-	public void prepare() throws WalkModException;
+    public void prepare() throws WalkModException;
 
-	public void execute() throws WalkModException;
+    public void execute() throws WalkModException;
 }

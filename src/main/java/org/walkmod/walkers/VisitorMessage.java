@@ -13,59 +13,60 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.walkers;
 
 public class VisitorMessage {
 
-	private String location;
+    private String location;
 
-	private String type;
+    private String type;
 
-	private String text;
+    private String text;
 
-	public VisitorMessage() {
-	}
+    public VisitorMessage() {
+    }
 
-	;
+    ;
 
-	public VisitorMessage(String location, String type, String text) {
-		this.location = location;
-		this.type = type;
-		this.text = text;
-	}
+    public VisitorMessage(String location, String type, String text) {
+        this.location = location;
+        this.type = type;
+        this.text = text;
+    }
 
-	public VisitorMessage(String location, String text) {
-		this.location = location;
-		this.type = "GitMessage";
-		this.text = text;
-	}
+    public VisitorMessage(String location, String text) {
+        this.location = location;
+        this.type = "GitMessage";
+        this.text = text;
+    }
 
-	public String getType() {
-		return type;
-	}
+    public String getType() {
+        return type;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public String getText() {
-		return text;
-	}
+    public String getText() {
+        return text;
+    }
 
-	public void setText(String text) {
-		this.text = text;
-	}
+    public void setText(String text) {
+        this.text = text;
+    }
 
-	public String getLocation() {
-		return location;
-	}
+    public String getLocation() {
+        return location;
+    }
 
-	public void setLocation(String location) {
-		this.location = location;
-	}
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
-	@Override
-	public String toString() {
-		return location + " : " + text;
-	}
+    @Override
+    public String toString() {
+        return location + " : " + text;
+    }
 }

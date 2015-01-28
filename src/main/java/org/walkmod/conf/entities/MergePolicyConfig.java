@@ -13,25 +13,26 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.conf.entities;
 
 import java.util.Map;
 
 public interface MergePolicyConfig {
 
-	public void setDefaultObjectPolicy(String defaultObjectPolicy);
+    public void setDefaultObjectPolicy(String defaultObjectPolicy);
 
-	public void setDefaultTypePolicy(String defaultTypePolicy);
+    public void setDefaultTypePolicy(String defaultTypePolicy);
 
-	public void setName(String name);
+    public void setName(String name);
 
-	public String getName();
+    public String getName();
 
-	public String getDefaultTypePolicy();
+    public String getDefaultTypePolicy();
 
-	public String getDefaultObjectPolicy();
+    public String getDefaultObjectPolicy();
 
-	public void setPolicyEntries(Map<String, String> policyEntries);
+    public void setPolicyEntries(Map<String, String> policyEntries);
 
-	public Map<String, String> getPolicyEntries();
+    public Map<String, String> getPolicyEntries();
 }

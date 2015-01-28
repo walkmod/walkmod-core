@@ -13,6 +13,7 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod;
 
 import java.util.Collection;
@@ -22,33 +23,33 @@ import org.walkmod.exceptions.WalkModException;
 
 public interface ChainWalkerAdapter {
 
-	public String getName();
+    public String getName();
 
-	public void setName(String name);
+    public void setName(String name);
 
-	public void setTransformationConfig(Collection<TransformationConfig> config);
+    public void setTransformationConfig(Collection<TransformationConfig> config);
 
-	public Collection<TransformationConfig> getTransformationConfig();
+    public Collection<TransformationConfig> getTransformationConfig();
 
-	public Resource<?> getModel();
+    public Resource<?> getModel();
 
-	public void setWalker(ChainWalker walker);
+    public void setWalker(ChainWalker walker);
 
-	public ChainWalker getWalker();
+    public ChainWalker getWalker();
 
-	public void setWalkerInvocation(ChainWalkerInvocation ta);
+    public void setWalkerInvocation(ChainWalkerInvocation ta);
 
-	public ChainWalkerInvocation getWalkerInvocation();
+    public ChainWalkerInvocation getWalkerInvocation();
 
-	public ChainAdapter getArchitecture();
+    public ChainAdapter getArchitecture();
 
-	public void setArchitectureProxy(ChainAdapter ap);
+    public void setArchitectureProxy(ChainAdapter ap);
 
-	public void prepare() throws WalkModException;
+    public void prepare() throws WalkModException;
 
-	public void execute() throws WalkModException;
+    public void execute() throws WalkModException;
 
-	public void setWalkerConfig(WalkerConfig config);
+    public void setWalkerConfig(WalkerConfig config);
 
-	public WalkerConfig getWalkerConfig();
+    public WalkerConfig getWalkerConfig();
 }

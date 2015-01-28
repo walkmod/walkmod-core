@@ -26,85 +26,85 @@ import org.walkmod.conf.entities.WalkerConfig;
 
 public class WalkerConfigImpl implements WalkerConfig {
 
-	private String type;
+    private String type;
 
-	private List<TransformationConfig> transformations;
+    private List<TransformationConfig> transformations;
 
-	private Map<String, Object> params;
+    private Map<String, Object> params;
 
-	private String rootNamespace;
+    private String rootNamespace;
 
-	private ChainConfig architectureConfig;
+    private ChainConfig architectureConfig;
 
-	private ChainWalker walker;
-	
-	private ParserConfig parserConfig;
+    private ChainWalker walker;
 
-	@Override
-	public String getType() {
-		return type;
-	}
+    private ParserConfig parserConfig;
 
-	@Override
-	public void setType(String type) {
-		this.type = type;
-	}
+    @Override
+    public String getType() {
+        return type;
+    }
 
-	@Override
-	public List<TransformationConfig> getTransformations() {
-		return transformations;
-	}
+    @Override
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	@Override
-	public void setTransformations(List<TransformationConfig> transformations) {
-		this.transformations = transformations;
-	}
+    @Override
+    public List<TransformationConfig> getTransformations() {
+        return transformations;
+    }
 
-	@Override
-	public Map<String, Object> getParams() {
-		return params;
-	}
+    @Override
+    public void setTransformations(List<TransformationConfig> transformations) {
+        this.transformations = transformations;
+    }
 
-	@Override
-	public void setParams(Map<String, Object> params) {
-		this.params = params;
-	}
+    @Override
+    public Map<String, Object> getParams() {
+        return params;
+    }
 
-	@Override
-	public String getRootNamespace() {
-		return rootNamespace;
-	}
+    @Override
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
 
-	@Override
-	public void setRootNamespace(String rootNamespace) {
-		this.rootNamespace = rootNamespace;
-	}
+    @Override
+    public String getRootNamespace() {
+        return rootNamespace;
+    }
 
-	@Override
-	public void setChainConfig(ChainConfig architectureConfig) {
-		this.architectureConfig = architectureConfig;
-	}
+    @Override
+    public void setRootNamespace(String rootNamespace) {
+        this.rootNamespace = rootNamespace;
+    }
 
-	@Override
-	public ChainConfig getChainConfig() {
-		return architectureConfig;
-	}
+    @Override
+    public void setChainConfig(ChainConfig architectureConfig) {
+        this.architectureConfig = architectureConfig;
+    }
 
-	public ChainWalker getWalker() {
-		return walker;
-	}
+    @Override
+    public ChainConfig getChainConfig() {
+        return architectureConfig;
+    }
 
-	public void setWalker(ChainWalker walker) {
-		this.walker = walker;
-	}
+    public ChainWalker getWalker() {
+        return walker;
+    }
 
-	@Override
-	public void setParserConfig(ParserConfig parserConfig) {
-		this.parserConfig = parserConfig;
-	}
+    public void setWalker(ChainWalker walker) {
+        this.walker = walker;
+    }
 
-	@Override
-	public ParserConfig getParserConfig() {
-		return parserConfig;
-	}
+    @Override
+    public void setParserConfig(ParserConfig parserConfig) {
+        this.parserConfig = parserConfig;
+    }
+
+    @Override
+    public ParserConfig getParserConfig() {
+        return parserConfig;
+    }
 }
