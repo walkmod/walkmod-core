@@ -13,41 +13,40 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.conf.entities;
 
 import java.util.List;
 import java.util.Map;
-
 import org.walkmod.ChainWalker;
 
 public interface WalkerConfig {
 
-	public String getType();
+    public String getType();
 
-	public void setType(String type);
+    public void setType(String type);
 
-	public List<TransformationConfig> getTransformations();
+    public List<TransformationConfig> getTransformations();
 
-	public void setTransformations(
-			List<TransformationConfig> transformations);
+    public void setTransformations(List<TransformationConfig> transformations);
 
-	public Map<String, Object> getParams();
+    public Map<String, Object> getParams();
 
-	public void setParams(Map<String, Object> params);
+    public void setParams(Map<String, Object> params);
 
-	public String getRootNamespace();
+    public String getRootNamespace();
 
-	public void setRootNamespace(String rootNamespace);
+    public void setRootNamespace(String rootNamespace);
 
-	public void setChainConfig(ChainConfig chainConfig);
+    public void setChainConfig(ChainConfig chainConfig);
 
-	public ChainConfig getChainConfig();
+    public ChainConfig getChainConfig();
 
-	public ChainWalker getWalker();
+    public ChainWalker getWalker();
 
-	public void setWalker(ChainWalker walker);
-	
-	public void setParserConfig(ParserConfig parserConfig);
-	
-	public ParserConfig getParserConfig();
+    public void setWalker(ChainWalker walker);
+
+    public void setParserConfig(ParserConfig parserConfig);
+
+    public ParserConfig getParserConfig();
 }

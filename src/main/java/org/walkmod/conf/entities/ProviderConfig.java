@@ -4,12 +4,11 @@ import java.util.Map;
 
 public interface ProviderConfig {
 
-	public String getType();
+    public String getType();
 
-	public void setType(String type);
+    public void setType(String type);
 
-	public Map<String, Object> getParameters();
+    public Map<String, Object> getParameters();
 
-	public void setParameters(Map<String, Object> parameters);
-	
+    public void setParameters(Map<String, Object> parameters);
 }

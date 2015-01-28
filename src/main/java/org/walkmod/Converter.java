@@ -13,9 +13,10 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod;
 
 public interface Converter<T, M> {
 
-	public M convert(T element);
+    public M convert(T element);
 }

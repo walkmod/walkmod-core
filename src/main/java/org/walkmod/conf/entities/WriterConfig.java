@@ -13,6 +13,7 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.conf.entities;
 
 import java.util.Map;
@@ -20,27 +21,27 @@ import org.walkmod.ChainWriter;
 
 public interface WriterConfig {
 
-	public String getPath();
+    public String getPath();
 
-	public void setPath(String path);
+    public void setPath(String path);
 
-	public String getType();
+    public String getType();
 
-	public void setType(String type);
+    public void setType(String type);
 
-	public ChainWriter getModelWriter();
+    public ChainWriter getModelWriter();
 
-	public void setModelWriter(ChainWriter modelWriter);
+    public void setModelWriter(ChainWriter modelWriter);
 
-	public Map<String, Object> getParams();
+    public Map<String, Object> getParams();
 
-	public void setParams(Map<String, Object> params);
+    public void setParams(Map<String, Object> params);
 
-	public void setExcludes(String[] excludes);
-	
-	public String[] getExcludes();
-	
-	public void setIncludes(String[] includes);
-	
-	public String[] getIncludes();
+    public void setExcludes(String[] excludes);
+
+    public String[] getExcludes();
+
+    public void setIncludes(String[] includes);
+
+    public String[] getIncludes();
 }

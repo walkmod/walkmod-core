@@ -13,6 +13,7 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.impl;
 
 import org.walkmod.ChainAdapter;
@@ -23,18 +24,18 @@ import org.walkmod.exceptions.WalkModException;
 
 public class DefaultChainInvocation implements ChainInvocation {
 
-	private ChainAdapter chainAdapter;
+    private ChainAdapter chainAdapter;
 
-	@Override
-	public void init(ChainAdapter chainAdapter) {
-		this.chainAdapter = chainAdapter;
-	}
+    @Override
+    public void init(ChainAdapter chainAdapter) {
+        this.chainAdapter = chainAdapter;
+    }
 
-	@Override
-	public void invoke() throws WalkModException {
-		ChainWalkerAdapter wa = chainAdapter.getWalkerAdapter();
-		ChainWalkerInvocation wi = new DefaultChainWalkerInvocation();
-		wi.init(wa);
-		wi.invoke();
-	}
+    @Override
+    public void invoke() throws WalkModException {
+        ChainWalkerAdapter wa = chainAdapter.getWalkerAdapter();
+        ChainWalkerInvocation wi = new DefaultChainWalkerInvocation();
+        wi.init(wa);
+        wi.invoke();
+    }
 }

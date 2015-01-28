@@ -13,6 +13,7 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.walkers;
 
 import java.io.File;
@@ -20,14 +21,13 @@ import java.io.Reader;
 
 public interface Parser<T> {
 
-	public T parse(String text) throws ParseException;
+    public T parse(String text) throws ParseException;
 
-	public T parse(String text, boolean withoutLocation) throws ParseException;
+    public T parse(String text, boolean withoutLocation) throws ParseException;
 
-	public T parse(File file) throws ParseException;
+    public T parse(File file) throws ParseException;
 
-	public T parse(File file, String encoding) throws ParseException;
+    public T parse(File file, String encoding) throws ParseException;
 
-	public T parse(Reader reader) throws ParseException;
-
+    public T parse(Reader reader) throws ParseException;
 }

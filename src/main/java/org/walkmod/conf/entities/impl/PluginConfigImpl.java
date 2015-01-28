@@ -13,59 +13,58 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.conf.entities.impl;
 
 import org.walkmod.conf.entities.PluginConfig;
 
 public class PluginConfigImpl implements PluginConfig {
 
-	private String groupId;
+    private String groupId;
 
-	private String artifactId;
+    private String artifactId;
 
-	private String version;
+    private String version;
 
-	@Override
-	public String getGroupId() {
-		return groupId;
-	}
+    @Override
+    public String getGroupId() {
+        return groupId;
+    }
 
-	@Override
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
-	}
+    @Override
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 
-	@Override
-	public String getArtifactId() {
-		return artifactId;
-	}
+    @Override
+    public String getArtifactId() {
+        return artifactId;
+    }
 
-	@Override
-	public void setArtifactId(String artifactId) {
-		this.artifactId = artifactId;
-	}
+    @Override
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
+    }
 
-	@Override
-	public String getVersion() {
-		return version;
-	}
+    @Override
+    public String getVersion() {
+        return version;
+    }
 
-	@Override
-	public void setVersion(String version) {
-		this.version = version;
-	}
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
-	@Override
-	public boolean equals(Object pc) {
-		if (pc instanceof PluginConfig) {
-			if (groupId != null && artifactId != null) {
-				PluginConfig aux = (PluginConfig) pc;
-				return groupId.equals(aux.getGroupId())
-						&& artifactId.equals(aux.getArtifactId());
-			}
-			return false;
-		}
-		return false;
-
-	}
+    @Override
+    public boolean equals(Object pc) {
+        if (pc instanceof PluginConfig) {
+            if (groupId != null && artifactId != null) {
+                PluginConfig aux = (PluginConfig) pc;
+                return groupId.equals(aux.getGroupId()) && artifactId.equals(aux.getArtifactId());
+            }
+            return false;
+        }
+        return false;
+    }
 }

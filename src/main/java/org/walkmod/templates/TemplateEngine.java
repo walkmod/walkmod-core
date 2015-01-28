@@ -13,10 +13,10 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.templates;
 
 import java.io.File;
-
 import org.walkmod.walkers.VisitorContext;
 
 public interface TemplateEngine {
@@ -24,6 +24,6 @@ public interface TemplateEngine {
 	public void initialize(VisitorContext context, Object rootNode);
 
 	public String applyTemplate(File template);
-	
+
 	public String applyTemplate(File template, File properties);
 }

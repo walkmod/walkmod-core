@@ -13,6 +13,7 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.readers;
 
 import java.io.File;
@@ -22,23 +23,23 @@ import org.walkmod.util.FileResource;
 
 public class DefaultFileReader extends ChainReader {
 
-	private String[] extensions;
+    private String[] extensions;
 
-	public String[] getExtensions() {
-		return extensions;
-	}
+    public String[] getExtensions() {
+        return extensions;
+    }
 
-	public void setExtensions(String[] extensions) {
-		this.extensions = extensions;
-	}
+    public void setExtensions(String[] extensions) {
+        this.extensions = extensions;
+    }
 
-	@Override
-	public Resource<File> read() throws Exception {
-		FileResource resource = new FileResource();
-		resource.setPath(getPath());
-		resource.setExtensions(getExtensions());
-		resource.setExcludes(getExcludes());
-		resource.setIncludes(getIncludes());
-		return resource;
-	}
+    @Override
+    public Resource<File> read() throws Exception {
+        FileResource resource = new FileResource();
+        resource.setPath(getPath());
+        resource.setExtensions(getExtensions());
+        resource.setExcludes(getExcludes());
+        resource.setIncludes(getIncludes());
+        return resource;
+    }
 }

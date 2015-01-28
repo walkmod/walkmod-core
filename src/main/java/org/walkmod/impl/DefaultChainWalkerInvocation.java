@@ -13,6 +13,7 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.impl;
 
 import org.apache.commons.logging.Log;
@@ -24,30 +25,25 @@ import org.walkmod.exceptions.WalkModException;
 
 public class DefaultChainWalkerInvocation implements ChainWalkerInvocation {
 
-	private ChainWalkerAdapter walkerAdapter;
+    private ChainWalkerAdapter walkerAdapter;
 
-	private static final Log LOG = LogFactory
-			.getLog(DefaultChainWalkerInvocation.class);
+    private static final Log LOG = LogFactory.getLog(DefaultChainWalkerInvocation.class);
 
-	@Override
-	public void init(ChainWalkerAdapter transformation) {
-		this.walkerAdapter = transformation;
-	}
+    @Override
+    public void init(ChainWalkerAdapter transformation) {
+        this.walkerAdapter = transformation;
+    }
 
-	@Override
-	public void invoke() throws WalkModException {
-		ChainWalker walker = walkerAdapter.getWalker();
-		if (walker != null) {
-			try {
-				walker.execute();
-			} catch (Exception e) {
-				throw new WalkModException(
-						"An exeception has been produced during the "
-								+ walkerAdapter.getName() + " transformation",
-						e);
-			}
-		}
-		LOG.debug("The transformation [" + walkerAdapter.getName()
-				+ "] has been executed");
-	}
+    @Override
+    public void invoke() throws WalkModException {
+        ChainWalker walker = walkerAdapter.getWalker();
+        if (walker != null) {
+            try {
+                walker.execute();
+            } catch (Exception e) {
+                throw new WalkModException("An exeception has been produced during the " + walkerAdapter.getName() + " transformation", e);
+            }
+        }
+        LOG.debug("The transformation [" + walkerAdapter.getName() + "] has been executed");
+    }
 }

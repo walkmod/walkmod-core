@@ -13,35 +13,34 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package org.walkmod.conf.entities;
 
 import java.util.Map;
 
 public interface TransformationConfig {
 
-	public String getName();
+    public String getName();
 
-	public void setName(String name);
+    public void setName(String name);
 
-	public String getType();
+    public String getType();
 
-	public void setType(String visitor);
+    public void setType(String visitor);
 
-	public Map<String, Object> getParameters();
+    public Map<String, Object> getParameters();
 
-	public void setParameters(Map<String, Object> parameters);
+    public void setParameters(Map<String, Object> parameters);
 
-	public Object getVisitorInstance();
+    public Object getVisitorInstance();
 
-	public void setVisitorInstance(Object visitorInstance);
-	
-	
-	public void isMergeable(boolean isMergeable);
-	
-	public boolean isMergeable();
-	
-	public void setMergePolicy(String mergePolicy);
-	
-	public String getMergePolicy();
-	
+    public void setVisitorInstance(Object visitorInstance);
+
+    public void isMergeable(boolean isMergeable);
+
+    public boolean isMergeable();
+
+    public void setMergePolicy(String mergePolicy);
+
+    public String getMergePolicy();
 }
