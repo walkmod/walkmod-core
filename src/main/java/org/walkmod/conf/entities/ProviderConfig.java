@@ -11,5 +11,5 @@ public interface ProviderConfig {
 	public Map<String, Object> getParameters();
 
 	public void setParameters(Map<String, Object> parameters);
-	
+
 }

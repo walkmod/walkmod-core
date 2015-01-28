@@ -37,10 +37,10 @@ public interface WriterConfig {
 	public void setParams(Map<String, Object> params);
 
 	public void setExcludes(String[] excludes);
-	
+
 	public String[] getExcludes();
-	
+
 	public void setIncludes(String[] includes);
-	
+
 	public String[] getIncludes();
 }

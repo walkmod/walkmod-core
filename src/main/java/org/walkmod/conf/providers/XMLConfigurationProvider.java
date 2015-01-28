@@ -570,7 +570,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 					} else if ("include".equals(nodeName)) {
 						Element include = (Element) n;
 						includes.add(include.getAttribute("wildcard"));
-					} else if(!"param".equals(nodeName)){
+					} else if (!"param".equals(nodeName)) {
 						throw new ConfigurationException(
 								"Invalid writer definition. Only exclude or include tags are supported");
 					}
@@ -633,7 +633,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 				}
 			}
 		}
-		
+
 		configuration.setProviderConfigurations(providers);
 	}
 

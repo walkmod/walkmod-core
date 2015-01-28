@@ -34,14 +34,13 @@ public interface TransformationConfig {
 	public Object getVisitorInstance();
 
 	public void setVisitorInstance(Object visitorInstance);
-	
-	
+
 	public void isMergeable(boolean isMergeable);
-	
+
 	public boolean isMergeable();
-	
+
 	public void setMergePolicy(String mergePolicy);
-	
+
 	public String getMergePolicy();
-	
+
 }

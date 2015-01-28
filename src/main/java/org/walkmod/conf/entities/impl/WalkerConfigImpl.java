@@ -37,7 +37,7 @@ public class WalkerConfigImpl implements WalkerConfig {
 	private ChainConfig architectureConfig;
 
 	private ChainWalker walker;
-	
+
 	private ParserConfig parserConfig;
 
 	@Override

@@ -38,7 +38,7 @@ import org.walkmod.merger.IdentificableNode;
 import org.walkmod.merger.MergeEngine;
 import org.walkmod.merger.Mergeable;
 
-public abstract class AbstractWalker implements ChainWalker{
+public abstract class AbstractWalker implements ChainWalker {
 
 	public static final String NAMESPACE_SEPARATOR = "::";
 
@@ -57,7 +57,7 @@ public abstract class AbstractWalker implements ChainWalker{
 	private Collection<VisitorMessage> visitorMessages;
 
 	private static Logger log = Logger.getLogger(AbstractWalker.class);
-	
+
 	public static final String ORIGINAL_FILE_KEY = "original_file_key";
 
 	public AbstractWalker() {
@@ -129,9 +129,9 @@ public abstract class AbstractWalker implements ChainWalker{
 								if (isMergeable) {
 									currentArg = merge(currentArg, me, context);
 								}
-								
-								context.addResultNode(currentArg);		
-								
+
+								context.addResultNode(currentArg);
+
 								visit(currentArg, restVisitors,
 										restTransformations, context);
 								return;
@@ -353,10 +353,9 @@ public abstract class AbstractWalker implements ChainWalker{
 		}
 		return local;
 	}
-	
+
 	@Override
 	public boolean hasChanges() {
-		return !(getNumModifications() == 0 && getNumAdditions() == 0
-				&& getNumDeletions() == 0);
+		return !(getNumModifications() == 0 && getNumAdditions() == 0 && getNumDeletions() == 0);
 	}
 }

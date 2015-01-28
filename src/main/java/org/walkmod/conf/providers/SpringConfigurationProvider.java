@@ -59,15 +59,15 @@ public class SpringConfigurationProvider implements ConfigurationProvider,
 		if (plugins != null) {
 			for (PluginConfig plugin : plugins) {
 				String descriptorName = plugin.getArtifactId();
-				if(!descriptorName.startsWith("walkmod-")){
-					descriptorName = "walkmod-"+descriptorName;
+				if (!descriptorName.startsWith("walkmod-")) {
+					descriptorName = "walkmod-" + descriptorName;
 				}
-				if(!descriptorName.endsWith("-plugin")){
-					descriptorName = descriptorName +"-plugin";
+				if (!descriptorName.endsWith("-plugin")) {
+					descriptorName = descriptorName + "-plugin";
 				}
 				reader.loadBeanDefinitions(new ClassPathResource(
-						"META-INF/walkmod/" + descriptorName
-								+ ".xml", configuration.getClassLoader()));
+						"META-INF/walkmod/" + descriptorName + ".xml",
+						configuration.getClassLoader()));
 			}
 		}
 

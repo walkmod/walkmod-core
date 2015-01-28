@@ -39,6 +39,7 @@ import org.walkmod.writers.VisitorMessagesWriter;
 
 /**
  * Facade to execute walkmod services.
+ * 
  * @author Raquel Pau
  *
  */
@@ -117,7 +118,8 @@ public class WalkModFacade {
 	 *             if the walkmod configuration is invalid and it is working in
 	 *             no verbose mode.
 	 */
-	public List<File> apply(String... chains) throws InvalidConfigurationException {
+	public List<File> apply(String... chains)
+			throws InvalidConfigurationException {
 		if (cfg.exists()) {
 			if (verbose) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
@@ -165,7 +167,8 @@ public class WalkModFacade {
 	}
 
 	/**
-	 * Applies a list of transformation chains without updating the source files.
+	 * Applies a list of transformation chains without updating the source
+	 * files.
 	 * 
 	 * @param chains
 	 *            the list of applied transformation chains.
@@ -173,7 +176,8 @@ public class WalkModFacade {
 	 *             if the walkmod configuration is invalid and it is working in
 	 *             no verbose mode.
 	 */
-	public List<File> check(String... chains) throws InvalidConfigurationException {
+	public List<File> check(String... chains)
+			throws InvalidConfigurationException {
 
 		if (cfg.exists()) {
 			if (verbose) {
@@ -229,7 +233,8 @@ public class WalkModFacade {
 	}
 
 	/**
-	 * Downloads the list of declared plugins in the configuration file using Ivy.
+	 * Downloads the list of declared plugins in the configuration file using
+	 * Ivy.
 	 * 
 	 * @throws InvalidConfigurationException
 	 *             if the walkmod configuration is invalid and it is working in

@@ -25,8 +25,7 @@ import org.walkmod.ChainWriter;
 import org.walkmod.walkers.AbstractWalker;
 import org.walkmod.walkers.VisitorContext;
 
-public class VisitorMessagesWriter 
-		implements ChainWriter {
+public class VisitorMessagesWriter implements ChainWriter {
 
 	private static Logger log = Logger.getLogger(VisitorMessagesWriter.class);
 
@@ -34,14 +33,11 @@ public class VisitorMessagesWriter
 
 	private String[] excludes;
 
-
-
 	@Override
 	public void close() throws IOException {
 		log.info("WRITE SUCCESSFUL");
 	}
 
-	
 	@Override
 	public void flush() throws IOException {
 	}
@@ -53,7 +49,7 @@ public class VisitorMessagesWriter
 
 	@Override
 	public void setPath(String path) {
-		
+
 	}
 
 	public void write(Object n, VisitorContext vc) {
@@ -62,7 +58,7 @@ public class VisitorMessagesWriter
 		if (vc != null) {
 			out = (File) vc.get(AbstractWalker.ORIGINAL_FILE_KEY);
 		}
-	
+
 		boolean write = true;
 
 		if (out != null) {

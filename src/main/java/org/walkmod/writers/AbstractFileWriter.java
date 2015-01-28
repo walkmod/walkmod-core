@@ -210,10 +210,9 @@ public abstract class AbstractFileWriter implements ChainWriter {
 			} finally {
 				reader.close();
 			}
-		}
-		else{
+		} else {
 			String os = System.getProperty("os.name");
-			if(os.toLowerCase().startsWith("windows")){
+			if (os.toLowerCase().startsWith("windows")) {
 				endLineChar = '\r';
 			}
 		}

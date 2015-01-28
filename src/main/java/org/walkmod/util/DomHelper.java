@@ -57,12 +57,14 @@ public class DomHelper {
 	}
 
 	/**
-	 * Creates a W3C Document that remembers the location of each element in
-	 * the source file. The location of element nodes can then be retrieved
-	 * using the {@link #getLocationObject(Element)} method.
+	 * Creates a W3C Document that remembers the location of each element in the
+	 * source file. The location of element nodes can then be retrieved using
+	 * the {@link #getLocationObject(Element)} method.
 	 *
-	 * @param inputSource the inputSource to read the document from
-	 * @param dtdMappings a map of DTD names and public ids
+	 * @param inputSource
+	 *            the inputSource to read the document from
+	 * @param dtdMappings
+	 *            a map of DTD names and public ids
 	 * @return Document
 	 */
 	public static Document parse(InputSource inputSource,
@@ -131,7 +133,8 @@ public class DomHelper {
 		}
 
 		/**
-		 * Constructs a new instance that appends nodes to the given parent node.
+		 * Constructs a new instance that appends nodes to the given parent
+		 * node.
 		 * 
 		 * @param parentNode
 		 *            The parent node to use

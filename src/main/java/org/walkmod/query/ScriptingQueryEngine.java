@@ -68,7 +68,7 @@ public class ScriptingQueryEngine implements QueryEngine {
 						.setClassLoader(new GroovyClassLoader(context
 								.getClassLoader(), new CompilerConfiguration()));
 			}
-			
+
 		}
 		this.context = context;
 		bindings = engine.createBindings();

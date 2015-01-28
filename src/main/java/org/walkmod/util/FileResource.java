@@ -75,7 +75,8 @@ public class FileResource implements Resource<File> {
 
 	@Override
 	public Iterator<File> iterator() {
-		String fileNormalized = FilenameUtils.normalize(file.getAbsolutePath(), true);
+		String fileNormalized = FilenameUtils.normalize(file.getAbsolutePath(),
+				true);
 		if (includes != null) {
 			for (int i = 0; i < includes.length; i++) {
 				if (!includes[i].startsWith(fileNormalized)) {
@@ -103,31 +104,18 @@ public class FileResource implements Resource<File> {
 
 		if (file.isDirectory()) {
 			/*
-			if (includes != null) {
-				for (int i = 0; i < includes.length; i++) {
-					if (!includes[i].startsWith(getFile().getName())) {
-						if (includes[i].startsWith("/")) {
-							includes[i] = getFile().getPath() + includes[i];
-						} else {
-							includes[i] = getFile().getPath()
-									+ "/" + includes[i];
-						}
-					}
-				}
-			}
-
-			if (excludes != null) {
-				for (int i = 0; i < excludes.length; i++) {
-					if (!excludes[i].startsWith(getFile().getName())) {
-						if (excludes[i].startsWith("/")) {
-							excludes[i] = getFile().getPath() + excludes[i];
-						} else {
-							excludes[i] = getFile().getPath()
-									+ "/" + excludes[i];
-						}
-					}
-				}
-			}*/
+			 * if (includes != null) { for (int i = 0; i < includes.length; i++)
+			 * { if (!includes[i].startsWith(getFile().getName())) { if
+			 * (includes[i].startsWith("/")) { includes[i] = getFile().getPath()
+			 * + includes[i]; } else { includes[i] = getFile().getPath() + "/" +
+			 * includes[i]; } } } }
+			 * 
+			 * if (excludes != null) { for (int i = 0; i < excludes.length; i++)
+			 * { if (!excludes[i].startsWith(getFile().getName())) { if
+			 * (excludes[i].startsWith("/")) { excludes[i] = getFile().getPath()
+			 * + excludes[i]; } else { excludes[i] = getFile().getPath() + "/" +
+			 * excludes[i]; } } } }
+			 */
 			IOFileFilter filter = null;
 
 			IOFileFilter directoryFilter = TrueFileFilter.INSTANCE;
@@ -144,7 +132,8 @@ public class FileResource implements Resource<File> {
 						if (excludes != null) {
 							for (int i = 0; i < excludes.length
 									&& !excludesEval; i++) {
-								excludesEval = FilenameUtils.wildcardMatch(aux, excludes[i]);
+								excludesEval = FilenameUtils.wildcardMatch(aux,
+										excludes[i]);
 							}
 						}
 						if (includes != null) {
@@ -163,13 +152,14 @@ public class FileResource implements Resource<File> {
 						boolean excludesEval = false;
 						boolean includesEval = false;
 
-						String aux = FilenameUtils.normalize(file.getAbsolutePath(),
-								true);
+						String aux = FilenameUtils.normalize(
+								file.getAbsolutePath(), true);
 						if (excludes != null) {
 
 							for (int i = 0; i < excludes.length
 									&& !excludesEval; i++) {
-								excludesEval = FilenameUtils.wildcardMatch(aux, excludes[i]);
+								excludesEval = FilenameUtils.wildcardMatch(aux,
+										excludes[i]);
 							}
 						}
 						if (includes != null) {

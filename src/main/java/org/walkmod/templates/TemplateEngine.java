@@ -24,6 +24,6 @@ public interface TemplateEngine {
 	public void initialize(VisitorContext context, Object rootNode);
 
 	public String applyTemplate(File template);
-	
+
 	public String applyTemplate(File template, File properties);
 }

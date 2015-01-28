@@ -57,8 +57,11 @@ public class LocationAttributes {
 	/**
 	 * Add location attributes to a set of SAX attributes.
 	 * 
-	 * @param locator the <code>Locator</code> (can be null)
-	 * @param attrs the <code>Attributes</code> where locator information should be added
+	 * @param locator
+	 *            the <code>Locator</code> (can be null)
+	 * @param attrs
+	 *            the <code>Attributes</code> where locator information should
+	 *            be added
 	 * @return Location enabled Attributes.
 	 */
 	public static Attributes addLocationAttributes(Locator locator,
@@ -66,8 +69,7 @@ public class LocationAttributes {
 		if (locator == null || attrs.getIndex(URI, SRC_ATTR) != -1) {
 			return attrs;
 		}
-		AttributesImpl newAttrs = attrs instanceof AttributesImpl
-				? (AttributesImpl) attrs
+		AttributesImpl newAttrs = attrs instanceof AttributesImpl ? (AttributesImpl) attrs
 				: new AttributesImpl(attrs);
 		newAttrs.addAttribute(URI, SRC_ATTR, Q_SRC_ATTR, "CDATA",
 				locator.getSystemId());
@@ -81,8 +83,10 @@ public class LocationAttributes {
 	/**
 	 * Returns the {@link Location} of an element (SAX flavor).
 	 * 
-	 * @param attrs the element's attributes that hold the location information
-	 * @param description a description for the location (can be null)
+	 * @param attrs
+	 *            the element's attributes that hold the location information
+	 * @param description
+	 *            a description for the location (can be null)
 	 * @return a {@link Location} object
 	 */
 	public static Location getLocation(Attributes attrs, String description) {
@@ -95,11 +99,13 @@ public class LocationAttributes {
 	}
 
 	/**
-	 * Returns the location of an element (SAX flavor). If the location is to be kept
-	 * into an object built from this element, consider using {@link #getLocation(Attributes, String)}
-	 * and the {@link Locatable} interface.
+	 * Returns the location of an element (SAX flavor). If the location is to be
+	 * kept into an object built from this element, consider using
+	 * {@link #getLocation(Attributes, String)} and the {@link Locatable}
+	 * interface.
 	 * 
-	 * @param attrs the element's attributes that hold the location information
+	 * @param attrs
+	 *            the element's attributes that hold the location information
 	 * @return a location string as defined by {@link Location}.
 	 */
 	public static String getLocationString(Attributes attrs) {
@@ -114,9 +120,10 @@ public class LocationAttributes {
 	/**
 	 * Returns the URI of an element (SAX flavor)
 	 * 
-	 * @param attrs the element's attributes that hold the location information
-	 * @return the element's URI or "<code>[unknown location]</code>" if <code>attrs</code>
-	 *         has no location information.
+	 * @param attrs
+	 *            the element's attributes that hold the location information
+	 * @return the element's URI or "<code>[unknown location]</code>" if
+	 *         <code>attrs</code> has no location information.
 	 */
 	public static String getURI(Attributes attrs) {
 		String src = attrs.getValue(URI, SRC_ATTR);
@@ -126,9 +133,10 @@ public class LocationAttributes {
 	/**
 	 * Returns the line number of an element (SAX flavor)
 	 * 
-	 * @param attrs the element's attributes that hold the location information
-	 * @return the element's line number or <code>-1</code> if <code>attrs</code>
-	 *         has no location information.
+	 * @param attrs
+	 *            the element's attributes that hold the location information
+	 * @return the element's line number or <code>-1</code> if
+	 *         <code>attrs</code> has no location information.
 	 */
 	public static int getLine(Attributes attrs) {
 		String line = attrs.getValue(URI, LINE_ATTR);
@@ -138,9 +146,10 @@ public class LocationAttributes {
 	/**
 	 * Returns the column number of an element (SAX flavor)
 	 * 
-	 * @param attrs the element's attributes that hold the location information
-	 * @return the element's column number or <code>-1</code> if <code>attrs</code>
-	 *         has no location information.
+	 * @param attrs
+	 *            the element's attributes that hold the location information
+	 * @return the element's column number or <code>-1</code> if
+	 *         <code>attrs</code> has no location information.
 	 */
 	public static int getColumn(Attributes attrs) {
 		String col = attrs.getValue(URI, COL_ATTR);
@@ -162,8 +171,7 @@ public class LocationAttributes {
 		if (srcAttr == null) {
 			return LocationImpl.UNKNOWN;
 		}
-		return new LocationImpl(description == null
-				? elem.getNodeName()
+		return new LocationImpl(description == null ? elem.getNodeName()
 				: description, srcAttr.getValue(), getLine(elem),
 				getColumn(elem));
 	}
@@ -180,11 +188,13 @@ public class LocationAttributes {
 	}
 
 	/**
-	 * Returns the location of an element that has been processed by this pipe (DOM flavor).
-	 * If the location is to be kept into an object built from this element, consider using
-	 * {@link #getLocation(Element)} and the {@link Locatable} interface.
+	 * Returns the location of an element that has been processed by this pipe
+	 * (DOM flavor). If the location is to be kept into an object built from
+	 * this element, consider using {@link #getLocation(Element)} and the
+	 * {@link Locatable} interface.
 	 * 
-	 * @param elem the element that holds the location information
+	 * @param elem
+	 *            the element that holds the location information
 	 * @return a location string as defined by {@link Location}.
 	 */
 	public static String getLocationString(Element elem) {
@@ -199,9 +209,10 @@ public class LocationAttributes {
 	/**
 	 * Returns the URI of an element (DOM flavor)
 	 * 
-	 * @param elem the element that holds the location information
-	 * @return the element's URI or "<code>[unknown location]</code>" if <code>elem</code>
-	 *         has no location information.
+	 * @param elem
+	 *            the element that holds the location information
+	 * @return the element's URI or "<code>[unknown location]</code>" if
+	 *         <code>elem</code> has no location information.
 	 */
 	public static String getURI(Element elem) {
 		Attr attr = elem.getAttributeNodeNS(URI, SRC_ATTR);
@@ -211,7 +222,8 @@ public class LocationAttributes {
 	/**
 	 * Returns the line number of an element (DOM flavor)
 	 * 
-	 * @param elem the element that holds the location information
+	 * @param elem
+	 *            the element that holds the location information
 	 * @return the element's line number or <code>-1</code> if <code>elem</code>
 	 *         has no location information.
 	 */
@@ -223,9 +235,10 @@ public class LocationAttributes {
 	/**
 	 * Returns the column number of an element (DOM flavor)
 	 * 
-	 * @param elem the element that holds the location information
-	 * @return the element's column number or <code>-1</code> if <code>elem</code>
-	 *         has no location information.
+	 * @param elem
+	 *            the element that holds the location information
+	 * @return the element's column number or <code>-1</code> if
+	 *         <code>elem</code> has no location information.
 	 */
 	public static int getColumn(Element elem) {
 		Attr attr = elem.getAttributeNodeNS(URI, COL_ATTR);
@@ -235,8 +248,11 @@ public class LocationAttributes {
 	/**
 	 * Remove the location attributes from a DOM element.
 	 * 
-	 * @param elem the element to remove the location attributes from.
-	 * @param recurse if <code>true</code>, also remove location attributes on descendant elements.
+	 * @param elem
+	 *            the element to remove the location attributes from.
+	 * @param recurse
+	 *            if <code>true</code>, also remove location attributes on
+	 *            descendant elements.
 	 */
 	public static void remove(Element elem, boolean recurse) {
 		elem.removeAttributeNS(URI, SRC_ATTR);
@@ -254,11 +270,15 @@ public class LocationAttributes {
 	}
 
 	/**
-	 * A SAX filter that adds the information available from the <code>Locator</code> as attributes.
-	 * The purpose of having location as attributes is to allow this information to survive transformations
-	 * of the document (an XSL could copy these attributes over) or conversion of SAX events to a DOM.
+	 * A SAX filter that adds the information available from the
+	 * <code>Locator</code> as attributes. The purpose of having location as
+	 * attributes is to allow this information to survive transformations of the
+	 * document (an XSL could copy these attributes over) or conversion of SAX
+	 * events to a DOM.
 	 * <p>
-	 * The location is added as 3 attributes in a specific namespace to each element.
+	 * The location is added as 3 attributes in a specific namespace to each
+	 * element.
+	 * 
 	 * <pre>
 	 * &lt;root xmlns:loc="http://opensymphony.com/xwork/location"
 	 *       loc:src="file://path/to/file.xml"
@@ -266,10 +286,12 @@ public class LocationAttributes {
 	 *   &lt;foo loc:src="file://path/to/file.xml" loc:line="2" loc:column="3"/&gt;
 	 * &lt;/root&gt;
 	 * </pre>
-	 * <strong>Note:</strong> Although this adds a lot of information to the serialized form of the document,
-	 * the overhead in SAX events is not that big, as attribute names are interned, and all <code>src</code>
-	 * attributes point to the same string.
-     *
+	 * 
+	 * <strong>Note:</strong> Although this adds a lot of information to the
+	 * serialized form of the document, the overhead in SAX events is not that
+	 * big, as attribute names are interned, and all <code>src</code> attributes
+	 * point to the same string.
+	 *
 	 * see com.opensymphony.xwork2.util.location.LocationAttributes
 	 */
 	public static class Pipe implements ContentHandler {
@@ -279,14 +301,17 @@ public class LocationAttributes {
 		private ContentHandler nextHandler;
 
 		/**
-		 * Create a filter. It has to be chained to another handler to be really useful.
+		 * Create a filter. It has to be chained to another handler to be really
+		 * useful.
 		 */
 		public Pipe() {
 		}
 
 		/**
 		 * Create a filter that is chained to another handler.
-		 * @param next the next handler in the chain.
+		 * 
+		 * @param next
+		 *            the next handler in the chain.
 		 */
 		public Pipe(ContentHandler next) {
 			nextHandler = next;

@@ -64,7 +64,7 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 	private DefaultModuleDescriptor md;
 
 	private static final String IVY_SETTINGS_FILE = "ivysettings.xml";
-	
+
 	private static final Log LOG = LogFactory
 			.getLog(IvyConfigurationProvider.class);
 
@@ -94,7 +94,8 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 	 *             If ivy settings file (ivysettings.xml) is not found in
 	 *             classpath
 	 */
-	public void initIvy() throws ParseException, IOException, ConfigurationException {
+	public void initIvy() throws ParseException, IOException,
+			ConfigurationException {
 		// creates clear ivy settings
 		IvySettings ivySettings = new IvySettings();
 		File settingsFile = new File(IVY_SETTINGS_FILE);
@@ -185,7 +186,6 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 									+ plugin.getVersion() + ". Reason : "
 									+ e.getMessage());
 				}
-				
 
 			} else {
 				ce = (ConfigurationException) e;
@@ -218,7 +218,7 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 		if (ivy != null) {
 			XmlModuleDescriptorWriter.write(md, ivyfile);
 			ResolveReport report = ivy.resolve(ivyfile.toURL(), resolveOptions);
-		
+
 			if (!report.hasError()) {
 				ArtifactDownloadReport[] artifacts = report
 						.getAllArtifactsReports();
@@ -229,27 +229,26 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 
 				}
 				return result;
-			}
-			else{
+			} else {
 				List problems = report.getAllProblemMessages();
-				if(problems == null || problems.isEmpty()){
-					throw new ConfigurationException("Ivy can not resolve the artifacts. Undefined cause");
-				}
-				else{
+				if (problems == null || problems.isEmpty()) {
+					throw new ConfigurationException(
+							"Ivy can not resolve the artifacts. Undefined cause");
+				} else {
 					String msg = "";
-					
+
 					Iterator it = problems.iterator();
-					while(it.hasNext()){
+					while (it.hasNext()) {
 						String error = it.next().toString();
 						LOG.warn(error);
-						if("".equals(msg)){
+						if ("".equals(msg)) {
 							msg = error;
-						}
-						else{
-							msg= msg+";"+error;
+						} else {
+							msg = msg + ";" + error;
 						}
 					}
-					throw new ConfigurationException("Ivy can not resolve the artifacts. Cause: "+msg);
+					throw new ConfigurationException(
+							"Ivy can not resolve the artifacts. Cause: " + msg);
 				}
 			}
 		}

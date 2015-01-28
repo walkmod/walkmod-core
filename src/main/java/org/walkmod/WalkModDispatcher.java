@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Walkmod shell
+ * 
  * @author Raquel Pau
  *
  */
@@ -58,14 +59,13 @@ public class WalkModDispatcher {
 		System.out.println("                    ");
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
-		System.out
-				.println("An open source tool to apply code conventions");
+		System.out.println("An open source tool to apply code conventions");
 		System.out.println("version 1.0 - April 2014 -");
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
 	}
 
-	public static void main(String[] args) throws Exception{
+	public static void main(String[] args) throws Exception {
 		if (args == null || args.length == 0 || "--help".equals(args[0])) {
 
 			if (args == null || args.length == 0) {
@@ -127,5 +127,4 @@ public class WalkModDispatcher {
 		}
 	}
 
-	
 }

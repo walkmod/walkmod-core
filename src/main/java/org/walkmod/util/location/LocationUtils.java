@@ -30,7 +30,8 @@ import java.util.List;
 public class LocationUtils {
 
 	/**
-	 * The string representation of an unknown location: "<code>[unknown location]</code>".
+	 * The string representation of an unknown location: "
+	 * <code>[unknown location]</code>".
 	 */
 	public static final String UNKNOWN_STRING = "[unknown location]";
 
@@ -43,10 +44,14 @@ public class LocationUtils {
 
 		/**
 		 * Get the location of an object
-		 * @param obj the object for which to find a location
-		 * @param description and optional description to be added to the object's location
-		 * @return the object's location or <code>null</code> if object's class isn't handled
-		 *         by this finder.
+		 * 
+		 * @param obj
+		 *            the object for which to find a location
+		 * @param description
+		 *            and optional description to be added to the object's
+		 *            location
+		 * @return the object's location or <code>null</code> if object's class
+		 *         isn't handled by this finder.
 		 */
 		Location getLocation(Object obj, String description);
 	}
@@ -55,12 +60,14 @@ public class LocationUtils {
 	}
 
 	/**
-	 * Builds a string representation of a location, in the
-	 * "<code><em>descripton</em> - <em>uri</em>:<em>line</em>:<em>column</em></code>"
-	 * format (e.g. "<code>foo - file://path/to/file.xml:3:40</code>"). For {@link LocationImpl#UNKNOWN an unknown location}, returns
+	 * Builds a string representation of a location, in the "
+	 * <code><em>descripton</em> - <em>uri</em>:<em>line</em>:<em>column</em></code>
+	 * " format (e.g. "<code>foo - file://path/to/file.xml:3:40</code>"). For
+	 * {@link LocationImpl#UNKNOWN an unknown location}, returns
 	 * {@link #UNKNOWN_STRING}.
 	 * 
-	 * @param location source location
+	 * @param location
+	 *            source location
 	 * @return the string representation
 	 */
 	public static String toString(Location location) {
@@ -80,12 +87,16 @@ public class LocationUtils {
 	}
 
 	/**
-	 * Parse a location string of the form "<code><em>uri</em>:<em>line</em>:<em>column</em></code>" (e.g.
-	 * "<code>path/to/file.xml:3:40</code>") to a Location object. Additionally, a description may
-	 * also optionally be present, separated with an hyphen (e.g. "<code>foo - path/to/file.xml:3.40</code>").
+	 * Parse a location string of the form "
+	 * <code><em>uri</em>:<em>line</em>:<em>column</em></code>" (e.g. "
+	 * <code>path/to/file.xml:3:40</code>") to a Location object. Additionally,
+	 * a description may also optionally be present, separated with an hyphen
+	 * (e.g. "<code>foo - path/to/file.xml:3.40</code>").
 	 * 
-	 * @param text the text to parse
-	 * @return the location (possibly <code>null</code> if text was null or in an incorrect format)
+	 * @param text
+	 *            the text to parse
+	 * @return the location (possibly <code>null</code> if text was null or in
+	 *         an incorrect format)
 	 */
 	public static LocationImpl parse(String text)
 			throws IllegalArgumentException {
@@ -123,9 +134,11 @@ public class LocationUtils {
 	}
 
 	/**
-	 * Checks if a location is known, i.e. it is not null nor equal to {@link LocationImpl#UNKNOWN}.
+	 * Checks if a location is known, i.e. it is not null nor equal to
+	 * {@link LocationImpl#UNKNOWN}.
 	 * 
-	 * @param location the location to check
+	 * @param location
+	 *            the location to check
 	 * @return <code>true</code> if the location is known
 	 */
 	public static boolean isKnown(Location location) {
@@ -133,9 +146,11 @@ public class LocationUtils {
 	}
 
 	/**
-	 * Checks if a location is unknown, i.e. it is either null or equal to {@link LocationImpl#UNKNOWN}.
+	 * Checks if a location is unknown, i.e. it is either null or equal to
+	 * {@link LocationImpl#UNKNOWN}.
 	 * 
-	 * @param location the location to check
+	 * @param location
+	 *            the location to check
 	 * @return <code>true</code> if the location is unknown
 	 */
 	public static boolean isUnknown(Location location) {
@@ -143,14 +158,16 @@ public class LocationUtils {
 	}
 
 	/**
-	 * Add a {@link LocationFinder} to the list of finders that will be queried for an object's
-	 * location by {@link #getLocation(Object, String)}.
+	 * Add a {@link LocationFinder} to the list of finders that will be queried
+	 * for an object's location by {@link #getLocation(Object, String)}.
 	 * <p>
-	 * <b>Important:</b> LocationUtils internally stores a weak reference to the finder. This
-	 * avoids creating strong links between the classloader holding this class and the finder's
-	 * classloader, which can cause some weird memory leaks if the finder's classloader is to
-	 * be reloaded. Therefore, you <em>have</em> to keep a strong reference to the finder in the
-	 * calling code, e.g.:
+	 * <b>Important:</b> LocationUtils internally stores a weak reference to the
+	 * finder. This avoids creating strong links between the classloader holding
+	 * this class and the finder's classloader, which can cause some weird
+	 * memory leaks if the finder's classloader is to be reloaded. Therefore,
+	 * you <em>have</em> to keep a strong reference to the finder in the calling
+	 * code, e.g.:
+	 * 
 	 * <pre>
 	 *   private static LocationUtils.LocationFinder myFinder =
 	 *       new LocationUtils.LocationFinder() {
@@ -158,13 +175,14 @@ public class LocationUtils {
 	 *               ...
 	 *           }
 	 *       };
-	 *
+	 * 
 	 *   static {
 	 *       LocationUtils.addFinder(myFinder);
 	 *   }
 	 * </pre>
 	 * 
-	 * @param finder the location finder to add
+	 * @param finder
+	 *            the location finder to add
 	 */
 	public static void addFinder(LocationFinder finder) {
 		if (finder == null) {
@@ -179,24 +197,31 @@ public class LocationUtils {
 	}
 
 	/**
-	 * Get the location of an object. Some well-known located classes built in the JDK are handled
-	 * by this method. Handling of other located classes can be handled by adding new location finders.
+	 * Get the location of an object. Some well-known located classes built in
+	 * the JDK are handled by this method. Handling of other located classes can
+	 * be handled by adding new location finders.
 	 * 
-	 * @param obj the object of which to get the location
-	 * @return the object's location, or {@link LocationImpl#UNKNOWN} if no location could be found
+	 * @param obj
+	 *            the object of which to get the location
+	 * @return the object's location, or {@link LocationImpl#UNKNOWN} if no
+	 *         location could be found
 	 */
 	public static Location getLocation(Object obj) {
 		return getLocation(obj, null);
 	}
 
 	/**
-	 * Get the location of an object. Some well-known located classes built in the JDK are handled
-	 * by this method. Handling of other located classes can be handled by adding new location finders.
+	 * Get the location of an object. Some well-known located classes built in
+	 * the JDK are handled by this method. Handling of other located classes can
+	 * be handled by adding new location finders.
 	 * 
-	 * @param obj the object of which to get the location
-	 * @param description an optional description of the object's location, used if a Location object
-	 *        has to be created.
-	 * @return the object's location, or {@link LocationImpl#UNKNOWN} if no location could be found
+	 * @param obj
+	 *            the object of which to get the location
+	 * @param description
+	 *            an optional description of the object's location, used if a
+	 *            Location object has to be created.
+	 * @return the object's location, or {@link LocationImpl#UNKNOWN} if no
+	 *         location could be found
 	 */
 	public static Location getLocation(Object obj, String description) {
 		if (obj instanceof Location) {

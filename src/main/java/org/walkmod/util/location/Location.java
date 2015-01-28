@@ -21,31 +21,38 @@ public interface Location {
 
 	/**
 	 * Get the description of this location
+	 * 
 	 * @return the description (can be <code>null</code>)
 	 */
 	public String getDescription();
 
 	/**
 	 * Get the URI of this location
+	 * 
 	 * @return the URI (<code>null</code> if unknown).
 	 */
 	public String getURI();
 
 	/**
 	 * Get the line number of this location
+	 * 
 	 * @return the line number (<code>-1</code> if unknown)
 	 */
 	public int getLineNumber();
 
 	/**
 	 * Get the column number of this location
+	 * 
 	 * @return the column number (<code>-1</code> if unknown)
 	 */
 	public int getColumnNumber();
 
 	/**
 	 * Gets a source code snippet with the default padding
-	 * @param padding padding The amount of lines before and after the error to include
+	 * 
+	 * @param padding
+	 *            padding The amount of lines before and after the error to
+	 *            include
 	 * @return A list of source lines
 	 */
 	public List<String> getSnippet(int padding);

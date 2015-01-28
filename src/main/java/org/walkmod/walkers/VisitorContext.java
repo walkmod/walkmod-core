@@ -119,31 +119,30 @@ public class VisitorContext extends HashMap<String, Object> {
 	public Collection<String> getVisitorMessages() {
 		return visitorMessages;
 	}
-	
-	public Object getBean(String name, Map<?,?> parameters){
-		return getArchitectureConfig().getConfiguration().getBean(name, parameters);
+
+	public Object getBean(String name, Map<?, ?> parameters) {
+		return getArchitectureConfig().getConfiguration().getBean(name,
+				parameters);
 	}
-	
-	public ClassLoader getClassLoader(){
-		//for unitary test proposal
-		if(getArchitectureConfig() == null){
+
+	public ClassLoader getClassLoader() {
+		// for unitary test proposal
+		if (getArchitectureConfig() == null) {
 			return Thread.currentThread().getContextClassLoader();
 		}
 		return getArchitectureConfig().getConfiguration().getClassLoader();
 	}
-	
-	public URI getResource(String resource){
+
+	public URI getResource(String resource) {
 		URL url = getClassLoader().getResource(resource);
-		if(url == null){
+		if (url == null) {
 			File file = new File(resource);
-			if(file.exists()){
+			if (file.exists()) {
 				return file.toURI();
-			}
-			else{
+			} else {
 				return null;
 			}
-		}
-		else{
+		} else {
 			try {
 				return url.toURI();
 			} catch (URISyntaxException e) {

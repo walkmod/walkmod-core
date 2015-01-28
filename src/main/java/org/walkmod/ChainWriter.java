@@ -25,14 +25,14 @@ public interface ChainWriter extends Closeable, Flushable {
 	public String getPath();
 
 	public void setPath(String path);
-	
+
 	public void setExcludes(String[] excludes);
-	
+
 	public String[] getExcludes();
-	
+
 	public void setIncludes(String[] includes);
-	
+
 	public String[] getIncludes();
-	
+
 	public void write(Object n, VisitorContext vc) throws Exception;
 }

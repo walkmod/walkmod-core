@@ -38,19 +38,20 @@ public class ConfigurationManager {
 	public ConfigurationManager(Configuration conf) {
 		setConfiguration(conf);
 	}
-	
-	public ConfigurationManager(File walkmodcfg, ConfigurationProvider... configurationProviders){
+
+	public ConfigurationManager(File walkmodcfg,
+			ConfigurationProvider... configurationProviders) {
 		setConfiguration(new ConfigurationImpl());
 		this.configurationProviders.add(new XMLConfigurationProvider(walkmodcfg
 				.getAbsolutePath(), false));
 		this.configurationProviders.add(new PluginsConfigurationProvider());
-		if(configurationProviders != null){
-			for(ConfigurationProvider cp : configurationProviders){
+		if (configurationProviders != null) {
+			for (ConfigurationProvider cp : configurationProviders) {
 				this.configurationProviders.add(cp);
 			}
 		}
 		this.configurationProviders.add(new LanguageConfigurationProvider());
-		//the class loader can be modified before
+		// the class loader can be modified before
 		this.configurationProviders.add(new SpringConfigurationProvider());
 		executeConfigurationProviders();
 		ConfigurationAdapter ca = new DefaultConfigurationAdapter();
@@ -63,7 +64,7 @@ public class ConfigurationManager {
 	}
 
 	public void setConfiguration(Configuration configuration) {
-		this.configuration = configuration;		
+		this.configuration = configuration;
 	}
 
 	public Configuration getConfiguration() {
@@ -80,9 +81,11 @@ public class ConfigurationManager {
 	}
 
 	/**
-	 * Get the current list of ConfigurationProviders. If no custom ConfigurationProviders have been added, this method
-	 * will return a list containing only the default ConfigurationProvider, XMLConfigurationProvider.  if a custom
-	 * ConfigurationProvider has been added, then the XmlConfigurationProvider must be added by hand.
+	 * Get the current list of ConfigurationProviders. If no custom
+	 * ConfigurationProviders have been added, this method will return a list
+	 * containing only the default ConfigurationProvider,
+	 * XMLConfigurationProvider. if a custom ConfigurationProvider has been
+	 * added, then the XmlConfigurationProvider must be added by hand.
 	 * 
 	 * @return the list of registered ConfigurationProvider objects
 	 * @see ConfigurationProvider
@@ -95,7 +98,8 @@ public class ConfigurationManager {
 	/**
 	 * Set the list of configuration providers
 	 *
-	 * @param configurationProviders the ConfigurationProvider to register
+	 * @param configurationProviders
+	 *            the ConfigurationProvider to register
 	 */
 	public void setConfigurationProviders(
 			List<ConfigurationProvider> configurationProviders) {
@@ -103,10 +107,11 @@ public class ConfigurationManager {
 	}
 
 	/**
-	 * Adds a configuration provider to the List of ConfigurationProviders.  a given ConfigurationProvider may be added
-	 * more than once
+	 * Adds a configuration provider to the List of ConfigurationProviders. a
+	 * given ConfigurationProvider may be added more than once
 	 *
-	 * @param provider the ConfigurationProvider to register
+	 * @param provider
+	 *            the ConfigurationProvider to register
 	 */
 	public void addConfigurationProvider(ConfigurationProvider provider) {
 		if (!configurationProviders.contains(provider)) {

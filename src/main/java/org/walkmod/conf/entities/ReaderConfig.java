@@ -27,9 +27,9 @@ public class ReaderConfig {
 	private ChainReader modelReader;
 
 	private Map<String, Object> parameters;
-	
+
 	private String[] includes;
-	
+
 	private String[] excludes;
 
 	public String getPath() {
@@ -79,6 +79,5 @@ public class ReaderConfig {
 	public void setExcludes(String[] excludes) {
 		this.excludes = excludes;
 	}
-	
-	
+
 }

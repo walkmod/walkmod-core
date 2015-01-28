@@ -131,8 +131,7 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 					throw new IllegalArgumentException(
 							"The suffix must have at least one letter");
 				}
-			}
-			else if("".equals(suffix)){
+			} else if ("".equals(suffix)) {
 				throw new IllegalArgumentException(
 						"The suffix must have at least one letter");
 			}
@@ -155,7 +154,7 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 				String readerPath = context.getArchitectureConfig()
 						.getReaderConfig().getPath();
 				fileName = fullPath.substring(readerPath.length());
-				if(fileName.startsWith(File.separator)){
+				if (fileName.startsWith(File.separator)) {
 					fileName = fileName.substring(1);
 				}
 

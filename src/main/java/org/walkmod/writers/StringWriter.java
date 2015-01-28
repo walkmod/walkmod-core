@@ -31,5 +31,4 @@ public class StringWriter extends AbstractFileWriter {
 		return null;
 	}
 
-
 }

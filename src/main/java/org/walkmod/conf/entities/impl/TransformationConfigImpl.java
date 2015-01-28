@@ -27,11 +27,10 @@ public class TransformationConfigImpl implements TransformationConfig {
 	private Map<String, Object> parameters;
 
 	private Object visitorInstance;
-	
+
 	private boolean isMergeable = false;
-	
+
 	private String mergePolicy;
-	
 
 	public String getName() {
 		return name;
@@ -85,7 +84,7 @@ public class TransformationConfigImpl implements TransformationConfig {
 	}
 
 	@Override
-	public String getMergePolicy() {		
+	public String getMergePolicy() {
 		return mergePolicy;
 	}
 
