@@ -13,7 +13,6 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
-
 package org.walkmod.util;
 
 import java.io.File;
@@ -67,10 +66,8 @@ public class FileResource implements Resource<File> {
 	}
 
 	private boolean matches(String fileName, String filter) {
-
 		return filter.startsWith(fileName)
 				|| FilenameUtils.wildcardMatch(fileName, filter);
-
 	}
 
 	@Override
@@ -85,13 +82,11 @@ public class FileResource implements Resource<File> {
 						includes[i] = includes[i].substring(0,
 								includes[i].length() - 2);
 					}
-
 				}
 			}
 		}
 		if (excludes != null) {
 			for (int i = 0; i < excludes.length; i++) {
-
 				if (excludes[i].startsWith(fileNormalized)) {
 					excludes[i] = fileNormalized + "/" + excludes[i];
 					if (excludes[i].endsWith("\\*\\*")) {
@@ -101,7 +96,6 @@ public class FileResource implements Resource<File> {
 				}
 			}
 		}
-
 		if (file.isDirectory()) {
 			/*
 			 * if (includes != null) { for (int i = 0; i < includes.length; i++)
@@ -117,15 +111,12 @@ public class FileResource implements Resource<File> {
 			 * excludes[i]; } } } }
 			 */
 			IOFileFilter filter = null;
-
 			IOFileFilter directoryFilter = TrueFileFilter.INSTANCE;
 			if (excludes != null || includes != null) {
-
 				directoryFilter = new IOFileFilter() {
 
 					@Override
 					public boolean accept(File dir, String name) {
-
 						boolean excludesEval = false;
 						boolean includesEval = false;
 						String aux = FilenameUtils.normalize(name, true);
@@ -144,18 +135,15 @@ public class FileResource implements Resource<File> {
 						}
 						return (includesEval && !excludesEval)
 								|| (includes == null && excludes == null);
-
 					}
 
 					@Override
 					public boolean accept(File file) {
 						boolean excludesEval = false;
 						boolean includesEval = false;
-
 						String aux = FilenameUtils.normalize(
 								file.getAbsolutePath(), true);
 						if (excludes != null) {
-
 							for (int i = 0; i < excludes.length
 									&& !excludesEval; i++) {
 								excludesEval = FilenameUtils.wildcardMatch(aux,
@@ -170,7 +158,6 @@ public class FileResource implements Resource<File> {
 						}
 						return (includesEval && !excludesEval)
 								|| (includes == null && excludes == null);
-
 					}
 				};
 				if (extensions == null) {
@@ -179,7 +166,6 @@ public class FileResource implements Resource<File> {
 					String[] suffixes = toSuffixes(extensions);
 					filter = new SuffixFileFilter(suffixes);
 				}
-
 			} else {
 				if (extensions == null) {
 					filter = TrueFileFilter.INSTANCE;
@@ -188,7 +174,6 @@ public class FileResource implements Resource<File> {
 					filter = new SuffixFileFilter(suffixes);
 				}
 			}
-
 			return FileUtils.listFiles(file, filter, directoryFilter)
 					.iterator();
 		}

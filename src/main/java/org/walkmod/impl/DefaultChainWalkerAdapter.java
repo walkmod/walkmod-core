@@ -100,7 +100,6 @@ public class DefaultChainWalkerAdapter implements ChainWalkerAdapter {
 						+ " does not exist.");
 			}
 		}
-
 		for (TransformationConfig config : getTransformationConfig()) {
 			setName(config.getName());
 			visitor = config.getVisitorInstance();

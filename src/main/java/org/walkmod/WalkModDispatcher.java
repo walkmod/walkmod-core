@@ -13,13 +13,11 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
-
 package org.walkmod;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -67,7 +65,6 @@ public class WalkModDispatcher {
 
 	public static void main(String[] args) throws Exception {
 		if (args == null || args.length == 0 || "--help".equals(args[0])) {
-
 			if (args == null || args.length == 0) {
 				printHeader();
 				log.error("You must specify at least one goal to apply code transformations.");
@@ -91,15 +88,12 @@ public class WalkModDispatcher {
 			}
 			// TODO: backup, restore, search
 		} else {
-
 			List<String> paramsList = new LinkedList<String>(
 					Arrays.asList(args));
-
 			boolean offline = paramsList.remove("--offline");
 			boolean showException = paramsList.remove("-e");
 			WalkModFacade facade = new WalkModFacade(offline, true,
 					showException);
-
 			if (paramsList.contains("--version")) {
 				System.out.println("Walkmod version \"1.0\"");
 				System.out.println("Java version: "
@@ -113,18 +107,15 @@ public class WalkModDispatcher {
 				printHeader();
 				String[] params = new String[paramsList.size()];
 				facade.apply(paramsList.toArray(params));
-
 			} else if (paramsList.contains("check")) {
 				paramsList.remove("check");
 				printHeader();
 				String[] params = new String[paramsList.size()];
 				facade.check(paramsList.toArray(params));
-
 			} else if (paramsList.contains("install")) {
 				printHeader();
 				facade.install();
 			}
 		}
 	}
-
 }

@@ -17,7 +17,6 @@ package org.walkmod;
 
 import java.io.Closeable;
 import java.io.Flushable;
-
 import org.walkmod.walkers.VisitorContext;
 
 public interface ChainWriter extends Closeable, Flushable {

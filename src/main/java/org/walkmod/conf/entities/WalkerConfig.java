@@ -17,7 +17,6 @@ package org.walkmod.conf.entities;
 
 import java.util.List;
 import java.util.Map;
-
 import org.walkmod.ChainWalker;
 
 public interface WalkerConfig {

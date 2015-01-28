@@ -13,7 +13,6 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
-
 package org.walkmod.walkers;
 
 import java.lang.reflect.Method;
@@ -26,7 +25,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.apache.log4j.Logger;
 import org.walkmod.ChainWalker;
 import org.walkmod.Resource;
@@ -120,22 +118,17 @@ public abstract class AbstractWalker implements ChainWalker {
 									mergePolicy);
 						}
 						if (args.hasResultNodes()) {
-
 							Iterator<Object> it = args.getResultNodes()
 									.iterator();
-
 							while (it.hasNext()) {
 								Object currentArg = it.next();
 								if (isMergeable) {
 									currentArg = merge(currentArg, me, context);
 								}
-
 								context.addResultNode(currentArg);
-
 								visit(currentArg, restVisitors,
 										restTransformations, context);
 								return;
-
 							}
 						} else {
 							context.addResultNode(element);
@@ -313,7 +306,6 @@ public abstract class AbstractWalker implements ChainWalker {
 
 	protected Object merge(Object object, MergeEngine mergeEngine,
 			VisitorContext vc) {
-
 		Object local = null;
 		Collection<Object> rnodes = vc.getResultNodes();
 		boolean previousResult = false;
@@ -333,7 +325,6 @@ public abstract class AbstractWalker implements ChainWalker {
 		if (!previousResult) {
 			local = getSourceNode(object);
 		}
-
 		if (local != null) {
 			if (object instanceof Mergeable) {
 				((Mergeable) local).merge(object, mergeEngine);

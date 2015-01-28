@@ -80,7 +80,6 @@ public class WriterConfigImpl implements WriterConfig {
 
 	@Override
 	public String[] getExcludes() {
-
 		return excludes;
 	}
 

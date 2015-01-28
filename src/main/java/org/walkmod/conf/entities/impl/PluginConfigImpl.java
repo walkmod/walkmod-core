@@ -66,6 +66,5 @@ public class PluginConfigImpl implements PluginConfig {
 			return false;
 		}
 		return false;
-
 	}
 }

@@ -18,13 +18,11 @@ package org.walkmod.templates;
 import groovy.io.PlatformLineWriter;
 import groovy.text.GStringTemplateEngine;
 import groovy.text.Template;
-
 import java.io.File;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.walkmod.ChainWriter;
 import org.walkmod.conf.entities.WriterConfig;
@@ -38,15 +36,23 @@ import org.walkmod.walkers.VisitorContext;
 public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 
 	private List<String> templates;
+
 	private List<File> templateFiles;
+
 	private List<String> missingTemplates = new LinkedList<String>();
+
 	private File propertiesFile = null;
 
 	private TemplateEngine templateEngine;
+
 	private String rootLabel = null;
+
 	private String output;
+
 	private Parser<?> parser;
+
 	private static Logger log = Logger.getLogger(DefaultTemplateVisitor.class);
+
 	private File currentTemplate;
 
 	private String suffix = ".result";
@@ -77,19 +83,14 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 				throw new WalkModException("Template engine not found");
 			}
 		}
-
 		templateEngine.initialize(context, node);
-
 		if (templateFiles != null && templates != null
 				&& templateFiles.size() == templates.size()) {
-
 			for (File template : templateFiles) {
-
 				String templateResult = templateEngine.applyTemplate(template,
 						propertiesFile);
 				Object producedNode = null;
 				currentTemplate = template;
-
 				if (parser != null) {
 					try {
 						producedNode = parser.parse(templateResult, true);
@@ -97,10 +98,8 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 						log.warn("Error parsing the template "
 								+ template.getAbsolutePath()
 								+ ". Dumping contents..");
-
 						doPlainOutput(templateResult, context);
 					}
-
 				} else {
 					doPlainOutput(templateResult, context);
 				}
@@ -118,7 +117,6 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 			throw new WalkModException(
 					"There are missing or unexitent templates.");
 		}
-
 	}
 
 	public void setSuffix(String suffix) {
@@ -157,17 +155,14 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 				if (fileName.startsWith(File.separator)) {
 					fileName = fileName.substring(1);
 				}
-
 			} else {
 				log.debug("working with the template name");
 			}
 			int pos = fileName.lastIndexOf(".");
-
 			if (pos != -1) {
 				log.debug("Removing the existing suffix");
 				fileName = fileName.substring(0, pos);
 			}
-
 			log.warn("Setting a default output file! [" + fileName + ".result]");
 			VisitorContext auxCtxt = new VisitorContext();
 			File defaultOutputFile = new File(writerConfig.getPath(), fileName
@@ -179,10 +174,8 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 			}
 			auxCtxt.put(AbstractWalker.ORIGINAL_FILE_KEY, defaultOutputFile);
 			chainWriter.write(templateResult, auxCtxt);
-
 		} else {
 			String outputFile = output;
-
 			// validates if it is a template name to reduce
 			// computation
 			char[] chars = outputFile.toCharArray();
@@ -190,18 +183,14 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 			for (int i = 0; i < chars.length && !isGString; i++) {
 				isGString = chars[i] == '$' || chars[i] == '<';
 			}
-
 			if (isGString) {
 				GStringTemplateEngine engine = new GStringTemplateEngine();
-
 				Template templateName = engine.createTemplate(output);
 				StringWriter stringWriter = new StringWriter();
 				Writer platformWriter = new PlatformLineWriter(stringWriter);
 				templateName.make(context).writeTo(platformWriter);
 				outputFile = platformWriter.toString();
-
 			}
-
 			File file = new File(outputFile);
 			VisitorContext auxCtxt = new VisitorContext();
 			auxCtxt.put(AbstractWalker.ORIGINAL_FILE_KEY, file);
@@ -223,7 +212,6 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 		this.templates = templates;
 		if (templates != null) {
 			templateFiles = new LinkedList<File>();
-
 			for (String template : templates) {
 				File aux = new File(template);
 				if (aux.exists()) {
@@ -259,7 +247,6 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 		if (properties.exists()) {
 			this.propertiesFile = properties;
 		}
-
 	}
 
 	public void setOutput(String output) {
@@ -273,12 +260,10 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 	@Override
 	public void setParser(Parser<?> parser) {
 		this.parser = parser;
-
 	}
 
 	@Override
 	public Parser<?> getParser() {
 		return parser;
 	}
-
 }

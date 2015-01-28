@@ -20,7 +20,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
-
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.MutablePropertyValues;
@@ -75,7 +74,6 @@ public class ConfigurationImpl implements Configuration {
 	}
 
 	public void setChainConfigs(Collection<ChainConfig> chainConfigs) {
-
 		this.chainConfigs.clear();
 		Iterator<ChainConfig> it = chainConfigs.iterator();
 		while (it.hasNext()) {
@@ -90,7 +88,6 @@ public class ConfigurationImpl implements Configuration {
 		if (!result) {
 			architecture.setConfiguration(this);
 			chainConfigs.put(architecture.getName(), architecture);
-
 		}
 		return result;
 	}
@@ -164,7 +161,6 @@ public class ConfigurationImpl implements Configuration {
 
 	@Override
 	public Collection<PluginConfig> getPlugins() {
-
 		return plugins;
 	}
 
@@ -208,7 +204,6 @@ public class ConfigurationImpl implements Configuration {
 
 	@Override
 	public String getDefaultLanguage() {
-
 		return defaultLanguage;
 	}
 
@@ -226,5 +221,4 @@ public class ConfigurationImpl implements Configuration {
 	public void setProviderConfigurations(Collection<ProviderConfig> providers) {
 		this.providers = providers;
 	}
-
 }

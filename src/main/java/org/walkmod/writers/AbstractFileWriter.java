@@ -13,7 +13,6 @@
  
  You should have received a copy of the GNU Lesser General Public License
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
-
 package org.walkmod.writers;
 
 import java.io.BufferedReader;
@@ -25,7 +24,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.Writer;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.walkmod.ChainWriter;
@@ -63,7 +61,6 @@ public abstract class AbstractFileWriter implements ChainWriter {
 	public abstract File createOutputDirectory(Object o);
 
 	public void write(Object n, VisitorContext vc) throws Exception {
-
 		File out = null;
 		boolean createdEmptyFile = false;
 		if (vc != null) {
@@ -105,23 +102,18 @@ public abstract class AbstractFileWriter implements ChainWriter {
 									includes[i].length() - 2);
 						}
 					}
-
 					write = includes[i].startsWith(aux)
 							|| FilenameUtils.wildcardMatch(aux, includes[i]);
 				}
 			}
 			if (write) {
 				Writer writer = null;
-
 				try {
-
 					String content = getContent(n, vc);
 					if (content != null && !"".equals(content)) {
 						char endLineChar = getEndLineChar(out);
-
 						writer = new BufferedWriter(new OutputStreamWriter(
 								new FileOutputStream(out), getEncoding()));
-
 						if (vc.get("append") == null) {
 							write(content, writer, endLineChar);
 						} else {
@@ -141,7 +133,6 @@ public abstract class AbstractFileWriter implements ChainWriter {
 				} finally {
 					if (writer != null) {
 						writer.close();
-
 					}
 				}
 			} else {
@@ -201,7 +192,6 @@ public abstract class AbstractFileWriter implements ChainWriter {
 						detected = detected
 								|| (previousChar == '\n' && buffer[i] != '\r');
 						previousChar = buffer[i];
-
 					}
 					if (!detected) {
 						bytes = reader.read(buffer);
@@ -265,5 +255,4 @@ public abstract class AbstractFileWriter implements ChainWriter {
 		this.encoding = encoding;
 		log.debug("[encoding]:" + encoding);
 	}
-
 }

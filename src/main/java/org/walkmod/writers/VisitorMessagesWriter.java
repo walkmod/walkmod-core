@@ -18,7 +18,6 @@ package org.walkmod.writers;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.walkmod.ChainWriter;
@@ -49,18 +48,14 @@ public class VisitorMessagesWriter implements ChainWriter {
 
 	@Override
 	public void setPath(String path) {
-
 	}
 
 	public void write(Object n, VisitorContext vc) {
-
 		File out = null;
 		if (vc != null) {
 			out = (File) vc.get(AbstractWalker.ORIGINAL_FILE_KEY);
 		}
-
 		boolean write = true;
-
 		if (out != null) {
 			if (excludes != null) {
 				for (int i = 0; i < excludes.length && write; i++) {
@@ -68,7 +63,6 @@ public class VisitorMessagesWriter implements ChainWriter {
 							excludes[i]));
 				}
 			}
-
 			if (includes != null && write) {
 				write = false;
 				for (int i = 0; i < includes.length && !write; i++) {
@@ -85,7 +79,6 @@ public class VisitorMessagesWriter implements ChainWriter {
 				}
 			}
 		}
-
 	}
 
 	@Override

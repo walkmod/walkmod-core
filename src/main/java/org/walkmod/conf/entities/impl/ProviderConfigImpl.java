@@ -1,7 +1,6 @@
 package org.walkmod.conf.entities.impl;
 
 import java.util.Map;
-
 import org.walkmod.conf.entities.ProviderConfig;
 
 public class ProviderConfigImpl implements ProviderConfig {
@@ -29,5 +28,4 @@ public class ProviderConfigImpl implements ProviderConfig {
 	public void setParameters(Map<String, Object> parameters) {
 		this.parameters = parameters;
 	}
-
 }
