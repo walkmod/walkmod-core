@@ -102,5 +102,4 @@ public class ChainConfigImpl implements ChainConfig {
 	public WriterConfig getWriterConfig() {
 		return writerConfig;
 	}
-
 }

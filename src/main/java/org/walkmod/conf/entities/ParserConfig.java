@@ -30,5 +30,4 @@ public interface ParserConfig {
 	public Object getParserInstance();
 
 	public void setParserInstance(Object parserInstance);
-
 }

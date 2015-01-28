@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -73,7 +72,6 @@ public class PluginsConfigurationProvider implements ConfigurationProvider {
 			throw new ConfigurationException(
 					"Missing default values configuration");
 		}
-
 		File f = new File(fileName);
 		if (f.exists()) {
 			try {
@@ -124,27 +122,22 @@ public class PluginsConfigurationProvider implements ConfigurationProvider {
 			plugins = new LinkedList<PluginConfig>();
 			configuration.setPlugins(plugins);
 		}
-
 		Element rootElement = document.getDocumentElement();
 		NodeList childNodes = rootElement.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node childNode = childNodes.item(i);
 			if ((childNode.getNodeType() == Node.ELEMENT_NODE)
 					&& "plugin".equals(childNode.getNodeName())) {
-
 				Element paramElement = (Element) childNode;
 				String groupId = paramElement.getAttribute("groupId");
 				String artifactId = paramElement.getAttribute("artifactId");
 				String version = paramElement.getAttribute("version");
-
 				PluginConfig defaultPlugin = new PluginConfigImpl();
 				defaultPlugin.setGroupId(groupId);
 				defaultPlugin.setArtifactId(artifactId);
 				defaultPlugin.setVersion(version);
-
 				plugins.add(defaultPlugin);
 			}
 		}
 	}
-
 }

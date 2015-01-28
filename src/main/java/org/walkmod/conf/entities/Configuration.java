@@ -17,7 +17,6 @@ package org.walkmod.conf.entities;
 
 import java.util.Collection;
 import java.util.Map;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.walkmod.merger.MergeEngine;
 import org.walkmod.walkers.VisitorMessage;

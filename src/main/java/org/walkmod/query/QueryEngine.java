@@ -16,7 +16,6 @@
 package org.walkmod.query;
 
 import java.util.Map;
-
 import org.walkmod.walkers.VisitorContext;
 
 public interface QueryEngine {

@@ -43,10 +43,8 @@ public class DefaultConfigurationAdapter implements ConfigurationAdapter {
 
 	@Override
 	public void prepare() {
-
 		Collection<ProviderConfig> providers = config
 				.getProviderConfigurations();
-
 		if (providers != null) {
 			for (ProviderConfig pc : providers) {
 				Object aux = config.getBean(pc.getType(), pc.getParameters());
@@ -54,11 +52,9 @@ public class DefaultConfigurationAdapter implements ConfigurationAdapter {
 					ConfigurationProvider cp = ((ConfigurationProvider) aux);
 					cp.init(config);
 					cp.load();
-
 				}
 			}
 		}
-
 		Collection<MergePolicyConfig> mergePolicies = config.getMergePolicies();
 		if (mergePolicies != null) {
 			Map<String, MergeEngine> mergeEngines = new HashMap<String, MergeEngine>();

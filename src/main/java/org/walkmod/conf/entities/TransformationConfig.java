@@ -42,5 +42,4 @@ public interface TransformationConfig {
 	public void setMergePolicy(String mergePolicy);
 
 	public String getMergePolicy();
-
 }

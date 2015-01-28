@@ -17,7 +17,6 @@ package org.walkmod;
 
 import java.util.Collection;
 import java.util.List;
-
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.walkers.ParserAware;
 import org.walkmod.walkers.VisitorMessage;
@@ -55,5 +54,4 @@ public interface ChainWalker extends ParserAware {
 	public void setReportChanges(boolean reportChanges);
 
 	public boolean hasChanges();
-
 }

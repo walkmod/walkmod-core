@@ -79,5 +79,4 @@ public class ReaderConfig {
 	public void setExcludes(String[] excludes) {
 		this.excludes = excludes;
 	}
-
 }

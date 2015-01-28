@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -85,7 +84,6 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 	public void init(Configuration configuration) {
 		this.configuration = configuration;
 		this.document = lookUpDocument();
-
 	}
 
 	private Document lookUpDocument() {
@@ -155,9 +153,7 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 	private void updateNulls() {
 		Collection<ChainConfig> ccs = configuration.getChainConfigs();
 		Element rootElement = document.getDocumentElement();
-
 		if (ccs != null) {
-
 			for (ChainConfig cc : ccs) {
 				ReaderConfig rc = cc.getReaderConfig();
 				if (rc.getType() == null) {
@@ -177,14 +173,12 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 				if (walkc.getType() == null) {
 					walkc.setType(rootElement.getAttribute("walker"));
 				}
-
 				if (walkc.getParserConfig().getType() == null) {
 					if (!"".equals(rootElement.getAttribute("parser"))) {
 						walkc.getParserConfig().setType(
 								rootElement.getAttribute("parser"));
 					}
 				}
-
 				List<TransformationConfig> transformations = walkc
 						.getTransformations();
 				if (transformations != null) {
@@ -195,13 +189,9 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 							}
 						}
 					}
-
 				}
-
 			}
-
 		}
-
 	}
 
 	private void loadMergePolicies() {
@@ -257,5 +247,4 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 			mergePolicies.add(policy);
 		}
 	}
-
 }

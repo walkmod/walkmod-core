@@ -19,7 +19,6 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.walkmod.ConfigurationAdapter;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.impl.ConfigurationImpl;

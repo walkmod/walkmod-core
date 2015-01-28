@@ -17,7 +17,6 @@ package org.walkmod.conf.providers;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.ParseException;
@@ -26,7 +25,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ivy.Ivy;
@@ -118,10 +116,8 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 		}
 		// creates an Ivy instance with settings
 		ivy = Ivy.newInstance(ivySettings);
-
 		ivyfile = File.createTempFile("ivy", ".xml");
 		ivyfile.deleteOnExit();
-
 		String[] confs = new String[] { "default" };
 		resolveOptions = new ResolveOptions().setConfs(confs);
 		if (isOffLine) {
@@ -158,7 +154,6 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 					plugin = it.next();
 					addArtifact(plugin.getGroupId(), plugin.getArtifactId(),
 							plugin.getVersion());
-
 				}
 				jarsToLoad = resolveArtifacts();
 				URL[] urls = new URL[jarsToLoad.size()];
@@ -173,7 +168,6 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 			}
 		} catch (Exception e) {
 			if (!(e instanceof ConfigurationException)) {
-
 				if (plugin == null) {
 					ce = new ConfigurationException(
 							"Unable to initialize ivy configuration:"
@@ -186,7 +180,6 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 									+ plugin.getVersion() + ". Reason : "
 									+ e.getMessage());
 				}
-
 			} else {
 				ce = (ConfigurationException) e;
 			}
@@ -214,19 +207,15 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 	}
 
 	public Collection<File> resolveArtifacts() throws Exception {
-
 		if (ivy != null) {
 			XmlModuleDescriptorWriter.write(md, ivyfile);
 			ResolveReport report = ivy.resolve(ivyfile.toURL(), resolveOptions);
-
 			if (!report.hasError()) {
 				ArtifactDownloadReport[] artifacts = report
 						.getAllArtifactsReports();
 				Collection<File> result = new LinkedList<File>();
-
 				for (ArtifactDownloadReport item : artifacts) {
 					result.add(item.getLocalFile());
-
 				}
 				return result;
 			} else {
@@ -236,7 +225,6 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 							"Ivy can not resolve the artifacts. Undefined cause");
 				} else {
 					String msg = "";
-
 					Iterator it = problems.iterator();
 					while (it.hasNext()) {
 						String error = it.next().toString();

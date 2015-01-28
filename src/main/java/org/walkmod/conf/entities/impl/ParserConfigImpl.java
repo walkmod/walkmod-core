@@ -16,7 +16,6 @@
 package org.walkmod.conf.entities.impl;
 
 import java.util.Map;
-
 import org.walkmod.conf.entities.ParserConfig;
 
 public class ParserConfigImpl implements ParserConfig {
@@ -56,5 +55,4 @@ public class ParserConfigImpl implements ParserConfig {
 	public void setParserInstance(Object parserInstance) {
 		this.parserInstance = parserInstance;
 	}
-
 }

@@ -87,5 +87,4 @@ public class TransformationConfigImpl implements TransformationConfig {
 	public String getMergePolicy() {
 		return mergePolicy;
 	}
-
 }
