@@ -16,11 +16,14 @@
 
 package org.walkmod.writers;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.io.Writer;
 
 import org.apache.commons.io.FilenameUtils;
@@ -114,16 +117,18 @@ public abstract class AbstractFileWriter implements ChainWriter {
 
 					String content = getContent(n, vc);
 					if (content != null && !"".equals(content)) {
+						char endLineChar = getEndLineChar(out);
 
 						writer = new BufferedWriter(new OutputStreamWriter(
 								new FileOutputStream(out), getEncoding()));
+
 						if (vc.get("append") == null) {
-							writer.write(content);
+							write(content, writer, endLineChar);
 						} else {
 							if (Boolean.TRUE.equals(vc.get("append"))) {
-								writer.append(content);
+								append(content, writer, endLineChar);
 							} else {
-								writer.write(content);
+								write(content, writer, endLineChar);
 							}
 						}
 						Summary.getInstance().addFile(out);
@@ -148,6 +153,63 @@ public abstract class AbstractFileWriter implements ChainWriter {
 		} else {
 			log.debug("There is no place where to write.");
 		}
+	}
+
+	public void write(String content, Writer writer, char endLineChar)
+			throws IOException {
+		BufferedReader reader = new BufferedReader(new StringReader(content));
+		String line = reader.readLine();
+		String endLine = "\n";
+		if (endLineChar == '\r') {
+			endLine = "\r\n";
+		}
+		while (line != null) {
+			writer.write(line + endLine);
+			line = reader.readLine();
+		}
+	}
+
+	public void append(String content, Writer writer, char endLineChar)
+			throws IOException {
+		BufferedReader reader = new BufferedReader(new StringReader(content));
+		String line = reader.readLine();
+		String endLine = "\n";
+		if (endLineChar == '\r') {
+			endLine = "\r\n";
+		}
+		while (line != null) {
+			writer.append(line + endLine);
+			line = reader.readLine();
+		}
+	}
+
+	public char getEndLineChar(File file) throws IOException {
+		char endLineChar = '\n';
+		FileReader reader = new FileReader(file);
+		try {
+			char[] buffer = new char[150];
+			boolean detected = false;
+			int bytes = reader.read(buffer);
+			char previousChar = '\0';
+			while (bytes > 0 && !detected) {
+				for (int i = 0; i < bytes && !detected; i++) {
+					if (buffer[i] == '\r') {
+						endLineChar = '\r';
+						detected = true;
+					}
+					detected = detected
+							|| (previousChar == '\n' && buffer[i] != '\r');
+					previousChar = buffer[i];
+
+				}
+				if (!detected) {
+					bytes = reader.read(buffer);
+				}
+			}
+		} finally {
+			reader.close();
+		}
+		return endLineChar;
 	}
 
 	public abstract String getContent(Object n, VisitorContext vc);
