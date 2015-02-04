@@ -1,0 +1,30 @@
+<!DOCTYPE walkmod PUBLIC "-//WALKMOD//DTD"  "http://www.walkmod.com/dtd/walkmod-1.0.dtd" >
+<walkmod>
+  <plugins>
+    <plugin groupId="org.walkmod" artifactId="walkmod-imports-cleaner-plugin" version="2.0" />
+  </plugins>
+  <chain>
+    <reader path="src/main/java"/>
+    <walker>
+      <param name="reportChanges">false</param>
+	  <transformations>
+        <transformation type="walkmod:commons:import-cleaner" />
+      </transformations>
+    </walker>
+    <writer path="src/main/java">
+      <param name="configFile">eclipse-style.xml</param>
+    </writer>
+  </chain>
+  <chain>
+    <reader path="src/test/java"/>
+    <walker>
+      <param name="reportChanges">false</param>
+	  <transformations>
+        <transformation type="walkmod:commons:import-cleaner" />
+      </transformations>
+    </walker>
+    <writer path="src/test/java">
+      <param name="configFile">eclipse-style.xml</param>
+    </writer>
+  </chain>
+</walkmod>
