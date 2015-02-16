@@ -382,7 +382,7 @@ public class WalkModFacade {
 				num += ap.getWalkerAdapter().getWalker().getNumModifications();
 				pos++;
 				if (verbose) {
-					if (!ap.getWalkerAdapter().getWalker().hasChanges()) {
+					if (Summary.getInstance().getWrittenFiles().isEmpty()) {
 						log.info("**No sources changed**");
 					}
 					if (it.hasNext()) {
@@ -499,7 +499,7 @@ public class WalkModFacade {
 						System.out
 								.println("----------------------------------------");
 					} else {
-						if (!ap.getWalkerAdapter().getWalker().hasChanges()) {
+						if (Summary.getInstance().getWrittenFiles().isEmpty()) {
 							log.info("**No sources changed**");
 						}
 					}
