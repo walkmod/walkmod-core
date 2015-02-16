@@ -20,4 +20,5 @@ public class FileResourceTest {
 		Assert.assertEquals(filter.getAbsolutePath(), f.getAbsolutePath());
 		Assert.assertEquals(false, it.hasNext());
 	}
+
 }
