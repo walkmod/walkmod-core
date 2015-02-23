@@ -114,8 +114,9 @@ public abstract class AbstractFileWriter implements ChainWriter {
 				Writer writer = null;
 
 				try {
-
+					vc.put("outFile", out);
 					String content = getContent(n, vc);
+					vc.remove("outFile");
 					if (content != null && !"".equals(content)) {
 						char endLineChar = getEndLineChar(out);
 
