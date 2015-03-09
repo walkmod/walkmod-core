@@ -19,6 +19,7 @@ package org.walkmod.walkers;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -33,7 +34,6 @@ import org.walkmod.Resource;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.exceptions.WalkModException;
-import org.walkmod.merger.CollectionUtil;
 import org.walkmod.merger.IdentificableNode;
 import org.walkmod.merger.MergeEngine;
 import org.walkmod.merger.Mergeable;
@@ -311,20 +311,45 @@ public abstract class AbstractWalker implements ChainWalker {
 
 	protected abstract String getLocation(VisitorContext ctx);
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected Object merge(Object object, MergeEngine mergeEngine,
 			VisitorContext vc) {
 
 		Object local = null;
 		Collection<Object> rnodes = vc.getResultNodes();
 		boolean previousResult = false;
+		Iterator<Object> it = rnodes.iterator();
 		if (object instanceof IdentificableNode) {
-			local = CollectionUtil.findObject(rnodes, object,
-					((IdentificableNode) object).getIdentityComparator());
-		} else {
-			Iterator<Object> it = rnodes.iterator();
+			local = null;
+			Comparator cmp = ((IdentificableNode) object)
+					.getIdentityComparator();
+			boolean deleted = false;
 			while (it.hasNext() && local == null) {
 				Object current = it.next();
-				if (current.equals(object)) {
+				if(current == object){
+					it.remove();
+					deleted = true;
+				}
+				else if (object.getClass().equals(current.getClass())) {
+					if (cmp.compare(current, object) == 0) {
+						if(deleted){
+							local = object;
+							object = current;
+						}
+						else{
+							local = current;
+						}
+					}
+				}
+			}
+		} else {
+			it = rnodes.iterator();
+			while (it.hasNext() && local == null) {
+				Object current = it.next();
+				if(current == object){
+					it.remove();
+				}
+				else if (current.equals(object)) {
 					local = current;
 				}
 			}
@@ -336,20 +361,25 @@ public abstract class AbstractWalker implements ChainWalker {
 
 		if (local != null) {
 			if (object instanceof Mergeable) {
+
 				((Mergeable) local).merge(object, mergeEngine);
-				if (!previousResult) {
-					vc.addResultNode(local);
+
+				if (previousResult) {
+					it.remove();
 				}
+
 				return local;
+
 			} else {
-				if (!previousResult) {
-					vc.addResultNode(object);
+				if (previousResult) {
+					it.remove();
+					// vc.addResultNode(object);
 				}
 				return object;
 			}
 		}
-		if (!previousResult) {
-			vc.addResultNode(local);
+		if (previousResult) {
+			it.remove();
 		}
 		return local;
 	}
