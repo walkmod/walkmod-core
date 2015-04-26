@@ -433,7 +433,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 
 	public void loadWalkerConfig(Element element, ChainConfig ac) {
 		NodeList children;
-		Node walkerNode = (Node) element;
+		Node walkerNode = element;
 		if ("walker".equals(walkerNode.getNodeName())) {
 			WalkerConfig wc = new WalkerConfigImpl();
 			String type = ((Element) walkerNode).getAttribute("type");
@@ -452,8 +452,8 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 								+ ac.getName() + ". Please, verify the dtd");
 			}
 			int transformationIndex = wc.getParams().size();
-			final String nodeName = ((Element) children
-					.item(transformationIndex)).getNodeName();
+			final String nodeName = children
+					.item(transformationIndex).getNodeName();
 			if (("parser").equals(nodeName)) {
 				loadParserConfig((Element) children.item(transformationIndex),
 						wc);
@@ -594,7 +594,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 					wc.setIncludes(includesArray);
 				}
 			}
-			wc.setParams(getParams((Element) child));
+			wc.setParams(getParams(child));
 			ac.setWriterConfig(wc);
 		}
 	}

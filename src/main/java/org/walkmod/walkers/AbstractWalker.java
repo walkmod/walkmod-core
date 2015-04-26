@@ -160,7 +160,7 @@ public abstract class AbstractWalker implements ChainWalker {
 				.getWalkerConfig().getTransformations();
 		List<TransformationConfig> transformations;
 		if (colTransformations instanceof List) {
-			transformations = (List<TransformationConfig>) getChainConfig()
+			transformations = getChainConfig()
 					.getWalkerConfig().getTransformations();
 		} else {
 			transformations = new LinkedList<TransformationConfig>(

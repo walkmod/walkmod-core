@@ -52,7 +52,7 @@ public class WalkModException extends RuntimeException {
 	 *            the target of the exception.
 	 */
 	public WalkModException(String s, Object target) {
-		this(s, (Throwable) null, target);
+		this(s, null, target);
 	}
 
 	/**

@@ -268,7 +268,7 @@ public class WalkModFacade {
 					endTime = System.currentTimeMillis();
 					double time = 0;
 					if (endTime > startTime) {
-						time = (double) ((double) (endTime - startTime) / (double) 1000);
+						time = (double) (endTime - startTime) / (double) 1000;
 					}
 					String timeMsg = myFormatter.format(time);
 					System.out
@@ -306,7 +306,7 @@ public class WalkModFacade {
 					endTime = System.currentTimeMillis();
 					double time = 0;
 					if (endTime > startTime) {
-						time = (double) ((double) (endTime - startTime) / (double) 1000);
+						time = (double) (endTime - startTime) / (double) 1000;
 					}
 					String timeMsg = myFormatter.format(time);
 					System.out
@@ -394,7 +394,7 @@ public class WalkModFacade {
 					endTime = System.currentTimeMillis();
 					double time = 0;
 					if (endTime > startTime) {
-						time = (double) ((double) (endTime - startTime) / (double) 1000);
+						time = (double) (endTime - startTime) / (double) 1000;
 					}
 					String timeMsg = myFormatter.format(time);
 					if (num != 0) {
@@ -439,7 +439,7 @@ public class WalkModFacade {
 			endTime = System.currentTimeMillis();
 			double time = 0;
 			if (endTime > startTime) {
-				time = (double) ((double) (endTime - startTime) / (double) 1000);
+				time = (double) (endTime - startTime) / (double) 1000;
 			}
 			String timeMsg = myFormatter.format(time);
 			if (num != 0) {
@@ -490,7 +490,7 @@ public class WalkModFacade {
 					endTime = System.currentTimeMillis();
 					double time = 0;
 					if (endTime > startTime) {
-						time = (double) ((double) (endTime - startTime) / (double) 1000);
+						time = (double) (endTime - startTime) / (double) 1000;
 					}
 					String timeMsg = myFormatter.format(time);
 					if (num != 0) {
@@ -529,7 +529,7 @@ public class WalkModFacade {
 					endTime = System.currentTimeMillis();
 					double time = 0;
 					if (endTime > startTime) {
-						time = (double) ((double) (endTime - startTime) / (double) 1000);
+						time = (double) (endTime - startTime) / (double) 1000;
 					}
 					String timeMsg = myFormatter.format(time);
 					if (num != 0) {
