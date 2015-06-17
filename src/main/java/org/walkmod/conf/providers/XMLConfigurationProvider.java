@@ -336,12 +336,14 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 					}
 					configuration.addChainConfig(ac);
 				} else if ("transformation".equals(nodeName)) {
+					
 					ChainConfig ac = new ChainConfigImpl();
 					ac.setName("chain_1");
 					List<TransformationConfig> transformationConfigs = getTransformationItems(
 							rootElement, true);
 					WalkerConfig wc = new WalkerConfigImpl();
 					wc.setType(null);
+					wc.setParserConfig(new ParserConfigImpl());
 					wc.setTransformations(transformationConfigs);
 					addDefaultReaderConfig(ac);
 					ac.setWalkerConfig(wc);

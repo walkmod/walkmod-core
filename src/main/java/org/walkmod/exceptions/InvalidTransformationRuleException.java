@@ -17,24 +17,19 @@ package org.walkmod.exceptions;
 
 public class InvalidTransformationRuleException extends Exception {
 
-	/**
-	 * serialVersionUID
-	 */
-	private static final long serialVersionUID = 9001388591915734947L;
+   public InvalidTransformationRuleException() {
+      super();
+   }
 
-	public InvalidTransformationRuleException() {
-		super();
-	}
+   public InvalidTransformationRuleException(String msg, Throwable cause) {
+      super(msg, cause);
+   }
 
-	public InvalidTransformationRuleException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+   public InvalidTransformationRuleException(String msg) {
+      super(msg);
+   }
 
-	public InvalidTransformationRuleException(String msg) {
-		super(msg);
-	}
-
-	public InvalidTransformationRuleException(Throwable cause) {
-		super(cause);
-	}
+   public InvalidTransformationRuleException(Throwable cause) {
+      super(cause);
+   }
 }

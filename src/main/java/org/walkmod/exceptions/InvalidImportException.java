@@ -17,8 +17,4 @@ package org.walkmod.exceptions;
 
 public class InvalidImportException extends IllegalArgumentException {
 
-	/**
-	 * serialVersionUID
-	 */
-	private static final long serialVersionUID = 7726936171835499172L;
 }
