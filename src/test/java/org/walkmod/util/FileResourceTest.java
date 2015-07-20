@@ -44,7 +44,7 @@ public class FileResourceTest {
 		fr.setIncludes(new String[] { file });
 		File filter = new File("src/main/java/" + file);
 		Iterator<File> it = fr.iterator();
-		File f = it.next();
+		File f = it.next(); 
 		Assert.assertTrue(f.getAbsolutePath().startsWith(
 				filter.getAbsolutePath()));
 
