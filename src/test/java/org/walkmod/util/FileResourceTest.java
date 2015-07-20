@@ -20,19 +20,20 @@ public class FileResourceTest {
 		Assert.assertEquals(filter.getAbsolutePath(), f.getAbsolutePath());
 		Assert.assertEquals(false, it.hasNext());
 	}
-	
+
 	@Test
 	public void testIncludes2() {
 		FileResource fr = new FileResource();
 		File aux = new File("src/main/java");
 		fr.setPath("src/main/java");
-		String file = new File(aux,"org/walkmod/util").getAbsolutePath();
+		String file = new File(aux, "org/walkmod/util").getAbsolutePath();
 		fr.setIncludes(new String[] { file });
 		File filter = new File(file);
 		Iterator<File> it = fr.iterator();
 		File f = it.next();
-		Assert.assertEquals(filter.getAbsolutePath(), f.getParentFile().getAbsolutePath());
-		
+		Assert.assertTrue(f.getAbsolutePath().startsWith(
+				filter.getAbsolutePath()));
+
 	}
 
 	@Test
@@ -44,8 +45,8 @@ public class FileResourceTest {
 		File filter = new File("src/main/java/" + file);
 		Iterator<File> it = fr.iterator();
 		File f = it.next();
-		Assert.assertEquals(filter.getAbsolutePath(), f.getParentFile()
-				.getAbsolutePath());
+		Assert.assertTrue(f.getAbsolutePath().startsWith(
+				filter.getAbsolutePath()));
 
 	}
 
@@ -58,9 +59,8 @@ public class FileResourceTest {
 		File filter = new File("src/main/java/" + file);
 		Iterator<File> it = fr.iterator();
 		File f = it.next();
-		Assert.assertEquals(filter.getAbsolutePath(), f.getParentFile()
-				.getAbsolutePath());
-
+		Assert.assertTrue(f.getAbsolutePath().startsWith(
+				filter.getAbsolutePath()));
 	}
 
 	@Test
@@ -127,7 +127,7 @@ public class FileResourceTest {
 		fr.setExcludes(new String[] { file + "/**" });
 
 		Iterator<File> it = fr.iterator();
-		
+
 		Assert.assertTrue(!it.hasNext());
 
 	}
