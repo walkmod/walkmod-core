@@ -57,6 +57,10 @@ public class WalkModFacade {
 
 	private File cfg;
 
+	private String[] includes;
+
+	private String[] excludes;
+
 	/**
 	 * Facade constructor
 	 * 
@@ -78,12 +82,74 @@ public class WalkModFacade {
 		this.printError = printError;
 	}
 
+	/**
+	 * Facade constructor
+	 * 
+	 * @param cfg
+	 *            configuration file.
+	 * 
+	 * @param offline
+	 *            if the missing plugins are downloaded.
+	 * @param verbose
+	 *            if log messages are printed in the System.out
+	 * @param printError
+	 *            if the exception stack trace is printed in the System.out
+	 * @param includes
+	 *            the list of included files.
+	 * @param excludes
+	 *            the list of excluded files.
+	 */
+	public WalkModFacade(File cfg, boolean offline, boolean verbose,
+			boolean printError, String[] includes, String[] excludes) {
+		this.cfg = cfg;
+		this.offline = offline;
+		this.verbose = verbose;
+		this.printError = printError;
+		this.includes = includes;
+		this.excludes = excludes;
+	}
+
+	/**
+	 * Facade constructor using the walkmod.xml configuration file.
+	 * 
+	 * @param cfg
+	 *            configuration file
+	 * @param offline
+	 *            if the missing plugins are downloaded.
+	 * @param verbose
+	 *            if log messages are printed in the System.out
+	 * @param printError
+	 *            if the exception trace is printed in the System.out
+	 */
 	public WalkModFacade(String cfg, boolean offline, boolean verbose,
 			boolean printError) {
+		this(cfg, offline, verbose, printError, null, null);
+	}
+
+	/**
+	 * Facade constructor using the walkmod.xml configuration file.
+	 * 
+	 * @param cfg
+	 *            configuration file
+	 * @param offline
+	 *            if the missing plugins are downloaded.
+	 * @param verbose
+	 *            if log messages are printed in the System.out
+	 * @param printError
+	 *            if the exception trace is printed in the System.out
+	 * @param includes
+	 *            the list of included files.
+	 * @param excludes
+	 *            the list of excluded files.
+	 */
+	public WalkModFacade(String cfg, boolean offline, boolean verbose,
+			boolean printError, String[] includes, String[] excludes) {
 		this.cfg = new File(cfg);
 		this.offline = offline;
 		this.verbose = verbose;
 		this.printError = printError;
+		this.includes = includes;
+		this.excludes = excludes;
 	}
 
 	/**
@@ -98,6 +164,26 @@ public class WalkModFacade {
 	 */
 	public WalkModFacade(boolean offline, boolean verbose, boolean printError) {
 		this(new File(DEFAULT_WALKMOD_FILE), offline, verbose, printError);
+	}
+
+	/**
+	 * Facade constructor using the walkmod.xml configuration file.
+	 * 
+	 * @param offline
+	 *            if the missing plugins are downloaded.
+	 * @param verbose
+	 *            if log messages are printed in the System.out
+	 * @param printError
+	 *            if the exception trace is printed in the System.out
+	 * @param includes
+	 *            the list of included files.
+	 * @param excludes
+	 *            the list of excluded files.
+	 */
+	public WalkModFacade(boolean offline, boolean verbose, boolean printError,
+			String[] includes, String[] excludes) {
+		this(new File(DEFAULT_WALKMOD_FILE), offline, verbose, printError,
+				includes, excludes);
 	}
 
 	/**
@@ -117,6 +203,7 @@ public class WalkModFacade {
 	 * @throws InvalidConfigurationException
 	 *             if the walkmod configuration is invalid and it is working in
 	 *             no verbose mode.
+	 * @return The list of modified/created files.
 	 */
 	public List<File> apply(String... chains)
 			throws InvalidConfigurationException {
@@ -175,6 +262,7 @@ public class WalkModFacade {
 	 * @throws InvalidConfigurationException
 	 *             if the walkmod configuration is invalid and it is working in
 	 *             no verbose mode.
+	 * @return The list of affected files.
 	 */
 	public List<File> check(String... chains)
 			throws InvalidConfigurationException {
@@ -377,7 +465,16 @@ public class WalkModFacade {
 				}
 			}
 			try {
+
+				if (includes != null) {
+					tcfg.getReaderConfig().setIncludes(includes);
+				}
+				if (excludes != null) {
+					tcfg.getReaderConfig().setExcludes(excludes);
+				}
+
 				ChainAdapter ap = apf.createChainProxy(conf, tcfg.getName());
+
 				ap.execute();
 				num += ap.getWalkerAdapter().getWalker().getNumModifications();
 				pos++;
@@ -463,7 +560,20 @@ public class WalkModFacade {
 
 	private void executeChainAdapter(ChainAdapterFactory apf,
 			Configuration conf, String name) {
+		if (includes != null || excludes != null) {
+			Collection<ChainConfig> chains = conf.getChainConfigs();
+			if (chains != null) {
+				for (ChainConfig cc : chains) {
+					if (includes != null) {
 
+						cc.getReaderConfig().setIncludes(includes);
+					}
+					if (excludes != null) {
+						cc.getReaderConfig().setExcludes(excludes);
+					}
+				}
+			}
+		}
 		ChainAdapter ap = apf.createChainProxy(conf, name);
 		if (ap == null) {
 			if (verbose) {

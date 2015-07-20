@@ -69,7 +69,8 @@ public class FileResource implements Resource<File> {
 	private boolean matches(String fileName, String filter) {
 
 		return filter.startsWith(fileName)
-				|| FilenameUtils.wildcardMatch(fileName, filter);
+				|| FilenameUtils.wildcardMatch(fileName, filter)
+				|| fileName.startsWith(filter);
 
 	}
 
@@ -79,43 +80,34 @@ public class FileResource implements Resource<File> {
 				true);
 		if (includes != null) {
 			for (int i = 0; i < includes.length; i++) {
-				if (!includes[i].startsWith(fileNormalized)) {
-					includes[i] = fileNormalized + "/" + includes[i];
-					if (includes[i].endsWith("\\*\\*")) {
-						includes[i] = includes[i].substring(0,
-								includes[i].length() - 2);
-					}
 
+				if (!includes[i].startsWith(fileNormalized)) {
+
+					includes[i] = fileNormalized + "/" + includes[i];
+
+				}
+				if (includes[i].endsWith("**")) {
+					includes[i] = includes[i].substring(0,
+							includes[i].length() - 3);
 				}
 			}
 		}
 		if (excludes != null) {
 			for (int i = 0; i < excludes.length; i++) {
 
-				if (excludes[i].startsWith(fileNormalized)) {
+				if (!excludes[i].startsWith(fileNormalized)) {
 					excludes[i] = fileNormalized + "/" + excludes[i];
-					if (excludes[i].endsWith("\\*\\*")) {
-						excludes[i] = excludes[i].substring(0,
-								excludes[i].length() - 2);
-					}
+
+				}
+				if (excludes[i].endsWith("**")) {
+					excludes[i] = excludes[i].substring(0,
+							excludes[i].length() - 3);
 				}
 			}
 		}
 
 		if (file.isDirectory()) {
-			/*
-			 * if (includes != null) { for (int i = 0; i < includes.length; i++)
-			 * { if (!includes[i].startsWith(getFile().getName())) { if
-			 * (includes[i].startsWith("/")) { includes[i] = getFile().getPath()
-			 * + includes[i]; } else { includes[i] = getFile().getPath() + "/" +
-			 * includes[i]; } } } }
-			 * 
-			 * if (excludes != null) { for (int i = 0; i < excludes.length; i++)
-			 * { if (!excludes[i].startsWith(getFile().getName())) { if
-			 * (excludes[i].startsWith("/")) { excludes[i] = getFile().getPath()
-			 * + excludes[i]; } else { excludes[i] = getFile().getPath() + "/" +
-			 * excludes[i]; } } } }
-			 */
+
 			IOFileFilter filter = null;
 
 			IOFileFilter directoryFilter = TrueFileFilter.INSTANCE;
@@ -132,8 +124,9 @@ public class FileResource implements Resource<File> {
 						if (excludes != null) {
 							for (int i = 0; i < excludes.length
 									&& !excludesEval; i++) {
-								excludesEval = FilenameUtils.wildcardMatch(aux,
-										excludes[i]);
+								excludesEval = (FilenameUtils.wildcardMatch(
+										aux, excludes[i]) || dir
+										.getAbsolutePath().startsWith(excludes[i]));
 							}
 						}
 						if (includes != null) {
@@ -141,6 +134,8 @@ public class FileResource implements Resource<File> {
 									&& !includesEval; i++) {
 								includesEval = matches(aux, includes[i]);
 							}
+						} else {
+							includesEval = true;
 						}
 						return (includesEval && !excludesEval)
 								|| (includes == null && excludes == null);
@@ -158,8 +153,10 @@ public class FileResource implements Resource<File> {
 
 							for (int i = 0; i < excludes.length
 									&& !excludesEval; i++) {
-								excludesEval = FilenameUtils.wildcardMatch(aux,
-										excludes[i]);
+								excludesEval = (FilenameUtils.wildcardMatch(
+										aux, excludes[i]) || file
+										.getParentFile().getAbsolutePath()
+										.startsWith(excludes[i]));
 							}
 						}
 						if (includes != null) {
@@ -167,14 +164,19 @@ public class FileResource implements Resource<File> {
 									&& !includesEval; i++) {
 								includesEval = matches(aux, includes[i]);
 							}
+						} else {
+							includesEval = true;
 						}
-						return (includesEval && !excludesEval)
+						boolean result = (includesEval && !excludesEval)
 								|| (includes == null && excludes == null);
+
+						return result;
 
 					}
 				};
 				if (extensions == null) {
 					filter = directoryFilter;
+
 				} else {
 					String[] suffixes = toSuffixes(extensions);
 					filter = new SuffixFileFilter(suffixes);

@@ -16,8 +16,10 @@
 
 package org.walkmod;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -60,7 +62,7 @@ public class WalkModDispatcher {
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
 		System.out.println("An open source tool to apply code conventions");
-		System.out.println("version 1.0 - April 2014 -");
+		System.out.println("version 1.2 - July 2015 -");
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
 	}
@@ -73,14 +75,14 @@ public class WalkModDispatcher {
 				log.error("You must specify at least one goal to apply code transformations.");
 			}
 			System.out
-					.println("The following list ilustrates some commonly used build commands.");
+					.println("The following list ilustrates some commonly used Walkmod commands.");
 			System.out.println("walkmod install");
 			System.out
 					.println("        Downloads and installs a walkmod plugin");
-			System.out.println("walkmod apply [chain]");
+			System.out.println("walkmod apply [chain] [-i|--includes <path>] [-x|--excludes <path>]");
 			System.out
 					.println("        Upgrades your code to apply your development conventions");
-			System.out.println("walkmod check [chain]");
+			System.out.println("walkmod check [chain] [-i|--includes <path>] [-x|--excludes <path>]");
 			System.out
 					.println("        Checks and shows witch classes must be reviewed");
 			System.out
@@ -92,16 +94,80 @@ public class WalkModDispatcher {
 			// TODO: backup, restore, search
 		} else {
 
-			List<String> paramsList = new LinkedList<String>(
-					Arrays.asList(args));
+			List<String> paramsList = new ArrayList<String>(Arrays.asList(args));
 
-			boolean offline = paramsList.remove("--offline");
-			boolean showException = paramsList.remove("-e");
+			boolean offline = false;
+			boolean showException = false;
+			ArrayList<String> includes = new ArrayList<String>();
+			ArrayList<String> excludes = new ArrayList<String>();
+
+			Iterator<String> it = paramsList.iterator();
+			int pos = 0;
+			while (it.hasNext()) {
+				String elem = it.next();
+				if ("--offline".equals(elem)) {
+					it.remove();
+					offline = true;
+					pos++;
+				} else if ("-e".equals(elem)) {
+					it.remove();
+					showException = true;
+					pos++;
+				} else if ("-i".equals(elem) || "--includes".equals(elem)) {
+					it.remove();
+					boolean finish = pos == paramsList.size()
+							|| paramsList.get(pos).startsWith("-");
+					while (!finish) {
+						String fileName = it.next();
+						File file = new File(fileName);
+						if(file.exists()){
+							fileName = file.getAbsolutePath();
+							includes.add(fileName);
+						}
+						it.remove();
+						finish = pos == paramsList.size()
+								|| paramsList.get(pos).startsWith("-");
+
+					}
+				} else if ("-x".equals(elem) || "--excludes".equals(elem)) {
+					it.remove();
+					boolean finish = pos == paramsList.size()
+							|| paramsList.get(pos).startsWith("-");
+					while (!finish) {
+						String fileName = it.next();
+						File file = new File(fileName);
+						if(file.exists()){
+							fileName = file.getAbsolutePath();
+							excludes.add(fileName);
+						}
+						it.remove();
+						finish = pos == paramsList.size()
+								|| paramsList.get(pos).startsWith("-");
+					}
+				} else {
+					pos++;
+				}
+
+			}
+			String[] includesArray = null;
+			String[] excludesArray = null;
+			
+			if (!includes.isEmpty()) {
+				includesArray = new String[includes.size()];
+				includes.toArray(includesArray);
+			}
+			if(!excludes.isEmpty()){
+				excludesArray = new String[excludes.size()];
+				excludes.toArray(excludesArray);
+			}
+
+			
+
 			WalkModFacade facade = new WalkModFacade(offline, true,
-					showException);
+					showException, includesArray, excludesArray);
 
 			if (paramsList.contains("--version")) {
-				System.out.println("Walkmod version \"1.0\"");
+				System.out.println("Walkmod version \"1.2\"");
 				System.out.println("Java version: "
 						+ System.getProperty("java.version"));
 				System.out.println("Java Home: "
