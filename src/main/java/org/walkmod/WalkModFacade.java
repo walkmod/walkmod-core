@@ -52,6 +52,8 @@ public class WalkModFacade {
 	private boolean verbose = true;
 
 	private boolean printError = false;
+	
+	private boolean throwsException = false;
 
 	private static final String DEFAULT_WALKMOD_FILE = "walkmod.xml";
 
@@ -144,9 +146,31 @@ public class WalkModFacade {
 	 */
 	public WalkModFacade(String cfg, boolean offline, boolean verbose,
 			boolean printError, String[] includes, String[] excludes) {
+		this(cfg, offline, verbose, printError, false, includes, excludes);
+	}
+	
+	/**
+	 * Facade constructor using the walkmod.xml configuration file.
+	 * 
+	 * @param cfg
+	 *            configuration file
+	 * @param offline
+	 *            if the missing plugins are downloaded.
+	 * @param verbose
+	 *            if log messages are printed in the System.out
+	 * @param printError
+	 *            if the exception trace is printed in the System.out
+	 * @param includes
+	 *            the list of included files.
+	 * @param excludes
+	 *            the list of excluded files.
+	 */
+	public WalkModFacade(String cfg, boolean offline, boolean verbose,
+			boolean printError, boolean throwsException, String[] includes, String[] excludes) {
 		this.cfg = new File(cfg);
 		this.offline = offline;
 		this.verbose = verbose;
+		this.throwsException = throwsException;
 		this.printError = printError;
 		this.includes = includes;
 		this.excludes = excludes;
@@ -227,6 +251,11 @@ public class WalkModFacade {
 					} else {
 						log.error("Invalid configuration", e);
 					}
+					if (throwsException) {
+						RuntimeException re = new RuntimeException();
+						re.setStackTrace(e.getStackTrace());
+						throw re;
+					}
 					return null;
 				} else {
 					throw new InvalidConfigurationException(e);
@@ -286,6 +315,11 @@ public class WalkModFacade {
 								+ " is invalid. Please, execute walkmod with -e to see the details.");
 					} else {
 						log.error("Invalid configuration", e);
+					}
+					if (throwsException) {
+						RuntimeException re = new RuntimeException();
+						re.setStackTrace(e.getStackTrace());
+						throw re;
 					}
 					return null;
 				} else {
@@ -385,6 +419,11 @@ public class WalkModFacade {
 					} else {
 						log.info("Plugin installations fails. Please, execute walkmod with -e to see the details");
 					}
+					if (throwsException) {
+						RuntimeException re = new RuntimeException();
+						re.setStackTrace(e.getStackTrace());
+						throw re;
+					}
 				} else {
 					throw new InvalidConfigurationException(e);
 				}
@@ -424,6 +463,7 @@ public class WalkModFacade {
 			if (verbose) {
 				log.error(cfg.getAbsolutePath()
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
+				
 			} else {
 				throw new WalkModException(
 						cfg.getAbsolutePath()
@@ -525,6 +565,11 @@ public class WalkModFacade {
 						log.error("TRANSFORMATION CHAIN ("
 								+ tcfg.getName()
 								+ ") FAILS. Execute walkmod with -e to see the error details.");
+					}
+					if (throwsException) {
+						RuntimeException re = new RuntimeException();
+						re.setStackTrace(e.getStackTrace());
+						throw re;
 					}
 				} else {
 					throw new WalkModException(e);
