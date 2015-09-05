@@ -19,11 +19,7 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.walkmod.conf.ConfigurationManager;
@@ -47,6 +43,8 @@ public class WalkModFacade {
 
 	private static Logger log = Logger.getLogger(WalkModFacade.class);
 
+	private static final String DEFAULT_WALKMOD_FILE = "walkmod.xml";
+
 	private boolean offline = false;
 
 	private boolean verbose = true;
@@ -55,13 +53,19 @@ public class WalkModFacade {
 	
 	private boolean throwsException = false;
 
-	private static final String DEFAULT_WALKMOD_FILE = "walkmod.xml";
-
-	private File cfg;
-
 	private String[] includes;
 
 	private String[] excludes;
+
+	/**
+	 * Walkmod configuration file
+	 */
+	private File cfg;
+
+	/**
+	 * Initializes the configuration of the walkmod context (e.g. classpath)
+	 */
+	private ConfigurationProvider configurationProvider;
 
 	/**
 	 * Facade constructor
@@ -219,6 +223,58 @@ public class WalkModFacade {
 		this(false, true, false);
 	}
 
+
+	/**
+	 * Initalizes a Walkmod service
+	 *
+	 * @param walkmodCfg
+	 *            Walkmod configuration file. If null, file named 'walkmod.xml'
+	 *            is searched at the root.
+	 * @param options
+	 *            Map of option. See {@link Options} and {@link OptionsBuilder}
+	 *            for available options and default values.
+	 * @param configurationProvider
+	 *            Configuration provider responsible for the resolution of
+	 *            plugins (used to use custom classloading strategies).
+	 *            If null Ivy is used.
+	 */
+	public WalkModFacade(File walkmodCfg, Map<String,Object> options, ConfigurationProvider configurationProvider) {
+
+		// process options
+		if (options.get(Options.OFFLINE) != null)
+			this.offline = (Boolean) options.get(Options.OFFLINE);
+		if (options.get(Options.VERBOSE) != null)
+			this.offline = (Boolean) options.get(Options.VERBOSE);
+		if (options.get(Options.PRINT_ERRORS) != null)
+			this.offline = (Boolean) options.get(Options.PRINT_ERRORS);
+		if (options.get(Options.THROW_EXCEPTION) != null)
+			this.offline = (Boolean) options.get(Options.THROW_EXCEPTION);
+
+		if (options.get(Options.INCLUDES) != null)
+			this.includes = ((List<String>) options.get(Options.INCLUDES)).toArray(new String[]{});
+		if (options.get(Options.EXCLUDES) != null)
+			this.includes = ((List<String>) options.get(Options.EXCLUDES)).toArray(new String[]{});
+
+		if (walkmodCfg != null)
+			this.cfg = new File(DEFAULT_WALKMOD_FILE);
+
+		if (configurationProvider != null)
+			this.configurationProvider = configurationProvider;
+	}
+
+
+	/**
+	 * Takes care of chosing the proper configuration provider
+	 *
+	 * NOTE: this is a first pass, handling a default provider should be improved
+	 */
+	private ConfigurationProvider locateConfigurationProvider() {
+		if (configurationProvider == null)
+			return new IvyConfigurationProvider(offline);
+		else
+			return configurationProvider;
+	}
+
 	/**
 	 * Applies a list of transformation chains.
 	 * 
@@ -235,7 +291,7 @@ public class WalkModFacade {
 			if (verbose) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
 			}
-			ConfigurationProvider cp = new IvyConfigurationProvider(offline);
+			ConfigurationProvider cp = locateConfigurationProvider();
 			ConfigurationManager cfgManager = null;
 			Configuration config = null;
 			ChainAdapterFactory apf = null;
@@ -300,7 +356,7 @@ public class WalkModFacade {
 			if (verbose) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
 			}
-			ConfigurationProvider cp = new IvyConfigurationProvider(offline);
+			ConfigurationProvider cp = locateConfigurationProvider();
 			ConfigurationManager cfgManager = null;
 			Configuration config = null;
 			ChainAdapterFactory apf = null;
@@ -368,7 +424,7 @@ public class WalkModFacade {
 			if (verbose) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
 			}
-			ConfigurationProvider cp = new IvyConfigurationProvider();
+			ConfigurationProvider cp = locateConfigurationProvider();
 			if (verbose) {
 				log.info("** THE PLUGIN INSTALLATION STARTS **");
 				System.out.print("----------------------------------------");
