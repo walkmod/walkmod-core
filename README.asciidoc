@@ -2,6 +2,8 @@
 
 walkmod-core
 ============
+
+image:https://badges.gitter.im/Join%20Chat.svg[link="https://gitter.im/rpau/walkmod-core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
 Raquel Pau <raquelpau@gmail.com>
 
 image:https://travis-ci.org/rpau/walkmod-core.svg?branch=master["Build Status", link="https://travis-ci.org/rpau/walkmod-core"]
