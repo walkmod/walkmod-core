@@ -79,6 +79,8 @@ public class WalkModFacade {
 	 *            if log messages are printed in the System.out
 	 * @param printError
 	 *            if the exception stack trace is printed in the System.out
+	 *
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
 	 */
 	public WalkModFacade(File cfg, boolean offline, boolean verbose,
 			boolean printError) {
@@ -104,6 +106,8 @@ public class WalkModFacade {
 	 *            the list of included files.
 	 * @param excludes
 	 *            the list of excluded files.
+	 *
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
 	 */
 	public WalkModFacade(File cfg, boolean offline, boolean verbose,
 			boolean printError, String[] includes, String[] excludes) {
@@ -126,6 +130,8 @@ public class WalkModFacade {
 	 *            if log messages are printed in the System.out
 	 * @param printError
 	 *            if the exception trace is printed in the System.out
+	 *
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
 	 */
 	public WalkModFacade(String cfg, boolean offline, boolean verbose,
 			boolean printError) {
@@ -147,7 +153,10 @@ public class WalkModFacade {
 	 *            the list of included files.
 	 * @param excludes
 	 *            the list of excluded files.
+	 *
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
 	 */
+	@Deprecated
 	public WalkModFacade(String cfg, boolean offline, boolean verbose,
 			boolean printError, String[] includes, String[] excludes) {
 		this(cfg, offline, verbose, printError, false, includes, excludes);
@@ -164,11 +173,16 @@ public class WalkModFacade {
 	 *            if log messages are printed in the System.out
 	 * @param printError
 	 *            if the exception trace is printed in the System.out
+	 * @param throwsException
+	 *            if the exception is thrown to the calling process
 	 * @param includes
 	 *            the list of included files.
 	 * @param excludes
 	 *            the list of excluded files.
+     *
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
 	 */
+	@Deprecated
 	public WalkModFacade(String cfg, boolean offline, boolean verbose,
 			boolean printError, boolean throwsException, String[] includes, String[] excludes) {
 		this.cfg = new File(cfg);
@@ -189,7 +203,10 @@ public class WalkModFacade {
 	 *            if log messages are printed in the System.out
 	 * @param printError
 	 *            if the exception trace is printed in the System.out
+	 *
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
 	 */
+	@Deprecated
 	public WalkModFacade(boolean offline, boolean verbose, boolean printError) {
 		this(new File(DEFAULT_WALKMOD_FILE), offline, verbose, printError);
 	}
@@ -207,7 +224,10 @@ public class WalkModFacade {
 	 *            the list of included files.
 	 * @param excludes
 	 *            the list of excluded files.
+	 *
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
 	 */
+	@Deprecated
 	public WalkModFacade(boolean offline, boolean verbose, boolean printError,
 			String[] includes, String[] excludes) {
 		this(new File(DEFAULT_WALKMOD_FILE), offline, verbose, printError,
@@ -217,8 +237,10 @@ public class WalkModFacade {
 	/**
 	 * Default facade constructor. It uses the walkmod.xml configuration file,
 	 * it is not off-line, it is verbose and doesn't print the exceptions' stack
-	 * traces.
+	 *
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
 	 */
+	@Deprecated
 	public WalkModFacade() {
 		this(false, true, false);
 	}
@@ -230,7 +252,7 @@ public class WalkModFacade {
 	 * @param walkmodCfg
 	 *            Walkmod configuration file. If null, file named 'walkmod.xml'
 	 *            is searched at the root.
-	 * @param options
+	 * @param optionsBuilder
 	 *            Map of option. See {@link Options} and {@link OptionsBuilder}
 	 *            for available options and default values.
 	 * @param configurationProvider
@@ -238,21 +260,22 @@ public class WalkModFacade {
 	 *            plugins (used to use custom classloading strategies).
 	 *            If null Ivy is used.
 	 */
-	public WalkModFacade(File walkmodCfg, Map<String,Object> options, ConfigurationProvider configurationProvider) {
+	public WalkModFacade(File walkmodCfg, OptionsBuilder optionsBuilder, ConfigurationProvider configurationProvider) {
 
 		// process options
-		if (options.get(Options.OFFLINE) != null)
+		Map<String,Object> options = optionsBuilder.asMap();
+		if (options.containsKey(Options.OFFLINE))
 			this.offline = (Boolean) options.get(Options.OFFLINE);
-		if (options.get(Options.VERBOSE) != null)
+		if (options.containsKey(Options.VERBOSE))
 			this.offline = (Boolean) options.get(Options.VERBOSE);
-		if (options.get(Options.PRINT_ERRORS) != null)
+		if (options.containsKey(Options.PRINT_ERRORS))
 			this.offline = (Boolean) options.get(Options.PRINT_ERRORS);
-		if (options.get(Options.THROW_EXCEPTION) != null)
+		if (options.containsKey(Options.THROW_EXCEPTION))
 			this.offline = (Boolean) options.get(Options.THROW_EXCEPTION);
 
-		if (options.get(Options.INCLUDES) != null)
+		if (options.containsKey(Options.INCLUDES))
 			this.includes = ((List<String>) options.get(Options.INCLUDES)).toArray(new String[]{});
-		if (options.get(Options.EXCLUDES) != null)
+		if (options.containsKey(Options.EXCLUDES))
 			this.includes = ((List<String>) options.get(Options.EXCLUDES)).toArray(new String[]{});
 
 		if (walkmodCfg != null)
@@ -413,6 +436,7 @@ public class WalkModFacade {
 	/**
 	 * Downloads the list of declared plugins in the configuration file using
 	 * Ivy.
+	 * Ignores the ConfigurationProvided if passed in the constructor.
 	 * 
 	 * @throws InvalidConfigurationException
 	 *             if the walkmod configuration is invalid and it is working in
@@ -424,7 +448,8 @@ public class WalkModFacade {
 			if (verbose) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
 			}
-			ConfigurationProvider cp = locateConfigurationProvider();
+			// Uses Ivy always
+			ConfigurationProvider cp = new IvyConfigurationProvider(offline);
 			if (verbose) {
 				log.info("** THE PLUGIN INSTALLATION STARTS **");
 				System.out.print("----------------------------------------");

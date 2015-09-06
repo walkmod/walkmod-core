@@ -12,7 +12,7 @@ import java.util.*;
 public class Options {
 
     /**
-     * (Boolean) Disables/enables remote fetching of dependencies and plugins
+     * (Boolean) Disables/enables remote fetching of plugins
      */
     public static final String OFFLINE = "offline";
     /**
@@ -28,11 +28,11 @@ public class Options {
      */
     public static final String THROW_EXCEPTION = "throw_exception";
     /**
-     * (List<String>) Overwrites the include rules in the chain's reader
+     * (List&lt;String&gt;) Overwrites the include rules in the chain's reader
      */
     public static final String INCLUDES = "includes";
     /**
-     * (List<String>) Overwrites the exclude rules in the chain's reader
+     * (List&lt;String&gt;) Overwrites the exclude rules in the chain's reader
      */
     public static final String EXCLUDES = "excludes";
 
@@ -45,6 +45,15 @@ public class Options {
      * Creates an empty set of options
      */
     public Options() {
+    }
+
+    /**
+     * Creates a set of options with initialized values
+     *
+     * @param options Already initialized options
+     */
+    public Options(Map<String, Object> options) {
+        this.options.putAll(options);
     }
 
     public void setOffline(boolean offline) {
@@ -84,7 +93,7 @@ public class Options {
     }
 
     /**
-     * Returns the stored options as a Map<String,Object>
+     * Returns the stored options as a Map&lt;String,Object&gt;
      *
      * @return map with options
      */

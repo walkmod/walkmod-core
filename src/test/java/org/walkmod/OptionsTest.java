@@ -2,6 +2,8 @@ package org.walkmod;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,21 @@ public class OptionsTest {
         assertThat(options.values(), is(empty()));
     }
 
+    @Test
+    public void options_does_can_initialize_values_from_map() {
+        Map<String,Object> myOptions = new HashMap<String, Object>();
+        myOptions.put(Options.OFFLINE, true);
+        myOptions.put(Options.THROW_EXCEPTION, true);
+        myOptions.put(Options.INCLUDES, Arrays.asList("one/path", "two/path", "three/path"));
+
+        Options _options = new Options(myOptions);
+        Map<String,Object> options = _options.asMap();
+        assertThat(options.values().size(), is(3));
+        assertThat(((List<String>) options.get(Options.INCLUDES)).size(), is(3));
+        assertThat((Boolean) options.get(Options.OFFLINE), is(true));
+        assertThat((Boolean) options.get(Options.THROW_EXCEPTION), is(true));
+        assertThat((List<String>) options.get(Options.INCLUDES), contains("one/path", "two/path", "three/path"));
+    }
 
     @Test
     public void offline_option_setter_works() {
@@ -122,8 +139,8 @@ public class OptionsTest {
     }
 
     /**
-     *
-     * */
+     * OptionsBuilder tests start here
+     */
     @Test
     public void optionsBuilder_initializes_options_values() {
 
@@ -134,6 +151,45 @@ public class OptionsTest {
         assertThat((Boolean) options.get(Options.VERBOSE), is(true));
         assertThat((Boolean) options.get(Options.PRINT_ERRORS), is(false));
         assertThat((Boolean) options.get(Options.THROW_EXCEPTION), is(false));
+
+        assertThat(options.get(Options.INCLUDES), is(nullValue()));
+        assertThat(options.get(Options.EXCLUDES), is(nullValue()));
+    }
+
+    @Test
+    public void optionsBuilder_initializes_options_values_with_a_map() {
+
+        Map<String, Object> myOptions = new HashMap<String, Object>();
+        myOptions.put(Options.OFFLINE, true);
+        myOptions.put(Options.VERBOSE, false);
+
+        OptionsBuilder builder = OptionsBuilder.options(myOptions);
+        Map<String,Object> options = builder.asMap();
+
+        // Values from myOptions map
+        assertThat((Boolean) options.get(Options.OFFLINE), is(true));
+        assertThat((Boolean) options.get(Options.VERBOSE), is(false));
+        // Default values are also set
+        assertThat((Boolean) options.get(Options.PRINT_ERRORS), is(false));
+        assertThat((Boolean) options.get(Options.THROW_EXCEPTION), is(false));
+
+        assertThat(options.get(Options.INCLUDES), is(nullValue()));
+        assertThat(options.get(Options.EXCLUDES), is(nullValue()));
+
+        // Added test for PRINT_ERRORS and THROW_EXCEPTION just for coverage
+        myOptions = new HashMap<String, Object>();
+        myOptions.put(Options.PRINT_ERRORS, true);
+        myOptions.put(Options.THROW_EXCEPTION, true);
+
+        builder = OptionsBuilder.options(myOptions);
+        options = builder.asMap();
+
+        // Values from myOptions map
+        assertThat((Boolean) options.get(Options.OFFLINE), is(false));
+        assertThat((Boolean) options.get(Options.VERBOSE), is(true));
+        // Default values are also set
+        assertThat((Boolean) options.get(Options.PRINT_ERRORS), is(true));
+        assertThat((Boolean) options.get(Options.THROW_EXCEPTION), is(true));
 
         assertThat(options.get(Options.INCLUDES), is(nullValue()));
         assertThat(options.get(Options.EXCLUDES), is(nullValue()));
@@ -156,16 +212,16 @@ public class OptionsTest {
 
 
         // Added test for printErrors and exclude just for coverage
-        OptionsBuilder builder2 = OptionsBuilder.options().printErrors(true).excludes("three", "four");
-        Map<String, Object> options2 = builder2.asMap();
+        builder = OptionsBuilder.options().printErrors(true).excludes("three", "four");
+        options = builder.asMap();
 
-        assertThat((Boolean) options2.get(Options.OFFLINE), is(false));
-        assertThat((Boolean) options2.get(Options.VERBOSE), is(true));
-        assertThat((Boolean) options2.get(Options.PRINT_ERRORS), is(true));
-        assertThat((Boolean) options2.get(Options.THROW_EXCEPTION), is(false));
+        assertThat((Boolean) options.get(Options.OFFLINE), is(false));
+        assertThat((Boolean) options.get(Options.VERBOSE), is(true));
+        assertThat((Boolean) options.get(Options.PRINT_ERRORS), is(true));
+        assertThat((Boolean) options.get(Options.THROW_EXCEPTION), is(false));
 
-        assertThat(options2.get(Options.INCLUDES), is(nullValue()));
-        assertThat((List<String>) options2.get(Options.EXCLUDES), contains("three","four"));
+        assertThat(options.get(Options.INCLUDES), is(nullValue()));
+        assertThat((List<String>) options.get(Options.EXCLUDES), contains("three","four"));
     }
 
 }
