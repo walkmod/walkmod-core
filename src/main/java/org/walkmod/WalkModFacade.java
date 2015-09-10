@@ -267,16 +267,16 @@ public class WalkModFacade {
 		if (options.containsKey(Options.OFFLINE))
 			this.offline = (Boolean) options.get(Options.OFFLINE);
 		if (options.containsKey(Options.VERBOSE))
-			this.offline = (Boolean) options.get(Options.VERBOSE);
+			this.verbose = (Boolean) options.get(Options.VERBOSE);
 		if (options.containsKey(Options.PRINT_ERRORS))
-			this.offline = (Boolean) options.get(Options.PRINT_ERRORS);
+			this.printError = (Boolean) options.get(Options.PRINT_ERRORS);
 		if (options.containsKey(Options.THROW_EXCEPTION))
-			this.offline = (Boolean) options.get(Options.THROW_EXCEPTION);
+			this.throwsException = (Boolean) options.get(Options.THROW_EXCEPTION);
 
 		if (options.containsKey(Options.INCLUDES))
 			this.includes = ((List<String>) options.get(Options.INCLUDES)).toArray(new String[]{});
 		if (options.containsKey(Options.EXCLUDES))
-			this.includes = ((List<String>) options.get(Options.EXCLUDES)).toArray(new String[]{});
+			this.excludes = ((List<String>) options.get(Options.EXCLUDES)).toArray(new String[]{});
 
 		this.cfg = (walkmodCfg != null) ? walkmodCfg : new File(DEFAULT_WALKMOD_FILE);
 
