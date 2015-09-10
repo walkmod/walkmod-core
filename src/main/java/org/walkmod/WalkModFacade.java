@@ -278,8 +278,7 @@ public class WalkModFacade {
 		if (options.containsKey(Options.EXCLUDES))
 			this.includes = ((List<String>) options.get(Options.EXCLUDES)).toArray(new String[]{});
 
-		if (walkmodCfg != null)
-			this.cfg = new File(DEFAULT_WALKMOD_FILE);
+		this.cfg = (walkmodCfg != null) ? walkmodCfg : new File(DEFAULT_WALKMOD_FILE);
 
 		if (configurationProvider != null)
 			this.configurationProvider = configurationProvider;
