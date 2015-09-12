@@ -1,6 +1,8 @@
 package org.walkmod.utils;
 
+import org.apache.commons.lang.StringUtils;
 import org.walkmod.WalkModFacade;
+import sun.swing.StringUIClientPropertyKey;
 
 import java.lang.reflect.Field;
 
@@ -46,5 +48,17 @@ public class TestUtils {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Builds a path taking into consideration the particularities of the host
+     * OS (e.g. uses System.getProperty("file.separator")).
+     *
+     * @param components list of elements that constitute the path
+     *
+     * @return An OS dependant path
+     */
+    public static String buildPath(String... components) {
+        return StringUtils.join(components, FILE_SEPARATOR);
     }
 }
