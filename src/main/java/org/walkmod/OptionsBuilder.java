@@ -1,13 +1,17 @@
 package org.walkmod;
 
+import java.io.File;
 import java.util.Map;
 
 /**
  * Helper class to create Walkmod options map.
  *
  * Usage:
- * OptionsBuilder.options.offline(true).includes("src/main","src/test").asMap()
+ * OptionsBuilder.options().offline(true).includes("src/main","src/test").asMap()
  *
+ * or 
+ * 
+ *  OptionsBuilder.options().offline(true).includes("src/main","src/test").build()
  * @author abelsromero
  */
 public class OptionsBuilder {
@@ -142,6 +146,20 @@ public class OptionsBuilder {
 	 */
 	public OptionsBuilder excludes(String... excludes) {
 		options.setExcludes(excludes);
+		return this;
+	}
+	
+	/**
+	 * Sets the execution directory
+	 *
+	 * @param executionDirectory
+	 *            execution directory
+	 * @return updated OptionBuilder instance
+	 *
+	 * @see Options#EXECUTION_DIRECTORY
+	 */
+	public OptionsBuilder executionDirectory(File executionDirectory) {
+		options.setExecutionDirectory(executionDirectory);
 		return this;
 	}
 

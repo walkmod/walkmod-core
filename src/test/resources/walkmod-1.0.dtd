@@ -1,0 +1,43 @@
+<!ELEMENT walkmod (param*, plugins?, conf-providers?, merge-policies?, (chain+|transformation+))>
+<!ELEMENT chain (param*, (reader?, (walker|transformation+), writer?))>
+<!ELEMENT reader (param*, include*, exclude*)>
+<!ELEMENT walker (param*, parser?, transformations)>
+<!ELEMENT writer (param*, include*, exclude*)>
+<!ELEMENT plugins (plugin+)>
+<!ELEMENT conf-providers (conf-provider+)>
+<!ELEMENT merge-policies (policy+)>
+<!ELEMENT policy (policy-entry*)>
+<!ELEMENT policy-entry (#PCDATA)>
+<!ELEMENT parser (param*)>
+<!ELEMENT transformation (param*)>
+<!ELEMENT transformations (transformation+)>
+<!ELEMENT param (#PCDATA)>
+<!ELEMENT plugin (#PCDATA)>
+<!ELEMENT exclude (#PCDATA)>
+<!ELEMENT include (#PCDATA)>
+<!ELEMENT conf-provider (param*)>
+<!ATTLIST parser type CDATA #IMPLIED>
+<!ATTLIST chain name CDATA #IMPLIED>
+<!ATTLIST chain description CDATA #IMPLIED>
+<!ATTLIST transformation name CDATA #IMPLIED>
+<!ATTLIST transformation type CDATA #REQUIRED>
+<!ATTLIST transformation isMergeable CDATA #IMPLIED>
+<!ATTLIST transformation merge-policy CDATA #IMPLIED>
+<!ATTLIST walker root-namespace CDATA #IMPLIED>
+<!ATTLIST reader path CDATA #REQUIRED>
+<!ATTLIST reader type CDATA #IMPLIED>
+<!ATTLIST param name CDATA #REQUIRED>
+<!ATTLIST walker type CDATA #IMPLIED>
+<!ATTLIST writer path CDATA #REQUIRED>
+<!ATTLIST writer type CDATA #IMPLIED>
+<!ATTLIST include wildcard CDATA #IMPLIED>
+<!ATTLIST exclude wildcard CDATA #IMPLIED>
+<!ATTLIST plugin groupId CDATA #IMPLIED>
+<!ATTLIST plugin artifactId CDATA #IMPLIED>
+<!ATTLIST plugin version CDATA #IMPLIED>
+<!ATTLIST policy name CDATA #REQUIRED>
+<!ATTLIST policy default-object-policy CDATA #IMPLIED>
+<!ATTLIST policy default-type-policy CDATA #IMPLIED>
+<!ATTLIST policy-entry object-type CDATA #REQUIRED>
+<!ATTLIST policy-entry policy-type CDATA #REQUIRED>
+<!ATTLIST conf-provider type CDATA #REQUIRED>

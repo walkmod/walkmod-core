@@ -16,10 +16,15 @@
 package org.walkmod;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.walkmod.conf.ConfigurationManager;
@@ -56,6 +61,10 @@ public class WalkModFacade {
 	private String[] includes;
 
 	private String[] excludes;
+
+	private File executionDir = new File(".");
+
+	private String userDir = ".";
 
 	/**
 	 * Walkmod configuration file
@@ -283,10 +292,11 @@ public class WalkModFacade {
 			this.includes = includes.toArray(new String[includes.size()]);
 		}
 		List<String> excludes = options.getExcludes();
-		if(excludes != null){
+		if (excludes != null) {
 			this.excludes = excludes.toArray(new String[excludes.size()]);
 		}
-		
+		this.executionDir = options.getExecutionDirectory();
+
 		this.cfg = (walkmodCfg != null) ? walkmodCfg : new File(
 				DEFAULT_WALKMOD_FILE);
 
@@ -307,6 +317,7 @@ public class WalkModFacade {
 			return configurationProvider;
 	}
 
+
 	/**
 	 * Applies a list of transformation chains.
 	 * 
@@ -319,6 +330,10 @@ public class WalkModFacade {
 	 */
 	public List<File> apply(String... chains)
 			throws InvalidConfigurationException {
+
+		userDir = new File(".").getAbsolutePath();
+		jnr.posix.JavaLibCHelper.chdir(executionDir.getAbsolutePath());
+		
 		if (cfg.exists()) {
 			if (verbose) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
@@ -332,6 +347,7 @@ public class WalkModFacade {
 				config = cfgManager.getConfiguration();
 				apf = new DefaultChainAdapterFactory();
 			} catch (Exception e) {
+				jnr.posix.JavaLibCHelper.chdir(userDir);
 				if (verbose) {
 					if (!printError) {
 						log.error(cfg.getAbsolutePath()
@@ -357,7 +373,9 @@ public class WalkModFacade {
 					executeChainAdapter(apf, config, chain);
 				}
 			}
+			jnr.posix.JavaLibCHelper.chdir(userDir);
 		} else {
+			jnr.posix.JavaLibCHelper.chdir(userDir);
 			if (verbose) {
 				log.error(cfg.getAbsolutePath()
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
@@ -367,6 +385,7 @@ public class WalkModFacade {
 								+ " does not exist. The root directory of your project must contain a walkmod.xml");
 			}
 		}
+
 		return Summary.getInstance().getWrittenFiles();
 	}
 
@@ -384,6 +403,9 @@ public class WalkModFacade {
 	public List<File> check(String... chains)
 			throws InvalidConfigurationException {
 
+		userDir = new File(".").getAbsolutePath();
+		jnr.posix.JavaLibCHelper.chdir(executionDir.getAbsolutePath());
+		
 		if (cfg.exists()) {
 			if (verbose) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
@@ -397,6 +419,7 @@ public class WalkModFacade {
 				config = cfgManager.getConfiguration();
 				apf = new DefaultChainAdapterFactory();
 			} catch (Exception e) {
+				jnr.posix.JavaLibCHelper.chdir(userDir);
 				if (verbose) {
 					if (!printError) {
 						log.error(cfg.getAbsolutePath()
@@ -429,7 +452,9 @@ public class WalkModFacade {
 					executeChainAdapter(apf, config, chain);
 				}
 			}
+			jnr.posix.JavaLibCHelper.chdir(userDir);
 		} else {
+			jnr.posix.JavaLibCHelper.chdir(userDir);
 			if (verbose) {
 				log.error(cfg.getAbsolutePath()
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
@@ -470,10 +495,13 @@ public class WalkModFacade {
 					Locale.US);
 			boolean error = false;
 			try {
+				userDir = new File(".").getAbsolutePath();
+				jnr.posix.JavaLibCHelper.chdir(executionDir.getCanonicalPath());
 				ConfigurationManager cfgManager = new ConfigurationManager(cfg,
 						cp);
 				Configuration cf = cfgManager.getConfiguration();
 			} catch (Exception e) {
+				jnr.posix.JavaLibCHelper.chdir(userDir);
 				if (verbose) {
 					error = true;
 					endTime = System.currentTimeMillis();
@@ -518,6 +546,7 @@ public class WalkModFacade {
 				}
 			}
 			if (!error) {
+				jnr.posix.JavaLibCHelper.chdir(userDir);
 				if (verbose) {
 					endTime = System.currentTimeMillis();
 					double time = 0;
@@ -769,6 +798,7 @@ public class WalkModFacade {
 							.println("----------------------------------------");
 				}
 			} catch (Throwable e) {
+				jnr.posix.JavaLibCHelper.chdir(userDir);
 				if (verbose) {
 					endTime = System.currentTimeMillis();
 					double time = 0;

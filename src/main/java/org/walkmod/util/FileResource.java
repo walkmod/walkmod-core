@@ -41,11 +41,11 @@ public class FileResource implements Resource<File> {
 		return file;
 	}
 
-	public void setFile(File file) {
-		this.file = file;
+	public void setFile(File file) throws Exception{
+		this.file = file.getCanonicalFile();
 	}
 
-	public void setPath(String path) {
+	public void setPath(String path) throws Exception{
 		File f = new File(path);
 		setFile(f);
 	}

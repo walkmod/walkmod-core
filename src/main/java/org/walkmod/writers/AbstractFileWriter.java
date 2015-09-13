@@ -79,7 +79,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 		boolean write = true;
 		if (out != null) {
 			log.debug("Analyzing exclude and include rules");
-			String aux = FilenameUtils.normalize(out.getAbsolutePath(), true);
+			String aux = FilenameUtils.normalize(out.getCanonicalPath(), true);
 			if (excludes != null) {
 				for (int i = 0; i < excludes.length && write; i++) {
 					if (!excludes[i].startsWith(normalizedOutputDirectory)) {

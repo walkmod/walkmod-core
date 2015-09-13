@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+   "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="walkmod:commons:file-reader" class="org.walkmod.readers.DefaultFileReader"
+		singleton="false" />
+
+	<bean id="walkmod:commons:template" class="org.walkmod.templates.DefaultTemplateVisitor"
+		singleton="false">
+		<property name="templateEngine" ref="walkmod:commons:groovy" />
+	</bean>
+
+	<bean id="walkmod:commons:scripting" class="org.walkmod.scripting.ScriptProcessor"
+		singleton="false" />
+
+	<bean id="walkmod:commons:groovy-query-engine" class="org.walkmod.query.ScriptingQueryEngine">
+		<property name="language" value="groovy"></property>
+		<property name="includes">
+			<list>
+				<value>query.alias.groovy</value>
+			</list>
+		</property>
+	</bean>
+
+	<alias alias="walkmod:commons:default-query-engine" name="walkmod:commons:groovy-query-engine" />
+
+	<bean id="walkmod:commons:groovy" class="org.walkmod.templates.groovy.GroovyTemplateEngine" />
+
+	<bean id="walkmod:commons:unmodify-policy" class="org.walkmod.merger.UnmodifyMergePolicy" />
+
+	<bean id="walkmod:commons:append-policy" class="org.walkmod.merger.AppendMergePolicy" />
+
+	<bean id="walkmod:commons:assign-policy" class="org.walkmod.merger.AssignMergePolicy" />
+
+	<bean id="walkmod:commons:addall-policy" class="org.walkmod.merger.AddAllMergePolicy" />
+
+	<bean id="walkmod:commons:override-policy" class="org.walkmod.merger.OverrideMergePolicy" />
+
+</beans>

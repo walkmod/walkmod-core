@@ -1,6 +1,11 @@
 package org.walkmod;
 
-import java.util.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helper class to create Walkmos options map
@@ -38,6 +43,12 @@ public class Options {
 	public static final String EXCLUDES = "excludes";
 
 	/**
+	 * (File) Sets an execution directory. The default value is the current
+	 * user.dir
+	 */
+	public static final String EXECUTION_DIRECTORY = "execution_directory";
+
+	/**
 	 * Stored options
 	 */
 	private Map<String, Object> options = new HashMap<String, Object>();
@@ -66,12 +77,15 @@ public class Options {
 				setPrintErrors(false);
 			if (!options.containsKey(Options.THROW_EXCEPTION))
 				setThrowException(false);
-		}
-		else{
+			if(!options.containsKey(EXECUTION_DIRECTORY)){
+				setExecutionDirectory(new File("."));
+			}
+		} else {
 			setOffline(false);
 			setVerbose(true);
 			setPrintErrors(false);
 			setThrowException(false);
+			setExecutionDirectory(new File("."));
 		}
 	}
 
@@ -96,6 +110,14 @@ public class Options {
 
 	public void setPrintErrors(boolean printErrors) {
 		this.options.put(PRINT_ERRORS, Boolean.valueOf(printErrors));
+	}
+
+	public void setExecutionDirectory(File executionDirectory) {
+		options.put(EXECUTION_DIRECTORY, executionDirectory);
+	}
+
+	public File getExecutionDirectory() {
+		return (File)options.get(EXECUTION_DIRECTORY);
 	}
 
 	public boolean isPrintErrors() {
