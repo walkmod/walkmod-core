@@ -50,7 +50,7 @@ public class WalkModFacade {
 	private boolean verbose = true;
 
 	private boolean printError = false;
-	
+
 	private boolean throwsException = false;
 
 	private String[] includes;
@@ -80,7 +80,8 @@ public class WalkModFacade {
 	 * @param printError
 	 *            if the exception stack trace is printed in the System.out
 	 *
-	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder,
+	 *             ConfigurationProvider} instead
 	 */
 	public WalkModFacade(File cfg, boolean offline, boolean verbose,
 			boolean printError) {
@@ -107,7 +108,8 @@ public class WalkModFacade {
 	 * @param excludes
 	 *            the list of excluded files.
 	 *
-	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder,
+	 *             ConfigurationProvider} instead
 	 */
 	public WalkModFacade(File cfg, boolean offline, boolean verbose,
 			boolean printError, String[] includes, String[] excludes) {
@@ -131,7 +133,8 @@ public class WalkModFacade {
 	 * @param printError
 	 *            if the exception trace is printed in the System.out
 	 *
-	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder,
+	 *             ConfigurationProvider} instead
 	 */
 	public WalkModFacade(String cfg, boolean offline, boolean verbose,
 			boolean printError) {
@@ -154,14 +157,15 @@ public class WalkModFacade {
 	 * @param excludes
 	 *            the list of excluded files.
 	 *
-	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder,
+	 *             ConfigurationProvider} instead
 	 */
 	@Deprecated
 	public WalkModFacade(String cfg, boolean offline, boolean verbose,
 			boolean printError, String[] includes, String[] excludes) {
 		this(cfg, offline, verbose, printError, false, includes, excludes);
 	}
-	
+
 	/**
 	 * Facade constructor using the walkmod.xml configuration file.
 	 * 
@@ -179,12 +183,14 @@ public class WalkModFacade {
 	 *            the list of included files.
 	 * @param excludes
 	 *            the list of excluded files.
-     *
-	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
+	 *
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder,
+	 *             ConfigurationProvider} instead
 	 */
 	@Deprecated
 	public WalkModFacade(String cfg, boolean offline, boolean verbose,
-			boolean printError, boolean throwsException, String[] includes, String[] excludes) {
+			boolean printError, boolean throwsException, String[] includes,
+			String[] excludes) {
 		this.cfg = new File(cfg);
 		this.offline = offline;
 		this.verbose = verbose;
@@ -204,7 +210,8 @@ public class WalkModFacade {
 	 * @param printError
 	 *            if the exception trace is printed in the System.out
 	 *
-	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder,
+	 *             ConfigurationProvider} instead
 	 */
 	@Deprecated
 	public WalkModFacade(boolean offline, boolean verbose, boolean printError) {
@@ -225,7 +232,8 @@ public class WalkModFacade {
 	 * @param excludes
 	 *            the list of excluded files.
 	 *
-	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder,
+	 *             ConfigurationProvider} instead
 	 */
 	@Deprecated
 	public WalkModFacade(boolean offline, boolean verbose, boolean printError,
@@ -238,13 +246,13 @@ public class WalkModFacade {
 	 * Default facade constructor. It uses the walkmod.xml configuration file,
 	 * it is not off-line, it is verbose and doesn't print the exceptions' stack
 	 *
-	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder, ConfigurationProvider} instead
+	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder,
+	 *             ConfigurationProvider} instead
 	 */
 	@Deprecated
 	public WalkModFacade() {
 		this(false, true, false);
 	}
-
 
 	/**
 	 * Initalizes a Walkmod service
@@ -257,38 +265,40 @@ public class WalkModFacade {
 	 *            for available options and default values.
 	 * @param configurationProvider
 	 *            Configuration provider responsible for the resolution of
-	 *            plugins (used to use custom classloading strategies).
-	 *            If null Ivy is used.
+	 *            plugins (used to use custom classloading strategies). If null
+	 *            Ivy is used.
 	 */
-	public WalkModFacade(File walkmodCfg, OptionsBuilder optionsBuilder, ConfigurationProvider configurationProvider) {
+	public WalkModFacade(File walkmodCfg, OptionsBuilder optionsBuilder,
+			ConfigurationProvider configurationProvider) {
 
 		// process options
-		Map<String,Object> options = optionsBuilder.asMap();
-		if (options.containsKey(Options.OFFLINE))
-			this.offline = (Boolean) options.get(Options.OFFLINE);
-		if (options.containsKey(Options.VERBOSE))
-			this.verbose = (Boolean) options.get(Options.VERBOSE);
-		if (options.containsKey(Options.PRINT_ERRORS))
-			this.printError = (Boolean) options.get(Options.PRINT_ERRORS);
-		if (options.containsKey(Options.THROW_EXCEPTION))
-			this.throwsException = (Boolean) options.get(Options.THROW_EXCEPTION);
+		Options options = optionsBuilder.build();
 
-		if (options.containsKey(Options.INCLUDES))
-			this.includes = ((List<String>) options.get(Options.INCLUDES)).toArray(new String[]{});
-		if (options.containsKey(Options.EXCLUDES))
-			this.excludes = ((List<String>) options.get(Options.EXCLUDES)).toArray(new String[]{});
-
-		this.cfg = (walkmodCfg != null) ? walkmodCfg : new File(DEFAULT_WALKMOD_FILE);
+		this.offline = options.isOffline();
+		this.verbose = options.isVerbose();
+		this.printError = options.isPrintErrors();
+		this.throwsException = options.isThrowException();
+		List<String> includes = options.getIncludes();
+		if (includes != null) {
+			this.includes = includes.toArray(new String[includes.size()]);
+		}
+		List<String> excludes = options.getExcludes();
+		if(excludes != null){
+			this.excludes = excludes.toArray(new String[excludes.size()]);
+		}
+		
+		this.cfg = (walkmodCfg != null) ? walkmodCfg : new File(
+				DEFAULT_WALKMOD_FILE);
 
 		if (configurationProvider != null)
 			this.configurationProvider = configurationProvider;
 	}
 
-
 	/**
 	 * Takes care of chosing the proper configuration provider
 	 *
-	 * NOTE: this is a first pass, handling a default provider should be improved
+	 * NOTE: this is a first pass, handling a default provider should be
+	 * improved
 	 */
 	private ConfigurationProvider locateConfigurationProvider() {
 		if (configurationProvider == null)
@@ -434,8 +444,7 @@ public class WalkModFacade {
 
 	/**
 	 * Downloads the list of declared plugins in the configuration file using
-	 * Ivy.
-	 * Ignores the ConfigurationProvided if passed in the constructor.
+	 * Ivy. Ignores the ConfigurationProvided if passed in the constructor.
 	 * 
 	 * @throws InvalidConfigurationException
 	 *             if the walkmod configuration is invalid and it is working in
@@ -543,7 +552,7 @@ public class WalkModFacade {
 			if (verbose) {
 				log.error(cfg.getAbsolutePath()
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
-				
+
 			} else {
 				throw new WalkModException(
 						cfg.getAbsolutePath()
