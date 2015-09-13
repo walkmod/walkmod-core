@@ -16,7 +16,6 @@
 package org.walkmod;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -50,19 +49,7 @@ public class WalkModFacade {
 
 	private static final String DEFAULT_WALKMOD_FILE = "walkmod.xml";
 
-	private boolean offline = false;
-
-	private boolean verbose = true;
-
-	private boolean printError = false;
-
-	private boolean throwsException = false;
-
-	private String[] includes;
-
-	private String[] excludes;
-
-	private File executionDir = new File(".");
+	private Options options;
 
 	private String userDir = ".";
 
@@ -95,9 +82,8 @@ public class WalkModFacade {
 	public WalkModFacade(File cfg, boolean offline, boolean verbose,
 			boolean printError) {
 		this.cfg = cfg;
-		this.offline = offline;
-		this.verbose = verbose;
-		this.printError = printError;
+		this.options = OptionsBuilder.options().offline(offline)
+				.verbose(verbose).printErrors(printError).build();
 	}
 
 	/**
@@ -123,11 +109,10 @@ public class WalkModFacade {
 	public WalkModFacade(File cfg, boolean offline, boolean verbose,
 			boolean printError, String[] includes, String[] excludes) {
 		this.cfg = cfg;
-		this.offline = offline;
-		this.verbose = verbose;
-		this.printError = printError;
-		this.includes = includes;
-		this.excludes = excludes;
+		this.options = OptionsBuilder.options().offline(offline)
+				.verbose(verbose).printErrors(printError).includes(includes)
+				.excludes(excludes).build();
+
 	}
 
 	/**
@@ -201,12 +186,10 @@ public class WalkModFacade {
 			boolean printError, boolean throwsException, String[] includes,
 			String[] excludes) {
 		this.cfg = new File(cfg);
-		this.offline = offline;
-		this.verbose = verbose;
-		this.throwsException = throwsException;
-		this.printError = printError;
-		this.includes = includes;
-		this.excludes = excludes;
+		this.options = OptionsBuilder.options().offline(offline)
+				.verbose(verbose).throwException(throwsException)
+				.printErrors(printError).includes(includes).excludes(excludes)
+				.build();
 	}
 
 	/**
@@ -281,21 +264,7 @@ public class WalkModFacade {
 			ConfigurationProvider configurationProvider) {
 
 		// process options
-		Options options = optionsBuilder.build();
-
-		this.offline = options.isOffline();
-		this.verbose = options.isVerbose();
-		this.printError = options.isPrintErrors();
-		this.throwsException = options.isThrowException();
-		List<String> includes = options.getIncludes();
-		if (includes != null) {
-			this.includes = includes.toArray(new String[includes.size()]);
-		}
-		List<String> excludes = options.getExcludes();
-		if (excludes != null) {
-			this.excludes = excludes.toArray(new String[excludes.size()]);
-		}
-		this.executionDir = options.getExecutionDirectory();
+		options = optionsBuilder.build();
 
 		this.cfg = (walkmodCfg != null) ? walkmodCfg : new File(
 				DEFAULT_WALKMOD_FILE);
@@ -312,11 +281,10 @@ public class WalkModFacade {
 	 */
 	private ConfigurationProvider locateConfigurationProvider() {
 		if (configurationProvider == null)
-			return new IvyConfigurationProvider(offline);
+			return new IvyConfigurationProvider(options.isOffline());
 		else
 			return configurationProvider;
 	}
-
 
 	/**
 	 * Applies a list of transformation chains.
@@ -332,10 +300,10 @@ public class WalkModFacade {
 			throws InvalidConfigurationException {
 
 		userDir = new File(".").getAbsolutePath();
-		jnr.posix.JavaLibCHelper.chdir(executionDir.getAbsolutePath());
-		
+		jnr.posix.JavaLibCHelper.chdir(options.getExecutionDirectory().getAbsolutePath());
+
 		if (cfg.exists()) {
-			if (verbose) {
+			if (options.isVerbose()) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
 			}
 			ConfigurationProvider cp = locateConfigurationProvider();
@@ -348,14 +316,14 @@ public class WalkModFacade {
 				apf = new DefaultChainAdapterFactory();
 			} catch (Exception e) {
 				jnr.posix.JavaLibCHelper.chdir(userDir);
-				if (verbose) {
-					if (!printError) {
+				if (options.isVerbose()) {
+					if (!options.isPrintErrors()) {
 						log.error(cfg.getAbsolutePath()
 								+ " is invalid. Please, execute walkmod with -e to see the details.");
 					} else {
 						log.error("Invalid configuration", e);
 					}
-					if (throwsException) {
+					if (options.isThrowException()) {
 						RuntimeException re = new RuntimeException();
 						re.setStackTrace(e.getStackTrace());
 						throw re;
@@ -376,7 +344,7 @@ public class WalkModFacade {
 			jnr.posix.JavaLibCHelper.chdir(userDir);
 		} else {
 			jnr.posix.JavaLibCHelper.chdir(userDir);
-			if (verbose) {
+			if (options.isVerbose()) {
 				log.error(cfg.getAbsolutePath()
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
 			} else {
@@ -404,10 +372,10 @@ public class WalkModFacade {
 			throws InvalidConfigurationException {
 
 		userDir = new File(".").getAbsolutePath();
-		jnr.posix.JavaLibCHelper.chdir(executionDir.getAbsolutePath());
-		
+		jnr.posix.JavaLibCHelper.chdir(options.getExecutionDirectory().getAbsolutePath());
+
 		if (cfg.exists()) {
-			if (verbose) {
+			if (options.isVerbose()) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
 			}
 			ConfigurationProvider cp = locateConfigurationProvider();
@@ -420,14 +388,14 @@ public class WalkModFacade {
 				apf = new DefaultChainAdapterFactory();
 			} catch (Exception e) {
 				jnr.posix.JavaLibCHelper.chdir(userDir);
-				if (verbose) {
-					if (!printError) {
+				if (options.isVerbose()) {
+					if (!options.isPrintErrors()) {
 						log.error(cfg.getAbsolutePath()
 								+ " is invalid. Please, execute walkmod with -e to see the details.");
 					} else {
 						log.error("Invalid configuration", e);
 					}
-					if (throwsException) {
+					if (options.isThrowException()) {
 						RuntimeException re = new RuntimeException();
 						re.setStackTrace(e.getStackTrace());
 						throw re;
@@ -455,7 +423,7 @@ public class WalkModFacade {
 			jnr.posix.JavaLibCHelper.chdir(userDir);
 		} else {
 			jnr.posix.JavaLibCHelper.chdir(userDir);
-			if (verbose) {
+			if (options.isVerbose()) {
 				log.error(cfg.getAbsolutePath()
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
 			} else {
@@ -478,12 +446,12 @@ public class WalkModFacade {
 	public void install() throws InvalidConfigurationException {
 
 		if (cfg.exists()) {
-			if (verbose) {
+			if (options.isVerbose()) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
 			}
 			// Uses Ivy always
-			ConfigurationProvider cp = new IvyConfigurationProvider(offline);
-			if (verbose) {
+			ConfigurationProvider cp = new IvyConfigurationProvider(options.isOffline());
+			if (options.isVerbose()) {
 				log.info("** THE PLUGIN INSTALLATION STARTS **");
 				System.out.print("----------------------------------------");
 				System.out.println("----------------------------------------");
@@ -496,13 +464,13 @@ public class WalkModFacade {
 			boolean error = false;
 			try {
 				userDir = new File(".").getAbsolutePath();
-				jnr.posix.JavaLibCHelper.chdir(executionDir.getCanonicalPath());
+				jnr.posix.JavaLibCHelper.chdir(options.getExecutionDirectory().getCanonicalPath());
 				ConfigurationManager cfgManager = new ConfigurationManager(cfg,
 						cp);
 				Configuration cf = cfgManager.getConfiguration();
 			} catch (Exception e) {
 				jnr.posix.JavaLibCHelper.chdir(userDir);
-				if (verbose) {
+				if (options.isVerbose()) {
 					error = true;
 					endTime = System.currentTimeMillis();
 					double time = 0;
@@ -531,12 +499,12 @@ public class WalkModFacade {
 							.print("----------------------------------------");
 					System.out
 							.println("----------------------------------------");
-					if (printError) {
+					if (options.isPrintErrors()) {
 						log.error("Plugin installations fails", e);
 					} else {
 						log.info("Plugin installations fails. Please, execute walkmod with -e to see the details");
 					}
-					if (throwsException) {
+					if (options.isThrowException()) {
 						RuntimeException re = new RuntimeException();
 						re.setStackTrace(e.getStackTrace());
 						throw re;
@@ -547,7 +515,7 @@ public class WalkModFacade {
 			}
 			if (!error) {
 				jnr.posix.JavaLibCHelper.chdir(userDir);
-				if (verbose) {
+				if (options.isVerbose()) {
 					endTime = System.currentTimeMillis();
 					double time = 0;
 					if (endTime > startTime) {
@@ -578,7 +546,7 @@ public class WalkModFacade {
 				}
 			}
 		} else {
-			if (verbose) {
+			if (options.isVerbose()) {
 				log.error(cfg.getAbsolutePath()
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
 
@@ -592,7 +560,7 @@ public class WalkModFacade {
 
 	private void executeAllChains(ChainAdapterFactory apf, Configuration conf) {
 		Collection<ChainConfig> tcgfs = conf.getChainConfigs();
-		if (verbose) {
+		if (options.isVerbose()) {
 			log.info("** STARTING TRANSFORMATIONS CHAINS **");
 			System.out.print("----------------------------------------");
 			System.out.println("----------------------------------------");
@@ -609,7 +577,7 @@ public class WalkModFacade {
 			ChainConfig tcfg = it.next();
 
 			if (tcgfs.size() > 1) {
-				if (verbose) {
+				if (options.isVerbose()) {
 					String label = "";
 					if (tcfg.getName() != null
 							&& !tcfg.getName().startsWith("chain_")) {
@@ -624,10 +592,12 @@ public class WalkModFacade {
 			}
 			try {
 
-				if (includes != null) {
+				if (options.getIncludes() != null) {
+					String[] includes = options.getIncludes().toArray(new String[ options.getIncludes().size()]);
 					tcfg.getReaderConfig().setIncludes(includes);
 				}
-				if (excludes != null) {
+				if (options.getExcludes() != null) {
+					String[] excludes = options.getExcludes().toArray(new String[ options.getExcludes().size()]);
 					tcfg.getReaderConfig().setExcludes(excludes);
 				}
 
@@ -636,7 +606,7 @@ public class WalkModFacade {
 				ap.execute();
 				num += ap.getWalkerAdapter().getWalker().getNumModifications();
 				pos++;
-				if (verbose) {
+				if (options.isVerbose()) {
 					if (Summary.getInstance().getWrittenFiles().isEmpty()) {
 						log.info("**No sources changed**");
 					}
@@ -645,7 +615,7 @@ public class WalkModFacade {
 					}
 				}
 			} catch (Throwable e) {
-				if (verbose) {
+				if (options.isVerbose()) {
 					endTime = System.currentTimeMillis();
 					double time = 0;
 					if (endTime > startTime) {
@@ -676,7 +646,7 @@ public class WalkModFacade {
 					System.out
 							.println("----------------------------------------");
 					log.info("Please, see the walkmod log file for details");
-					if (printError) {
+					if (options.isPrintErrors()) {
 						log.error("TRANSFORMATION CHAIN (" + tcfg.getName()
 								+ ") FAILS", e);
 					} else {
@@ -684,7 +654,7 @@ public class WalkModFacade {
 								+ tcfg.getName()
 								+ ") FAILS. Execute walkmod with -e to see the error details.");
 					}
-					if (throwsException) {
+					if (options.isThrowException()) {
 						RuntimeException re = new RuntimeException();
 						re.setStackTrace(e.getStackTrace());
 						throw re;
@@ -695,7 +665,7 @@ public class WalkModFacade {
 				return;
 			}
 		}
-		if (verbose) {
+		if (options.isVerbose()) {
 			endTime = System.currentTimeMillis();
 			double time = 0;
 			if (endTime > startTime) {
@@ -723,15 +693,16 @@ public class WalkModFacade {
 
 	private void executeChainAdapter(ChainAdapterFactory apf,
 			Configuration conf, String name) {
-		if (includes != null || excludes != null) {
+		if (options.getIncludes() != null || options.getExcludes() != null) {
 			Collection<ChainConfig> chains = conf.getChainConfigs();
 			if (chains != null) {
 				for (ChainConfig cc : chains) {
-					if (includes != null) {
-
+					if (options.getIncludes() != null) {
+						String[] includes = options.getIncludes().toArray(new String[ options.getIncludes().size()]);
 						cc.getReaderConfig().setIncludes(includes);
 					}
-					if (excludes != null) {
+					if (options.getExcludes() != null) {
+						String[] excludes = options.getExcludes().toArray(new String[ options.getExcludes().size()]);
 						cc.getReaderConfig().setExcludes(excludes);
 					}
 				}
@@ -739,7 +710,7 @@ public class WalkModFacade {
 		}
 		ChainAdapter ap = apf.createChainProxy(conf, name);
 		if (ap == null) {
-			if (verbose) {
+			if (options.isVerbose()) {
 				log.error("The chain " + name + " is not found");
 				System.out.print("----------------------------------------");
 				System.out.println("----------------------------------------");
@@ -750,7 +721,7 @@ public class WalkModFacade {
 			DecimalFormat myFormatter = new DecimalFormat("###.###");
 			DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss",
 					Locale.US);
-			if (verbose) {
+			if (options.isVerbose()) {
 				log.info("** THE TRANSFORMATION CHAIN " + name + " STARTS **");
 				System.out.print("----------------------------------------");
 				System.out.println("----------------------------------------");
@@ -759,7 +730,7 @@ public class WalkModFacade {
 			try {
 				ap.execute();
 				num = ap.getWalkerAdapter().getWalker().getNumModifications();
-				if (verbose) {
+				if (options.isVerbose()) {
 					endTime = System.currentTimeMillis();
 					double time = 0;
 					if (endTime > startTime) {
@@ -799,7 +770,7 @@ public class WalkModFacade {
 				}
 			} catch (Throwable e) {
 				jnr.posix.JavaLibCHelper.chdir(userDir);
-				if (verbose) {
+				if (options.isVerbose()) {
 					endTime = System.currentTimeMillis();
 					double time = 0;
 					if (endTime > startTime) {
@@ -830,7 +801,7 @@ public class WalkModFacade {
 					System.out
 							.println("----------------------------------------");
 					log.info("Please, see the walkmod log file for details");
-					if (printError) {
+					if (options.isPrintErrors()) {
 						log.error("TRANSFORMATION CHAIN (" + name + ") FAILS",
 								e);
 					} else {

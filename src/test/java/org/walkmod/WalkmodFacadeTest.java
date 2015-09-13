@@ -107,28 +107,9 @@ public class WalkmodFacadeTest {
 		File cfg = getValue(facade, "cfg", File.class);
 		assertThat(cfg.getPath(), equalTo("walkmod.xml"));
 
-		Boolean offline = getValue(facade, "offline", Boolean.class);
-		assertThat(offline.booleanValue(), is(false));
+		Options finalOpts = getValue(facade, "options", Options.class);
+		assertThat(finalOpts, Matchers.notNullValue());
 
-		Boolean verbose = getValue(facade, "verbose", Boolean.class);
-		assertThat(verbose.booleanValue(), is(true));
-
-		Boolean printError = getValue(facade, "printError", Boolean.class);
-		assertThat(printError.booleanValue(), is(true));
-
-		Boolean throwsException = getValue(facade, "throwsException",
-				Boolean.class);
-		assertThat(throwsException.booleanValue(), is(true));
-
-		String[] recoveredIncludes = getValue(facade, "includes",
-				(new String[] {}).getClass());
-		assertThat(recoveredIncludes.length, is(includes.length));
-		assertThat(recoveredIncludes, arrayContaining(includes));
-
-		String[] recoveredExcludes = getValue(facade, "excludes",
-				(new String[] {}).getClass());
-		assertThat(recoveredExcludes.length, is(excludes.length));
-		assertThat(recoveredExcludes, arrayContaining(excludes));
 	}
 
 	/**
@@ -148,23 +129,25 @@ public class WalkmodFacadeTest {
 	 * Asserts the default values for all options
 	 */
 	private void assertDefaultOptions(WalkModFacade facade) {
-		Boolean offline = getValue(facade, "offline", Boolean.class);
+
+		Options options = getValue(facade, "options", Options.class);
+
+		Boolean offline = options.isOffline();
 		assertThat(offline.booleanValue(), is(false));
 
-		Boolean verbose = getValue(facade, "verbose", Boolean.class);
+		Boolean verbose = options.isVerbose();
 		assertThat(verbose.booleanValue(), is(true));
 
-		Boolean printError = getValue(facade, "printError", Boolean.class);
+		Boolean printError = options.isPrintErrors();
 		assertThat(printError.booleanValue(), is(false));
 
-		Boolean throwsException = getValue(facade, "throwsException",
-				Boolean.class);
+		Boolean throwsException = options.isThrowException();
 		assertThat(throwsException.booleanValue(), is(false));
 
-		Object includes = getValue(facade, "includes", Object.class);
+		Object includes = options.getIncludes();
 		assertThat(includes, is(nullValue()));
 
-		Object excludes = getValue(facade, "excludes", Object.class);
+		Object excludes = options.getExcludes();
 		assertThat(excludes, is(nullValue()));
 	}
 
