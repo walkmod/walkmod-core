@@ -2,15 +2,7 @@
 	<settings defaultResolver="walkmod-core" />
 	<configurations defaultconfmapping="compile->compile">
 	</configurations>
-	<property name="local-maven2-dir" value="/Users/rpau/.m2/repository/" />
 	<resolvers>
-		<filesystem name="local-maven-2" m2compatible="true"
-            local="true">
-            <artifact
-                pattern="${local-maven2-dir}/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]" />
-            <ivy
-                pattern="${local-maven2-dir}/[organisation]/[module]/[revision]/[artifact]-[revision].pom" />
-        </filesystem>
 		<chain name="walkmod-core">
 
 			<ibiblio name="maven2" m2compatible="true"
