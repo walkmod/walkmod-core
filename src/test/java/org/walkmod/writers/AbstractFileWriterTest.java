@@ -43,7 +43,7 @@ public class AbstractFileWriterTest {
 		endLine = writer.getEndLineChar(nonExistent);
 		char expected = '\n';
 		if (System.getProperty("os.name").toLowerCase().startsWith("Windows")) {
-			expected = '\n';
+			expected = '\r';
 		}
 		Assert.assertEquals(expected, endLine);
 	}

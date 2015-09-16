@@ -83,7 +83,7 @@ public class FileResource implements Resource<File> {
 
 				if (!includes[i].startsWith(fileNormalized)) {
 
-					includes[i] = fileNormalized + "/" + includes[i];
+					includes[i] = fileNormalized + File.separator + includes[i];
 
 				}
 				if (includes[i].endsWith("**")) {
@@ -96,7 +96,7 @@ public class FileResource implements Resource<File> {
 			for (int i = 0; i < excludes.length; i++) {
 
 				if (!excludes[i].startsWith(fileNormalized)) {
-					excludes[i] = fileNormalized + "/" + excludes[i];
+					excludes[i] = fileNormalized +  File.separator + excludes[i];
 
 				}
 				if (excludes[i].endsWith("**")) {
