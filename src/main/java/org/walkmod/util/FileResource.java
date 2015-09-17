@@ -76,8 +76,7 @@ public class FileResource implements Resource<File> {
 
 	@Override
 	public Iterator<File> iterator() {
-		String fileNormalized = FilenameUtils.normalize(file.getAbsolutePath(),
-				true);
+		String fileNormalized = FilenameUtils.normalize(file.getAbsolutePath());
 		if (includes != null) {
 			for (int i = 0; i < includes.length; i++) {
 
