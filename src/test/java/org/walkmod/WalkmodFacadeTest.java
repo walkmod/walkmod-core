@@ -181,8 +181,7 @@ public class WalkmodFacadeTest {
 	public void facadeExecutionLocally() throws Exception {
 
 		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options()
-				.printErrors(true).offline(true), null);
-
+				.printErrors(true), null);
 		List<File> result = facade.check();
 		assertThat(facade, Matchers.notNullValue());
 

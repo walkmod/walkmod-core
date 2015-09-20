@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.walkmod.walkers.VisitorContext;
 
@@ -42,7 +42,7 @@ public class AbstractFileWriterTest {
 		File nonExistent = new File("test");
 		endLine = writer.getEndLineChar(nonExistent);
 		char expected = '\n';
-		if (System.getProperty("os.name").toLowerCase().startsWith("Windows")) {
+		if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
 			expected = '\r';
 		}
 		Assert.assertEquals(expected, endLine);

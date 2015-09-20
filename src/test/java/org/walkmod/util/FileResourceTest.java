@@ -101,7 +101,7 @@ public class FileResourceTest {
 	public void testExcludesWildcard() throws Exception {
 		FileResource fr = new FileResource();
 		fr.setPath(SOURCES_PATH);
-		String file = "org/walkmod/util";
+		String file = TestUtils.buildPath("org", "walkmod", "util");
 		fr.setExcludes(new String[] { file });
 		Iterator<File> it = fr.iterator();
 		Assert.assertTrue(it.hasNext());
