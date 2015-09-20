@@ -39,11 +39,9 @@ public class ConfigurationManager {
 		setConfiguration(conf);
 	}
 
-	public ConfigurationManager(File walkmodcfg,
-			ConfigurationProvider... configurationProviders) {
+	public ConfigurationManager(File walkmodcfg, ConfigurationProvider... configurationProviders) {
 		setConfiguration(new ConfigurationImpl());
-		this.configurationProviders.add(new XMLConfigurationProvider(walkmodcfg
-				.getAbsolutePath(), false));
+		this.configurationProviders.add(new XMLConfigurationProvider(walkmodcfg.getAbsolutePath(), false));
 		this.configurationProviders.add(new PluginsConfigurationProvider());
 		if (configurationProviders != null) {
 			for (ConfigurationProvider cp : configurationProviders) {
@@ -101,8 +99,7 @@ public class ConfigurationManager {
 	 * @param configurationProviders
 	 *            the ConfigurationProvider to register
 	 */
-	public void setConfigurationProviders(
-			List<ConfigurationProvider> configurationProviders) {
+	public void setConfigurationProviders(List<ConfigurationProvider> configurationProviders) {
 		this.configurationProviders = configurationProviders;
 	}
 

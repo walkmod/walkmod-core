@@ -26,8 +26,7 @@ import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.PluginConfig;
 
-public class SpringConfigurationProvider implements ConfigurationProvider,
-		BeanFactoryProvider {
+public class SpringConfigurationProvider implements ConfigurationProvider, BeanFactoryProvider {
 
 	private Configuration configuration;
 
@@ -53,8 +52,7 @@ public class SpringConfigurationProvider implements ConfigurationProvider,
 
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(ctx);
 		reader.setBeanClassLoader(configuration.getClassLoader());
-		reader.loadBeanDefinitions(new ClassPathResource(config, configuration
-				.getClassLoader()));
+		reader.loadBeanDefinitions(new ClassPathResource(config, configuration.getClassLoader()));
 		Collection<PluginConfig> plugins = configuration.getPlugins();
 		if (plugins != null) {
 			for (PluginConfig plugin : plugins) {
@@ -65,8 +63,7 @@ public class SpringConfigurationProvider implements ConfigurationProvider,
 				if (!descriptorName.endsWith("-plugin")) {
 					descriptorName = descriptorName + "-plugin";
 				}
-				reader.loadBeanDefinitions(new ClassPathResource(
-						"META-INF/walkmod/" + descriptorName + ".xml",
+				reader.loadBeanDefinitions(new ClassPathResource("META-INF/walkmod/" + descriptorName + ".xml",
 						configuration.getClassLoader()));
 			}
 		}

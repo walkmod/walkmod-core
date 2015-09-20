@@ -78,8 +78,8 @@ public class LocationUtils {
 		}
 		String uri = location.getURI();
 		if (uri != null) {
-			result.append(uri).append(':').append(location.getLineNumber())
-					.append(':').append(location.getColumnNumber());
+			result.append(uri).append(':').append(location.getLineNumber()).append(':')
+					.append(location.getColumnNumber());
 		} else {
 			result.append(UNKNOWN_STRING);
 		}
@@ -98,8 +98,7 @@ public class LocationUtils {
 	 * @return the location (possibly <code>null</code> if text was null or in
 	 *         an incorrect format)
 	 */
-	public static LocationImpl parse(String text)
-			throws IllegalArgumentException {
+	public static LocationImpl parse(String text) throws IllegalArgumentException {
 		if (text == null || text.length() == 0) {
 			return null;
 		}
@@ -118,10 +117,8 @@ public class LocationUtils {
 				int column = Integer.parseInt(text.substring(colSep + 1));
 				int lineSep = text.lastIndexOf(':', colSep - 1);
 				if (lineSep > -1) {
-					int line = Integer.parseInt(text.substring(lineSep + 1,
-							colSep));
-					return new LocationImpl(description, text.substring(
-							uriStart, lineSep), line, column);
+					int line = Integer.parseInt(text.substring(lineSep + 1, colSep));
+					return new LocationImpl(description, text.substring(uriStart, lineSep), line, column);
 				}
 			} else {
 				if (text.endsWith(UNKNOWN_STRING)) {
@@ -189,8 +186,7 @@ public class LocationUtils {
 			return;
 		}
 		synchronized (LocationFinder.class) {
-			List<WeakReference<LocationFinder>> newFinders = new ArrayList<WeakReference<LocationFinder>>(
-					finders);
+			List<WeakReference<LocationFinder>> newFinders = new ArrayList<WeakReference<LocationFinder>>(finders);
 			newFinders.add(new WeakReference<LocationFinder>(finder));
 			finders = newFinders;
 		}
@@ -233,8 +229,7 @@ public class LocationUtils {
 		if (obj instanceof SAXParseException) {
 			SAXParseException spe = (SAXParseException) obj;
 			if (spe.getSystemId() != null) {
-				return new LocationImpl(description, spe.getSystemId(),
-						spe.getLineNumber(), spe.getColumnNumber());
+				return new LocationImpl(description, spe.getSystemId(), spe.getLineNumber(), spe.getColumnNumber());
 			} else {
 				return LocationImpl.UNKNOWN;
 			}
@@ -243,8 +238,8 @@ public class LocationUtils {
 			TransformerException ex = (TransformerException) obj;
 			SourceLocator locator = ex.getLocator();
 			if (locator != null && locator.getSystemId() != null) {
-				return new LocationImpl(description, locator.getSystemId(),
-						locator.getLineNumber(), locator.getColumnNumber());
+				return new LocationImpl(description, locator.getSystemId(), locator.getLineNumber(),
+						locator.getColumnNumber());
 			} else {
 				return LocationImpl.UNKNOWN;
 			}
@@ -252,8 +247,8 @@ public class LocationUtils {
 		if (obj instanceof Locator) {
 			Locator locator = (Locator) obj;
 			if (locator.getSystemId() != null) {
-				return new LocationImpl(description, locator.getSystemId(),
-						locator.getLineNumber(), locator.getColumnNumber());
+				return new LocationImpl(description, locator.getSystemId(), locator.getLineNumber(),
+						locator.getColumnNumber());
 			} else {
 				return LocationImpl.UNKNOWN;
 			}
@@ -290,25 +285,20 @@ public class LocationUtils {
 						uri = uri.replace('.', '/');
 						uri = uri.substring(0, uri.lastIndexOf('/') + 1);
 						uri = uri + trace.getFileName();
-						URL url = ClassLoaderUtil.getResource(uri,
-								LocationUtils.class);
+						URL url = ClassLoaderUtil.getResource(uri, LocationUtils.class);
 						if (url != null) {
 							uri = url.toString();
 						}
 					}
 					if (description == null) {
 						StringBuilder sb = new StringBuilder();
-						sb.append("Class: ").append(trace.getClassName())
-								.append("\n");
-						sb.append("File: ").append(trace.getFileName())
-								.append("\n");
-						sb.append("Method: ").append(trace.getMethodName())
-								.append("\n");
+						sb.append("Class: ").append(trace.getClassName()).append("\n");
+						sb.append("File: ").append(trace.getFileName()).append("\n");
+						sb.append("Method: ").append(trace.getMethodName()).append("\n");
 						sb.append("Line: ").append(trace.getLineNumber());
 						description = sb.toString();
 					}
-					return new LocationImpl(description, uri,
-							trace.getLineNumber(), -1);
+					return new LocationImpl(description, uri, trace.getLineNumber(), -1);
 				}
 			}
 		}

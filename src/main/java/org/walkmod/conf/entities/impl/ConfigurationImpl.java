@@ -128,13 +128,11 @@ public class ConfigurationImpl implements Configuration {
 		if (result != null) {
 			BeanWrapper bw = new BeanWrapperImpl(result);
 			if (this.parameters != null) {
-				MutablePropertyValues pvs = new MutablePropertyValues(
-						this.parameters);
+				MutablePropertyValues pvs = new MutablePropertyValues(this.parameters);
 				bw.setPropertyValues(pvs, true, true);
 			}
 			if (parameters != null) {
-				MutablePropertyValues pvs = new MutablePropertyValues(
-						parameters);
+				MutablePropertyValues pvs = new MutablePropertyValues(parameters);
 				bw.setPropertyValues(pvs, true, true);
 			}
 		}
@@ -155,8 +153,7 @@ public class ConfigurationImpl implements Configuration {
 		Collection<VisitorMessage> result = new LinkedList<VisitorMessage>();
 		if (getChainConfigs() != null) {
 			for (ChainConfig aqConfig : getChainConfigs()) {
-				result.addAll(aqConfig.getWalkerConfig().getWalker()
-						.getVisitorMessages());
+				result.addAll(aqConfig.getWalkerConfig().getWalker().getVisitorMessages());
 			}
 		}
 		return result;

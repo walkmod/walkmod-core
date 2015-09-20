@@ -79,11 +79,9 @@ public class WalkModFacade {
 	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder,
 	 *             ConfigurationProvider} instead
 	 */
-	public WalkModFacade(File cfg, boolean offline, boolean verbose,
-			boolean printError) {
+	public WalkModFacade(File cfg, boolean offline, boolean verbose, boolean printError) {
 		this.cfg = cfg;
-		this.options = OptionsBuilder.options().offline(offline)
-				.verbose(verbose).printErrors(printError).build();
+		this.options = OptionsBuilder.options().offline(offline).verbose(verbose).printErrors(printError).build();
 	}
 
 	/**
@@ -106,12 +104,11 @@ public class WalkModFacade {
 	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder,
 	 *             ConfigurationProvider} instead
 	 */
-	public WalkModFacade(File cfg, boolean offline, boolean verbose,
-			boolean printError, String[] includes, String[] excludes) {
+	public WalkModFacade(File cfg, boolean offline, boolean verbose, boolean printError, String[] includes,
+			String[] excludes) {
 		this.cfg = cfg;
-		this.options = OptionsBuilder.options().offline(offline)
-				.verbose(verbose).printErrors(printError).includes(includes)
-				.excludes(excludes).build();
+		this.options = OptionsBuilder.options().offline(offline).verbose(verbose).printErrors(printError)
+				.includes(includes).excludes(excludes).build();
 
 	}
 
@@ -130,8 +127,7 @@ public class WalkModFacade {
 	 * @deprecated Use #{link #WalkModFacade(File,OptionsBuilder,
 	 *             ConfigurationProvider} instead
 	 */
-	public WalkModFacade(String cfg, boolean offline, boolean verbose,
-			boolean printError) {
+	public WalkModFacade(String cfg, boolean offline, boolean verbose, boolean printError) {
 		this(cfg, offline, verbose, printError, null, null);
 	}
 
@@ -155,8 +151,8 @@ public class WalkModFacade {
 	 *             ConfigurationProvider} instead
 	 */
 	@Deprecated
-	public WalkModFacade(String cfg, boolean offline, boolean verbose,
-			boolean printError, String[] includes, String[] excludes) {
+	public WalkModFacade(String cfg, boolean offline, boolean verbose, boolean printError, String[] includes,
+			String[] excludes) {
 		this(cfg, offline, verbose, printError, false, includes, excludes);
 	}
 
@@ -182,14 +178,11 @@ public class WalkModFacade {
 	 *             ConfigurationProvider} instead
 	 */
 	@Deprecated
-	public WalkModFacade(String cfg, boolean offline, boolean verbose,
-			boolean printError, boolean throwsException, String[] includes,
-			String[] excludes) {
+	public WalkModFacade(String cfg, boolean offline, boolean verbose, boolean printError, boolean throwsException,
+			String[] includes, String[] excludes) {
 		this.cfg = new File(cfg);
-		this.options = OptionsBuilder.options().offline(offline)
-				.verbose(verbose).throwException(throwsException)
-				.printErrors(printError).includes(includes).excludes(excludes)
-				.build();
+		this.options = OptionsBuilder.options().offline(offline).verbose(verbose).throwException(throwsException)
+				.printErrors(printError).includes(includes).excludes(excludes).build();
 	}
 
 	/**
@@ -228,10 +221,8 @@ public class WalkModFacade {
 	 *             ConfigurationProvider} instead
 	 */
 	@Deprecated
-	public WalkModFacade(boolean offline, boolean verbose, boolean printError,
-			String[] includes, String[] excludes) {
-		this(new File(DEFAULT_WALKMOD_FILE), offline, verbose, printError,
-				includes, excludes);
+	public WalkModFacade(boolean offline, boolean verbose, boolean printError, String[] includes, String[] excludes) {
+		this(new File(DEFAULT_WALKMOD_FILE), offline, verbose, printError, includes, excludes);
 	}
 
 	/**
@@ -260,8 +251,7 @@ public class WalkModFacade {
 	 *            plugins (used to use custom classloading strategies). If null
 	 *            Ivy is used.
 	 */
-	public WalkModFacade(File walkmodCfg, OptionsBuilder optionsBuilder,
-			ConfigurationProvider configurationProvider) {
+	public WalkModFacade(File walkmodCfg, OptionsBuilder optionsBuilder, ConfigurationProvider configurationProvider) {
 
 		// process options
 		options = optionsBuilder.build();
@@ -269,8 +259,7 @@ public class WalkModFacade {
 		if (walkmodCfg != null) {
 			this.cfg = walkmodCfg.getAbsoluteFile();
 		} else {
-			this.cfg = new File(options.getExecutionDirectory()
-					.getAbsolutePath(), DEFAULT_WALKMOD_FILE);
+			this.cfg = new File(options.getExecutionDirectory().getAbsolutePath(), DEFAULT_WALKMOD_FILE);
 		}
 
 		if (configurationProvider != null)
@@ -300,12 +289,10 @@ public class WalkModFacade {
 	 *             no verbose mode.
 	 * @return The list of modified/created files.
 	 */
-	public List<File> apply(String... chains)
-			throws InvalidConfigurationException {
+	public List<File> apply(String... chains) throws InvalidConfigurationException {
 
 		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
-		System.setProperty("user.dir", options.getExecutionDirectory()
-				.getAbsolutePath());
+		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
 
 		if (cfg.exists()) {
 			if (options.isVerbose()) {
@@ -354,9 +341,8 @@ public class WalkModFacade {
 				log.error(cfg.getAbsolutePath()
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
 			} else {
-				throw new WalkModException(
-						cfg.getAbsolutePath()
-								+ " does not exist. The root directory of your project must contain a walkmod.xml");
+				throw new WalkModException(cfg.getAbsolutePath()
+						+ " does not exist. The root directory of your project must contain a walkmod.xml");
 			}
 		}
 
@@ -374,8 +360,7 @@ public class WalkModFacade {
 	 *             no verbose mode.
 	 * @return The list of affected files.
 	 */
-	public List<File> check(String... chains)
-			throws InvalidConfigurationException {
+	public List<File> check(String... chains) throws InvalidConfigurationException {
 
 		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
 		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
@@ -413,10 +398,8 @@ public class WalkModFacade {
 			}
 			Collection<ChainConfig> tcgfs = config.getChainConfigs();
 			for (ChainConfig tcfg : tcgfs) {
-				tcfg.getWriterConfig().setType(
-						VisitorMessagesWriter.class.getName());
-				tcfg.getWriterConfig().setModelWriter(
-						new VisitorMessagesWriter());
+				tcfg.getWriterConfig().setType(VisitorMessagesWriter.class.getName());
+				tcfg.getWriterConfig().setModelWriter(new VisitorMessagesWriter());
 			}
 			Summary.getInstance().clear();
 			if (chains == null || chains.length == 0) {
@@ -433,9 +416,8 @@ public class WalkModFacade {
 				log.error(cfg.getAbsolutePath()
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
 			} else {
-				throw new WalkModException(
-						cfg.getAbsolutePath()
-								+ " does not exist. The root directory of your project must contain a walkmod.xml");
+				throw new WalkModException(cfg.getAbsolutePath()
+						+ " does not exist. The root directory of your project must contain a walkmod.xml");
 			}
 		}
 		return Summary.getInstance().getWrittenFiles();
@@ -456,8 +438,7 @@ public class WalkModFacade {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
 			}
 			// Uses Ivy always
-			ConfigurationProvider cp = new IvyConfigurationProvider(
-					options.isOffline());
+			ConfigurationProvider cp = new IvyConfigurationProvider(options.isOffline());
 			if (options.isVerbose()) {
 				log.info("** THE PLUGIN INSTALLATION STARTS **");
 				System.out.print("----------------------------------------");
@@ -466,15 +447,12 @@ public class WalkModFacade {
 			long startTime = System.currentTimeMillis();
 			long endTime = startTime;
 			DecimalFormat myFormatter = new DecimalFormat("###.###");
-			DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss",
-					Locale.US);
+			DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss", Locale.US);
 			boolean error = false;
 			try {
 				userDir = new File(".").getAbsolutePath();
-				System.setProperty("user.dir", options.getExecutionDirectory()
-						.getCanonicalPath());
-				ConfigurationManager cfgManager = new ConfigurationManager(cfg,
-						cp);
+				System.setProperty("user.dir", options.getExecutionDirectory().getCanonicalPath());
+				ConfigurationManager cfgManager = new ConfigurationManager(cfg, cp);
 				Configuration cf = cfgManager.getConfiguration();
 			} catch (Exception e) {
 				System.setProperty("user.dir", userDir);
@@ -486,27 +464,18 @@ public class WalkModFacade {
 						time = (double) (endTime - startTime) / (double) 1000;
 					}
 					String timeMsg = myFormatter.format(time);
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
+					System.out.print("----------------------------------------");
+					System.out.println("----------------------------------------");
 					log.info("PLUGIN INSTALLATION FAILS");
 					System.out.println();
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
+					System.out.print("----------------------------------------");
+					System.out.println("----------------------------------------");
 					log.info("Total time: " + timeMsg + " seconds");
 					log.info("Finished at: " + df.format(new Date()));
-					log.info("Final memory: "
-							+ (Runtime.getRuntime().freeMemory()) / 1048576
-							+ " M/ "
-							+ (Runtime.getRuntime().totalMemory() / 1048576)
-							+ " M");
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
+					log.info("Final memory: " + (Runtime.getRuntime().freeMemory()) / 1048576 + " M/ "
+							+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
+					System.out.print("----------------------------------------");
+					System.out.println("----------------------------------------");
 					if (options.isPrintErrors()) {
 						log.error("Plugin installations fails", e);
 					} else {
@@ -530,27 +499,18 @@ public class WalkModFacade {
 						time = (double) (endTime - startTime) / (double) 1000;
 					}
 					String timeMsg = myFormatter.format(time);
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
+					System.out.print("----------------------------------------");
+					System.out.println("----------------------------------------");
 					System.out.println();
 					log.info("PLUGIN INSTALLATION COMPLETE");
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
+					System.out.print("----------------------------------------");
+					System.out.println("----------------------------------------");
 					log.info("Total time: " + timeMsg + " seconds");
 					log.info("Finished at: " + df.format(new Date()));
-					log.info("Final memory: "
-							+ (Runtime.getRuntime().freeMemory()) / 1048576
-							+ " M/ "
-							+ (Runtime.getRuntime().totalMemory() / 1048576)
-							+ " M");
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
+					log.info("Final memory: " + (Runtime.getRuntime().freeMemory()) / 1048576 + " M/ "
+							+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
+					System.out.print("----------------------------------------");
+					System.out.println("----------------------------------------");
 				}
 			}
 		} else {
@@ -559,9 +519,8 @@ public class WalkModFacade {
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
 
 			} else {
-				throw new WalkModException(
-						cfg.getAbsolutePath()
-								+ " does not exist. The root directory of your project must contain a walkmod.xml");
+				throw new WalkModException(cfg.getAbsolutePath()
+						+ " does not exist. The root directory of your project must contain a walkmod.xml");
 			}
 		}
 	}
@@ -576,8 +535,7 @@ public class WalkModFacade {
 		long startTime = System.currentTimeMillis();
 		long endTime = startTime;
 		DecimalFormat myFormatter = new DecimalFormat("###.###");
-		DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss",
-				Locale.US);
+		DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss", Locale.US);
 		int num = 0;
 		Iterator<ChainConfig> it = tcgfs.iterator();
 		int pos = 1;
@@ -587,10 +545,8 @@ public class WalkModFacade {
 			if (tcgfs.size() > 1) {
 				if (options.isVerbose()) {
 					String label = "";
-					if (tcfg.getName() != null
-							&& !tcfg.getName().startsWith("chain_")) {
-						label = "[" + tcfg.getName() + "](" + pos + "/"
-								+ tcgfs.size() + ") ";
+					if (tcfg.getName() != null && !tcfg.getName().startsWith("chain_")) {
+						label = "[" + tcfg.getName() + "](" + pos + "/" + tcgfs.size() + ") ";
 					} else {
 						label = "(" + pos + "/" + tcgfs.size() + ")";
 					}
@@ -601,13 +557,11 @@ public class WalkModFacade {
 			try {
 
 				if (options.getIncludes() != null) {
-					String[] includes = options.getIncludes().toArray(
-							new String[options.getIncludes().size()]);
+					String[] includes = options.getIncludes().toArray(new String[options.getIncludes().size()]);
 					tcfg.getReaderConfig().setIncludes(includes);
 				}
 				if (options.getExcludes() != null) {
-					String[] excludes = options.getExcludes().toArray(
-							new String[options.getExcludes().size()]);
+					String[] excludes = options.getExcludes().toArray(new String[options.getExcludes().size()]);
 					tcfg.getReaderConfig().setExcludes(excludes);
 				}
 
@@ -633,35 +587,24 @@ public class WalkModFacade {
 					}
 					String timeMsg = myFormatter.format(time);
 					if (num != 0) {
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
+						System.out.print("----------------------------------------");
+						System.out.println("----------------------------------------");
 					}
 					log.info("TRANSFORMATION CHAIN FAILS");
 					System.out.println();
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
+					System.out.print("----------------------------------------");
+					System.out.println("----------------------------------------");
 					log.info("Total time: " + timeMsg + " seconds");
 					log.info("Finished at: " + df.format(new Date()));
-					log.info("Final memory: "
-							+ (Runtime.getRuntime().freeMemory()) / 1048576
-							+ " M/ "
-							+ (Runtime.getRuntime().totalMemory() / 1048576)
-							+ " M");
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
+					log.info("Final memory: " + (Runtime.getRuntime().freeMemory()) / 1048576 + " M/ "
+							+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
+					System.out.print("----------------------------------------");
+					System.out.println("----------------------------------------");
 					log.info("Please, see the walkmod log file for details");
 					if (options.isPrintErrors()) {
-						log.error("TRANSFORMATION CHAIN (" + tcfg.getName()
-								+ ") FAILS", e);
+						log.error("TRANSFORMATION CHAIN (" + tcfg.getName() + ") FAILS", e);
 					} else {
-						log.error("TRANSFORMATION CHAIN ("
-								+ tcfg.getName()
+						log.error("TRANSFORMATION CHAIN (" + tcfg.getName()
 								+ ") FAILS. Execute walkmod with -e to see the error details.");
 					}
 					if (options.isThrowException()) {
@@ -692,8 +635,7 @@ public class WalkModFacade {
 			System.out.println("----------------------------------------");
 			log.info("Total time: " + timeMsg + " seconds");
 			log.info("Finished at: " + df.format(new Date()));
-			log.info("Final memory: " + (Runtime.getRuntime().freeMemory())
-					/ 1048576 + " M/ "
+			log.info("Final memory: " + (Runtime.getRuntime().freeMemory()) / 1048576 + " M/ "
 					+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
 			log.info("Total modified files: " + num);
 			System.out.print("----------------------------------------");
@@ -701,20 +643,17 @@ public class WalkModFacade {
 		}
 	}
 
-	private void executeChainAdapter(ChainAdapterFactory apf,
-			Configuration conf, String name) {
+	private void executeChainAdapter(ChainAdapterFactory apf, Configuration conf, String name) {
 		if (options.getIncludes() != null || options.getExcludes() != null) {
 			Collection<ChainConfig> chains = conf.getChainConfigs();
 			if (chains != null) {
 				for (ChainConfig cc : chains) {
 					if (options.getIncludes() != null) {
-						String[] includes = options.getIncludes().toArray(
-								new String[options.getIncludes().size()]);
+						String[] includes = options.getIncludes().toArray(new String[options.getIncludes().size()]);
 						cc.getReaderConfig().setIncludes(includes);
 					}
 					if (options.getExcludes() != null) {
-						String[] excludes = options.getExcludes().toArray(
-								new String[options.getExcludes().size()]);
+						String[] excludes = options.getExcludes().toArray(new String[options.getExcludes().size()]);
 						cc.getReaderConfig().setExcludes(excludes);
 					}
 				}
@@ -731,8 +670,7 @@ public class WalkModFacade {
 			long startTime = System.currentTimeMillis();
 			long endTime = startTime;
 			DecimalFormat myFormatter = new DecimalFormat("###.###");
-			DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss",
-					Locale.US);
+			DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss", Locale.US);
 			if (options.isVerbose()) {
 				log.info("** THE TRANSFORMATION CHAIN " + name + " STARTS **");
 				System.out.print("----------------------------------------");
@@ -750,10 +688,8 @@ public class WalkModFacade {
 					}
 					String timeMsg = myFormatter.format(time);
 					if (num != 0) {
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
+						System.out.print("----------------------------------------");
+						System.out.println("----------------------------------------");
 					} else {
 						if (Summary.getInstance().getWrittenFiles().isEmpty()) {
 							log.info("**No sources changed**");
@@ -761,24 +697,17 @@ public class WalkModFacade {
 					}
 					System.out.println();
 					log.info("TRANSFORMATION CHAIN SUCCESS");
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
+					System.out.print("----------------------------------------");
+					System.out.println("----------------------------------------");
 					log.info("Total time: " + timeMsg + " seconds");
 					log.info("Finished at: " + df.format(new Date()));
-					log.info("Final memory: "
-							+ (Runtime.getRuntime().freeMemory()) / 1048576
-							+ " M/ "
-							+ (Runtime.getRuntime().totalMemory() / 1048576)
-							+ " M");
+					log.info("Final memory: " + (Runtime.getRuntime().freeMemory()) / 1048576 + " M/ "
+							+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
 					if (ap.getWalkerAdapter().getWalker().reportChanges()) {
 						log.info("Total modified files: " + num);
 					}
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
+					System.out.print("----------------------------------------");
+					System.out.println("----------------------------------------");
 				}
 			} catch (Throwable e) {
 				System.setProperty("user.dir", userDir);
@@ -790,35 +719,24 @@ public class WalkModFacade {
 					}
 					String timeMsg = myFormatter.format(time);
 					if (num != 0) {
-						System.out
-								.print("----------------------------------------");
-						System.out
-								.println("----------------------------------------");
+						System.out.print("----------------------------------------");
+						System.out.println("----------------------------------------");
 					}
 					log.info("TRANSFORMATION CHAIN FAILS");
 					System.out.println();
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
+					System.out.print("----------------------------------------");
+					System.out.println("----------------------------------------");
 					log.info("Total time: " + timeMsg + " seconds");
 					log.info("Finished at: " + df.format(new Date()));
-					log.info("Final memory: "
-							+ (Runtime.getRuntime().freeMemory()) / 1048576
-							+ " M/ "
-							+ (Runtime.getRuntime().totalMemory() / 1048576)
-							+ " M");
-					System.out
-							.print("----------------------------------------");
-					System.out
-							.println("----------------------------------------");
+					log.info("Final memory: " + (Runtime.getRuntime().freeMemory()) / 1048576 + " M/ "
+							+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
+					System.out.print("----------------------------------------");
+					System.out.println("----------------------------------------");
 					log.info("Please, see the walkmod log file for details");
 					if (options.isPrintErrors()) {
-						log.error("TRANSFORMATION CHAIN (" + name + ") FAILS",
-								e);
+						log.error("TRANSFORMATION CHAIN (" + name + ") FAILS", e);
 					} else {
-						log.error("TRANSFORMATION CHAIN ("
-								+ name
+						log.error("TRANSFORMATION CHAIN (" + name
 								+ ") FAILS. Execute walkmod with -e to see the error details.");
 					}
 				} else {

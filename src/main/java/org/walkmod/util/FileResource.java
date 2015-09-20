@@ -67,7 +67,7 @@ public class FileResource implements Resource<File> {
 	}
 
 	private boolean matches(String fileName, String filter) {
-		
+
 		return filter.startsWith(fileName) || FilenameUtils.wildcardMatch(fileName, filter)
 				|| fileName.startsWith(filter);
 
@@ -119,8 +119,8 @@ public class FileResource implements Resource<File> {
 						String aux = FilenameUtils.normalize(name, true);
 						if (excludes != null) {
 							for (int i = 0; i < excludes.length && !excludesEval; i++) {
-								excludesEval = (FilenameUtils.wildcardMatch(aux, excludes[i])
-										|| dir.getAbsolutePath().startsWith(excludes[i]));
+								excludesEval = (FilenameUtils.wildcardMatch(aux, excludes[i]) || dir.getAbsolutePath()
+										.startsWith(excludes[i]));
 							}
 						}
 						if (includes != null) {
@@ -143,8 +143,8 @@ public class FileResource implements Resource<File> {
 						if (excludes != null) {
 
 							for (int i = 0; i < excludes.length && !excludesEval; i++) {
-								excludesEval = (FilenameUtils.wildcardMatch(aux, excludes[i])
-										|| file.getParentFile().getAbsolutePath().startsWith(excludes[i]));
+								excludesEval = (FilenameUtils.wildcardMatch(aux, excludes[i]) || file.getParentFile()
+										.getAbsolutePath().startsWith(excludes[i]));
 							}
 						}
 						if (includes != null) {
@@ -207,7 +207,7 @@ public class FileResource implements Resource<File> {
 	}
 
 	public void setIncludes(String[] includes) {
-		if (includes != null  && System.getProperty("os.name").toLowerCase().contains("windows")) {
+		if (includes != null && System.getProperty("os.name").toLowerCase().contains("windows")) {
 			for (int i = 0; i < includes.length; i++) {
 				includes[i] = FilenameUtils.normalize(includes[i], true);
 			}

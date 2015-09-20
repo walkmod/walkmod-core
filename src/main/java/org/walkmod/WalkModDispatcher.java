@@ -37,8 +37,7 @@ public class WalkModDispatcher {
 	public static void printHeader() {
 		log.info("Java version: " + System.getProperty("java.version"));
 		log.info("Java Home: " + System.getProperty("java.home"));
-		log.info("OS: " + System.getProperty("os.name") + ", Vesion: "
-				+ System.getProperty("os.version"));
+		log.info("OS: " + System.getProperty("os.name") + ", Vesion: " + System.getProperty("os.version"));
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
 		System.out.print("                    ");
@@ -74,19 +73,14 @@ public class WalkModDispatcher {
 				printHeader();
 				log.error("You must specify at least one goal to apply code transformations.");
 			}
-			System.out
-					.println("The following list ilustrates some commonly used Walkmod commands.");
+			System.out.println("The following list ilustrates some commonly used Walkmod commands.");
 			System.out.println("walkmod install");
-			System.out
-					.println("        Downloads and installs a walkmod plugin");
+			System.out.println("        Downloads and installs a walkmod plugin");
 			System.out.println("walkmod apply [chain] [-i|--includes <path>] [-x|--excludes <path>]");
-			System.out
-					.println("        Upgrades your code to apply your development conventions");
+			System.out.println("        Upgrades your code to apply your development conventions");
 			System.out.println("walkmod check [chain] [-i|--includes <path>] [-x|--excludes <path>]");
-			System.out
-					.println("        Checks and shows witch classes must be reviewed");
-			System.out
-					.println("Please, see http://www.walkmod.com for more information.");
+			System.out.println("        Checks and shows witch classes must be reviewed");
+			System.out.println("Please, see http://www.walkmod.com for more information.");
 			if (args == null || args.length == 0) {
 				System.out
 						.println("Use \"walkmod --help\" to show general usage information about WalkMod command's line");
@@ -115,34 +109,30 @@ public class WalkModDispatcher {
 					pos++;
 				} else if ("-i".equals(elem) || "--includes".equals(elem)) {
 					it.remove();
-					boolean finish = pos == paramsList.size()
-							|| paramsList.get(pos).startsWith("-");
+					boolean finish = pos == paramsList.size() || paramsList.get(pos).startsWith("-");
 					while (!finish) {
 						String fileName = it.next();
 						File file = new File(fileName);
-						if(file.exists()){
+						if (file.exists()) {
 							fileName = file.getAbsolutePath();
 							includes.add(fileName);
 						}
 						it.remove();
-						finish = pos == paramsList.size()
-								|| paramsList.get(pos).startsWith("-");
+						finish = pos == paramsList.size() || paramsList.get(pos).startsWith("-");
 
 					}
 				} else if ("-x".equals(elem) || "--excludes".equals(elem)) {
 					it.remove();
-					boolean finish = pos == paramsList.size()
-							|| paramsList.get(pos).startsWith("-");
+					boolean finish = pos == paramsList.size() || paramsList.get(pos).startsWith("-");
 					while (!finish) {
 						String fileName = it.next();
 						File file = new File(fileName);
-						if(file.exists()){
+						if (file.exists()) {
 							fileName = file.getAbsolutePath();
 							excludes.add(fileName);
 						}
 						it.remove();
-						finish = pos == paramsList.size()
-								|| paramsList.get(pos).startsWith("-");
+						finish = pos == paramsList.size() || paramsList.get(pos).startsWith("-");
 					}
 				} else {
 					pos++;
@@ -151,29 +141,24 @@ public class WalkModDispatcher {
 			}
 			String[] includesArray = null;
 			String[] excludesArray = null;
-			
+
 			if (!includes.isEmpty()) {
 				includesArray = new String[includes.size()];
 				includes.toArray(includesArray);
 			}
-			if(!excludes.isEmpty()){
+			if (!excludes.isEmpty()) {
 				excludesArray = new String[excludes.size()];
 				excludes.toArray(excludesArray);
 			}
 
-			
-
-			WalkModFacade facade = new WalkModFacade(offline, true,
-					showException, includesArray, excludesArray);
+			WalkModFacade facade = new WalkModFacade(offline, true, showException, includesArray, excludesArray);
 
 			if (paramsList.contains("--version")) {
 				System.out.println("Walkmod version \"1.2\"");
-				System.out.println("Java version: "
-						+ System.getProperty("java.version"));
-				System.out.println("Java Home: "
-						+ System.getProperty("java.home"));
-				System.out.println("OS: " + System.getProperty("os.name")
-						+ ", Version: " + System.getProperty("os.version"));
+				System.out.println("Java version: " + System.getProperty("java.version"));
+				System.out.println("Java Home: " + System.getProperty("java.home"));
+				System.out.println("OS: " + System.getProperty("os.name") + ", Version: "
+						+ System.getProperty("os.version"));
 			} else if (paramsList.contains("apply")) {
 				paramsList.remove("apply");
 				printHeader();

@@ -60,8 +60,7 @@ public class PluginConfigImpl implements PluginConfig {
 		if (pc instanceof PluginConfig) {
 			if (groupId != null && artifactId != null) {
 				PluginConfig aux = (PluginConfig) pc;
-				return groupId.equals(aux.getGroupId())
-						&& artifactId.equals(aux.getArtifactId());
+				return groupId.equals(aux.getGroupId()) && artifactId.equals(aux.getArtifactId());
 			}
 			return false;
 		}

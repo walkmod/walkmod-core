@@ -51,8 +51,7 @@ public class DefaultChainWalkerAdapter implements ChainWalkerAdapter {
 
 	private Collection<TransformationConfig> transformationConfigs;
 
-	private static final Log LOG = LogFactory
-			.getLog(DefaultChainWalkerAdapter.class);
+	private static final Log LOG = LogFactory.getLog(DefaultChainWalkerAdapter.class);
 
 	@Override
 	public Resource<?> getModel() {
@@ -85,19 +84,16 @@ public class DefaultChainWalkerAdapter implements ChainWalkerAdapter {
 		Parser parser = null;
 		String parserType = config.getParserConfig().getType();
 		if (parserType != null) {
-			Object parserInstance = c.getBean(parserType, config
-					.getParserConfig().getParameters());
+			Object parserInstance = c.getBean(parserType, config.getParserConfig().getParameters());
 			if (parserInstance != null) {
 				if (parserInstance instanceof Parser) {
 					parser = (Parser) parserInstance;
 					walker.setParser(parser);
 				} else {
-					throw new WalkModException("The parser " + parserType
-							+ " must implement " + Parser.class.getName());
+					throw new WalkModException("The parser " + parserType + " must implement " + Parser.class.getName());
 				}
 			} else {
-				throw new WalkModException("The parser " + parserType
-						+ " does not exist.");
+				throw new WalkModException("The parser " + parserType + " does not exist.");
 			}
 		}
 
@@ -114,18 +110,15 @@ public class DefaultChainWalkerAdapter implements ChainWalkerAdapter {
 				((ParserAware) visitor).setParser(parser);
 			}
 			if (visitor != null) {
-				LOG.debug("setting chain[\"" + ac.getName()
-						+ "\"].transformation[\"" + getName() + "\"].walker = "
+				LOG.debug("setting chain[\"" + ac.getName() + "\"].transformation[\"" + getName() + "\"].walker = "
 						+ walker.getClass().getName());
-				LOG.debug("setting chain[\"" + ac.getName()
-						+ "\"].transformation[\"" + getName()
-						+ "\"].visitor = " + visitor.getClass().getName());
+				LOG.debug("setting chain[\"" + ac.getName() + "\"].transformation[\"" + getName() + "\"].visitor = "
+						+ visitor.getClass().getName());
 				visitors.add(visitor);
 			} else {
 				walker = null;
 				visitor = null;
-				LOG.debug("Transformation[" + getName()
-						+ "] without walker and visitor");
+				LOG.debug("Transformation[" + getName() + "] without walker and visitor");
 			}
 		}
 		walker.setVisitors(visitors);

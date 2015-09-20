@@ -64,16 +64,14 @@ public class VisitorMessagesWriter implements ChainWriter {
 		if (out != null) {
 			if (excludes != null) {
 				for (int i = 0; i < excludes.length && write; i++) {
-					write = !(FilenameUtils.wildcardMatch(out.getPath(),
-							excludes[i]));
+					write = !(FilenameUtils.wildcardMatch(out.getPath(), excludes[i]));
 				}
 			}
 
 			if (includes != null && write) {
 				write = false;
 				for (int i = 0; i < includes.length && !write; i++) {
-					write = FilenameUtils.wildcardMatch(out.getPath(),
-							includes[i]);
+					write = FilenameUtils.wildcardMatch(out.getPath(), includes[i]);
 				}
 			}
 			if (write) {

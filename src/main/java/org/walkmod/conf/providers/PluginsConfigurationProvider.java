@@ -1,3 +1,18 @@
+/* 
+  Copyright (C) 2013 Raquel Pau and Albert Coroleu.
+ 
+  Walkmod is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+ 
+  Walkmod is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+ 
+  You should have received a copy of the GNU Lesser General Public License
+  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.providers;
 
 import java.io.File;
@@ -33,8 +48,7 @@ public class PluginsConfigurationProvider implements ConfigurationProvider {
 
 	private Document document;
 
-	private static final Log LOG = LogFactory
-			.getLog(PluginsConfigurationProvider.class);
+	private static final Log LOG = LogFactory.getLog(PluginsConfigurationProvider.class);
 
 	private String fileName;
 
@@ -70,8 +84,7 @@ public class PluginsConfigurationProvider implements ConfigurationProvider {
 		Document doc = null;
 		URL url = null;
 		if (configuration == null) {
-			throw new ConfigurationException(
-					"Missing default values configuration");
+			throw new ConfigurationException("Missing default values configuration");
 		}
 
 		File f = new File(fileName);
@@ -79,8 +92,7 @@ public class PluginsConfigurationProvider implements ConfigurationProvider {
 			try {
 				url = f.toURI().toURL();
 			} catch (MalformedURLException e) {
-				throw new ConfigurationException("Unable to load " + fileName,
-						e);
+				throw new ConfigurationException("Unable to load " + fileName, e);
 			}
 		}
 		if (url == null) {
@@ -89,11 +101,9 @@ public class PluginsConfigurationProvider implements ConfigurationProvider {
 		InputStream is = null;
 		if (url == null) {
 			if (errorIfMissing) {
-				throw new ConfigurationException(
-						"Could not open files of the name " + fileName);
+				throw new ConfigurationException("Could not open files of the name " + fileName);
 			} else {
-				LOG.info("Unable to locate default values configuration of the name "
-						+ f.getName() + ", skipping");
+				LOG.info("Unable to locate default values configuration of the name " + f.getName() + ", skipping");
 				return doc;
 			}
 		}
@@ -129,8 +139,7 @@ public class PluginsConfigurationProvider implements ConfigurationProvider {
 		NodeList childNodes = rootElement.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node childNode = childNodes.item(i);
-			if ((childNode.getNodeType() == Node.ELEMENT_NODE)
-					&& "plugin".equals(childNode.getNodeName())) {
+			if ((childNode.getNodeType() == Node.ELEMENT_NODE) && "plugin".equals(childNode.getNodeName())) {
 
 				Element paramElement = (Element) childNode;
 				String groupId = paramElement.getAttribute("groupId");

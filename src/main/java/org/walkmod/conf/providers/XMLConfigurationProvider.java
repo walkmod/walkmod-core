@@ -64,8 +64,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 
-public class XMLConfigurationProvider implements ConfigurationProvider,
-		ChainProvider {
+public class XMLConfigurationProvider implements ConfigurationProvider, ChainProvider {
 
 	/**
 	 * Configuration file.
@@ -92,15 +91,13 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 	 */
 	private Document document;
 
-	private static final Log LOG = LogFactory
-			.getLog(XMLConfigurationProvider.class);
+	private static final Log LOG = LogFactory.getLog(XMLConfigurationProvider.class);
 
 	public XMLConfigurationProvider() {
 		this("walkmod.xml", true);
 	}
 
-	public XMLConfigurationProvider(String configFileName,
-			boolean errorIfMissing) {
+	public XMLConfigurationProvider(String configFileName, boolean errorIfMissing) {
 		this.configFileName = configFileName;
 		this.errorIfMissing = errorIfMissing;
 		Map<String, String> mappings = new HashMap<String, String>();
@@ -147,11 +144,9 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		InputStream is = null;
 		if (url == null) {
 			if (errorIfMissing) {
-				throw new ConfigurationException(
-						"Could not open files of the name " + file);
+				throw new ConfigurationException("Could not open files of the name " + file);
 			} else {
-				LOG.info("Unable to locate configuration files of the name "
-						+ file + ", skipping");
+				LOG.info("Unable to locate configuration files of the name " + file + ", skipping");
 				return doc;
 			}
 		}
@@ -206,8 +201,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		NodeList childNodes = paramsElement.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node childNode = childNodes.item(i);
-			if ((childNode.getNodeType() == Node.ELEMENT_NODE)
-					&& "param".equals(childNode.getNodeName())) {
+			if ((childNode.getNodeType() == Node.ELEMENT_NODE) && "param".equals(childNode.getNodeName())) {
 				Element paramElement = (Element) childNode;
 				String paramName = paramElement.getAttribute("name");
 				String val = getContent(paramElement);
@@ -257,8 +251,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		NodeList childNodes = element.getChildNodes();
 		for (int j = 0; j < childNodes.getLength(); j++) {
 			Node currentNode = childNodes.item(j);
-			if (currentNode != null
-					&& currentNode.getNodeType() == Node.TEXT_NODE) {
+			if (currentNode != null && currentNode.getNodeType() == Node.TEXT_NODE) {
 				String val = currentNode.getNodeValue();
 				if (val != null) {
 					paramValue.append(val.trim());
@@ -292,40 +285,32 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 					NodeList childrenModel = child.getChildNodes();
 					ac.setParameters(getParams(child));
 					int index = 0;
-					if ("reader"
-							.equals(childrenModel.item(index).getNodeName())) {
-						loadReaderConfig((Element) childrenModel.item(index),
-								ac);
+					if ("reader".equals(childrenModel.item(index).getNodeName())) {
+						loadReaderConfig((Element) childrenModel.item(index), ac);
 						index++;
 					} else {
 						addDefaultReaderConfig(ac);
 					}
 					if (index >= childrenModel.getLength()) {
-						throw new ConfigurationException(
-								"Invalid architecture definition for the "
-										+ "element" + ac.getName());
+						throw new ConfigurationException("Invalid architecture definition for the " + "element"
+								+ ac.getName());
 					}
-					if ("walker"
-							.equals(childrenModel.item(index).getNodeName())) {
-						loadWalkerConfig((Element) childrenModel.item(index),
-								ac);
+					if ("walker".equals(childrenModel.item(index).getNodeName())) {
+						loadWalkerConfig((Element) childrenModel.item(index), ac);
 						index++;
-					} else if ("transformation".equals(childrenModel
-							.item(index).getNodeName())) {
+					} else if ("transformation".equals(childrenModel.item(index).getNodeName())) {
 						addDefaultWalker(ac, child);
 					} else {
 						throw new ConfigurationException(
 								"Invalid transformation chain. A walker or at least one transformation must be specified");
 					}
 					if (index > childrenModel.getLength()) {
-						throw new ConfigurationException(
-								"Invalid architecture definition for the "
-										+ "element" + ac.getName());
+						throw new ConfigurationException("Invalid architecture definition for the " + "element"
+								+ ac.getName());
 					}
 					boolean found = false;
 					while (index < childrenModel.getLength() && !found) {
-						if ("writer".equals(childrenModel.item(index)
-								.getNodeName())) {
+						if ("writer".equals(childrenModel.item(index).getNodeName())) {
 							found = true;
 							loadWriter((Element) childrenModel.item(index), ac);
 						}
@@ -336,11 +321,10 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 					}
 					configuration.addChainConfig(ac);
 				} else if ("transformation".equals(nodeName)) {
-					
+
 					ChainConfig ac = new ChainConfigImpl();
 					ac.setName("chain_1");
-					List<TransformationConfig> transformationConfigs = getTransformationItems(
-							rootElement, true);
+					List<TransformationConfig> transformationConfigs = getTransformationItems(rootElement, true);
 					WalkerConfig wc = new WalkerConfigImpl();
 					wc.setType(null);
 					wc.setParserConfig(new ParserConfigImpl());
@@ -363,13 +347,11 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		ac.setReaderConfig(readerConfig);
 	}
 
-	public void loadReaderConfig(Element element, ChainConfig ac)
-			throws ConfigurationException {
+	public void loadReaderConfig(Element element, ChainConfig ac) throws ConfigurationException {
 		ReaderConfig readerConfig = new ReaderConfig();
 		if ("reader".equals(element.getNodeName())) {
 			if ("".equals(element.getAttribute("path"))) {
-				throw new ConfigurationException("Invalid reader definition: "
-						+ "A path attribute must be specified");
+				throw new ConfigurationException("Invalid reader definition: " + "A path attribute must be specified");
 			}
 			readerConfig.setPath(element.getAttribute("path"));
 			if ("".equals(element.getAttribute("type"))) {
@@ -417,10 +399,8 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 				}
 			}
 		} else {
-			throw new ConfigurationException(
-					"Invalid architecture definition. "
-							+ "A reader element must be defined in the architecture element "
-							+ ac.getName());
+			throw new ConfigurationException("Invalid architecture definition. "
+					+ "A reader element must be defined in the architecture element " + ac.getName());
 		}
 		ac.setReaderConfig(readerConfig);
 	}
@@ -445,32 +425,25 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 				wc.setType(type);
 			}
 			wc.setParams(getParams((Element) walkerNode));
-			wc.setRootNamespace(((Element) walkerNode)
-					.getAttribute("root-namespace"));
+			wc.setRootNamespace(((Element) walkerNode).getAttribute("root-namespace"));
 			children = walkerNode.getChildNodes();
 			if (children.getLength() > 3) {
-				throw new ConfigurationException(
-						"Invalid walker definition in the " + "architecture"
-								+ ac.getName() + ". Please, verify the dtd");
+				throw new ConfigurationException("Invalid walker definition in the " + "architecture" + ac.getName()
+						+ ". Please, verify the dtd");
 			}
 			int transformationIndex = wc.getParams().size();
-			final String nodeName = children
-					.item(transformationIndex).getNodeName();
+			final String nodeName = children.item(transformationIndex).getNodeName();
 			if (("parser").equals(nodeName)) {
-				loadParserConfig((Element) children.item(transformationIndex),
-						wc);
+				loadParserConfig((Element) children.item(transformationIndex), wc);
 				transformationIndex = 1;
 			} else {
 				wc.setParserConfig(new ParserConfigImpl());
 			}
-			loadTransformationConfigs(
-					(Element) children.item(transformationIndex), wc);
+			loadTransformationConfigs((Element) children.item(transformationIndex), wc);
 			ac.setWalkerConfig(wc);
 		} else {
-			throw new ConfigurationException(
-					"Invalid architecture definition. "
-							+ "A walker element must be defined in the architecture element "
-							+ ac.getName());
+			throw new ConfigurationException("Invalid architecture definition. "
+					+ "A walker element must be defined in the architecture element " + ac.getName());
 		}
 	}
 
@@ -487,8 +460,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		}
 	}
 
-	public List<TransformationConfig> getTransformationItems(Element element,
-			boolean exceptionsEnabled) {
+	public List<TransformationConfig> getTransformationItems(Element element, boolean exceptionsEnabled) {
 		List<TransformationConfig> transformationConfigs = new LinkedList<TransformationConfig>();
 		NodeList transfNodes = element.getChildNodes();
 		for (int j = 0; j < transfNodes.getLength(); j++) {
@@ -500,9 +472,8 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 				String isMergeable = element.getAttribute("isMergeable");
 				String mergePolicy = element.getAttribute("merge-policy");
 				if ("".equals(visitor)) {
-					throw new ConfigurationException(
-							"Invalid transformation definition: A "
-									+ "type attribute must be specified");
+					throw new ConfigurationException("Invalid transformation definition: A "
+							+ "type attribute must be specified");
 				}
 				if ("".equals(name)) {
 					name = visitor;
@@ -529,9 +500,8 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		if ("transformations".equals(nodeName)) {
 			transformationConfigs = getTransformationItems(element, true);
 		} else {
-			throw new ConfigurationException(
-					"Invalid walker definition. "
-							+ "A walker element must contain a \"transformations\" element ");
+			throw new ConfigurationException("Invalid walker definition. "
+					+ "A walker element must contain a \"transformations\" element ");
 		}
 		wc.setTransformations(transformationConfigs);
 	}
@@ -548,8 +518,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 			WriterConfig wc = new WriterConfigImpl();
 			String path = child.getAttribute("path");
 			if ("".equals(path)) {
-				throw new ConfigurationException("Invalid writer definition: "
-						+ "A path attribute must be specified");
+				throw new ConfigurationException("Invalid writer definition: " + "A path attribute must be specified");
 			}
 			wc.setPath(path);
 			String type = child.getAttribute("type");
@@ -657,15 +626,13 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 						Element policyElem = (Element) policyNode;
 						MergePolicyConfig policy = new MergePolicyConfigImpl();
 						policy.setName(policyElem.getAttribute("name"));
-						String defaultOP = policyElem
-								.getAttribute("default-object-policy");
+						String defaultOP = policyElem.getAttribute("default-object-policy");
 						if (!"".equals(defaultOP.trim())) {
 							policy.setDefaultObjectPolicy(defaultOP);
 						} else {
 							policy.setDefaultObjectPolicy(null);
 						}
-						String defaultTP = policyElem
-								.getAttribute("default-type-policy");
+						String defaultTP = policyElem.getAttribute("default-type-policy");
 						if (!"".equals(defaultTP)) {
 							policy.setDefaultTypePolicy(defaultTP);
 						} else {
@@ -680,12 +647,9 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 							Node entry = entriesNodes.item(k);
 							if ("policy-entry".equals(entry.getNodeName())) {
 								Element entryElem = (Element) entry;
-								String otype = entryElem
-										.getAttribute("object-type");
-								String ptype = entryElem
-										.getAttribute("policy-type");
-								if (!("".equals(otype.trim()))
-										&& !("".equals(ptype.trim()))) {
+								String otype = entryElem.getAttribute("object-type");
+								String ptype = entryElem.getAttribute("policy-type");
+								if (!("".equals(otype.trim())) && !("".equals(ptype.trim()))) {
 									policyEntries.put(otype, ptype);
 								}
 							}
@@ -717,22 +681,18 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 						Element pluginElement = (Element) pluginNode;
 						PluginConfig pc = new PluginConfigImpl();
 						String groupId = pluginElement.getAttribute("groupId");
-						String artifactId = pluginElement
-								.getAttribute("artifactId");
+						String artifactId = pluginElement.getAttribute("artifactId");
 						String version = pluginElement.getAttribute("version");
 
 						if (groupId == null) {
-							throw new ConfigurationException(
-									"Invalid plugin definition. A groupId is necessary.");
+							throw new ConfigurationException("Invalid plugin definition. A groupId is necessary.");
 						}
 
 						if (artifactId == null) {
-							throw new ConfigurationException(
-									"Invalid plugin definition. A artifactId is necessary.");
+							throw new ConfigurationException("Invalid plugin definition. A artifactId is necessary.");
 						}
 						if (version == null) {
-							throw new ConfigurationException(
-									"Invalid plugin definition. A version is necessary.");
+							throw new ConfigurationException("Invalid plugin definition. A version is necessary.");
 						}
 						pc.setGroupId(groupId);
 						pc.setArtifactId(artifactId);

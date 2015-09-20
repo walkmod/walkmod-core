@@ -70,12 +70,10 @@ public abstract class AbstractWalker implements ChainWalker {
 		this.visitor = visitor;
 	}
 
-	protected void visit(Object element, List<Object> visitors,
-			List<TransformationConfig> transformations, VisitorContext context)
-			throws Exception {
+	protected void visit(Object element, List<Object> visitors, List<TransformationConfig> transformations,
+			VisitorContext context) throws Exception {
 		if (rootNamespace != null && !"".equals(rootNamespace)) {
-			String qualifiedName = getResource().getNearestNamespace(element,
-					NAMESPACE_SEPARATOR);
+			String qualifiedName = getResource().getNearestNamespace(element, NAMESPACE_SEPARATOR);
 			if (rootNamespace.startsWith(qualifiedName)) {
 				return;
 			}
@@ -91,38 +89,31 @@ public abstract class AbstractWalker implements ChainWalker {
 				mergePolicy = "default";
 			}
 			Method[] methods = visitor.getClass().getMethods();
-			List<Object> restVisitors = visitors.subList(index + 1,
-					visitors.size());
-			List<TransformationConfig> restTransformations = transformations
-					.subList(index + 1, transformations.size());
+			List<Object> restVisitors = visitors.subList(index + 1, visitors.size());
+			List<TransformationConfig> restTransformations = transformations.subList(index + 1, transformations.size());
 			Set<String> visitedTypes = new HashSet<String>();
 			for (int j = 0; j < methods.length; j++) {
 				if (methods[j].getName().equals("visit")) {
 					Class<?> type = methods[j].getParameterTypes()[0];
-					if ((!visitedTypes.contains(element.getClass().getName()))
-							&& type.isInstance(element)) {
+					if ((!visitedTypes.contains(element.getClass().getName())) && type.isInstance(element)) {
 						visitedTypes.add(type.getName());
 						int paramsLength = methods[j].getParameterTypes().length;
 						Object[] params = new Object[paramsLength];
 						params[0] = element;
-						VisitorContext args = new VisitorContext(
-								getChainConfig());
+						VisitorContext args = new VisitorContext(getChainConfig());
 						args.putAll(context);
 						if (paramsLength == 2) {
 							params[1] = args;
 						}
 						methods[j].invoke(visitor, params);
-						context.getVisitorMessages().addAll(
-								args.getVisitorMessages());
+						context.getVisitorMessages().addAll(args.getVisitorMessages());
 						MergeEngine me = null;
 						if (isMergeable) {
-							me = chainConfig.getConfiguration().getMergeEngine(
-									mergePolicy);
+							me = chainConfig.getConfiguration().getMergeEngine(mergePolicy);
 						}
 						if (args.hasResultNodes()) {
 
-							Iterator<Object> it = args.getResultNodes()
-									.iterator();
+							Iterator<Object> it = args.getResultNodes().iterator();
 
 							while (it.hasNext()) {
 								Object currentArg = it.next();
@@ -132,8 +123,7 @@ public abstract class AbstractWalker implements ChainWalker {
 
 								context.addResultNode(currentArg);
 
-								visit(currentArg, restVisitors,
-										restTransformations, context);
+								visit(currentArg, restVisitors, restTransformations, context);
 								return;
 
 							}
@@ -156,15 +146,12 @@ public abstract class AbstractWalker implements ChainWalker {
 	}
 
 	protected void visit(Object element, VisitorContext vc) throws Exception {
-		Collection<TransformationConfig> colTransformations = getChainConfig()
-				.getWalkerConfig().getTransformations();
+		Collection<TransformationConfig> colTransformations = getChainConfig().getWalkerConfig().getTransformations();
 		List<TransformationConfig> transformations;
 		if (colTransformations instanceof List) {
-			transformations = getChainConfig()
-					.getWalkerConfig().getTransformations();
+			transformations = getChainConfig().getWalkerConfig().getTransformations();
 		} else {
-			transformations = new LinkedList<TransformationConfig>(
-					colTransformations);
+			transformations = new LinkedList<TransformationConfig>(colTransformations);
 		}
 		visit(element, getVisitors(), transformations, vc);
 		if (vc.getResultNodes() != null) {
@@ -205,8 +192,7 @@ public abstract class AbstractWalker implements ChainWalker {
 
 	public boolean isVisitable(Object element) throws Exception {
 		if (rootNamespace != null && !"".equals(rootNamespace)) {
-			String qualifiedName = getResource().getNearestNamespace(element,
-					NAMESPACE_SEPARATOR);
+			String qualifiedName = getResource().getNearestNamespace(element, NAMESPACE_SEPARATOR);
 			if (!qualifiedName.startsWith(rootNamespace)) {
 				return false;
 			}
@@ -249,8 +235,7 @@ public abstract class AbstractWalker implements ChainWalker {
 		if (element != null) {
 			Collection<java.lang.Class<?>> types = new LinkedList<Class<?>>();
 			types.add(element.getClass());
-			Queue<java.lang.Class<?>> interfaces = new ConcurrentLinkedQueue<java.lang.Class<?>>(
-					types);
+			Queue<java.lang.Class<?>> interfaces = new ConcurrentLinkedQueue<java.lang.Class<?>>(types);
 			Collection<java.lang.Class<?>> visitedTypes = new LinkedList<java.lang.Class<?>>();
 			while (interfaces.size() > 0) {
 				java.lang.Class<?> type = interfaces.poll();
@@ -312,8 +297,7 @@ public abstract class AbstractWalker implements ChainWalker {
 	protected abstract String getLocation(VisitorContext ctx);
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected Object merge(Object object, MergeEngine mergeEngine,
-			VisitorContext vc) {
+	protected Object merge(Object object, MergeEngine mergeEngine, VisitorContext vc) {
 
 		Object local = null;
 		Collection<Object> rnodes = vc.getResultNodes();
@@ -321,22 +305,19 @@ public abstract class AbstractWalker implements ChainWalker {
 		Iterator<Object> it = rnodes.iterator();
 		if (object instanceof IdentificableNode) {
 			local = null;
-			Comparator cmp = ((IdentificableNode) object)
-					.getIdentityComparator();
+			Comparator cmp = ((IdentificableNode) object).getIdentityComparator();
 			boolean deleted = false;
 			while (it.hasNext() && local == null) {
 				Object current = it.next();
-				if(current == object){
+				if (current == object) {
 					it.remove();
 					deleted = true;
-				}
-				else if (object.getClass().equals(current.getClass())) {
+				} else if (object.getClass().equals(current.getClass())) {
 					if (cmp.compare(current, object) == 0) {
-						if(deleted){
+						if (deleted) {
 							local = object;
 							object = current;
-						}
-						else{
+						} else {
 							local = current;
 						}
 					}
@@ -346,10 +327,9 @@ public abstract class AbstractWalker implements ChainWalker {
 			it = rnodes.iterator();
 			while (it.hasNext() && local == null) {
 				Object current = it.next();
-				if(current == object){
+				if (current == object) {
 					it.remove();
-				}
-				else if (current.equals(object)) {
+				} else if (current.equals(object)) {
 					local = current;
 				}
 			}

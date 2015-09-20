@@ -64,19 +64,14 @@ public class LocationAttributes {
 	 *            be added
 	 * @return Location enabled Attributes.
 	 */
-	public static Attributes addLocationAttributes(Locator locator,
-			Attributes attrs) {
+	public static Attributes addLocationAttributes(Locator locator, Attributes attrs) {
 		if (locator == null || attrs.getIndex(URI, SRC_ATTR) != -1) {
 			return attrs;
 		}
-		AttributesImpl newAttrs = attrs instanceof AttributesImpl ? (AttributesImpl) attrs
-				: new AttributesImpl(attrs);
-		newAttrs.addAttribute(URI, SRC_ATTR, Q_SRC_ATTR, "CDATA",
-				locator.getSystemId());
-		newAttrs.addAttribute(URI, LINE_ATTR, Q_LINE_ATTR, "CDATA",
-				Integer.toString(locator.getLineNumber()));
-		newAttrs.addAttribute(URI, COL_ATTR, Q_COL_ATTR, "CDATA",
-				Integer.toString(locator.getColumnNumber()));
+		AttributesImpl newAttrs = attrs instanceof AttributesImpl ? (AttributesImpl) attrs : new AttributesImpl(attrs);
+		newAttrs.addAttribute(URI, SRC_ATTR, Q_SRC_ATTR, "CDATA", locator.getSystemId());
+		newAttrs.addAttribute(URI, LINE_ATTR, Q_LINE_ATTR, "CDATA", Integer.toString(locator.getLineNumber()));
+		newAttrs.addAttribute(URI, COL_ATTR, Q_COL_ATTR, "CDATA", Integer.toString(locator.getColumnNumber()));
 		return newAttrs;
 	}
 
@@ -94,8 +89,7 @@ public class LocationAttributes {
 		if (src == null) {
 			return LocationImpl.UNKNOWN;
 		}
-		return new LocationImpl(description, src, getLine(attrs),
-				getColumn(attrs));
+		return new LocationImpl(description, src, getLine(attrs), getColumn(attrs));
 	}
 
 	/**
@@ -113,8 +107,7 @@ public class LocationAttributes {
 		if (src == null) {
 			return LocationUtils.UNKNOWN_STRING;
 		}
-		return src + ":" + attrs.getValue(URI, LINE_ATTR) + ":"
-				+ attrs.getValue(URI, COL_ATTR);
+		return src + ":" + attrs.getValue(URI, LINE_ATTR) + ":" + attrs.getValue(URI, COL_ATTR);
 	}
 
 	/**
@@ -171,9 +164,8 @@ public class LocationAttributes {
 		if (srcAttr == null) {
 			return LocationImpl.UNKNOWN;
 		}
-		return new LocationImpl(description == null ? elem.getNodeName()
-				: description, srcAttr.getValue(), getLine(elem),
-				getColumn(elem));
+		return new LocationImpl(description == null ? elem.getNodeName() : description, srcAttr.getValue(),
+				getLine(elem), getColumn(elem));
 	}
 
 	/**
@@ -202,8 +194,8 @@ public class LocationAttributes {
 		if (srcAttr == null) {
 			return LocationUtils.UNKNOWN_STRING;
 		}
-		return srcAttr.getValue() + ":" + elem.getAttributeNS(URI, LINE_ATTR)
-				+ ":" + elem.getAttributeNS(URI, COL_ATTR);
+		return srcAttr.getValue() + ":" + elem.getAttributeNS(URI, LINE_ATTR) + ":"
+				+ elem.getAttributeNS(URI, COL_ATTR);
 	}
 
 	/**
@@ -324,8 +316,7 @@ public class LocationAttributes {
 
 		public void startDocument() throws SAXException {
 			nextHandler.startDocument();
-			nextHandler.startPrefixMapping(LocationAttributes.PREFIX,
-					LocationAttributes.URI);
+			nextHandler.startPrefixMapping(LocationAttributes.PREFIX, LocationAttributes.URI);
 		}
 
 		public void endDocument() throws SAXException {
@@ -333,19 +324,15 @@ public class LocationAttributes {
 			nextHandler.endDocument();
 		}
 
-		public void startElement(String uri, String loc, String raw,
-				Attributes attrs) throws SAXException {
-			nextHandler.startElement(uri, loc, raw,
-					LocationAttributes.addLocationAttributes(locator, attrs));
+		public void startElement(String uri, String loc, String raw, Attributes attrs) throws SAXException {
+			nextHandler.startElement(uri, loc, raw, LocationAttributes.addLocationAttributes(locator, attrs));
 		}
 
-		public void endElement(String arg0, String arg1, String arg2)
-				throws SAXException {
+		public void endElement(String arg0, String arg1, String arg2) throws SAXException {
 			nextHandler.endElement(arg0, arg1, arg2);
 		}
 
-		public void startPrefixMapping(String arg0, String arg1)
-				throws SAXException {
+		public void startPrefixMapping(String arg0, String arg1) throws SAXException {
 			nextHandler.startPrefixMapping(arg0, arg1);
 		}
 
@@ -353,18 +340,15 @@ public class LocationAttributes {
 			nextHandler.endPrefixMapping(arg0);
 		}
 
-		public void characters(char[] arg0, int arg1, int arg2)
-				throws SAXException {
+		public void characters(char[] arg0, int arg1, int arg2) throws SAXException {
 			nextHandler.characters(arg0, arg1, arg2);
 		}
 
-		public void ignorableWhitespace(char[] arg0, int arg1, int arg2)
-				throws SAXException {
+		public void ignorableWhitespace(char[] arg0, int arg1, int arg2) throws SAXException {
 			nextHandler.ignorableWhitespace(arg0, arg1, arg2);
 		}
 
-		public void processingInstruction(String arg0, String arg1)
-				throws SAXException {
+		public void processingInstruction(String arg0, String arg1) throws SAXException {
 			nextHandler.processingInstruction(arg0, arg1);
 		}
 

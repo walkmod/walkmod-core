@@ -26,7 +26,7 @@ public class VisitorMessage {
 	public VisitorMessage() {
 	}
 
-    public VisitorMessage(String location, String type, String text) {
+	public VisitorMessage(String location, String type, String text) {
 		this.location = location;
 		this.type = type;
 		this.text = text;

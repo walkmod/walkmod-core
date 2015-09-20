@@ -57,16 +57,13 @@ public class ScriptingQueryEngine implements QueryEngine {
 	}
 
 	@Override
-	public void initialize(VisitorContext context,
-			Map<String, Object> parameters) {
+	public void initialize(VisitorContext context, Map<String, Object> parameters) {
 		if (engine == null) {
-			ScriptEngineManager factory = new ScriptEngineManager(
-					context.getClassLoader());
+			ScriptEngineManager factory = new ScriptEngineManager(context.getClassLoader());
 			engine = factory.getEngineByName(language);
 			if (engine instanceof GroovyScriptEngineImpl) {
-				((GroovyScriptEngineImpl) engine)
-						.setClassLoader(new GroovyClassLoader(context
-								.getClassLoader(), new CompilerConfiguration()));
+				((GroovyScriptEngineImpl) engine).setClassLoader(new GroovyClassLoader(context.getClassLoader(),
+						new CompilerConfiguration()));
 			}
 
 		}

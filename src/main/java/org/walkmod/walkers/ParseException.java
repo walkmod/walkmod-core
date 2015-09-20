@@ -17,15 +17,15 @@ package org.walkmod.walkers;
 
 public class ParseException extends Exception {
 
-   public ParseException() {
-      super();
-   }
+	public ParseException() {
+		super();
+	}
 
-   public ParseException(String msg, Throwable cause) {
-      super(msg, cause);
-   }
+	public ParseException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
 
-   public ParseException(Throwable cause) {
-      super(cause);
-   }
+	public ParseException(Throwable cause) {
+		super(cause);
+	}
 }

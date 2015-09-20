@@ -51,196 +51,196 @@ import org.walkmod.conf.entities.PluginConfig;
 
 public class IvyConfigurationProvider implements ConfigurationProvider {
 
-   private Configuration configuration;
+	private Configuration configuration;
 
-   private boolean isOffLine;
+	private boolean isOffLine;
 
-   private Ivy ivy = null;
+	private Ivy ivy = null;
 
-   private File ivyfile;
+	private File ivyfile;
 
-   private ResolveOptions resolveOptions;
+	private ResolveOptions resolveOptions;
 
-   private DefaultModuleDescriptor md;
+	private DefaultModuleDescriptor md;
 
-   private static final String IVY_SETTINGS_FILE = "ivysettings.xml";
+	private static final String IVY_SETTINGS_FILE = "ivysettings.xml";
 
-   private static final Log LOG = LogFactory.getLog(IvyConfigurationProvider.class);
+	private static final Log LOG = LogFactory.getLog(IvyConfigurationProvider.class);
 
-   public IvyConfigurationProvider() {
-      this(false);
-   }
+	public IvyConfigurationProvider() {
+		this(false);
+	}
 
-   public IvyConfigurationProvider(boolean isOffLine) {
-      setOffLine(isOffLine);
-   }
+	public IvyConfigurationProvider(boolean isOffLine) {
+		setOffLine(isOffLine);
+	}
 
-   @Override
-   public void init(Configuration configuration) {
-      this.configuration = configuration;
-   }
+	@Override
+	public void init(Configuration configuration) {
+		this.configuration = configuration;
+	}
 
-   /**
-    * Ivy configuration initialization
-    *
-    * @throws ParseException
-    *             If an error occurs when loading ivy settings file
-    *             (ivysettings.xml)
-    * @throws IOException
-    *             If an error occurs when reading ivy settings file
-    *             (ivysettings.xml)
-    * @throws ConfigurationException
-    *             If ivy settings file (ivysettings.xml) is not found in
-    *             classpath
-    */
-   public void initIvy() throws ParseException, IOException, ConfigurationException {
-      // creates clear ivy settings
-      IvySettings ivySettings = new IvySettings();
-      File settingsFile = new File(IVY_SETTINGS_FILE);
-      if (settingsFile.exists()) {
-         ivySettings.load(settingsFile);
-      } else {
-         URL settingsURL = ClassLoader.getSystemResource(IVY_SETTINGS_FILE);
-         if (settingsURL == null) {
-            // file not found in System classloader, we try the current one
-            settingsURL = this.getClass().getClassLoader().getResource(IVY_SETTINGS_FILE);
-            // extra validation to avoid uncontrolled NullPointerException
-            // when invoking toURI()
-            if (settingsURL == null)
-               throw new ConfigurationException("Ivy settings file (" + IVY_SETTINGS_FILE
-                     + ") could not be found in classpath");
-         }
-         ivySettings.load(settingsURL);
-      }
-      // creates an Ivy instance with settings
-      ivy = Ivy.newInstance(ivySettings);
+	/**
+	 * Ivy configuration initialization
+	 *
+	 * @throws ParseException
+	 *             If an error occurs when loading ivy settings file
+	 *             (ivysettings.xml)
+	 * @throws IOException
+	 *             If an error occurs when reading ivy settings file
+	 *             (ivysettings.xml)
+	 * @throws ConfigurationException
+	 *             If ivy settings file (ivysettings.xml) is not found in
+	 *             classpath
+	 */
+	public void initIvy() throws ParseException, IOException, ConfigurationException {
+		// creates clear ivy settings
+		IvySettings ivySettings = new IvySettings();
+		File settingsFile = new File(IVY_SETTINGS_FILE);
+		if (settingsFile.exists()) {
+			ivySettings.load(settingsFile);
+		} else {
+			URL settingsURL = ClassLoader.getSystemResource(IVY_SETTINGS_FILE);
+			if (settingsURL == null) {
+				// file not found in System classloader, we try the current one
+				settingsURL = this.getClass().getClassLoader().getResource(IVY_SETTINGS_FILE);
+				// extra validation to avoid uncontrolled NullPointerException
+				// when invoking toURI()
+				if (settingsURL == null)
+					throw new ConfigurationException("Ivy settings file (" + IVY_SETTINGS_FILE
+							+ ") could not be found in classpath");
+			}
+			ivySettings.load(settingsURL);
+		}
+		// creates an Ivy instance with settings
+		ivy = Ivy.newInstance(ivySettings);
 
-      ivyfile = File.createTempFile("ivy", ".xml");
-      ivyfile.deleteOnExit();
+		ivyfile = File.createTempFile("ivy", ".xml");
+		ivyfile.deleteOnExit();
 
-      String[] confs = new String[] { "default" };
-      resolveOptions = new ResolveOptions().setConfs(confs);
-      if (isOffLine) {
-         resolveOptions = resolveOptions.setUseCacheOnly(true);
-      } else {
-         Map<String, Object> params = configuration.getParameters();
-         if (params != null) {
-            Object value = params.get("offline");
-            if (value != null) {
-               String offlineOpt = value.toString();
-               if (offlineOpt != null) {
-                  boolean offline = Boolean.parseBoolean(offlineOpt);
-                  if (offline) {
-                     resolveOptions = resolveOptions.setUseCacheOnly(true);
-                  }
-               }
-            }
-         }
-      }
-   }
+		String[] confs = new String[] { "default" };
+		resolveOptions = new ResolveOptions().setConfs(confs);
+		if (isOffLine) {
+			resolveOptions = resolveOptions.setUseCacheOnly(true);
+		} else {
+			Map<String, Object> params = configuration.getParameters();
+			if (params != null) {
+				Object value = params.get("offline");
+				if (value != null) {
+					String offlineOpt = value.toString();
+					if (offlineOpt != null) {
+						boolean offline = Boolean.parseBoolean(offlineOpt);
+						if (offline) {
+							resolveOptions = resolveOptions.setUseCacheOnly(true);
+						}
+					}
+				}
+			}
+		}
+	}
 
-   @Override
-   public void load() throws ConfigurationException {
-      Collection<PluginConfig> plugins = configuration.getPlugins();
-      PluginConfig plugin = null;
-      Collection<File> jarsToLoad = new LinkedList<File>();
-      ConfigurationException ce = null;
-      try {
-         if (plugins != null) {
-            Iterator<PluginConfig> it = plugins.iterator();
-            initIvy();
-            while (it.hasNext()) {
-               plugin = it.next();
-               addArtifact(plugin.getGroupId(), plugin.getArtifactId(), plugin.getVersion());
+	@Override
+	public void load() throws ConfigurationException {
+		Collection<PluginConfig> plugins = configuration.getPlugins();
+		PluginConfig plugin = null;
+		Collection<File> jarsToLoad = new LinkedList<File>();
+		ConfigurationException ce = null;
+		try {
+			if (plugins != null) {
+				Iterator<PluginConfig> it = plugins.iterator();
+				initIvy();
+				while (it.hasNext()) {
+					plugin = it.next();
+					addArtifact(plugin.getGroupId(), plugin.getArtifactId(), plugin.getVersion());
 
-            }
-            jarsToLoad = resolveArtifacts();
-            URL[] urls = new URL[jarsToLoad.size()];
-            int i = 0;
-            for (File jar : jarsToLoad) {
-               urls[i] = jar.toURI().toURL();
-               i++;
-            }
-            URLClassLoader childClassLoader = new URLClassLoader(urls, configuration.getClassLoader());
-            configuration.setClassLoader(childClassLoader);
-         }
-      } catch (Exception e) {
-         if (!(e instanceof ConfigurationException)) {
+				}
+				jarsToLoad = resolveArtifacts();
+				URL[] urls = new URL[jarsToLoad.size()];
+				int i = 0;
+				for (File jar : jarsToLoad) {
+					urls[i] = jar.toURI().toURL();
+					i++;
+				}
+				URLClassLoader childClassLoader = new URLClassLoader(urls, configuration.getClassLoader());
+				configuration.setClassLoader(childClassLoader);
+			}
+		} catch (Exception e) {
+			if (!(e instanceof ConfigurationException)) {
 
-            if (plugin == null) {
-               ce = new ConfigurationException("Unable to initialize ivy configuration:" + e.getMessage());
-            } else {
-               ce = new ConfigurationException("Unable to resolve the plugin: " + plugin.getGroupId() + " : "
-                     + plugin.getArtifactId() + " : " + plugin.getVersion() + ". Reason : " + e.getMessage());
-            }
+				if (plugin == null) {
+					ce = new ConfigurationException("Unable to initialize ivy configuration:" + e.getMessage());
+				} else {
+					ce = new ConfigurationException("Unable to resolve the plugin: " + plugin.getGroupId() + " : "
+							+ plugin.getArtifactId() + " : " + plugin.getVersion() + ". Reason : " + e.getMessage());
+				}
 
-         } else {
-            ce = (ConfigurationException) e;
-         }
-         throw ce;
-      }
-   }
+			} else {
+				ce = (ConfigurationException) e;
+			}
+			throw ce;
+		}
+	}
 
-   public void addArtifact(String groupId, String artifactId, String version) throws Exception {
-      String[] dep = null;
-      dep = new String[] { groupId, artifactId, version };
-      if (md == null) {
-         md = DefaultModuleDescriptor.newDefaultInstance(ModuleRevisionId.newInstance(dep[0], dep[1] + "-caller",
-               "working"));
-      }
-      DefaultDependencyDescriptor dd = new DefaultDependencyDescriptor(md, ModuleRevisionId.newInstance(dep[0], dep[1],
-            dep[2]), false, false, true);
-      md.addDependency(dd);
-      ExcludeRule er = new DefaultExcludeRule(new ArtifactId(new ModuleId("org.walkmod", "walkmod-core"),
-            PatternMatcher.ANY_EXPRESSION, PatternMatcher.ANY_EXPRESSION, PatternMatcher.ANY_EXPRESSION),
-            ExactPatternMatcher.INSTANCE, null);
-      dd.addExcludeRule(null, er);
-   }
+	public void addArtifact(String groupId, String artifactId, String version) throws Exception {
+		String[] dep = null;
+		dep = new String[] { groupId, artifactId, version };
+		if (md == null) {
+			md = DefaultModuleDescriptor.newDefaultInstance(ModuleRevisionId.newInstance(dep[0], dep[1] + "-caller",
+					"working"));
+		}
+		DefaultDependencyDescriptor dd = new DefaultDependencyDescriptor(md, ModuleRevisionId.newInstance(dep[0],
+				dep[1], dep[2]), false, false, true);
+		md.addDependency(dd);
+		ExcludeRule er = new DefaultExcludeRule(new ArtifactId(new ModuleId("org.walkmod", "walkmod-core"),
+				PatternMatcher.ANY_EXPRESSION, PatternMatcher.ANY_EXPRESSION, PatternMatcher.ANY_EXPRESSION),
+				ExactPatternMatcher.INSTANCE, null);
+		dd.addExcludeRule(null, er);
+	}
 
-   public Collection<File> resolveArtifacts() throws Exception {
+	public Collection<File> resolveArtifacts() throws Exception {
 
-      if (ivy != null) {
-         XmlModuleDescriptorWriter.write(md, ivyfile);
-         ResolveReport report = ivy.resolve(ivyfile.toURL(), resolveOptions);
+		if (ivy != null) {
+			XmlModuleDescriptorWriter.write(md, ivyfile);
+			ResolveReport report = ivy.resolve(ivyfile.toURL(), resolveOptions);
 
-         if (!report.hasError()) {
-            ArtifactDownloadReport[] artifacts = report.getAllArtifactsReports();
-            Collection<File> result = new LinkedList<File>();
+			if (!report.hasError()) {
+				ArtifactDownloadReport[] artifacts = report.getAllArtifactsReports();
+				Collection<File> result = new LinkedList<File>();
 
-            for (ArtifactDownloadReport item : artifacts) {
-               result.add(item.getLocalFile());
+				for (ArtifactDownloadReport item : artifacts) {
+					result.add(item.getLocalFile());
 
-            }
-            return result;
-         } else {
-            List problems = report.getAllProblemMessages();
-            if (problems == null || problems.isEmpty()) {
-               throw new ConfigurationException("Ivy can not resolve the artifacts. Undefined cause");
-            } else {
-               String msg = "";
+				}
+				return result;
+			} else {
+				List problems = report.getAllProblemMessages();
+				if (problems == null || problems.isEmpty()) {
+					throw new ConfigurationException("Ivy can not resolve the artifacts. Undefined cause");
+				} else {
+					String msg = "";
 
-               Iterator it = problems.iterator();
-               while (it.hasNext()) {
-                  String error = it.next().toString();
-                  LOG.warn(error);
-                  if ("".equals(msg)) {
-                     msg = error;
-                  } else {
-                     msg = msg + ";" + error;
-                  }
-               }
-               throw new ConfigurationException("Ivy can not resolve the artifacts. Cause: " + msg);
-            }
-         }
-      }
-      return null;
-   }
+					Iterator it = problems.iterator();
+					while (it.hasNext()) {
+						String error = it.next().toString();
+						LOG.warn(error);
+						if ("".equals(msg)) {
+							msg = error;
+						} else {
+							msg = msg + ";" + error;
+						}
+					}
+					throw new ConfigurationException("Ivy can not resolve the artifacts. Cause: " + msg);
+				}
+			}
+		}
+		return null;
+	}
 
-   public void setOffLine(boolean isOffLine) {
-      this.isOffLine = isOffLine;
-   }
+	public void setOffLine(boolean isOffLine) {
+		this.isOffLine = isOffLine;
+	}
 
-   public boolean isOffLine() {
-      return isOffLine;
-   }
+	public boolean isOffLine() {
+		return isOffLine;
+	}
 }

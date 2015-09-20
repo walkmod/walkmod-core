@@ -230,7 +230,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 	public void setExcludes(String[] excludes) {
 		if (excludes != null && System.getProperty("os.name").toLowerCase().contains("windows")) {
 			for (int i = 0; i < excludes.length; i++) {
-				excludes[i] =  FilenameUtils.normalize(excludes[i], true);
+				excludes[i] = FilenameUtils.normalize(excludes[i], true);
 			}
 		}
 		this.excludes = excludes;
@@ -243,7 +243,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 
 	@Override
 	public void setIncludes(String[] includes) {
-		if (includes != null  && System.getProperty("os.name").toLowerCase().contains("windows")) {
+		if (includes != null && System.getProperty("os.name").toLowerCase().contains("windows")) {
 			for (int i = 0; i < includes.length; i++) {
 				includes[i] = FilenameUtils.normalize(includes[i], true);
 			}

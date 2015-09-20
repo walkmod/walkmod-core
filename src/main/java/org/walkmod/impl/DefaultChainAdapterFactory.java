@@ -27,12 +27,10 @@ import org.walkmod.conf.entities.Configuration;
 
 public class DefaultChainAdapterFactory implements ChainAdapterFactory {
 
-	private static final Log LOG = LogFactory
-			.getLog(DefaultChainAdapterFactory.class);
+	private static final Log LOG = LogFactory.getLog(DefaultChainAdapterFactory.class);
 
 	@Override
-	public ChainAdapter createChainProxy(Configuration configuration,
-			String chain) {
+	public ChainAdapter createChainProxy(Configuration configuration, String chain) {
 
 		Collection<ChainConfig> acs = configuration.getChainConfigs();
 		Iterator<ChainConfig> it = acs.iterator();

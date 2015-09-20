@@ -1,3 +1,18 @@
+/* 
+  Copyright (C) 2013 Raquel Pau and Albert Coroleu.
+ 
+  Walkmod is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+ 
+  Walkmod is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+ 
+  You should have received a copy of the GNU Lesser General Public License
+  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.providers;
 
 import java.io.File;
@@ -57,15 +72,13 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 
 	private static final String DEFAULT_MERGE_ENGINE_NAME = "default";
 
-	private static final Log LOG = LogFactory
-			.getLog(LanguageConfigurationProvider.class);
+	private static final Log LOG = LogFactory.getLog(LanguageConfigurationProvider.class);
 
 	public LanguageConfigurationProvider() {
 		this("defaults.xml", true);
 	}
 
-	public LanguageConfigurationProvider(String suffixFileName,
-			boolean errorIfMissing) {
+	public LanguageConfigurationProvider(String suffixFileName, boolean errorIfMissing) {
 		this.suffixFileName = suffixFileName;
 		this.errorIfMissing = errorIfMissing;
 		Map<String, String> mappings = new HashMap<String, String>();
@@ -92,24 +105,21 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 		Document doc = null;
 		URL url = null;
 		if (configuration == null) {
-			throw new ConfigurationException(
-					"Missing default values configuration");
+			throw new ConfigurationException("Missing default values configuration");
 		}
 		String defaults = configuration.getDefaultLanguage();
 		String fileName;
 		if (defaults == null) {
 			fileName = "default-config.xml";
 		} else {
-			fileName = "META-INF/walkmod/walkmod-" + defaults + "-"
-					+ suffixFileName;
+			fileName = "META-INF/walkmod/walkmod-" + defaults + "-" + suffixFileName;
 		}
 		File f = new File(fileName);
 		if (f.exists()) {
 			try {
 				url = f.toURI().toURL();
 			} catch (MalformedURLException e) {
-				throw new ConfigurationException("Unable to load " + fileName,
-						e);
+				throw new ConfigurationException("Unable to load " + fileName, e);
 			}
 		}
 		if (url == null) {
@@ -118,11 +128,9 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 		InputStream is = null;
 		if (url == null) {
 			if (errorIfMissing) {
-				throw new ConfigurationException(
-						"Could not open files of the name " + fileName);
+				throw new ConfigurationException("Could not open files of the name " + fileName);
 			} else {
-				LOG.info("Unable to locate default values configuration of the name "
-						+ f.getName() + ", skipping");
+				LOG.info("Unable to locate default values configuration of the name " + f.getName() + ", skipping");
 				return doc;
 			}
 		}
@@ -180,13 +188,11 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 
 				if (walkc.getParserConfig().getType() == null) {
 					if (!"".equals(rootElement.getAttribute("parser"))) {
-						walkc.getParserConfig().setType(
-								rootElement.getAttribute("parser"));
+						walkc.getParserConfig().setType(rootElement.getAttribute("parser"));
 					}
 				}
 
-				List<TransformationConfig> transformations = walkc
-						.getTransformations();
+				List<TransformationConfig> transformations = walkc.getTransformations();
 				if (transformations != null) {
 					for (TransformationConfig tc : transformations) {
 						if (tc.isMergeable()) {
@@ -208,8 +214,7 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 		Element rootElement = document.getDocumentElement();
 		NodeList children = rootElement.getChildNodes();
 		int childSize = children.getLength();
-		Collection<MergePolicyConfig> mergePolicies = configuration
-				.getMergePolicies();
+		Collection<MergePolicyConfig> mergePolicies = configuration.getMergePolicies();
 		if (mergePolicies == null) {
 			mergePolicies = new LinkedList<MergePolicyConfig>();
 			configuration.setMergePolicies(mergePolicies);
@@ -221,15 +226,13 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 				Element policyElem = (Element) childNode;
 				policy = new MergePolicyConfigImpl();
 				policy.setName(DEFAULT_MERGE_ENGINE_NAME);
-				String defaultOP = policyElem
-						.getAttribute("default-object-policy");
+				String defaultOP = policyElem.getAttribute("default-object-policy");
 				if (!"".equals(defaultOP.trim())) {
 					policy.setDefaultObjectPolicy(defaultOP);
 				} else {
 					policy.setDefaultObjectPolicy(null);
 				}
-				String defaultTP = policyElem
-						.getAttribute("default-type-policy");
+				String defaultTP = policyElem.getAttribute("default-type-policy");
 				if (!"".equals(defaultTP)) {
 					policy.setDefaultTypePolicy(defaultTP);
 				} else {
@@ -245,8 +248,7 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
 						Element entryElem = (Element) entry;
 						String otype = entryElem.getAttribute("object-type");
 						String ptype = entryElem.getAttribute("policy-type");
-						if (!("".equals(otype.trim()))
-								&& !("".equals(ptype.trim()))) {
+						if (!("".equals(otype.trim())) && !("".equals(ptype.trim()))) {
 							policyEntries.put(otype, ptype);
 						}
 					}
