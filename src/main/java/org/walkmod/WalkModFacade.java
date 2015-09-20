@@ -266,8 +266,12 @@ public class WalkModFacade {
 		// process options
 		options = optionsBuilder.build();
 
-		this.cfg = (walkmodCfg != null) ? walkmodCfg : new File(
-				DEFAULT_WALKMOD_FILE);
+		if (walkmodCfg != null) {
+			this.cfg = walkmodCfg.getAbsoluteFile();
+		} else {
+			this.cfg = new File(options.getExecutionDirectory()
+					.getAbsolutePath(), DEFAULT_WALKMOD_FILE);
+		}
 
 		if (configurationProvider != null)
 			this.configurationProvider = configurationProvider;
@@ -299,8 +303,9 @@ public class WalkModFacade {
 	public List<File> apply(String... chains)
 			throws InvalidConfigurationException {
 
-		userDir = new File(".").getAbsolutePath();
-		jnr.posix.JavaLibCHelper.chdir(options.getExecutionDirectory().getAbsolutePath());
+		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+		System.setProperty("user.dir", options.getExecutionDirectory()
+				.getAbsolutePath());
 
 		if (cfg.exists()) {
 			if (options.isVerbose()) {
@@ -315,7 +320,8 @@ public class WalkModFacade {
 				config = cfgManager.getConfiguration();
 				apf = new DefaultChainAdapterFactory();
 			} catch (Exception e) {
-				jnr.posix.JavaLibCHelper.chdir(userDir);
+				System.setProperty("user.dir", userDir);
+
 				if (options.isVerbose()) {
 					if (!options.isPrintErrors()) {
 						log.error(cfg.getAbsolutePath()
@@ -341,9 +347,9 @@ public class WalkModFacade {
 					executeChainAdapter(apf, config, chain);
 				}
 			}
-			jnr.posix.JavaLibCHelper.chdir(userDir);
+			System.setProperty("user.dir", userDir);
 		} else {
-			jnr.posix.JavaLibCHelper.chdir(userDir);
+			System.setProperty("user.dir", userDir);
 			if (options.isVerbose()) {
 				log.error(cfg.getAbsolutePath()
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
@@ -371,8 +377,8 @@ public class WalkModFacade {
 	public List<File> check(String... chains)
 			throws InvalidConfigurationException {
 
-		userDir = new File(".").getAbsolutePath();
-		jnr.posix.JavaLibCHelper.chdir(options.getExecutionDirectory().getAbsolutePath());
+		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
 
 		if (cfg.exists()) {
 			if (options.isVerbose()) {
@@ -387,7 +393,7 @@ public class WalkModFacade {
 				config = cfgManager.getConfiguration();
 				apf = new DefaultChainAdapterFactory();
 			} catch (Exception e) {
-				jnr.posix.JavaLibCHelper.chdir(userDir);
+				System.setProperty("user.dir", userDir);
 				if (options.isVerbose()) {
 					if (!options.isPrintErrors()) {
 						log.error(cfg.getAbsolutePath()
@@ -420,9 +426,9 @@ public class WalkModFacade {
 					executeChainAdapter(apf, config, chain);
 				}
 			}
-			jnr.posix.JavaLibCHelper.chdir(userDir);
+			System.setProperty("user.dir", userDir);
 		} else {
-			jnr.posix.JavaLibCHelper.chdir(userDir);
+			System.setProperty("user.dir", userDir);
 			if (options.isVerbose()) {
 				log.error(cfg.getAbsolutePath()
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
@@ -450,7 +456,8 @@ public class WalkModFacade {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
 			}
 			// Uses Ivy always
-			ConfigurationProvider cp = new IvyConfigurationProvider(options.isOffline());
+			ConfigurationProvider cp = new IvyConfigurationProvider(
+					options.isOffline());
 			if (options.isVerbose()) {
 				log.info("** THE PLUGIN INSTALLATION STARTS **");
 				System.out.print("----------------------------------------");
@@ -464,12 +471,13 @@ public class WalkModFacade {
 			boolean error = false;
 			try {
 				userDir = new File(".").getAbsolutePath();
-				jnr.posix.JavaLibCHelper.chdir(options.getExecutionDirectory().getCanonicalPath());
+				System.setProperty("user.dir", options.getExecutionDirectory()
+						.getCanonicalPath());
 				ConfigurationManager cfgManager = new ConfigurationManager(cfg,
 						cp);
 				Configuration cf = cfgManager.getConfiguration();
 			} catch (Exception e) {
-				jnr.posix.JavaLibCHelper.chdir(userDir);
+				System.setProperty("user.dir", userDir);
 				if (options.isVerbose()) {
 					error = true;
 					endTime = System.currentTimeMillis();
@@ -514,7 +522,7 @@ public class WalkModFacade {
 				}
 			}
 			if (!error) {
-				jnr.posix.JavaLibCHelper.chdir(userDir);
+				System.setProperty("user.dir", userDir);
 				if (options.isVerbose()) {
 					endTime = System.currentTimeMillis();
 					double time = 0;
@@ -593,11 +601,13 @@ public class WalkModFacade {
 			try {
 
 				if (options.getIncludes() != null) {
-					String[] includes = options.getIncludes().toArray(new String[ options.getIncludes().size()]);
+					String[] includes = options.getIncludes().toArray(
+							new String[options.getIncludes().size()]);
 					tcfg.getReaderConfig().setIncludes(includes);
 				}
 				if (options.getExcludes() != null) {
-					String[] excludes = options.getExcludes().toArray(new String[ options.getExcludes().size()]);
+					String[] excludes = options.getExcludes().toArray(
+							new String[options.getExcludes().size()]);
 					tcfg.getReaderConfig().setExcludes(excludes);
 				}
 
@@ -698,11 +708,13 @@ public class WalkModFacade {
 			if (chains != null) {
 				for (ChainConfig cc : chains) {
 					if (options.getIncludes() != null) {
-						String[] includes = options.getIncludes().toArray(new String[ options.getIncludes().size()]);
+						String[] includes = options.getIncludes().toArray(
+								new String[options.getIncludes().size()]);
 						cc.getReaderConfig().setIncludes(includes);
 					}
 					if (options.getExcludes() != null) {
-						String[] excludes = options.getExcludes().toArray(new String[ options.getExcludes().size()]);
+						String[] excludes = options.getExcludes().toArray(
+								new String[options.getExcludes().size()]);
 						cc.getReaderConfig().setExcludes(excludes);
 					}
 				}
@@ -769,7 +781,7 @@ public class WalkModFacade {
 							.println("----------------------------------------");
 				}
 			} catch (Throwable e) {
-				jnr.posix.JavaLibCHelper.chdir(userDir);
+				System.setProperty("user.dir", userDir);
 				if (options.isVerbose()) {
 					endTime = System.currentTimeMillis();
 					double time = 0;

@@ -38,7 +38,7 @@ public class WalkmodFacadeTest {
 		assertThat(facade, is(not(nullValue())));
 
 		File cfg = getValue(facade, "cfg", File.class);
-		assertThat(cfg.getPath(), equalTo("walkmod.xml"));
+		assertThat(cfg.getAbsolutePath(), equalTo(new File("walkmod.xml").getAbsolutePath()));
 
 		assertDefaultOptions(facade);
 
@@ -56,12 +56,8 @@ public class WalkmodFacadeTest {
 		assertThat(facade, is(not(nullValue())));
 
 		File cfg = getValue(facade, "cfg", File.class);
-		if (isWindows()) {
-			assertThat(cfg.getPath(),
-					equalTo(fileName.replace("/", FILE_SEPARATOR)));
-		} else {
-			assertThat(cfg.getPath(), equalTo(fileName));
-		}
+		
+		assertThat(cfg.getAbsolutePath(), equalTo(new File(fileName).getAbsolutePath()));
 		assertDefaultOptions(facade);
 
 		ConfigurationProvider configProvider = getValue(facade,
@@ -79,12 +75,8 @@ public class WalkmodFacadeTest {
 
 		File cfg = getValue(facade, "cfg", File.class);
 		assertThat(cfg.exists(), is(false));
-		if (isWindows()) {
-			assertThat(cfg.getPath(),
-					equalTo(fileName.replace("/", FILE_SEPARATOR)));
-		} else {
-			assertThat(cfg.getPath(), equalTo(fileName));
-		}
+		
+		assertThat(cfg.getAbsolutePath(), equalTo(new File(fileName).getAbsolutePath()));
 		assertDefaultOptions(facade);
 
 		ConfigurationProvider configProvider = getValue(facade,
@@ -105,7 +97,7 @@ public class WalkmodFacadeTest {
 		assertThat(facade, is(not(nullValue())));
 
 		File cfg = getValue(facade, "cfg", File.class);
-		assertThat(cfg.getPath(), equalTo("walkmod.xml"));
+		assertThat(cfg.getAbsolutePath(), equalTo(new File("walkmod.xml").getAbsolutePath()));
 
 		Options finalOpts = getValue(facade, "options", Options.class);
 		assertThat(finalOpts, Matchers.notNullValue());
@@ -183,8 +175,24 @@ public class WalkmodFacadeTest {
 		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options()
 				.printErrors(true), null);
 		List<File> result = facade.check();
-		assertThat(facade, Matchers.notNullValue());
+		assertThat(result, Matchers.notNullValue());
 
+	}
+
+	@Test
+	public void testWithExecutionDirSettingTheWalkmodFile() throws Exception {
+		File executionDir = new File("src/test/resources/testFiles");
+		File srcDir = new File(executionDir, "src/main/java");
+		srcDir.mkdirs();
+		FileUtils.write(new File(srcDir, "Bar.java"),
+				"public class Bar { private int foo; }");
+		File cfg = new File("src/test/resources/testFiles/walkmod.xml");
+
+		WalkModFacade facade = new WalkModFacade(cfg, OptionsBuilder.options()
+				.executionDirectory(executionDir).printErrors(true), null);
+		List<File> result = facade.apply();
+		assertThat(result.get(0), Matchers.notNullValue());
+		result.get(0).delete();
 	}
 
 }

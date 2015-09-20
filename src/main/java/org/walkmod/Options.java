@@ -78,14 +78,14 @@ public class Options {
 			if (!options.containsKey(Options.THROW_EXCEPTION))
 				setThrowException(false);
 			if(!options.containsKey(EXECUTION_DIRECTORY)){
-				setExecutionDirectory(new File("."));
+				setExecutionDirectory(new File(System.getProperty("user.dir")));
 			}
 		} else {
 			setOffline(false);
 			setVerbose(true);
 			setPrintErrors(false);
 			setThrowException(false);
-			setExecutionDirectory(new File("."));
+			setExecutionDirectory(new File(System.getProperty("user.dir")));
 		}
 	}
 
