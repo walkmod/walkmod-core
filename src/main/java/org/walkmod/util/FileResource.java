@@ -75,13 +75,13 @@ public class FileResource implements Resource<File> {
 
 	@Override
 	public Iterator<File> iterator() {
-		String fileNormalized = FilenameUtils.normalize(file.getAbsolutePath(), false);
+		String fileNormalized = FilenameUtils.normalize(file.getAbsolutePath(), true);
 		if (includes != null) {
 			for (int i = 0; i < includes.length; i++) {
 
 				if (!includes[i].startsWith(fileNormalized)) {
 
-					includes[i] = fileNormalized + File.separator + includes[i];
+					includes[i] = fileNormalized + "/" + includes[i];
 
 				}
 				if (includes[i].endsWith("**")) {
@@ -93,7 +93,7 @@ public class FileResource implements Resource<File> {
 			for (int i = 0; i < excludes.length; i++) {
 
 				if (!excludes[i].startsWith(fileNormalized)) {
-					excludes[i] = fileNormalized + File.separator + excludes[i];
+					excludes[i] = fileNormalized + "/" + excludes[i];
 
 				}
 				if (excludes[i].endsWith("**")) {
@@ -116,7 +116,7 @@ public class FileResource implements Resource<File> {
 
 						boolean excludesEval = false;
 						boolean includesEval = false;
-						String aux = FilenameUtils.normalize(name, false);
+						String aux = FilenameUtils.normalize(name, true);
 						if (excludes != null) {
 							for (int i = 0; i < excludes.length && !excludesEval; i++) {
 								excludesEval = (FilenameUtils.wildcardMatch(aux, excludes[i])
@@ -139,7 +139,7 @@ public class FileResource implements Resource<File> {
 						boolean excludesEval = false;
 						boolean includesEval = false;
 
-						String aux = FilenameUtils.normalize(file.getAbsolutePath(), false);
+						String aux = FilenameUtils.normalize(file.getAbsolutePath(), true);
 						if (excludes != null) {
 
 							for (int i = 0; i < excludes.length && !excludesEval; i++) {
@@ -189,7 +189,7 @@ public class FileResource implements Resource<File> {
 	@Override
 	public String getNearestNamespace(Object element, String regexSeparator) {
 		if (element instanceof File) {
-			return ((File) element).getParentFile().getPath().replaceAll(File.pathSeparator, regexSeparator);
+			return ((File) element).getParentFile().getPath().replaceAll("/", regexSeparator);
 		}
 		throw new IllegalArgumentException();
 	}
@@ -197,7 +197,7 @@ public class FileResource implements Resource<File> {
 	@Override
 	public String getOwnerNamespace(Object element, String regexSeparator) {
 		if (element instanceof File) {
-			return ((File) element).getParent().replaceAll(File.pathSeparator, regexSeparator);
+			return ((File) element).getParent().replaceAll("/", regexSeparator);
 		}
 		throw new IllegalArgumentException();
 	}
@@ -209,7 +209,7 @@ public class FileResource implements Resource<File> {
 	public void setIncludes(String[] includes) {
 		if (includes != null  && System.getProperty("os.name").toLowerCase().contains("windows")) {
 			for (int i = 0; i < includes.length; i++) {
-				includes[i] = includes[i].replace("/", "\\");
+				includes[i] = FilenameUtils.normalize(includes[i], true);
 			}
 		}
 		this.includes = includes;
@@ -223,7 +223,7 @@ public class FileResource implements Resource<File> {
 	public void setExcludes(String[] excludes) {
 		if (excludes != null && System.getProperty("os.name").toLowerCase().contains("windows")) {
 			for (int i = 0; i < excludes.length; i++) {
-				excludes[i] = excludes[i].replace("/", "\\");
+				excludes[i] = FilenameUtils.normalize(excludes[i], true);
 			}
 		}
 		this.excludes = excludes;

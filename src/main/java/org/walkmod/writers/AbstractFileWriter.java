@@ -52,7 +52,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 		if (!this.outputDirectory.exists()) {
 			this.outputDirectory.mkdir();
 		}
-		normalizedOutputDirectory = FilenameUtils.normalize(this.outputDirectory.getAbsolutePath(), false);
+		normalizedOutputDirectory = FilenameUtils.normalize(this.outputDirectory.getAbsolutePath(), true);
 	}
 
 	public File getOutputDirectory() {
@@ -78,7 +78,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 		boolean write = true;
 		if (out != null) {
 			log.debug("Analyzing exclude and include rules");
-			String aux = FilenameUtils.normalize(out.getCanonicalPath(), false);
+			String aux = FilenameUtils.normalize(out.getCanonicalPath(), true);
 			if (excludes != null) {
 				for (int i = 0; i < excludes.length && write; i++) {
 					if (!excludes[i].startsWith(normalizedOutputDirectory)) {
@@ -230,7 +230,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 	public void setExcludes(String[] excludes) {
 		if (excludes != null && System.getProperty("os.name").toLowerCase().contains("windows")) {
 			for (int i = 0; i < excludes.length; i++) {
-				excludes[i] = excludes[i].replace("/", "\\");
+				excludes[i] =  FilenameUtils.normalize(excludes[i], true);
 			}
 		}
 		this.excludes = excludes;
@@ -245,7 +245,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 	public void setIncludes(String[] includes) {
 		if (includes != null  && System.getProperty("os.name").toLowerCase().contains("windows")) {
 			for (int i = 0; i < includes.length; i++) {
-				includes[i] = includes[i].replace("/", "\\");
+				includes[i] = FilenameUtils.normalize(includes[i], true);
 			}
 		}
 		this.includes = includes;
