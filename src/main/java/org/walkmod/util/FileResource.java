@@ -41,11 +41,11 @@ public class FileResource implements Resource<File> {
 		return file;
 	}
 
-	public void setFile(File file) {
-		this.file = file;
+	public void setFile(File file) throws Exception {
+		this.file = file.getCanonicalFile();
 	}
 
-	public void setPath(String path) {
+	public void setPath(String path) throws Exception {
 		File f = new File(path);
 		setFile(f);
 	}
@@ -67,17 +67,15 @@ public class FileResource implements Resource<File> {
 	}
 
 	private boolean matches(String fileName, String filter) {
-
-		return filter.startsWith(fileName)
-				|| FilenameUtils.wildcardMatch(fileName, filter)
+		
+		return filter.startsWith(fileName) || FilenameUtils.wildcardMatch(fileName, filter)
 				|| fileName.startsWith(filter);
 
 	}
 
 	@Override
 	public Iterator<File> iterator() {
-		String fileNormalized = FilenameUtils.normalize(file.getAbsolutePath(),
-				true);
+		String fileNormalized = FilenameUtils.normalize(file.getAbsolutePath(), true);
 		if (includes != null) {
 			for (int i = 0; i < includes.length; i++) {
 
@@ -87,8 +85,7 @@ public class FileResource implements Resource<File> {
 
 				}
 				if (includes[i].endsWith("**")) {
-					includes[i] = includes[i].substring(0,
-							includes[i].length() - 3);
+					includes[i] = includes[i].substring(0, includes[i].length() - 3);
 				}
 			}
 		}
@@ -100,8 +97,7 @@ public class FileResource implements Resource<File> {
 
 				}
 				if (excludes[i].endsWith("**")) {
-					excludes[i] = excludes[i].substring(0,
-							excludes[i].length() - 3);
+					excludes[i] = excludes[i].substring(0, excludes[i].length() - 3);
 				}
 			}
 		}
@@ -122,23 +118,19 @@ public class FileResource implements Resource<File> {
 						boolean includesEval = false;
 						String aux = FilenameUtils.normalize(name, true);
 						if (excludes != null) {
-							for (int i = 0; i < excludes.length
-									&& !excludesEval; i++) {
-								excludesEval = (FilenameUtils.wildcardMatch(
-										aux, excludes[i]) || dir
-										.getAbsolutePath().startsWith(excludes[i]));
+							for (int i = 0; i < excludes.length && !excludesEval; i++) {
+								excludesEval = (FilenameUtils.wildcardMatch(aux, excludes[i])
+										|| dir.getAbsolutePath().startsWith(excludes[i]));
 							}
 						}
 						if (includes != null) {
-							for (int i = 0; i < includes.length
-									&& !includesEval; i++) {
+							for (int i = 0; i < includes.length && !includesEval; i++) {
 								includesEval = matches(aux, includes[i]);
 							}
 						} else {
 							includesEval = true;
 						}
-						return (includesEval && !excludesEval)
-								|| (includes == null && excludes == null);
+						return (includesEval && !excludesEval) || (includes == null && excludes == null);
 
 					}
 
@@ -147,28 +139,22 @@ public class FileResource implements Resource<File> {
 						boolean excludesEval = false;
 						boolean includesEval = false;
 
-						String aux = FilenameUtils.normalize(
-								file.getAbsolutePath(), true);
+						String aux = FilenameUtils.normalize(file.getAbsolutePath(), true);
 						if (excludes != null) {
 
-							for (int i = 0; i < excludes.length
-									&& !excludesEval; i++) {
-								excludesEval = (FilenameUtils.wildcardMatch(
-										aux, excludes[i]) || file
-										.getParentFile().getAbsolutePath()
-										.startsWith(excludes[i]));
+							for (int i = 0; i < excludes.length && !excludesEval; i++) {
+								excludesEval = (FilenameUtils.wildcardMatch(aux, excludes[i])
+										|| file.getParentFile().getAbsolutePath().startsWith(excludes[i]));
 							}
 						}
 						if (includes != null) {
-							for (int i = 0; i < includes.length
-									&& !includesEval; i++) {
+							for (int i = 0; i < includes.length && !includesEval; i++) {
 								includesEval = matches(aux, includes[i]);
 							}
 						} else {
 							includesEval = true;
 						}
-						boolean result = (includesEval && !excludesEval)
-								|| (includes == null && excludes == null);
+						boolean result = (includesEval && !excludesEval) || (includes == null && excludes == null);
 
 						return result;
 
@@ -191,8 +177,7 @@ public class FileResource implements Resource<File> {
 				}
 			}
 
-			return FileUtils.listFiles(file, filter, directoryFilter)
-					.iterator();
+			return FileUtils.listFiles(file, filter, directoryFilter).iterator();
 		}
 		Collection<File> aux = new LinkedList<File>();
 		if (extensions == null) {
@@ -204,8 +189,7 @@ public class FileResource implements Resource<File> {
 	@Override
 	public String getNearestNamespace(Object element, String regexSeparator) {
 		if (element instanceof File) {
-			return ((File) element).getParentFile().getPath()
-					.replaceAll(File.pathSeparator, regexSeparator);
+			return ((File) element).getParentFile().getPath().replaceAll("/", regexSeparator);
 		}
 		throw new IllegalArgumentException();
 	}
@@ -213,8 +197,7 @@ public class FileResource implements Resource<File> {
 	@Override
 	public String getOwnerNamespace(Object element, String regexSeparator) {
 		if (element instanceof File) {
-			return ((File) element).getParent().replaceAll(File.pathSeparator,
-					regexSeparator);
+			return ((File) element).getParent().replaceAll("/", regexSeparator);
 		}
 		throw new IllegalArgumentException();
 	}
@@ -224,7 +207,13 @@ public class FileResource implements Resource<File> {
 	}
 
 	public void setIncludes(String[] includes) {
+		if (includes != null  && System.getProperty("os.name").toLowerCase().contains("windows")) {
+			for (int i = 0; i < includes.length; i++) {
+				includes[i] = FilenameUtils.normalize(includes[i], true);
+			}
+		}
 		this.includes = includes;
+
 	}
 
 	public String[] getExcludes() {
@@ -232,6 +221,11 @@ public class FileResource implements Resource<File> {
 	}
 
 	public void setExcludes(String[] excludes) {
+		if (excludes != null && System.getProperty("os.name").toLowerCase().contains("windows")) {
+			for (int i = 0; i < excludes.length; i++) {
+				excludes[i] = FilenameUtils.normalize(excludes[i], true);
+			}
+		}
 		this.excludes = excludes;
 	}
 }

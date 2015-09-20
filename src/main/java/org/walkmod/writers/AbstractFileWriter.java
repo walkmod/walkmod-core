@@ -52,8 +52,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 		if (!this.outputDirectory.exists()) {
 			this.outputDirectory.mkdir();
 		}
-		normalizedOutputDirectory = FilenameUtils.normalize(
-				this.outputDirectory.getAbsolutePath(), true);
+		normalizedOutputDirectory = FilenameUtils.normalize(this.outputDirectory.getAbsolutePath(), true);
 	}
 
 	public File getOutputDirectory() {
@@ -79,35 +78,29 @@ public abstract class AbstractFileWriter implements ChainWriter {
 		boolean write = true;
 		if (out != null) {
 			log.debug("Analyzing exclude and include rules");
-			String aux = FilenameUtils.normalize(out.getAbsolutePath(), true);
+			String aux = FilenameUtils.normalize(out.getCanonicalPath(), true);
 			if (excludes != null) {
 				for (int i = 0; i < excludes.length && write; i++) {
 					if (!excludes[i].startsWith(normalizedOutputDirectory)) {
-						excludes[i] = normalizedOutputDirectory + "/"
-								+ excludes[i];
+						excludes[i] = normalizedOutputDirectory + "/" + excludes[i];
 						if (excludes[i].endsWith("\\*\\*")) {
-							excludes[i] = excludes[i].substring(0,
-									excludes[i].length() - 2);
+							excludes[i] = excludes[i].substring(0, excludes[i].length() - 2);
 						}
 					}
-					write = !(excludes[i].startsWith(aux) || FilenameUtils
-							.wildcardMatch(aux, excludes[i]));
+					write = !(excludes[i].startsWith(aux) || FilenameUtils.wildcardMatch(aux, excludes[i]));
 				}
 			}
 			if (includes != null && write) {
 				write = false;
 				for (int i = 0; i < includes.length && !write; i++) {
 					if (!includes[i].startsWith(normalizedOutputDirectory)) {
-						includes[i] = normalizedOutputDirectory + "/"
-								+ includes[i];
+						includes[i] = normalizedOutputDirectory + "/" + includes[i];
 						if (includes[i].endsWith("\\*\\*")) {
-							includes[i] = includes[i].substring(0,
-									includes[i].length() - 2);
+							includes[i] = includes[i].substring(0, includes[i].length() - 2);
 						}
 					}
 
-					write = includes[i].startsWith(aux)
-							|| FilenameUtils.wildcardMatch(aux, includes[i]);
+					write = includes[i].startsWith(aux) || FilenameUtils.wildcardMatch(aux, includes[i]);
 				}
 			}
 			if (write) {
@@ -120,8 +113,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 					if (content != null && !"".equals(content)) {
 						char endLineChar = getEndLineChar(out);
 
-						writer = new BufferedWriter(new OutputStreamWriter(
-								new FileOutputStream(out), getEncoding()));
+						writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(out), getEncoding()));
 
 						if (vc.get("append") == null) {
 							write(content, writer, endLineChar);
@@ -135,8 +127,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 						Summary.getInstance().addFile(out);
 						log.debug(out.getPath() + " written ");
 					} else {
-						log.error(out.getPath()
-								+ " does not have valid content");
+						log.error(out.getPath() + " does not have valid content");
 						throw new WalkModException("blank code is returned");
 					}
 				} finally {
@@ -156,8 +147,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 		}
 	}
 
-	public void write(String content, Writer writer, char endLineChar)
-			throws IOException {
+	public void write(String content, Writer writer, char endLineChar) throws IOException {
 		BufferedReader reader = new BufferedReader(new StringReader(content));
 		String line = reader.readLine();
 		String endLine = "\n";
@@ -170,8 +160,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 		}
 	}
 
-	public void append(String content, Writer writer, char endLineChar)
-			throws IOException {
+	public void append(String content, Writer writer, char endLineChar) throws IOException {
 		BufferedReader reader = new BufferedReader(new StringReader(content));
 		String line = reader.readLine();
 		String endLine = "\n";
@@ -199,8 +188,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 							endLineChar = '\r';
 							detected = true;
 						}
-						detected = detected
-								|| (previousChar == '\n' && buffer[i] != '\r');
+						detected = detected || (previousChar == '\n' && buffer[i] != '\r');
 						previousChar = buffer[i];
 
 					}
@@ -240,6 +228,11 @@ public abstract class AbstractFileWriter implements ChainWriter {
 
 	@Override
 	public void setExcludes(String[] excludes) {
+		if (excludes != null && System.getProperty("os.name").toLowerCase().contains("windows")) {
+			for (int i = 0; i < excludes.length; i++) {
+				excludes[i] =  FilenameUtils.normalize(excludes[i], true);
+			}
+		}
 		this.excludes = excludes;
 	}
 
@@ -250,6 +243,11 @@ public abstract class AbstractFileWriter implements ChainWriter {
 
 	@Override
 	public void setIncludes(String[] includes) {
+		if (includes != null  && System.getProperty("os.name").toLowerCase().contains("windows")) {
+			for (int i = 0; i < includes.length; i++) {
+				includes[i] = FilenameUtils.normalize(includes[i], true);
+			}
+		}
 		this.includes = includes;
 	}
 
