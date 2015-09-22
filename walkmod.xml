@@ -2,7 +2,7 @@
 <walkmod>
 	<plugins>
 		<plugin groupId="org.walkmod" artifactId="walkmod-license-applier-plugin"
-			version="2.0" />
+			version="[2.0, 3.0)"  />
 	</plugins>
 	<chain name="main-chain">
 		<reader path="src/main/java">
