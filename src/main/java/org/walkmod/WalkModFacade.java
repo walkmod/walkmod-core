@@ -501,7 +501,7 @@ public class WalkModFacade {
 			DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss", Locale.US);
 			boolean error = false;
 			try {
-				userDir = new File(".").getAbsolutePath();
+				userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
 				System.setProperty("user.dir", options.getExecutionDirectory().getCanonicalPath());
 				ConfigurationManager cfgManager = new ConfigurationManager(cfg, cp);
 				Configuration cf = cfgManager.getConfiguration();

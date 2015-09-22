@@ -138,7 +138,7 @@ public class WalkmodFacadeTest {
 
 	@Test
 	public void facadeWithExecutionDir() throws Exception {
-
+		String execDir = System.getProperty("user.dir");
 		File executionDir = new File("src/test/resources/testFiles");
 
 		File srcDir = new File(executionDir, "src/main/java");
@@ -158,20 +158,21 @@ public class WalkmodFacadeTest {
 		assertThat(path, Matchers.equalTo(path1));
 
 		result.get(0).delete();
-
+		Assert.assertEquals(execDir, System.getProperty("user.dir"));
 	}
 
 	@Test
 	public void facadeExecutionLocally() throws Exception {
-
+		String path = System.getProperty("user.dir");
 		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options().printErrors(true), null);
 		List<File> result = facade.check();
 		assertThat(result, Matchers.notNullValue());
-
+		Assert.assertEquals(path, System.getProperty("user.dir"));
 	}
 
 	@Test
 	public void testWithExecutionDirSettingTheWalkmodFile() throws Exception {
+		String path = System.getProperty("user.dir");
 		File executionDir = new File("src/test/resources/testFiles");
 		File srcDir = new File(executionDir, "src/main/java");
 		srcDir.mkdirs();
@@ -183,10 +184,13 @@ public class WalkmodFacadeTest {
 		List<File> result = facade.apply();
 		assertThat(result.get(0), Matchers.notNullValue());
 		result.get(0).delete();
+		Assert.assertEquals(path, System.getProperty("user.dir"));
 	}
 
 	@Test
 	public void testMultiModuleCheckExecution() throws Exception {
+		
+		String path = System.getProperty("user.dir");
 		File executionDir = new File("src/test/resources/multimodule");
 
 		File srcDir = new File(executionDir, "module1/src/main/java");
@@ -209,11 +213,15 @@ public class WalkmodFacadeTest {
 		FileUtils.deleteDirectory(new File("module2/src"));
 		FileUtils.deleteDirectory(new File("module1/target"));
 		FileUtils.deleteDirectory(new File("module2/target"));
+		Assert.assertEquals(path, System.getProperty("user.dir"));
 
 	}
 
 	@Test
 	public void testMultiModuleApplyExecution() throws Exception {
+		
+		String path = System.getProperty("user.dir");
+		
 		File executionDir = new File("src/test/resources/multimodule");
 
 		File srcDir = new File(executionDir, "module1/src/main/java");
@@ -236,11 +244,16 @@ public class WalkmodFacadeTest {
 		FileUtils.deleteDirectory(new File("module2/src"));
 		FileUtils.deleteDirectory(new File("module1/target"));
 		FileUtils.deleteDirectory(new File("module2/target"));
+		
+		Assert.assertEquals(path, System.getProperty("user.dir"));
 
 	}
 	
 	@Test
 	public void testMultiModuleInstallExecution() throws Exception {
+		
+		String path = System.getProperty("user.dir");
+		
 		File executionDir = new File("src/test/resources/multimodule");
 
 		File srcDir = new File(executionDir, "module1/src/main/java");
@@ -261,6 +274,8 @@ public class WalkmodFacadeTest {
 		FileUtils.deleteDirectory(new File("module2/src"));
 		
 		Assert.assertTrue(true);
+		
+		Assert.assertEquals(path, System.getProperty("user.dir"));
 
 	}
 
