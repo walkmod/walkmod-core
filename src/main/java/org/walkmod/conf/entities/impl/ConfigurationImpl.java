@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.BeanWrapper;
@@ -53,6 +54,8 @@ public class ConfigurationImpl implements Configuration {
 	private String defaultLanguage;
 
 	private Collection<ProviderConfig> providers;
+	
+	private List<String> modules;
 
 	public ConfigurationImpl() {
 		this.parameters = new LinkedHashMap<String, Object>();
@@ -222,6 +225,16 @@ public class ConfigurationImpl implements Configuration {
 	@Override
 	public void setProviderConfigurations(Collection<ProviderConfig> providers) {
 		this.providers = providers;
+	}
+
+	@Override
+	public void setModules(List<String> modules) {
+		this.modules = modules;
+	}
+
+	@Override
+	public List<String> getModules() {
+		return modules;
 	}
 
 }

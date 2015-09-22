@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -290,7 +291,7 @@ public class WalkModFacade {
 	 * @return The list of modified/created files.
 	 */
 	public List<File> apply(String... chains) throws InvalidConfigurationException {
-
+		List<File> result = new LinkedList<File>();
 		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
 		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
 
@@ -326,12 +327,34 @@ public class WalkModFacade {
 					throw new InvalidConfigurationException(e);
 				}
 			}
+			List<String> modules = config.getModules();
+			if (modules != null && !modules.isEmpty()) {
+				for (String module : modules) {
+					File aux = new File(module).getAbsoluteFile();
+					if (aux.isDirectory()) {
+						if (options.isVerbose()) {
+							log.info("** MODULE " + aux.getAbsoluteFile() + " [ok] **");
+						}
+
+						WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options(this.options.asMap())
+								.executionDirectory(aux), null);
+						result.addAll(facade.apply(chains));
+					} else {
+						log.error("The module " + aux.getAbsolutePath() + " is not an existing directory");
+					}
+				}
+			}
+			
 			Summary.getInstance().clear();
-			if (chains == null || chains.length == 0) {
-				executeAllChains(apf, config);
-			} else {
-				for (String chain : chains) {
-					executeChainAdapter(apf, config, chain);
+			Collection<ChainConfig> chainCfgs = config.getChainConfigs();
+			if (chainCfgs != null && !chainCfgs.isEmpty()) {
+				Summary.getInstance().clear();
+				if (chains == null || chains.length == 0) {
+					executeAllChains(apf, config);
+				} else {
+					for (String chain : chains) {
+						executeChainAdapter(apf, config, chain);
+					}
 				}
 			}
 			System.setProperty("user.dir", userDir);
@@ -345,9 +368,10 @@ public class WalkModFacade {
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
 			}
 		}
-
-		return Summary.getInstance().getWrittenFiles();
+		result.addAll(Summary.getInstance().getWrittenFiles());
+		return result;
 	}
+	
 
 	/**
 	 * Applies a list of transformation chains without updating the source
@@ -362,6 +386,7 @@ public class WalkModFacade {
 	 */
 	public List<File> check(String... chains) throws InvalidConfigurationException {
 
+		List<File> result = new LinkedList<File>();
 		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
 		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
 
@@ -369,6 +394,7 @@ public class WalkModFacade {
 			if (options.isVerbose()) {
 				log.info(cfg.getAbsoluteFile() + " [ok]");
 			}
+
 			ConfigurationProvider cp = locateConfigurationProvider();
 			ConfigurationManager cfgManager = null;
 			Configuration config = null;
@@ -397,16 +423,40 @@ public class WalkModFacade {
 				}
 			}
 			Collection<ChainConfig> tcgfs = config.getChainConfigs();
-			for (ChainConfig tcfg : tcgfs) {
-				tcfg.getWriterConfig().setType(VisitorMessagesWriter.class.getName());
-				tcfg.getWriterConfig().setModelWriter(new VisitorMessagesWriter());
+			if (tcgfs != null) {
+				for (ChainConfig tcfg : tcgfs) {
+					tcfg.getWriterConfig().setType(VisitorMessagesWriter.class.getName());
+					tcfg.getWriterConfig().setModelWriter(new VisitorMessagesWriter());
+				}
 			}
+			List<String> modules = config.getModules();
+			if (modules != null && !modules.isEmpty()) {
+				for (String module : modules) {
+					File aux = new File(module).getAbsoluteFile();
+					if (aux.isDirectory()) {
+						if (options.isVerbose()) {
+							log.info("** MODULE " + aux.getAbsoluteFile() + " [ok] **");
+						}
+
+						WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options(this.options.asMap())
+								.executionDirectory(aux), null);
+						result.addAll(facade.check(chains));
+					} else {
+						log.error("The module " + aux.getAbsolutePath() + " is not an existing directory");
+					}
+				}
+			}
+			
 			Summary.getInstance().clear();
-			if (chains == null || chains.length == 0) {
-				executeAllChains(apf, config);
-			} else {
-				for (String chain : chains) {
-					executeChainAdapter(apf, config, chain);
+			Collection<ChainConfig> chainCfgs = config.getChainConfigs();
+			if (chainCfgs != null && !chainCfgs.isEmpty()) {
+				Summary.getInstance().clear();
+				if (chains == null || chains.length == 0) {
+					executeAllChains(apf, config);
+				} else {
+					for (String chain : chains) {
+						executeChainAdapter(apf, config, chain);
+					}
 				}
 			}
 			System.setProperty("user.dir", userDir);
@@ -420,7 +470,8 @@ public class WalkModFacade {
 						+ " does not exist. The root directory of your project must contain a walkmod.xml");
 			}
 		}
-		return Summary.getInstance().getWrittenFiles();
+		result.addAll(Summary.getInstance().getWrittenFiles());
+		return result;
 	}
 
 	/**
@@ -454,6 +505,26 @@ public class WalkModFacade {
 				System.setProperty("user.dir", options.getExecutionDirectory().getCanonicalPath());
 				ConfigurationManager cfgManager = new ConfigurationManager(cfg, cp);
 				Configuration cf = cfgManager.getConfiguration();
+				
+				List<String> modules = cf.getModules();
+				if (modules != null && !modules.isEmpty()) {
+					for (String module : modules) {
+						File aux = new File(module).getAbsoluteFile();
+						if (aux.isDirectory()) {
+							if (options.isVerbose()) {
+								log.info("** MODULE " + aux.getAbsoluteFile() + " [ok] **");
+							}
+
+							WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options(options.asMap())
+									.executionDirectory(aux), null);
+							facade.install();
+						} else {
+							log.error("The module " + aux.getAbsolutePath() + " is not an existing directory");
+						}
+					}
+				}
+				
+				
 			} catch (Exception e) {
 				System.setProperty("user.dir", userDir);
 				if (options.isVerbose()) {
@@ -527,119 +598,123 @@ public class WalkModFacade {
 
 	private void executeAllChains(ChainAdapterFactory apf, Configuration conf) {
 		Collection<ChainConfig> tcgfs = conf.getChainConfigs();
-		if (options.isVerbose()) {
-			log.info("** STARTING TRANSFORMATIONS CHAINS **");
-			System.out.print("----------------------------------------");
-			System.out.println("----------------------------------------");
-		}
-		long startTime = System.currentTimeMillis();
-		long endTime = startTime;
-		DecimalFormat myFormatter = new DecimalFormat("###.###");
-		DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss", Locale.US);
-		int num = 0;
-		Iterator<ChainConfig> it = tcgfs.iterator();
-		int pos = 1;
-		while (it.hasNext()) {
-			ChainConfig tcfg = it.next();
 
-			if (tcgfs.size() > 1) {
-				if (options.isVerbose()) {
-					String label = "";
-					if (tcfg.getName() != null && !tcfg.getName().startsWith("chain_")) {
-						label = "[" + tcfg.getName() + "](" + pos + "/" + tcgfs.size() + ") ";
-					} else {
-						label = "(" + pos + "/" + tcgfs.size() + ")";
-					}
-					log.info("TRANSFORMATION CHAIN " + label);
-					System.out.println();
-				}
-			}
-			try {
-
-				if (options.getIncludes() != null) {
-					String[] includes = options.getIncludes().toArray(new String[options.getIncludes().size()]);
-					tcfg.getReaderConfig().setIncludes(includes);
-				}
-				if (options.getExcludes() != null) {
-					String[] excludes = options.getExcludes().toArray(new String[options.getExcludes().size()]);
-					tcfg.getReaderConfig().setExcludes(excludes);
-				}
-
-				ChainAdapter ap = apf.createChainProxy(conf, tcfg.getName());
-
-				ap.execute();
-				num += ap.getWalkerAdapter().getWalker().getNumModifications();
-				pos++;
-				if (options.isVerbose()) {
-					if (Summary.getInstance().getWrittenFiles().isEmpty()) {
-						log.info("**No sources changed**");
-					}
-					if (it.hasNext()) {
-						System.out.println();
-					}
-				}
-			} catch (Throwable e) {
-				if (options.isVerbose()) {
-					endTime = System.currentTimeMillis();
-					double time = 0;
-					if (endTime > startTime) {
-						time = (double) (endTime - startTime) / (double) 1000;
-					}
-					String timeMsg = myFormatter.format(time);
-					if (num != 0) {
-						System.out.print("----------------------------------------");
-						System.out.println("----------------------------------------");
-					}
-					log.info("TRANSFORMATION CHAIN FAILS");
-					System.out.println();
-					System.out.print("----------------------------------------");
-					System.out.println("----------------------------------------");
-					log.info("Total time: " + timeMsg + " seconds");
-					log.info("Finished at: " + df.format(new Date()));
-					log.info("Final memory: " + (Runtime.getRuntime().freeMemory()) / 1048576 + " M/ "
-							+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
-					System.out.print("----------------------------------------");
-					System.out.println("----------------------------------------");
-					log.info("Please, see the walkmod log file for details");
-					if (options.isPrintErrors()) {
-						log.error("TRANSFORMATION CHAIN (" + tcfg.getName() + ") FAILS", e);
-					} else {
-						log.error("TRANSFORMATION CHAIN (" + tcfg.getName()
-								+ ") FAILS. Execute walkmod with -e to see the error details.");
-					}
-					if (options.isThrowException()) {
-						RuntimeException re = new RuntimeException();
-						re.setStackTrace(e.getStackTrace());
-						throw re;
-					}
-				} else {
-					throw new WalkModException(e);
-				}
-				return;
-			}
-		}
-		if (options.isVerbose()) {
-			endTime = System.currentTimeMillis();
-			double time = 0;
-			if (endTime > startTime) {
-				time = (double) (endTime - startTime) / (double) 1000;
-			}
-			String timeMsg = myFormatter.format(time);
-			if (num != 0) {
+		if (tcgfs != null) {
+			if (options.isVerbose()) {
+				log.info("** STARTING TRANSFORMATIONS CHAINS **");
 				System.out.print("----------------------------------------");
 				System.out.println("----------------------------------------");
 			}
-			System.out.println();
-			log.info("TRANSFORMATION CHAIN SUCCESS");
-			System.out.print("----------------------------------------");
-			System.out.println("----------------------------------------");
-			log.info("Total time: " + timeMsg + " seconds");
-			log.info("Finished at: " + df.format(new Date()));
-			log.info("Final memory: " + (Runtime.getRuntime().freeMemory()) / 1048576 + " M/ "
-					+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
-			log.info("Total modified files: " + num);
-			System.out.print("----------------------------------------");
-			System.out.println("----------------------------------------");
+			long startTime = System.currentTimeMillis();
+			long endTime = startTime;
+			DecimalFormat myFormatter = new DecimalFormat("###.###");
+			DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss", Locale.US);
+			int num = 0;
+			Iterator<ChainConfig> it = tcgfs.iterator();
+			int pos = 1;
+			while (it.hasNext()) {
+				ChainConfig tcfg = it.next();
+
+				if (tcgfs.size() > 1) {
+					if (options.isVerbose()) {
+						String label = "";
+						if (tcfg.getName() != null && !tcfg.getName().startsWith("chain_")) {
+							label = "[" + tcfg.getName() + "](" + pos + "/" + tcgfs.size() + ") ";
+						} else {
+							label = "(" + pos + "/" + tcgfs.size() + ")";
+						}
+						log.info("TRANSFORMATION CHAIN " + label);
+						System.out.println();
+					}
+				}
+				try {
+
+					if (options.getIncludes() != null) {
+						String[] includes = options.getIncludes().toArray(new String[options.getIncludes().size()]);
+						tcfg.getReaderConfig().setIncludes(includes);
+					}
+					if (options.getExcludes() != null) {
+						String[] excludes = options.getExcludes().toArray(new String[options.getExcludes().size()]);
+						tcfg.getReaderConfig().setExcludes(excludes);
+					}
+
+					ChainAdapter ap = apf.createChainProxy(conf, tcfg.getName());
+
+					ap.execute();
+					num += ap.getWalkerAdapter().getWalker().getNumModifications();
+					pos++;
+					if (options.isVerbose()) {
+						if (Summary.getInstance().getWrittenFiles().isEmpty()) {
+							log.info("**No sources changed**");
+						}
+						if (it.hasNext()) {
+							System.out.println();
+						}
+					}
+				} catch (Throwable e) {
+					if (options.isVerbose()) {
+						endTime = System.currentTimeMillis();
+						double time = 0;
+						if (endTime > startTime) {
+							time = (double) (endTime - startTime) / (double) 1000;
+						}
+						String timeMsg = myFormatter.format(time);
+						if (num != 0) {
+							System.out.print("----------------------------------------");
+							System.out.println("----------------------------------------");
+						}
+						log.info("TRANSFORMATION CHAIN FAILS");
+						System.out.println();
+						System.out.print("----------------------------------------");
+						System.out.println("----------------------------------------");
+						log.info("Total time: " + timeMsg + " seconds");
+						log.info("Finished at: " + df.format(new Date()));
+						log.info("Final memory: " + (Runtime.getRuntime().freeMemory()) / 1048576 + " M/ "
+								+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
+						System.out.print("----------------------------------------");
+						System.out.println("----------------------------------------");
+						log.info("Please, see the walkmod log file for details");
+						if (options.isPrintErrors()) {
+							log.error("TRANSFORMATION CHAIN (" + tcfg.getName() + ") FAILS", e);
+						} else {
+							log.error("TRANSFORMATION CHAIN (" + tcfg.getName()
+									+ ") FAILS. Execute walkmod with -e to see the error details.");
+						}
+						if (options.isThrowException()) {
+							RuntimeException re = new RuntimeException();
+							re.setStackTrace(e.getStackTrace());
+							throw re;
+						}
+					} else {
+						throw new WalkModException(e);
+					}
+					return;
+				}
+			}
+
+			if (options.isVerbose()) {
+				endTime = System.currentTimeMillis();
+				double time = 0;
+				if (endTime > startTime) {
+					time = (double) (endTime - startTime) / (double) 1000;
+				}
+				String timeMsg = myFormatter.format(time);
+				if (num != 0) {
+					System.out.print("----------------------------------------");
+					System.out.println("----------------------------------------");
+				}
+				System.out.println();
+				log.info("TRANSFORMATION CHAIN SUCCESS");
+				System.out.print("----------------------------------------");
+				System.out.println("----------------------------------------");
+				log.info("Total time: " + timeMsg + " seconds");
+				log.info("Finished at: " + df.format(new Date()));
+				log.info("Final memory: " + (Runtime.getRuntime().freeMemory()) / 1048576 + " M/ "
+						+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
+				log.info("Total modified files: " + num);
+				System.out.print("----------------------------------------");
+				System.out.println("----------------------------------------");
+			}
 		}
 	}
 

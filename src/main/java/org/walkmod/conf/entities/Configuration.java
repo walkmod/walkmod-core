@@ -16,6 +16,7 @@
 package org.walkmod.conf.entities;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -65,4 +66,8 @@ public interface Configuration {
 	public Collection<ProviderConfig> getProviderConfigurations();
 
 	public void setProviderConfigurations(Collection<ProviderConfig> providers);
+	
+	public void setModules(List<String> modules);
+	
+	public List<String> getModules();
 }

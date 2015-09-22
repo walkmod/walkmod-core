@@ -101,7 +101,8 @@ public class XMLConfigurationProvider implements ConfigurationProvider, ChainPro
 		this.configFileName = configFileName;
 		this.errorIfMissing = errorIfMissing;
 		Map<String, String> mappings = new HashMap<String, String>();
-		mappings.put("-//UML Dreams Group//WalkMod 1.0//EN", "walkmod-1.0.dtd");
+		mappings.put("-//WALKMOD//DTD//1.0", "walkmod-1.0.dtd");
+		mappings.put("-//WALKMOD//DTD//1.1", "walkmod-1.1.dtd");
 		setDtdMappings(mappings);
 	}
 
@@ -574,10 +575,39 @@ public class XMLConfigurationProvider implements ConfigurationProvider, ChainPro
 	public void load() throws ConfigurationException {
 		Map<String, Object> params = getParams(document.getDocumentElement());
 		configuration.setParameters(params);
+		loadModules();
 		loadPlugins();
 		loadProviders();
 		loadMergePolicies();
 		loadChains();
+	}
+
+	private void loadModules() {
+		Element rootElement = document.getDocumentElement();
+		NodeList children = rootElement.getChildNodes();
+		int childSize = children.getLength();
+		boolean found = false;
+		for (int i = 0; i < childSize && !found; i++) {
+			Node childNode = children.item(i);
+			if ("modules".equals(childNode.getNodeName())) {
+				found = true;
+				Element child = (Element) childNode;
+				List<String> modules = new LinkedList<String>();
+				configuration.setModules(modules);
+				NodeList modulesNodes = child.getChildNodes();
+				int modulesSize = modulesNodes.getLength();
+				for (int j = 0; j < modulesSize; j++) {
+					Node moduleNode = modulesNodes.item(j);
+					if ("module".equals(moduleNode.getNodeName())) {
+						Element pluginElement = (Element) moduleNode;
+						String value = pluginElement.getTextContent();
+						if (value != null) {
+							modules.add(value);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	private void loadProviders() {

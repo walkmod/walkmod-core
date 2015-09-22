@@ -1,21 +1,19 @@
 package org.walkmod;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.walkmod.utils.TestUtils.FILE_SEPARATOR;
 import static org.walkmod.utils.TestUtils.getValue;
-import static org.walkmod.utils.TestUtils.isWindows;
 
 import java.io.File;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Test;
 import org.walkmod.conf.ConfigurationException;
 import org.walkmod.conf.ConfigurationProvider;
@@ -33,8 +31,7 @@ public class WalkmodFacadeTest {
 
 	@Test
 	public void facade_minimum_parameters() {
-		WalkModFacade facade = new WalkModFacade(null,
-				OptionsBuilder.options(), null);
+		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options(), null);
 		assertThat(facade, is(not(nullValue())));
 
 		File cfg = getValue(facade, "cfg", File.class);
@@ -42,8 +39,7 @@ public class WalkmodFacadeTest {
 
 		assertDefaultOptions(facade);
 
-		ConfigurationProvider configProvider = getValue(facade,
-				"configurationProvider", ConfigurationProvider.class);
+		ConfigurationProvider configProvider = getValue(facade, "configurationProvider", ConfigurationProvider.class);
 		assertThat(configProvider, is(nullValue()));
 	}
 
@@ -51,17 +47,15 @@ public class WalkmodFacadeTest {
 	public void facade_with_cfg_file() {
 		// Note that the constructor does not validate that the file exists
 		String fileName = "test/any_file.xml";
-		WalkModFacade facade = new WalkModFacade(new File(fileName),
-				OptionsBuilder.options(), null);
+		WalkModFacade facade = new WalkModFacade(new File(fileName), OptionsBuilder.options(), null);
 		assertThat(facade, is(not(nullValue())));
 
 		File cfg = getValue(facade, "cfg", File.class);
-		
+
 		assertThat(cfg.getAbsolutePath(), equalTo(new File(fileName).getAbsolutePath()));
 		assertDefaultOptions(facade);
 
-		ConfigurationProvider configProvider = getValue(facade,
-				"configurationProvider", ConfigurationProvider.class);
+		ConfigurationProvider configProvider = getValue(facade, "configurationProvider", ConfigurationProvider.class);
 		assertThat(configProvider, is(nullValue()));
 	}
 
@@ -69,18 +63,17 @@ public class WalkmodFacadeTest {
 	public void facade_with_configuration_provider() {
 		// Note that the constructor does not validate if the file exists
 		String fileName = "test/any_file.xml";
-		WalkModFacade facade = new WalkModFacade(new File(fileName),
-				OptionsBuilder.options(), new MockConfigurationProvider());
+		WalkModFacade facade = new WalkModFacade(new File(fileName), OptionsBuilder.options(),
+				new MockConfigurationProvider());
 		assertThat(facade, is(not(nullValue())));
 
 		File cfg = getValue(facade, "cfg", File.class);
 		assertThat(cfg.exists(), is(false));
-		
+
 		assertThat(cfg.getAbsolutePath(), equalTo(new File(fileName).getAbsolutePath()));
 		assertDefaultOptions(facade);
 
-		ConfigurationProvider configProvider = getValue(facade,
-				"configurationProvider", ConfigurationProvider.class);
+		ConfigurationProvider configProvider = getValue(facade, "configurationProvider", ConfigurationProvider.class);
 		assertThat(configProvider, is(not(nullValue())));
 		assertThat(configProvider, instanceOf(MockConfigurationProvider.class));
 	}
@@ -90,8 +83,8 @@ public class WalkmodFacadeTest {
 		// Note that the constructor does not validate if the file exists
 		String[] includes = new String[] { "include1", "include2" };
 		String[] excludes = new String[] { "exclude1", "exclude2", "exclude3" };
-		OptionsBuilder options = OptionsBuilder.options().includes(includes)
-				.excludes(excludes).printErrors(true).throwException(true);
+		OptionsBuilder options = OptionsBuilder.options().includes(includes).excludes(excludes).printErrors(true)
+				.throwException(true);
 
 		WalkModFacade facade = new WalkModFacade(null, options, null);
 		assertThat(facade, is(not(nullValue())));
@@ -152,12 +145,11 @@ public class WalkmodFacadeTest {
 
 		srcDir.mkdirs();
 
-		FileUtils.write(new File(srcDir, "Bar.java"),
-				"public class Bar { private int foo; }");
+		FileUtils.write(new File(srcDir, "Bar.java"), "public class Bar { private int foo; }");
 
 		String path1 = new File(".").getCanonicalPath();
-		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options()
-				.executionDirectory(executionDir).printErrors(true), null);
+		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options().executionDirectory(executionDir)
+				.printErrors(true), null);
 
 		List<File> result = facade.apply();
 		assertThat(result.get(0), Matchers.notNullValue());
@@ -172,8 +164,7 @@ public class WalkmodFacadeTest {
 	@Test
 	public void facadeExecutionLocally() throws Exception {
 
-		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options()
-				.printErrors(true), null);
+		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options().printErrors(true), null);
 		List<File> result = facade.check();
 		assertThat(result, Matchers.notNullValue());
 
@@ -184,15 +175,93 @@ public class WalkmodFacadeTest {
 		File executionDir = new File("src/test/resources/testFiles");
 		File srcDir = new File(executionDir, "src/main/java");
 		srcDir.mkdirs();
-		FileUtils.write(new File(srcDir, "Bar.java"),
-				"public class Bar { private int foo; }");
+		FileUtils.write(new File(srcDir, "Bar.java"), "public class Bar { private int foo; }");
 		File cfg = new File("src/test/resources/testFiles/walkmod.xml");
 
-		WalkModFacade facade = new WalkModFacade(cfg, OptionsBuilder.options()
-				.executionDirectory(executionDir).printErrors(true), null);
+		WalkModFacade facade = new WalkModFacade(cfg, OptionsBuilder.options().executionDirectory(executionDir)
+				.printErrors(true), null);
 		List<File> result = facade.apply();
 		assertThat(result.get(0), Matchers.notNullValue());
 		result.get(0).delete();
+	}
+
+	@Test
+	public void testMultiModuleCheckExecution() throws Exception {
+		File executionDir = new File("src/test/resources/multimodule");
+
+		File srcDir = new File(executionDir, "module1/src/main/java");
+		srcDir.mkdirs();
+		FileUtils.write(new File(srcDir, "Bar.java"), "public class Bar { private int foo; }");
+
+		File srcDir2 = new File(executionDir, "module2/src/main/java");
+		srcDir2.mkdirs();
+		FileUtils.write(new File(srcDir2, "Foo.java"), "public class Foo { private int foo; }");
+
+		File cfg = new File("src/test/resources/multimodule/walkmod.xml");
+
+		WalkModFacade facade = new WalkModFacade(cfg, OptionsBuilder.options().executionDirectory(executionDir)
+				.printErrors(true), null);
+		List<File> result = facade.check();
+		// check does not produce changes
+		assertThat(result.size(), Matchers.is(0));
+
+		FileUtils.deleteDirectory(new File("module1/src"));
+		FileUtils.deleteDirectory(new File("module2/src"));
+		FileUtils.deleteDirectory(new File("module1/target"));
+		FileUtils.deleteDirectory(new File("module2/target"));
+
+	}
+
+	@Test
+	public void testMultiModuleApplyExecution() throws Exception {
+		File executionDir = new File("src/test/resources/multimodule");
+
+		File srcDir = new File(executionDir, "module1/src/main/java");
+		srcDir.mkdirs();
+		FileUtils.write(new File(srcDir, "Bar.java"), "public class Bar { private int foo; }");
+
+		File srcDir2 = new File(executionDir, "module2/src/main/java");
+		srcDir2.mkdirs();
+		FileUtils.write(new File(srcDir2, "Foo.java"), "public class Foo { private int foo; }");
+
+		File cfg = new File("src/test/resources/multimodule/walkmod.xml");
+
+		WalkModFacade facade = new WalkModFacade(cfg, OptionsBuilder.options().executionDirectory(executionDir)
+				.printErrors(true), null);
+		List<File> result = facade.apply();
+		// check does not produce changes
+		assertThat(result.size(), Matchers.is(2));
+
+		FileUtils.deleteDirectory(new File("module1/src"));
+		FileUtils.deleteDirectory(new File("module2/src"));
+		FileUtils.deleteDirectory(new File("module1/target"));
+		FileUtils.deleteDirectory(new File("module2/target"));
+
+	}
+	
+	@Test
+	public void testMultiModuleInstallExecution() throws Exception {
+		File executionDir = new File("src/test/resources/multimodule");
+
+		File srcDir = new File(executionDir, "module1/src/main/java");
+		srcDir.mkdirs();
+		FileUtils.write(new File(srcDir, "Bar.java"), "public class Bar { private int foo; }");
+
+		File srcDir2 = new File(executionDir, "module2/src/main/java");
+		srcDir2.mkdirs();
+		FileUtils.write(new File(srcDir2, "Foo.java"), "public class Foo { private int foo; }");
+
+		File cfg = new File("src/test/resources/multimodule/walkmod.xml");
+
+		WalkModFacade facade = new WalkModFacade(cfg, OptionsBuilder.options().executionDirectory(executionDir)
+				.printErrors(true), null);
+		facade.install();
+		
+		FileUtils.deleteDirectory(new File("module1/src"));
+		FileUtils.deleteDirectory(new File("module2/src"));
+		
+		Assert.assertTrue(true);
+
 	}
 
 }
