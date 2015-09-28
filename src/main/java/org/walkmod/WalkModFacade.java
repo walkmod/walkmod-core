@@ -46,7 +46,7 @@ import org.walkmod.writers.VisitorMessagesWriter;
  */
 public class WalkModFacade {
 
-	private static Logger log = Logger.getLogger(WalkModFacade.class);
+	protected static Logger log = Logger.getLogger(WalkModFacade.class);
 
 	private static final String DEFAULT_WALKMOD_FILE = "walkmod.xml";
 
