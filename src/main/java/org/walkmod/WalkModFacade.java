@@ -237,6 +237,18 @@ public class WalkModFacade {
 	public WalkModFacade() {
 		this(false, true, false);
 	}
+	
+	/**
+	 * Initalizes a Walkmod service
+	 *
+	 * @param optionsBuilder
+	 *            Map of option. See {@link Options} and {@link OptionsBuilder}
+	 *            for available options and default values.
+	 */
+	public WalkModFacade(OptionsBuilder optionsBuilder) {
+
+		this(null, optionsBuilder, null);
+	}
 
 	/**
 	 * Initalizes a Walkmod service

@@ -152,23 +152,27 @@ public class Options {
 	@SuppressWarnings("unchecked")
 	public void setIncludes(String... includes) {
 
-		if (!this.options.containsKey(INCLUDES)) {
-			this.options.put(INCLUDES, new ArrayList<Object>());
-		}
+		if (includes != null) {
+			if (!this.options.containsKey(INCLUDES)) {
+				this.options.put(INCLUDES, new ArrayList<Object>());
+			}
 
-		List<Object> allIncludes = (List<Object>) this.options.get(INCLUDES);
-		allIncludes.addAll(Arrays.asList(includes));
+			List<Object> allIncludes = (List<Object>) this.options.get(INCLUDES);
+			allIncludes.addAll(Arrays.asList(includes));
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public void setExcludes(String... excludes) {
 
-		if (!this.options.containsKey(EXCLUDES)) {
-			this.options.put(EXCLUDES, new ArrayList<Object>());
-		}
+		if (excludes != null) {
+			if (!this.options.containsKey(EXCLUDES)) {
+				this.options.put(EXCLUDES, new ArrayList<Object>());
+			}
 
-		List<Object> allIncludes = (List<Object>) this.options.get(EXCLUDES);
-		allIncludes.addAll(Arrays.asList(excludes));
+			List<Object> allIncludes = (List<Object>) this.options.get(EXCLUDES);
+			allIncludes.addAll(Arrays.asList(excludes));
+		}
 	}
 
 	@SuppressWarnings("unchecked")
