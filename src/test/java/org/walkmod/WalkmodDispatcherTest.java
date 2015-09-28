@@ -71,6 +71,11 @@ public class WalkmodDispatcherTest {
 	public void testApplyWithInvalidArgs() throws Exception {
 		Assert.assertTrue(run(new String[] { "apply", "-F" }).contains("Unknown option: -F"));
 	}
+	
+	@Test
+	public void testPrintPlugins() throws Exception {
+		Assert.assertTrue(run(new String[] { "plugins" }).contains("walkmod-javalang-plugin"));
+	}
 
 	private String run(String[] args) throws Exception {
 
