@@ -28,6 +28,14 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,12 +56,12 @@ import org.walkmod.conf.entities.ReaderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.conf.entities.WriterConfig;
-import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
 import org.walkmod.conf.entities.impl.ChainConfigImpl;
+import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
 import org.walkmod.conf.entities.impl.ParserConfigImpl;
+import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.ProviderConfigImpl;
 import org.walkmod.conf.entities.impl.TransformationConfigImpl;
-import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.WalkerConfigImpl;
 import org.walkmod.conf.entities.impl.WriterConfigImpl;
 import org.walkmod.util.DomHelper;
@@ -117,6 +125,241 @@ public class XMLConfigurationProvider implements ConfigurationProvider, ChainPro
 	public void init(Configuration configuration) {
 		this.configuration = configuration;
 		this.document = loadDocument(configFileName);
+	}
+
+	public void init() {
+		init(null);
+	}
+
+	private List<Element> createParamsElement(Map<String, Object> params) {
+		List<Element> result = null;
+		if (params != null && !params.isEmpty()) {
+			result = new LinkedList<Element>();
+			Set<String> paramLabels = params.keySet();
+			for (String label : paramLabels) {
+				Element param = document.createElement("param");
+				param.setAttribute("name", label);
+				param.setNodeValue(params.get(label).toString());
+				result.add(param);
+			}
+
+		}
+		return result;
+	}
+
+	private List<Element> createIncludeList(String[] includes) {
+		List<Element> result = null;
+		if (includes != null) {
+			result = new LinkedList<Element>();
+			for (String include : includes) {
+				Element includeElem = document.createElement("include");
+				includeElem.setNodeValue(include);
+				result.add(includeElem);
+			}
+		}
+
+		return result;
+	}
+
+	private List<Element> createExcludeList(String[] excludes) {
+		List<Element> result = null;
+		if (excludes != null) {
+			result = new LinkedList<Element>();
+			for (String exclude : excludes) {
+				Element excludeElem = document.createElement("exclude");
+				excludeElem.setNodeValue(exclude);
+				result.add(excludeElem);
+			}
+		}
+
+		return result;
+	}
+
+	private void createReaderOrWriterContent(Element root, String path, String type, Map<String, Object> params,
+			String[] includes, String[] excludes) {
+
+		root.setAttribute("path", path);
+
+		if (type != null && !"".equals(type)) {
+			root.setAttribute("type", type);
+		}
+
+		List<Element> paramListEment = createParamsElement(params);
+		if (paramListEment != null) {
+
+			for (Element param : paramListEment) {
+				root.appendChild(param);
+			}
+		}
+
+		List<Element> includeElementList = createIncludeList(includes);
+		if (includeElementList != null) {
+			for (Element includeElement : includeElementList) {
+				root.appendChild(includeElement);
+			}
+		}
+
+		List<Element> excludeElementList = createExcludeList(excludes);
+
+		if (excludeElementList != null) {
+			for (Element excludeElement : excludeElementList) {
+				root.appendChild(excludeElement);
+			}
+		}
+
+	}
+
+	private List<Element> createTransformationList(List<TransformationConfig> transformations) {
+		List<Element> result = null;
+
+		if (transformations != null) {
+			result = new LinkedList<Element>();
+			for (TransformationConfig tcfg : transformations) {
+				Element trans = document.createElement("transformation");
+				String name = tcfg.getName();
+
+				if (name != null) {
+					trans.setAttribute("name", name);
+				}
+
+				trans.setAttribute("type", tcfg.getType());
+
+				String mergePolicy = tcfg.getMergePolicy();
+				if (mergePolicy != null) {
+					trans.setAttribute("merge-policy", mergePolicy);
+				}
+				if (tcfg.isMergeable()) {
+					trans.setAttribute("isMergeable", "true");
+				}
+
+				Map<String, Object> params = tcfg.getParameters();
+				List<Element> paramListEment = createParamsElement(params);
+				if (paramListEment != null) {
+
+					for (Element param : paramListEment) {
+						trans.appendChild(param);
+					}
+				}
+				result.add(trans);
+			}
+		}
+
+		return result;
+	}
+
+	private Element createChainElement(ChainConfig chainCfg) {
+		Element element = document.createElement("chain");
+		String name = chainCfg.getName();
+		if (name != null && !"".equals(name)) {
+			element.setAttribute("name", chainCfg.getName());
+		}
+
+		ReaderConfig rConfig = chainCfg.getReaderConfig();
+		if (rConfig != null) {
+
+			Element reader = document.createElement("reader");
+			createReaderOrWriterContent(reader, rConfig.getPath(), rConfig.getType(), rConfig.getParameters(),
+					rConfig.getIncludes(), rConfig.getExcludes());
+
+			element.appendChild(reader);
+
+		}
+		WalkerConfig wConfig = chainCfg.getWalkerConfig();
+		if (wConfig != null) {
+			// (param*, parser?, transformations)
+			Map<String, Object> params = wConfig.getParams();
+			List<Element> result = createTransformationList(wConfig.getTransformations());
+
+			if (params == null && (wConfig.getType() == null || "".equals(wConfig.getType()))) {
+
+				if (result != null) {
+					for (Element transformationElement : result) {
+						element.appendChild(transformationElement);
+					}
+				}
+			} else {
+				Element walker = document.createElement("walker");
+				String type = wConfig.getType();
+
+				if (type != null && !"".equals(type)) {
+					walker.setAttribute("type", type);
+				}
+
+				List<Element> paramListEment = createParamsElement(params);
+				if (paramListEment != null) {
+
+					for (Element param : paramListEment) {
+						walker.appendChild(param);
+					}
+				}
+
+				Element transformationList = document.createElement("transformations");
+				if (result != null) {
+					for (Element transformationElement : result) {
+						transformationList.appendChild(transformationElement);
+					}
+				}
+				walker.appendChild(transformationList);
+				element.appendChild(walker);
+
+			}
+		}
+		WriterConfig writerConfig = chainCfg.getWriterConfig();
+		if (writerConfig != null) {
+
+			Element writer = document.createElement("writer");
+			createReaderOrWriterContent(writer, rConfig.getPath(), rConfig.getType(), rConfig.getParameters(),
+					rConfig.getIncludes(), rConfig.getExcludes());
+
+			element.appendChild(writer);
+
+		}
+
+		return element;
+	}
+
+	public boolean addChainConfig(ChainConfig chainCfg) throws TransformerException {
+		if (document == null) {
+			init();
+		}
+		Element rootElement = document.getDocumentElement();
+		NodeList children = rootElement.getChildNodes();
+		int childSize = children.getLength();
+		if (chainCfg.getName() != null && !"".equals(chainCfg.getName())) {
+			for (int i = 0; i < childSize; i++) {
+				Node childNode = children.item(i);
+				if (childNode instanceof Element) {
+					Element child = (Element) childNode;
+					final String nodeName = child.getNodeName();
+					if ("chain".equals(nodeName)) {
+						String name = child.getAttribute("name");
+						if (name.equals(chainCfg.getName())) {
+							return false;
+						}
+					}
+				}
+			}
+		}
+		rootElement.appendChild(createChainElement(chainCfg));
+
+		persist();
+
+		return true;
+	}
+
+	private void persist() throws TransformerException {
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+
+		transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "-//WALKMOD//DTD");
+		transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "http://www.walkmod.com/dtd/walkmod-1.1.dtd");
+		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+		DOMSource source = new DOMSource(document);
+
+		StreamResult result = new StreamResult(new File(configFileName));
+		transformer.transform(source, result);
 	}
 
 	/**

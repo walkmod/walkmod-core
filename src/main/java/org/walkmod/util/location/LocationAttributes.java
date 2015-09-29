@@ -31,7 +31,7 @@ public class LocationAttributes {
 	public static final String PREFIX = "loc";
 
 	/** Namespace URI for location attributes */
-	public static final String URI = "http://umldreams.com/wallmod/location";
+	public static final String URI = "walkmod.com/dtd/walkmod-1.1.dtd";
 
 	/** Attribute name for the location URI */
 	public static final String SRC_ATTR = "src";
@@ -69,9 +69,7 @@ public class LocationAttributes {
 			return attrs;
 		}
 		AttributesImpl newAttrs = attrs instanceof AttributesImpl ? (AttributesImpl) attrs : new AttributesImpl(attrs);
-		newAttrs.addAttribute(URI, SRC_ATTR, Q_SRC_ATTR, "CDATA", locator.getSystemId());
-		newAttrs.addAttribute(URI, LINE_ATTR, Q_LINE_ATTR, "CDATA", Integer.toString(locator.getLineNumber()));
-		newAttrs.addAttribute(URI, COL_ATTR, Q_COL_ATTR, "CDATA", Integer.toString(locator.getColumnNumber()));
+		
 		return newAttrs;
 	}
 
@@ -316,11 +314,10 @@ public class LocationAttributes {
 
 		public void startDocument() throws SAXException {
 			nextHandler.startDocument();
-			nextHandler.startPrefixMapping(LocationAttributes.PREFIX, LocationAttributes.URI);
+			
 		}
 
 		public void endDocument() throws SAXException {
-			endPrefixMapping(LocationAttributes.PREFIX);
 			nextHandler.endDocument();
 		}
 

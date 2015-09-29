@@ -78,62 +78,67 @@ public abstract class AbstractWalker implements ChainWalker {
 				return;
 			}
 		}
-		int index = 0;
-		for (Object visitor : visitors) {
-			boolean isMergeable = transformations.get(index).isMergeable();
-			String mergePolicy = transformations.get(index).getMergePolicy();
-			if (mergePolicy != null) {
-				isMergeable = true;
-			}
-			if (isMergeable && mergePolicy == null) {
-				mergePolicy = "default";
-			}
-			Method[] methods = visitor.getClass().getMethods();
-			List<Object> restVisitors = visitors.subList(index + 1, visitors.size());
-			List<TransformationConfig> restTransformations = transformations.subList(index + 1, transformations.size());
-			Set<String> visitedTypes = new HashSet<String>();
-			for (int j = 0; j < methods.length; j++) {
-				if (methods[j].getName().equals("visit")) {
-					Class<?> type = methods[j].getParameterTypes()[0];
-					if ((!visitedTypes.contains(element.getClass().getName())) && type.isInstance(element)) {
-						visitedTypes.add(type.getName());
-						int paramsLength = methods[j].getParameterTypes().length;
-						Object[] params = new Object[paramsLength];
-						params[0] = element;
-						VisitorContext args = new VisitorContext(getChainConfig());
-						args.putAll(context);
-						if (paramsLength == 2) {
-							params[1] = args;
-						}
-						methods[j].invoke(visitor, params);
-						context.getVisitorMessages().addAll(args.getVisitorMessages());
-						MergeEngine me = null;
-						if (isMergeable) {
-							me = chainConfig.getConfiguration().getMergeEngine(mergePolicy);
-						}
-						if (args.hasResultNodes()) {
-
-							Iterator<Object> it = args.getResultNodes().iterator();
-
-							while (it.hasNext()) {
-								Object currentArg = it.next();
-								if (isMergeable) {
-									currentArg = merge(currentArg, me, context);
-								}
-
-								context.addResultNode(currentArg);
-
-								visit(currentArg, restVisitors, restTransformations, context);
-								return;
-
+		if (visitors.isEmpty()) {
+			context.addResultNode(element);
+		} else {
+			int index = 0;
+			for (Object visitor : visitors) {
+				boolean isMergeable = transformations.get(index).isMergeable();
+				String mergePolicy = transformations.get(index).getMergePolicy();
+				if (mergePolicy != null) {
+					isMergeable = true;
+				}
+				if (isMergeable && mergePolicy == null) {
+					mergePolicy = "default";
+				}
+				Method[] methods = visitor.getClass().getMethods();
+				List<Object> restVisitors = visitors.subList(index + 1, visitors.size());
+				List<TransformationConfig> restTransformations = transformations.subList(index + 1,
+						transformations.size());
+				Set<String> visitedTypes = new HashSet<String>();
+				for (int j = 0; j < methods.length; j++) {
+					if (methods[j].getName().equals("visit")) {
+						Class<?> type = methods[j].getParameterTypes()[0];
+						if ((!visitedTypes.contains(element.getClass().getName())) && type.isInstance(element)) {
+							visitedTypes.add(type.getName());
+							int paramsLength = methods[j].getParameterTypes().length;
+							Object[] params = new Object[paramsLength];
+							params[0] = element;
+							VisitorContext args = new VisitorContext(getChainConfig());
+							args.putAll(context);
+							if (paramsLength == 2) {
+								params[1] = args;
 							}
-						} else {
-							context.addResultNode(element);
+							methods[j].invoke(visitor, params);
+							context.getVisitorMessages().addAll(args.getVisitorMessages());
+							MergeEngine me = null;
+							if (isMergeable) {
+								me = chainConfig.getConfiguration().getMergeEngine(mergePolicy);
+							}
+							if (args.hasResultNodes()) {
+
+								Iterator<Object> it = args.getResultNodes().iterator();
+
+								while (it.hasNext()) {
+									Object currentArg = it.next();
+									if (isMergeable) {
+										currentArg = merge(currentArg, me, context);
+									}
+
+									context.addResultNode(currentArg);
+
+									visit(currentArg, restVisitors, restTransformations, context);
+									return;
+
+								}
+							} else {
+								context.addResultNode(element);
+							}
 						}
 					}
 				}
+				index++;
 			}
-			index++;
 		}
 	}
 

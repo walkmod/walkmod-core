@@ -40,7 +40,7 @@ public class DomHelper {
 	public static final String XMLNS_URI = "http://www.w3.org/2000/xmlns/";
 
 	public static Location getLocationObject(Element element) {
-		return LocationAttributes.getLocation(element);
+		return null;//LocationAttributes.getLocation(element);
 	}
 
 	/**

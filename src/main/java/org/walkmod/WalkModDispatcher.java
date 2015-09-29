@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.walkmod.commands.AddChainCommand;
 import org.walkmod.commands.ApplyCommand;
 import org.walkmod.commands.CheckCommand;
 import org.walkmod.commands.Command;
@@ -87,6 +88,7 @@ public class WalkModDispatcher {
 		commands.put("install", new InstallCommand());
 		commands.put("plugins", new PrintPluginsCommand());
 		commands.put("init", new InitCommand());
+		commands.put("add-chain", new AddChainCommand());
 		commands.put("--version", new VersionCommand());
 		commands.put("--help", new HelpCommand(jcommander));
 

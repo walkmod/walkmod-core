@@ -29,17 +29,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
 import org.apache.log4j.Logger;
 import org.walkmod.conf.ConfigurationManager;
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.providers.IvyConfigurationProvider;
+import org.walkmod.conf.providers.XMLConfigurationProvider;
 import org.walkmod.exceptions.InvalidConfigurationException;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.impl.DefaultChainAdapterFactory;
 import org.walkmod.writers.Summary;
 import org.walkmod.writers.VisitorMessagesWriter;
+import org.xml.sax.SAXException;
 
 /**
  * Facade to execute walkmod services.
@@ -488,6 +493,10 @@ public class WalkModFacade {
 		return result;
 	}
 
+	/**
+	 * Initializes an empty walkmod configuration file
+	 * @throws IOException in case that the walkmod configuration file can't be created or written
+	 */
 	public void init() throws IOException {
 		if (!cfg.exists()) {
 			if (cfg.createNewFile()) {
@@ -517,6 +526,20 @@ public class WalkModFacade {
 				log.error("The configuration file [" + cfg.getAbsolutePath() + "] already exists");
 			}
 		}
+	}
+	
+	/**
+	 * Adds a new chain configuration into the configuration file
+	 * @param chainCfg chain configuration to add
+	 * @throws Exception in case that the walkmod configuration file can't be read or written.
+	 */
+	public void addChainConfig(ChainConfig chainCfg) throws Exception{
+		if(!cfg.exists()){
+			init();
+		}
+		XMLConfigurationProvider cfgProvider = new XMLConfigurationProvider(cfg.getAbsolutePath(), true);
+		
+		cfgProvider.addChainConfig(chainCfg);
 	}
 
 	/**
