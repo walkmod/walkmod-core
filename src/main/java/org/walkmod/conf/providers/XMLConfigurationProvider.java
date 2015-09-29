@@ -347,6 +347,68 @@ public class XMLConfigurationProvider implements ConfigurationProvider, ChainPro
 		return true;
 	}
 
+	public boolean addPluginConfig(PluginConfig pluginConfig) throws TransformerException {
+		if (document == null) {
+			init();
+		}
+		Element rootElement = document.getDocumentElement();
+		NodeList children = rootElement.getChildNodes();
+		int childSize = children.getLength();
+		Element pluginListElem = null;
+		for (int i = 0; i < childSize; i++) {
+			Node childNode = children.item(i);
+			if (childNode instanceof Element) {
+				Element child = (Element) childNode;
+				final String nodeName = child.getNodeName();
+				if ("plugins".equals(nodeName)) {
+					pluginListElem = child;
+					NodeList pluginNodes = child.getChildNodes();
+					int modulesSize = pluginNodes.getLength();
+					for (int j = 0; j < modulesSize; j++) {
+						Node pluginNode = pluginNodes.item(j);
+						if ("plugin".equals(pluginNode.getNodeName())) {
+							Element aux = (Element) pluginNode;
+							String groupId = aux.getAttribute("groupId");
+							String artifactId = aux.getAttribute("artifactId");
+							if (groupId.equals(pluginConfig.getGroupId())
+									&& artifactId.equals(pluginConfig.getArtifactId())) {
+								return false;
+							}
+						}
+					}
+
+				}
+			}
+		}
+		Element plugin = document.createElement("plugin");
+
+		plugin.setAttribute("groupId", pluginConfig.getGroupId());
+		plugin.setAttribute("artifactId", pluginConfig.getArtifactId());
+		plugin.setAttribute("version", pluginConfig.getVersion());
+
+		if (childSize > 0) {
+			if (pluginListElem != null) {
+				if (pluginListElem.hasChildNodes()) {
+					pluginListElem.insertBefore(plugin, children.item(0));
+				} else {
+					pluginListElem.appendChild(plugin);
+				}
+			}
+			else{
+				Element pluginList = document.createElement("plugins");
+				pluginList.appendChild(plugin);
+				rootElement.appendChild(pluginList);
+			}
+		} else {
+			Element pluginList = document.createElement("plugins");
+			pluginList.appendChild(plugin);
+			rootElement.appendChild(pluginList);
+		}
+		persist();
+
+		return true;
+	}
+
 	private void persist() throws TransformerException {
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();

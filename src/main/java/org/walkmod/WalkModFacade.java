@@ -37,6 +37,7 @@ import org.walkmod.conf.ConfigurationManager;
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
+import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.providers.IvyConfigurationProvider;
 import org.walkmod.conf.providers.XMLConfigurationProvider;
 import org.walkmod.exceptions.InvalidConfigurationException;
@@ -540,6 +541,19 @@ public class WalkModFacade {
 		XMLConfigurationProvider cfgProvider = new XMLConfigurationProvider(cfg.getAbsolutePath(), true);
 		
 		cfgProvider.addChainConfig(chainCfg);
+	}
+	
+	/**
+	 * Adds a new plugin into the configuration file
+	 * @param pluginConfig the plugin to add
+	 * @throws Exception in case that the walkmod configuration file can't be read or written.
+	 */
+	public void addPluginConfig(PluginConfig pluginConfig) throws Exception{
+		if(!cfg.exists()){
+			init();
+		}
+		XMLConfigurationProvider cfgProvider = new XMLConfigurationProvider(cfg.getAbsolutePath(), true);
+		cfgProvider.addPluginConfig(pluginConfig);
 	}
 
 	/**
