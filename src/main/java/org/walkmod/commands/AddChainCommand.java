@@ -47,13 +47,13 @@ public class AddChainCommand implements Command {
 
 	private static final String DEFAULT_PATH = "src/main/java";
 
-	@Parameter(names = "--reader", description = "Reader JSON object definition", hidden = true, converter = JSONConverter.class)
+	@Parameter(names = "--reader", description = "Reader JSON object definition", converter = JSONConverter.class)
 	private JSONObject reader = null;
 
-	@Parameter(names = "--writer", description = "Writer JSON object definition", hidden = true, converter = JSONConverter.class)
+	@Parameter(names = "--writer", description = "Writer JSON object definition", converter = JSONConverter.class)
 	private JSONObject writer = null;
 
-	@Parameter(names = "--walker", description = "Walker JSON object definition", hidden = true, converter = JSONConverter.class)
+	@Parameter(names = "--walker", description = "Walker JSON object definition", converter = JSONConverter.class)
 	private JSONObject walker = null;
 
 	@Override
