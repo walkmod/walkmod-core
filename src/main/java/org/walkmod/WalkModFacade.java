@@ -15,7 +15,10 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -237,7 +240,7 @@ public class WalkModFacade {
 	public WalkModFacade() {
 		this(false, true, false);
 	}
-	
+
 	/**
 	 * Initalizes a Walkmod service
 	 *
@@ -356,7 +359,7 @@ public class WalkModFacade {
 					}
 				}
 			}
-			
+
 			Summary.getInstance().clear();
 			Collection<ChainConfig> chainCfgs = config.getChainConfigs();
 			if (chainCfgs != null && !chainCfgs.isEmpty()) {
@@ -383,7 +386,6 @@ public class WalkModFacade {
 		result.addAll(Summary.getInstance().getWrittenFiles());
 		return result;
 	}
-	
 
 	/**
 	 * Applies a list of transformation chains without updating the source
@@ -458,7 +460,7 @@ public class WalkModFacade {
 					}
 				}
 			}
-			
+
 			Summary.getInstance().clear();
 			Collection<ChainConfig> chainCfgs = config.getChainConfigs();
 			if (chainCfgs != null && !chainCfgs.isEmpty()) {
@@ -484,6 +486,37 @@ public class WalkModFacade {
 		}
 		result.addAll(Summary.getInstance().getWrittenFiles());
 		return result;
+	}
+
+	public void init() throws IOException {
+		if (!cfg.exists()) {
+			if (cfg.createNewFile()) {
+				FileWriter fos = new FileWriter(cfg);
+
+				BufferedWriter bos = new BufferedWriter(fos);
+				try {
+					bos.write("<!DOCTYPE walkmod PUBLIC \"-//WALKMOD//DTD\"  \"http://www.walkmod.com/dtd/walkmod-1.1.dtd\" >");
+					bos.newLine();
+					bos.write("<walkmod>");
+					bos.newLine();
+					bos.write("</walkmod>");
+					if (options.isVerbose()) {
+						log.info("CONFIGURATION FILE [ " + cfg.getAbsolutePath() + "] CREATION COMPLETE");
+					}
+				} finally {
+					bos.close();
+				}
+			} else {
+				if (options.isVerbose()) {
+					log.error("The system can't create the file [ " + cfg.getAbsolutePath() + "]");
+				}
+
+			}
+		} else {
+			if (options.isVerbose()) {
+				log.error("The configuration file [" + cfg.getAbsolutePath() + "] already exists");
+			}
+		}
 	}
 
 	/**
@@ -517,7 +550,7 @@ public class WalkModFacade {
 				System.setProperty("user.dir", options.getExecutionDirectory().getCanonicalPath());
 				ConfigurationManager cfgManager = new ConfigurationManager(cfg, cp);
 				Configuration cf = cfgManager.getConfiguration();
-				
+
 				List<String> modules = cf.getModules();
 				if (modules != null && !modules.isEmpty()) {
 					for (String module : modules) {
@@ -535,8 +568,7 @@ public class WalkModFacade {
 						}
 					}
 				}
-				
-				
+
 			} catch (Exception e) {
 				System.setProperty("user.dir", userDir);
 				if (options.isVerbose()) {

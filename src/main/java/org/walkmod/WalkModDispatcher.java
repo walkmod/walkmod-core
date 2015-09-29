@@ -25,6 +25,7 @@ import org.walkmod.commands.ApplyCommand;
 import org.walkmod.commands.CheckCommand;
 import org.walkmod.commands.Command;
 import org.walkmod.commands.HelpCommand;
+import org.walkmod.commands.InitCommand;
 import org.walkmod.commands.InstallCommand;
 import org.walkmod.commands.PrintPluginsCommand;
 import org.walkmod.commands.VersionCommand;
@@ -85,6 +86,7 @@ public class WalkModDispatcher {
 		commands.put("check", new CheckCommand());
 		commands.put("install", new InstallCommand());
 		commands.put("plugins", new PrintPluginsCommand());
+		commands.put("init", new InitCommand());
 		commands.put("--version", new VersionCommand());
 		commands.put("--help", new HelpCommand(jcommander));
 

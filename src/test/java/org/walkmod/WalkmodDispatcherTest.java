@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
@@ -12,7 +13,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class WalkmodDispatcherTest {
-
 
 	@Test
 	public void testNoArgs() throws Exception {
@@ -71,10 +71,34 @@ public class WalkmodDispatcherTest {
 	public void testApplyWithInvalidArgs() throws Exception {
 		Assert.assertTrue(run(new String[] { "apply", "-F" }).contains("Unknown option: -F"));
 	}
-	
+
 	@Test
 	public void testPrintPlugins() throws Exception {
 		Assert.assertTrue(run(new String[] { "plugins" }).contains("walkmod-javalang-plugin"));
+	}
+
+	@Test
+	public void testInitWithExistingCfgFile() throws Exception {
+		Assert.assertTrue(run(new String[] { "init" }).contains("already exists"));
+	}
+
+	@Test
+	public void testInitWithNonExistingCfgFile() throws Exception {
+
+		File tmp = new File("src/test/resources/initTest");
+		tmp.mkdirs();
+		if(tmp.exists()){
+			String userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+			System.setProperty("user.dir", tmp.getAbsolutePath());
+			try {
+				Assert.assertTrue(run(new String[] { "init" }).contains("walkmod.xml] CREATION COMPLETE"));
+			} finally {
+				System.setProperty("user.dir", userDir);
+				FileUtils.deleteDirectory(tmp);
+			}
+			
+		}
+
 	}
 
 	private String run(String[] args) throws Exception {
@@ -85,7 +109,7 @@ public class WalkmodDispatcherTest {
 		PrintStream ps = new PrintStream(stream);
 		PrintStream old = System.out;
 		System.setOut(ps);
-		
+
 		WalkModFacade.log = Logger.getLogger(WalkModFacade.class.getName());
 		WalkModFacade.log.removeAllAppenders();
 		ConsoleAppender appender = new ConsoleAppender(new PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN));
