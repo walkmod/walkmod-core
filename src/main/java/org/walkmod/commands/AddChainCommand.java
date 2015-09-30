@@ -32,11 +32,12 @@ import org.walkmod.conf.entities.impl.WriterConfigImpl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Parameters(separators = "=", commandDescription = "Adds an empty chain in the walkmod configuration file.")
+@Parameters(separators = "=", commandDescription = "Adds a chain in the walkmod configuration file.")
 public class AddChainCommand implements Command {
 
 	@Parameter(names = "--name", description = "The chain identifier")
@@ -55,65 +56,76 @@ public class AddChainCommand implements Command {
 
 	@Parameter(names = "--walker", description = "Walker JSON object definition", converter = JSONConverter.class)
 	private JSONObject walker = null;
+	
+	@Parameter(names = "--help", help = true, hidden = true)
+	private boolean help;
+
+	private JCommander command;
+
+	public AddChainCommand(JCommander command) {
+		this.command = command;
+	}
 
 	@Override
 	public void execute() throws Exception {
-		ChainConfig chainCfg = new ChainConfigImpl();
-		chainCfg.setName(name);
-
-		ObjectMapper mapper = new ObjectMapper();
-		if (reader != null) {
-			ReaderConfig readerCfg = mapper.readValue(reader.toJSONString(), ReaderConfig.class);
-			chainCfg.setReaderConfig(readerCfg);
+		if (help) {
+			command.usage("add-plugin");
 		} else {
-			if (!readerPath.equals(DEFAULT_PATH)) {
-				ReaderConfig readerCfg = new ReaderConfig();
-				readerCfg.setPath(readerPath);
+			ChainConfig chainCfg = new ChainConfigImpl();
+			chainCfg.setName(name);
+
+			ObjectMapper mapper = new ObjectMapper();
+			if (reader != null) {
+				ReaderConfig readerCfg = mapper.readValue(reader.toJSONString(), ReaderConfig.class);
 				chainCfg.setReaderConfig(readerCfg);
+			} else {
+				if (!readerPath.equals(DEFAULT_PATH)) {
+					ReaderConfig readerCfg = new ReaderConfig();
+					readerCfg.setPath(readerPath);
+					chainCfg.setReaderConfig(readerCfg);
+				}
 			}
-		}
-		if (writer != null) {
-			WriterConfig writerCfg = mapper.readValue(writer.toJSONString(), WriterConfigImpl.class);
-			chainCfg.setWriterConfig(writerCfg);
-		} else {
-			if (!readerPath.equals(DEFAULT_PATH)) {
-				WriterConfig writerCfg = new WriterConfigImpl();
-				writerCfg.setPath(readerPath);
+			if (writer != null) {
+				WriterConfig writerCfg = mapper.readValue(writer.toJSONString(), WriterConfigImpl.class);
 				chainCfg.setWriterConfig(writerCfg);
+			} else {
+				if (!readerPath.equals(DEFAULT_PATH)) {
+					WriterConfig writerCfg = new WriterConfigImpl();
+					writerCfg.setPath(readerPath);
+					chainCfg.setWriterConfig(writerCfg);
+				}
 			}
-		}
 
-		if (walker != null) {
-			WalkerConfig walkerCfg = new WalkerConfigImpl();
-			if (walker.containsKey("transformations")) {
-				JSONArray array = walker.getJSONArray("transformations");
-				int limit = array.size();
-				List<TransformationConfig> transformations = new LinkedList<TransformationConfig>();
+			if (walker != null) {
+				WalkerConfig walkerCfg = new WalkerConfigImpl();
+				if (walker.containsKey("transformations")) {
+					JSONArray array = walker.getJSONArray("transformations");
+					int limit = array.size();
+					List<TransformationConfig> transformations = new LinkedList<TransformationConfig>();
 
-				for (int i = 0; i < limit; i++) {
-					TransformationConfig tconfig = mapper.readValue(array.getJSONObject(i).toJSONString(),
-							TransformationConfigImpl.class);
-					transformations.add(tconfig);
+					for (int i = 0; i < limit; i++) {
+						TransformationConfig tconfig = mapper.readValue(array.getJSONObject(i).toJSONString(),
+								TransformationConfigImpl.class);
+						transformations.add(tconfig);
+					}
+
+					walkerCfg.setTransformations(transformations);
+
+				}
+				if (walker.containsKey("type")) {
+					walkerCfg.setType(walker.getString("type"));
+				}
+				if (walker.containsKey("params")) {
+					walkerCfg.setParams(walker.getJSONObject("params"));
 				}
 
-				walkerCfg.setTransformations(transformations);
-
-			}
-			if (walker.containsKey("type")) {
-				walkerCfg.setType(walker.getString("type"));
-			}
-			if (walker.containsKey("params")) {
-				walkerCfg.setParams(walker.getJSONObject("params"));
+				chainCfg.setWalkerConfig(walkerCfg);
+			} else {
+				chainCfg.setWalkerConfig(new WalkerConfigImpl());
 			}
 
-			chainCfg.setWalkerConfig(walkerCfg);
-		} else {
-			chainCfg.setWalkerConfig(new WalkerConfigImpl());
+			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+			facade.addChainConfig(chainCfg);
 		}
-
-		WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-		facade.addChainConfig(chainCfg);
-
 	}
-
 }

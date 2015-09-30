@@ -84,36 +84,45 @@ public class WalkModDispatcher {
 	}
 
 	public void execute(JCommander jcommander, String[] args) throws Exception {
-		commands.put("apply", new ApplyCommand());
-		commands.put("check", new CheckCommand());
-		commands.put("install", new InstallCommand());
-		commands.put("plugins", new PrintPluginsCommand());
-		commands.put("init", new InitCommand());
-		commands.put("add-chain", new AddChainCommand());
-		commands.put("add-plugin", new AddPluginCommand());
+		commands.put("apply", new ApplyCommand(jcommander));
+		commands.put("check", new CheckCommand(jcommander));
+		commands.put("install", new InstallCommand(jcommander));
+		commands.put("plugins", new PrintPluginsCommand(jcommander));
+		commands.put("init", new InitCommand(jcommander));
+		commands.put("add-chain", new AddChainCommand(jcommander));
+		commands.put("add-plugin", new AddPluginCommand(jcommander));
 		commands.put("--version", new VersionCommand());
 		commands.put("--help", new HelpCommand(jcommander));
 
 		Set<String> keys = commands.keySet();
 		for (String key : keys) {
-			jcommander.addCommand(key, commands.get(key));
+			if (!key.startsWith("--")) {
+				jcommander.addCommand(key, commands.get(key));
+			} else {
+				jcommander.addCommand(key, commands.get(key), "-" + key.charAt(2));
+			}
+			JCommander aux = jcommander.getCommands().get(key);
+
+			aux.setProgramName("walkmod " + key);
+			aux.setAcceptUnknownOptions(false);
+
 		}
 
 		if (args == null || args.length == 0) {
 			printHeader();
-			jcommander.usage();
+			new HelpCommand(jcommander).execute();
 		} else {
 			try {
 				jcommander.parse(args);
 			} catch (ParameterException e) {
-				
+
 				System.out.println(e.getMessage());
 				System.out.println("Run walkmod --help to see the accepted parameters");
 				return;
 			}
 			String command = jcommander.getParsedCommand();
 			printHeader();
-			commands.get(command).execute();
+			commands.get(command.substring("walkmod ".length(), command.length())).execute();
 
 		}
 	}

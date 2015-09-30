@@ -20,29 +20,43 @@ import org.walkmod.WalkModFacade;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
 
+import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 @Parameters(separators = "=", commandDescription = "Adds plugin in the walkmod configuration file.")
-public class AddPluginCommand implements Command{
+public class AddPluginCommand implements Command {
 
-	@Parameter(names = {"--groupId", "-g"}, description = "Plugin groupId", required = true)
-	private String groupId ="";
-	
-	@Parameter(names = {"--artifactId", "-a"}, description = "Plugin artifactId", required = true)
+	@Parameter(names = { "--groupId", "-g" }, description = "Plugin groupId", required = true)
+	private String groupId = "";
+
+	@Parameter(names = { "--artifactId", "-a" }, description = "Plugin artifactId", required = true)
 	private String artifactId = "";
-	
-	@Parameter(names = {"--version", "-v"}, description = "Plugin version", required = true)
-	private String version ="";
-			
+
+	@Parameter(names = { "--version", "-v" }, description = "Plugin version", required = true)
+	private String version = "";
+
+	@Parameter(names = "--help", help = true, hidden = true)
+	private boolean help;
+
+	private JCommander command;
+
+	public AddPluginCommand(JCommander command) {
+		this.command = command;
+	}
+
 	@Override
 	public void execute() throws Exception {
-		PluginConfig pluginConfig = new PluginConfigImpl();
-		pluginConfig.setGroupId(groupId);
-		pluginConfig.setArtifactId(artifactId);
-		pluginConfig.setVersion(version);
-		WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-		facade.addPluginConfig(pluginConfig);
+		if (help) {
+			command.usage("add-plugin");
+		} else {
+			PluginConfig pluginConfig = new PluginConfigImpl();
+			pluginConfig.setGroupId(groupId);
+			pluginConfig.setArtifactId(artifactId);
+			pluginConfig.setVersion(version);
+			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+			facade.addPluginConfig(pluginConfig);
+		}
 	}
 
 }

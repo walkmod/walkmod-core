@@ -17,15 +17,30 @@ package org.walkmod.commands;
 
 import org.walkmod.WalkModFacade;
 
+import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameters;
 
 @Parameters(separators = "=", commandDescription = "Upgrades your code to apply your development conventions")
 public class ApplyCommand extends AbstractChainCommand implements Command {
 
+	private JCommander command;
+
+	public ApplyCommand(JCommander command) {
+		this.command = command;
+	}
+	
 	@Override
 	public void execute() throws Exception {
-		WalkModFacade facade = new WalkModFacade(buildOptions());
-		String[] params = new String[getParameters().size()];
-		facade.apply(getParameters().toArray(params));
+		if (isHelpNeeded()) {
+			command.usage("apply");
+		} else {
+			WalkModFacade facade = new WalkModFacade(buildOptions());
+			String[] params = new String[getParameters().size()];
+			if (params.length == 0) {
+				facade.apply();
+			} else {
+				facade.apply(getParameters().toArray(params));
+			}
+		}
 	}
 }

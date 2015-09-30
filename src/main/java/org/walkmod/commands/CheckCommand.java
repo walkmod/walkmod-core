@@ -17,15 +17,30 @@ package org.walkmod.commands;
 
 import org.walkmod.WalkModFacade;
 
+import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameters;
 
 @Parameters(separators = "=", commandDescription = "Checks and shows which classes must be reviewed")
 public class CheckCommand extends AbstractChainCommand implements Command {
 
+	private JCommander command;
+
+	public CheckCommand(JCommander command) {
+		this.command = command;
+	}
+	
 	@Override
 	public void execute() throws Exception {
-		WalkModFacade facade = new WalkModFacade(buildOptions());
-		String[] params = new String[getParameters().size()];
-		facade.check(getParameters().toArray(params));
+		if (isHelpNeeded()) {
+			command.usage("check");
+		} else {
+			WalkModFacade facade = new WalkModFacade(buildOptions());
+			String[] params = new String[getParameters().size()];
+			if (params.length == 0) {
+				facade.check();
+			} else {
+				facade.check(getParameters().toArray(params));
+			}
+		}
 	}
 }

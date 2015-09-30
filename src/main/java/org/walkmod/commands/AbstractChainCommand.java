@@ -24,6 +24,9 @@ import com.beust.jcommander.Parameter;
 
 public class AbstractChainCommand {
 
+	@Parameter(names = "--help", help = true, hidden = true)
+	private boolean help;
+
 	@Parameter(names = "--offline", description = "Resolves the walkmod plugins and their dependencies in offline mode")
 	private boolean offline = false;
 
@@ -38,6 +41,10 @@ public class AbstractChainCommand {
 
 	@Parameter(description = "[chains to execute]")
 	private List<String> parameters = new ArrayList<String>();
+	
+	public boolean isHelpNeeded(){
+		return help;
+	}
 
 	public boolean isOffline() {
 		return offline;

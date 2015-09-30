@@ -16,12 +16,12 @@ public class WalkmodDispatcherTest {
 
 	@Test
 	public void testNoArgs() throws Exception {
-		Assert.assertTrue(run(null).contains("walkmod [options] [command] [command options]"));
+		Assert.assertTrue(run(null).contains("walkmod COMMAND [arg...]"));
 	}
 
 	@Test
 	public void testUsage() throws Exception {
-		Assert.assertTrue(run(new String[] { "--help" }).contains("walkmod [options] [command] [command options]"));
+		Assert.assertTrue(run(new String[] { "--help" }).contains("walkmod COMMAND [arg...]"));
 	}
 
 	@Test

@@ -18,15 +18,30 @@ package org.walkmod.commands;
 import org.walkmod.OptionsBuilder;
 import org.walkmod.WalkModFacade;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-@Parameters(separators = "=", commandDescription = "creates an empty walkmod configuration file.")
+@Parameters(separators = "=", commandDescription = "Creates an empty walkmod configuration file.")
 public class InitCommand implements Command {
+
+	@Parameter(names = "--help", help = true, hidden = true)
+	private boolean help;
+
+	private JCommander command;
+
+	public InitCommand(JCommander command) {
+		this.command = command;
+	}
 
 	@Override
 	public void execute() throws Exception {
-		WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-		facade.init();
+		if (help) {
+			command.usage("init");
+		} else {
+			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+			facade.init();
+		}
 	}
 
 }
