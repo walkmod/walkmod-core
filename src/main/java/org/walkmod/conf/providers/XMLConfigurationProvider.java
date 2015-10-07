@@ -43,9 +43,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.walkmod.conf.ChainProvider;
+import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.conf.ConfigurationException;
-import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.MergePolicyConfig;
@@ -72,7 +71,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 
-public class XMLConfigurationProvider implements ConfigurationProvider, ChainProvider {
+public class XMLConfigurationProvider extends AbstractChainConfigurationProvider implements ProjectConfigurationProvider {
 
 	/**
 	 * Configuration file.
@@ -393,8 +392,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider, ChainPro
 				} else {
 					pluginListElem.appendChild(plugin);
 				}
-			}
-			else{
+			} else {
 				Element pluginList = document.createElement("plugins");
 				pluginList.appendChild(plugin);
 				rootElement.appendChild(pluginList);
@@ -567,7 +565,6 @@ public class XMLConfigurationProvider implements ConfigurationProvider, ChainPro
 		return paramValue.toString().trim();
 	}
 
-	@Override
 	public void loadChains() throws ConfigurationException {
 		Element rootElement = document.getDocumentElement();
 		NodeList children = rootElement.getChildNodes();
@@ -646,13 +643,6 @@ public class XMLConfigurationProvider implements ConfigurationProvider, ChainPro
 		LOG.debug("Transformation chains loaded");
 	}
 
-	public void addDefaultReaderConfig(ChainConfig ac) {
-		ReaderConfig readerConfig = new ReaderConfig();
-		readerConfig.setPath(null);
-		readerConfig.setType(null);
-		ac.setReaderConfig(readerConfig);
-	}
-
 	public void loadReaderConfig(Element element, ChainConfig ac) throws ConfigurationException {
 		ReaderConfig readerConfig = new ReaderConfig();
 		if ("reader".equals(element.getNodeName())) {
@@ -712,11 +702,10 @@ public class XMLConfigurationProvider implements ConfigurationProvider, ChainPro
 	}
 
 	public void addDefaultWalker(ChainConfig ac, Element parentWalkerNode) {
-		WalkerConfig wc = new WalkerConfigImpl();
-		wc.setType(null);
-		wc.setParserConfig(new ParserConfigImpl());
-		wc.setTransformations(getTransformationItems(parentWalkerNode, false));
-		ac.setWalkerConfig(wc);
+
+		super.addDefaultWalker(ac);
+		ac.getWalkerConfig().setTransformations(getTransformationItems(parentWalkerNode, false));
+
 	}
 
 	public void loadWalkerConfig(Element element, ChainConfig ac) {
@@ -812,12 +801,6 @@ public class XMLConfigurationProvider implements ConfigurationProvider, ChainPro
 		wc.setTransformations(transformationConfigs);
 	}
 
-	public void addDefaultWriterConfig(ChainConfig ac) {
-		WriterConfig wc = new WriterConfigImpl();
-		wc.setPath(ac.getReaderConfig().getPath());
-		wc.setType(null);
-		ac.setWriterConfig(wc);
-	}
 
 	public void loadWriter(Element child, ChainConfig ac) {
 		if ("writer".equals(child.getNodeName())) {

@@ -15,7 +15,17 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf;
 
-public interface ChainProvider {
+import javax.xml.transform.TransformerException;
 
-	public void loadChains() throws ConfigurationException;
+import org.walkmod.conf.entities.ChainConfig;
+import org.walkmod.conf.entities.PluginConfig;
+
+public interface ProjectConfigurationProvider extends ConfigurationProvider{
+	
+	public boolean addPluginConfig(PluginConfig pluginConfig) throws TransformerException;
+	
+	public boolean addChainConfig(ChainConfig chainCfg) throws TransformerException;
+	
+	
+
 }

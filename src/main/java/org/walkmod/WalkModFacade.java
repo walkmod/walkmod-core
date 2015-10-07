@@ -29,9 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import org.apache.log4j.Logger;
 import org.walkmod.conf.ConfigurationManager;
 import org.walkmod.conf.ConfigurationProvider;
@@ -45,7 +42,6 @@ import org.walkmod.exceptions.WalkModException;
 import org.walkmod.impl.DefaultChainAdapterFactory;
 import org.walkmod.writers.Summary;
 import org.walkmod.writers.VisitorMessagesWriter;
-import org.xml.sax.SAXException;
 
 /**
  * Facade to execute walkmod services.
@@ -57,7 +53,9 @@ public class WalkModFacade {
 
 	protected static Logger log = Logger.getLogger(WalkModFacade.class);
 
-	private static final String DEFAULT_WALKMOD_FILE = "walkmod.xml";
+	private static final String DEFAULT_WALKMOD_XML_FILE = "walkmod.xml";
+	
+	private static final String DEFAULT_WALKMOD_YML_FILE = "walkmod.yml";
 
 	private Options options;
 
@@ -210,7 +208,7 @@ public class WalkModFacade {
 	 */
 	@Deprecated
 	public WalkModFacade(boolean offline, boolean verbose, boolean printError) {
-		this(new File(DEFAULT_WALKMOD_FILE), offline, verbose, printError);
+		this(new File(DEFAULT_WALKMOD_XML_FILE), offline, verbose, printError);
 	}
 
 	/**
@@ -232,7 +230,7 @@ public class WalkModFacade {
 	 */
 	@Deprecated
 	public WalkModFacade(boolean offline, boolean verbose, boolean printError, String[] includes, String[] excludes) {
-		this(new File(DEFAULT_WALKMOD_FILE), offline, verbose, printError, includes, excludes);
+		this(new File(DEFAULT_WALKMOD_XML_FILE), offline, verbose, printError, includes, excludes);
 	}
 
 	/**
@@ -281,7 +279,13 @@ public class WalkModFacade {
 		if (walkmodCfg != null) {
 			this.cfg = walkmodCfg.getAbsoluteFile();
 		} else {
-			this.cfg = new File(options.getExecutionDirectory().getAbsolutePath(), DEFAULT_WALKMOD_FILE);
+			this.cfg = new File(options.getExecutionDirectory().getAbsolutePath(), DEFAULT_WALKMOD_XML_FILE);
+			if(!cfg.exists()){
+				File yml = new File(options.getExecutionDirectory().getAbsolutePath(), DEFAULT_WALKMOD_YML_FILE);
+				if(yml.exists()){
+					cfg = yml;
+				}
+			}
 		}
 
 		if (configurationProvider != null)

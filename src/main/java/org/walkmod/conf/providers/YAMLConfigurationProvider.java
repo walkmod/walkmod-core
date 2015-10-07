@@ -1,0 +1,603 @@
+/* 
+  Copyright (C) 2013 Raquel Pau and Albert Coroleu.
+ 
+  Walkmod is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+ 
+  Walkmod is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+ 
+  You should have received a copy of the GNU Lesser General Public License
+  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+package org.walkmod.conf.providers;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.xml.transform.TransformerException;
+
+import org.walkmod.conf.ConfigurationException;
+import org.walkmod.conf.ProjectConfigurationProvider;
+import org.walkmod.conf.entities.ChainConfig;
+import org.walkmod.conf.entities.Configuration;
+import org.walkmod.conf.entities.MergePolicyConfig;
+import org.walkmod.conf.entities.ParserConfig;
+import org.walkmod.conf.entities.PluginConfig;
+import org.walkmod.conf.entities.ProviderConfig;
+import org.walkmod.conf.entities.ReaderConfig;
+import org.walkmod.conf.entities.TransformationConfig;
+import org.walkmod.conf.entities.WalkerConfig;
+import org.walkmod.conf.entities.WriterConfig;
+import org.walkmod.conf.entities.impl.ChainConfigImpl;
+import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
+import org.walkmod.conf.entities.impl.ParserConfigImpl;
+import org.walkmod.conf.entities.impl.PluginConfigImpl;
+import org.walkmod.conf.entities.impl.ProviderConfigImpl;
+import org.walkmod.conf.entities.impl.TransformationConfigImpl;
+import org.walkmod.conf.entities.impl.WalkerConfigImpl;
+import org.walkmod.conf.entities.impl.WriterConfigImpl;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+
+public class YAMLConfigurationProvider extends AbstractChainConfigurationProvider implements
+		ProjectConfigurationProvider {
+
+	private Configuration configuration;
+
+	private String fileName;
+
+	private YAMLFactory factory;
+
+	private ObjectMapper mapper;
+
+	public YAMLConfigurationProvider() {
+		this("walkmod.yml");
+	}
+
+	public YAMLConfigurationProvider(String fileName) {
+		this.fileName = fileName;
+		factory = new YAMLFactory();
+		mapper = new ObjectMapper(factory);
+		factory.configure(YAMLGenerator.Feature.WRITE_DOC_START_MARKER, false);
+	}
+
+	@Override
+	public void init(Configuration configuration) {
+		this.configuration = configuration;
+	}
+
+	@Override
+	public void load() throws ConfigurationException {
+
+		try {
+			JsonNode node = mapper.readTree(new File(fileName));
+			if (node.has("plugins")) {
+
+				Iterator<JsonNode> it = node.get("plugins").iterator();
+				Collection<PluginConfig> pluginList = new LinkedList<PluginConfig>();
+
+				while (it.hasNext()) {
+					JsonNode current = it.next();
+
+					String pluginId = current.asText();
+					String[] split = pluginId.split(":");
+					if (split.length > 3) {
+
+					} else {
+						String groupId, artifactId, version;
+
+						groupId = split[0];
+						artifactId = split[1];
+						version = split[2];
+
+						PluginConfig plugin = new PluginConfigImpl();
+						plugin.setGroupId(groupId);
+						plugin.setArtifactId(artifactId);
+						plugin.setVersion(version);
+
+						pluginList.add(plugin);
+					}
+
+				}
+				configuration.setPlugins(pluginList);
+
+			}
+			if (node.has("modules")) {
+
+				Iterator<JsonNode> it = node.get("modules").iterator();
+				List<String> modules = new LinkedList<String>();
+				configuration.setModules(modules);
+				while (it.hasNext()) {
+					JsonNode current = it.next();
+					modules.add(current.asText());
+				}
+				configuration.setModules(modules);
+			}
+			if (node.has("merge-policies")) {
+				Iterator<JsonNode> it = node.get("merge-policies").iterator();
+				Collection<MergePolicyConfig> mergePolicies = new LinkedList<MergePolicyConfig>();
+				while (it.hasNext()) {
+					JsonNode next = it.next();
+					if (next.has("policy")) {
+						MergePolicyConfig mergeCfg = new MergePolicyConfigImpl();
+						mergeCfg.setName(next.get("name").asText());
+						mergeCfg.setDefaultObjectPolicy(next.get("default-object-policy").asText());
+						mergeCfg.setDefaultTypePolicy(next.get("default-type-policy").asText());
+						if (next.has("policy")) {
+							Iterator<JsonNode> it2 = next.get("policy").iterator();
+							Map<String, String> policies = new HashMap<String, String>();
+							while (it2.hasNext()) {
+								JsonNode nextPolicy = it2.next();
+								String objectType = nextPolicy.get("object-type").asText();
+								String policyType = nextPolicy.get("policy-type").asText();
+
+								policies.put(objectType, policyType);
+							}
+							mergeCfg.setPolicyEntries(policies);
+						}
+
+						mergePolicies.add(mergeCfg);
+					}
+
+				}
+				configuration.setMergePolicies(mergePolicies);
+			}
+
+			if (node.has("conf-providers")) {
+				Iterator<JsonNode> it = node.get("conf-providers").iterator();
+				Collection<ProviderConfig> provConfigs = new LinkedList<ProviderConfig>();
+				while (it.hasNext()) {
+					JsonNode next = it.next();
+
+					ProviderConfig provCfg = new ProviderConfigImpl();
+					provCfg.setType(next.get("type").asText());
+
+					provCfg.setParameters(getParams(next));
+					provConfigs.add(provCfg);
+				}
+				configuration.setProviderConfigurations(provConfigs);
+			}
+
+			if (node.has("chains")) {
+				Iterator<JsonNode> it = node.get("chains").iterator();
+				Collection<ChainConfig> chains = new LinkedList<ChainConfig>();
+				int i = 0;
+				while (it.hasNext()) {
+					ChainConfig chainCfg = new ChainConfigImpl();
+
+					JsonNode current = it.next();
+					if (current.has("name")) {
+						chainCfg.setName(current.get("name").asText());
+					} else {
+						chainCfg.setName("chain_" + i);
+					}
+
+					if (current.has("reader")) {
+						ReaderConfig model = new ReaderConfig();
+
+						JsonNode reader = current.get("reader");
+						if (reader.has("path")) {
+							model.setPath(reader.get("path").asText());
+						}
+						if (reader.has("type")) {
+							model.setType(reader.get("type").asText());
+						}
+						if (reader.has("includes")) {
+							JsonNode includesJson = reader.get("includes");
+							model.setIncludes(getFileSet(includesJson));
+						}
+						if (reader.has("excludes")) {
+							JsonNode excludesJson = reader.get("excludes");
+							model.setExcludes(getFileSet(excludesJson));
+						}
+						model.setParameters(getParams(reader));
+						chainCfg.setReaderConfig(model);
+					} else {
+						addDefaultReaderConfig(chainCfg);
+					}
+					if (current.has("writer")) {
+						WriterConfig writerCfg = new WriterConfigImpl();
+
+						JsonNode reader = current.get("writer");
+						if (reader.has("path")) {
+							writerCfg.setPath(reader.get("path").asText());
+						}
+						if (reader.has("type")) {
+							writerCfg.setType(reader.get("type").asText());
+						}
+						if (reader.has("includes")) {
+							JsonNode includesJson = reader.get("includes");
+							writerCfg.setIncludes(getFileSet(includesJson));
+						}
+						if (reader.has("excludes")) {
+							JsonNode excludesJson = reader.get("excludes");
+							writerCfg.setExcludes(getFileSet(excludesJson));
+						}
+						writerCfg.setParams(getParams(reader));
+						chainCfg.setWriterConfig(writerCfg);
+					} else {
+						addDefaultWriterConfig(chainCfg);
+					}
+					if (current.has("walker")) {
+						WalkerConfig walkerCfg = new WalkerConfigImpl();
+						if (current.has("type")) {
+							walkerCfg.setType(current.get("type").asText());
+						}
+						if (current.has("parser")) {
+							ParserConfig parserCfg = new ParserConfigImpl();
+							JsonNode parserNode = current.get("parser");
+							parserCfg.setType(parserNode.get("type").asText());
+							parserCfg.setParameters(getParams(parserNode));
+							walkerCfg.setParserConfig(parserCfg);
+						}
+						walkerCfg.setTransformations(getTransformationCfgs(current));
+
+						if (current.has("root-namespace")) {
+							walkerCfg.setRootNamespace(current.get("root-namespace").asText());
+						}
+						walkerCfg.setParams(getParams(current));
+						chainCfg.setWalkerConfig(walkerCfg);
+					} else {
+						addDefaultWalker(chainCfg);
+						if (current.has("transformations")) {
+							WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
+							walkerCfg.setTransformations(getTransformationCfgs(current));
+						}
+					}
+					chains.add(chainCfg);
+				}
+				configuration.setChainConfigs(chains);
+
+			} else if (node.has("transformations")) {
+				Collection<ChainConfig> chains = new LinkedList<ChainConfig>();
+				ChainConfig chainCfg = new ChainConfigImpl();
+				WalkerConfig walkerCfg = new WalkerConfigImpl();
+				walkerCfg.setTransformations(getTransformationCfgs(node));
+				chainCfg.setWalkerConfig(walkerCfg);
+				chains.add(chainCfg);
+				configuration.setChainConfigs(chains);
+			}
+
+		} catch (JsonProcessingException e) {
+			throw new ConfigurationException("Error parsing the " + fileName + " configuration", e);
+		} catch (IOException e) {
+			throw new ConfigurationException("Error reading the " + fileName + " configuration", e);
+
+		}
+	}
+
+	private List<TransformationConfig> getTransformationCfgs(JsonNode current) {
+		if (current.has("transformations")) {
+			List<TransformationConfig> transList = new LinkedList<TransformationConfig>();
+			Iterator<JsonNode> itTrans = current.get("transformations").iterator();
+
+			while (itTrans.hasNext()) {
+				JsonNode item = itTrans.next();
+				TransformationConfig trans = new TransformationConfigImpl();
+				if (item.has("type")) {
+					trans.setType(item.get("type").asText());
+				}
+				if (item.has("name")) {
+					trans.setName(item.get("name").asText());
+				}
+				if (item.has("merge-policy")) {
+					trans.setMergePolicy(item.get("merge-policy").asText());
+				}
+				if (item.has("isMergeable")) {
+					trans.isMergeable(item.get("isMergeable").asBoolean());
+				}
+
+				trans.setParameters(getParams(item));
+				transList.add(trans);
+			}
+			return transList;
+
+		}
+		return null;
+	}
+
+	private String[] getFileSet(JsonNode parent) {
+		String[] includes = new String[parent.size()];
+		Iterator<JsonNode> includesIt = parent.iterator();
+		int j = 0;
+		while (includesIt.hasNext()) {
+			JsonNode item = includesIt.next();
+			includes[j] = item.asText();
+			j++;
+		}
+		return includes;
+	}
+
+	private Map<String, Object> getParams(JsonNode next) {
+		if (next.has("params")) {
+			Iterator<Entry<String, JsonNode>> it2 = next.get("params").fields();
+			Map<String, Object> params = new HashMap<String, Object>();
+			while (it2.hasNext()) {
+				Entry<String, JsonNode> param = it2.next();
+
+				params.put(param.getKey(), param.getValue().asText());
+			}
+			return params;
+
+		}
+		return null;
+	}
+
+	@Override
+	public boolean addPluginConfig(final PluginConfig pluginConfig) throws TransformerException {
+
+		File cfg = new File(fileName);
+
+		ArrayNode pluginList = null;
+		JsonNode node = null;
+		try {
+			node = mapper.readTree(cfg);
+		} catch (Exception e) {
+
+		}
+		if (node == null) {
+			node = new ObjectNode(mapper.getNodeFactory());
+		}
+		if (!node.has("plugins")) {
+			pluginList = new ArrayNode(mapper.getNodeFactory());
+			if (node.isObject()) {
+				ObjectNode aux = (ObjectNode) node;
+				aux.set("plugins", pluginList);
+			} else {
+				throw new TransformerException("The root element is not a JSON node");
+			}
+		} else {
+			JsonNode aux = node.get("plugins");
+			if (aux.isArray()) {
+				pluginList = (ArrayNode) node.get("plugins");
+			} else {
+				throw new TransformerException("The plugins element is not a valid array");
+			}
+		}
+		pluginList.add(new TextNode(pluginConfig.getGroupId() + ":" + pluginConfig.getArtifactId() + ":"
+				+ pluginConfig.getVersion()));
+		write(node);
+		return true;
+	}
+
+	private void write(JsonNode node) throws TransformerException {
+		File cfg = new File(fileName);
+
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(cfg);
+			JsonGenerator generator = mapper.getFactory().createGenerator(fos);
+
+			generator.useDefaultPrettyPrinter();
+			mapper.writeTree(generator, node);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					throw new TransformerException("Error writting the configuration", e);
+				}
+			}
+		}
+	}
+
+	@Override
+	public boolean addChainConfig(ChainConfig chainCfg) throws TransformerException {
+		File cfg = new File(fileName);
+
+		ArrayNode chainsList = null;
+		JsonNode chainsNode = null;
+		try {
+
+			chainsNode = mapper.readTree(cfg);
+		} catch (Exception e) {
+
+		}
+		if (chainsNode != null) {
+			if (!chainsNode.has("chains")) {
+				chainsList = new ArrayNode(mapper.getNodeFactory());
+				if (chainsNode.isObject()) {
+					ObjectNode aux = (ObjectNode) chainsNode;
+					aux.set("chains", chainsList);
+				} else {
+					throw new TransformerException("The root element is not a JSON node");
+				}
+			} else {
+				JsonNode aux = chainsNode.get("chains");
+				if (aux.isArray()) {
+					chainsList = (ArrayNode) chainsNode.get("chains");
+				} else {
+					throw new TransformerException("The plugins element is not a valid array");
+				}
+			}
+		}
+		ObjectNode chainNode = new ObjectNode(mapper.getNodeFactory());
+		ReaderConfig readerCfg = chainCfg.getReaderConfig();
+		if (readerCfg != null) {
+			if (chainsNode == null) {
+				chainsNode = new ObjectNode(mapper.getNodeFactory());
+				ObjectNode aux = (ObjectNode) chainsNode;
+				chainsList = new ArrayNode(mapper.getNodeFactory());
+				aux.set("chains", chainsList);
+			}
+			ObjectNode readerNode = new ObjectNode(mapper.getNodeFactory());
+			chainNode.set("reader", readerNode);
+			populateWriterReader(readerNode, readerCfg.getPath(), readerCfg.getType(), readerCfg.getIncludes(),
+					readerCfg.getExcludes(), readerCfg.getParameters());
+
+		}
+
+		WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
+		if (walkerCfg != null) {
+
+			ObjectNode walkerNode = null;
+
+			String type = walkerCfg.getType();
+			if (type != null) {
+				if (chainsNode == null) {
+					chainsNode = new ObjectNode(mapper.getNodeFactory());
+					ObjectNode aux = (ObjectNode) chainsNode;
+					chainsList = new ArrayNode(mapper.getNodeFactory());
+					aux.set("chains", chainsList);
+				}
+				walkerNode = new ObjectNode(mapper.getNodeFactory());
+				chainNode.set("walker", walkerNode);
+				walkerNode.set("type", new TextNode(type));
+			}
+
+			Map<String, Object> wparams = walkerCfg.getParams();
+			if (wparams != null && !wparams.isEmpty()) {
+				if (walkerNode == null) {
+					if (chainsNode == null) {
+						chainsNode = new ObjectNode(mapper.getNodeFactory());
+						ObjectNode aux = (ObjectNode) chainsNode;
+						chainsList = new ArrayNode(mapper.getNodeFactory());
+						aux.set("chains", chainsList);
+					}
+					walkerNode = new ObjectNode(mapper.getNodeFactory());
+					chainNode.set("walker", walkerNode);
+				}
+				populateParams(walkerNode, wparams);
+			}
+
+			String rootNamespace = walkerCfg.getRootNamespace();
+			if (rootNamespace != null) {
+				if (walkerNode == null) {
+					if (chainsNode == null) {
+						chainsNode = new ObjectNode(mapper.getNodeFactory());
+						ObjectNode aux = (ObjectNode) chainsNode;
+						chainsList = new ArrayNode(mapper.getNodeFactory());
+						aux.set("chains", chainsList);
+					}
+					walkerNode = new ObjectNode(mapper.getNodeFactory());
+					chainNode.set("walker", walkerNode);
+				}
+				walkerNode.set("root-namespace", new TextNode(rootNamespace));
+			}
+
+			List<TransformationConfig> transformationList = walkerCfg.getTransformations();
+			if (transformationList != null && !transformationList.isEmpty()) {
+				ArrayNode transformationListNode = new ArrayNode(mapper.getNodeFactory());
+				if (walkerNode == null) {
+					if (chainsNode == null) {
+						ObjectNode aux = new ObjectNode(mapper.getNodeFactory());
+						aux.set("transformations", transformationListNode);
+						chainsNode = aux;
+					} else {
+						chainNode.set("transformations", transformationListNode);
+					}
+				} else {
+					walkerNode.set("transformations", transformationListNode);
+				}
+				for (TransformationConfig transCfg : transformationList) {
+					ObjectNode transformationNode = new ObjectNode(mapper.getNodeFactory());
+					transformationListNode.add(transformationNode);
+					String name = transCfg.getName();
+					if (name != null) {
+						transformationNode.set("name", new TextNode(name));
+					}
+					String typeName = transCfg.getType();
+					if (typeName != null) {
+						transformationNode.set("type", new TextNode(typeName));
+					}
+					String mergePolicy = transCfg.getMergePolicy();
+					if (mergePolicy != null) {
+						transformationNode.set("merge-policy", new TextNode(mergePolicy));
+					}
+					if (transCfg.isMergeable()) {
+						transformationNode.set("isMergeable", BooleanNode.TRUE);
+					}
+					Map<String, Object> params = transCfg.getParameters();
+					if (params != null && !params.isEmpty()) {
+						populateParams(transformationNode, params);
+					}
+				}
+
+			}
+
+		}
+
+		WriterConfig writerCfg = chainCfg.getWriterConfig();
+		if (writerCfg != null) {
+			if (chainsNode == null) {
+				chainsNode = new ObjectNode(mapper.getNodeFactory());
+				ObjectNode aux = (ObjectNode) chainsNode;
+				chainsList = new ArrayNode(mapper.getNodeFactory());
+				aux.set("chains", chainsList);
+			}
+			ObjectNode writerNode = new ObjectNode(mapper.getNodeFactory());
+			chainNode.set("writer", writerNode);
+			populateWriterReader(writerNode, writerCfg.getPath(), writerCfg.getType(), writerCfg.getIncludes(),
+					writerCfg.getExcludes(), writerCfg.getParams());
+
+		}
+		if (chainsList != null) {
+			chainsList.add(chainNode);
+		}
+		write(chainsNode);
+		return true;
+	}
+
+	private void populateParams(ObjectNode root, Map<String, Object> params) {
+		ObjectNode paramsNode = new ObjectNode(mapper.getNodeFactory());
+		root.set("params", paramsNode);
+
+		Set<String> keys = params.keySet();
+		for (String key : keys) {
+			paramsNode.set(key, new TextNode(params.get(key).toString()));
+		}
+	}
+
+	private void populateWriterReader(ObjectNode root, String path, String type, String[] includes, String[] excludes,
+			Map<String, Object> params) {
+		root.set("path", new TextNode(path));
+		if (type != null) {
+			root.set("type", new TextNode(type));
+		}
+
+		if (includes != null && includes.length > 0) {
+			ArrayNode includesNode = new ArrayNode(mapper.getNodeFactory());
+			for (int i = 0; i < includes.length; i++) {
+				includesNode.add(new TextNode(includes[i]));
+			}
+			root.set("includes", includesNode);
+		}
+
+		if (excludes != null && excludes.length > 0) {
+			ArrayNode excludesNode = new ArrayNode(mapper.getNodeFactory());
+			for (int i = 0; i < excludes.length; i++) {
+				excludesNode.add(new TextNode(excludes[i]));
+			}
+			root.set("excludes", excludesNode);
+		}
+		if (params != null && !params.isEmpty()) {
+			populateParams(root, params);
+		}
+
+	}
+
+}
