@@ -116,6 +116,9 @@ public class ConfigurationImpl implements Configuration {
 		if (beanFactory != null && beanFactory.containsBean(name)) {
 			result = beanFactory.getBean(name);
 		}
+		if(!name.contains(":")){
+			result = beanFactory.getBean("walkmod:commons:"+name);
+		}
 		if (result == null) {
 			try {
 				Class<?> clazz = getClassLoader().loadClass(name);

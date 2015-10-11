@@ -1,3 +1,18 @@
+/* 
+  Copyright (C) 2013 Raquel Pau and Albert Coroleu.
+ 
+  Walkmod is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+ 
+  Walkmod is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+ 
+  You should have received a copy of the GNU Lesser General Public License
+  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.entities;
 
 import java.util.HashMap;
@@ -15,8 +30,8 @@ import org.walkmod.conf.entities.impl.WriterConfigImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class JSONConfigParser {
-	
-	public ReaderConfig getReader(JsonNode reader){
+
+	public ReaderConfig getReader(JsonNode reader) {
 		ReaderConfig model = new ReaderConfig();
 
 		if (reader.has("path")) {
@@ -36,9 +51,8 @@ public class JSONConfigParser {
 		model.setParameters(getParams(reader));
 		return model;
 	}
-	
-	
-	public WalkerConfig getWalker(JsonNode current){
+
+	public WalkerConfig getWalker(JsonNode current) {
 		WalkerConfig walkerCfg = new WalkerConfigImpl();
 		if (current.has("type")) {
 			walkerCfg.setType(current.get("type").asText());
@@ -56,10 +70,10 @@ public class JSONConfigParser {
 			walkerCfg.setRootNamespace(current.get("root-namespace").asText());
 		}
 		walkerCfg.setParams(getParams(current));
-		
+
 		return walkerCfg;
 	}
-	
+
 	public List<TransformationConfig> getTransformationCfgs(JsonNode current) {
 		if (current.has("transformations")) {
 			List<TransformationConfig> transList = new LinkedList<TransformationConfig>();
@@ -90,9 +104,7 @@ public class JSONConfigParser {
 		return null;
 	}
 
-	
-	
-	public WriterConfig getWriter(JsonNode writer){
+	public WriterConfig getWriter(JsonNode writer) {
 		WriterConfig model = new WriterConfigImpl();
 
 		if (writer.has("path")) {
@@ -112,7 +124,7 @@ public class JSONConfigParser {
 		model.setParams(getParams(writer));
 		return model;
 	}
-	
+
 	public String[] getFileSet(JsonNode parent) {
 		String[] includes = new String[parent.size()];
 		Iterator<JsonNode> includesIt = parent.iterator();
@@ -124,7 +136,7 @@ public class JSONConfigParser {
 		}
 		return includes;
 	}
-	
+
 	public Map<String, Object> getParams(JsonNode next) {
 		if (next.has("params")) {
 			Iterator<Entry<String, JsonNode>> it2 = next.get("params").fields();

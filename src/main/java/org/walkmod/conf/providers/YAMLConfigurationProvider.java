@@ -44,7 +44,6 @@ import org.walkmod.conf.entities.impl.ChainConfigImpl;
 import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.ProviderConfigImpl;
-import org.walkmod.conf.entities.impl.WalkerConfigImpl;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -222,11 +221,15 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 				configuration.setChainConfigs(chains);
 
 			} else if (node.has("transformations")) {
+				
 				Collection<ChainConfig> chains = new LinkedList<ChainConfig>();
 				ChainConfig chainCfg = new ChainConfigImpl();
-				WalkerConfig walkerCfg = new WalkerConfigImpl();
+				chainCfg.setName("");
+				addDefaultReaderConfig(chainCfg);
+				addDefaultWalker(chainCfg);
+				WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
 				walkerCfg.setTransformations(converter.getTransformationCfgs(node));
-				chainCfg.setWalkerConfig(walkerCfg);
+				addDefaultWriterConfig(chainCfg);
 				chains.add(chainCfg);
 				configuration.setChainConfigs(chains);
 			}
@@ -346,6 +349,9 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 					readerCfg.getExcludes(), readerCfg.getParameters());
 
 		}
+		else{
+			addDefaultReaderConfig(chainCfg);
+		}
 
 		WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
 		if (walkerCfg != null) {
@@ -450,6 +456,9 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 			populateWriterReader(writerNode, writerCfg.getPath(), writerCfg.getType(), writerCfg.getIncludes(),
 					writerCfg.getExcludes(), writerCfg.getParams());
 
+		}
+		else{
+			addDefaultWriterConfig(chainCfg);
 		}
 		if (chainsList != null) {
 			chainsList.add(chainNode);

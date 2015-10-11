@@ -278,5 +278,26 @@ public class WalkmodFacadeTest {
 		Assert.assertEquals(path, System.getProperty("user.dir"));
 
 	}
+	
+	@Test
+	public void testSimpleTransformationNameExecution() throws Exception {
+		
+		String path = System.getProperty("user.dir");
+		
+		File executionDir = new File("src/test/resources/simple");
+
+		
+
+		File cfg = new File("src/test/resources/simple/walkmod.yml");
+
+		WalkModFacade facade = new WalkModFacade(cfg, OptionsBuilder.options().executionDirectory(executionDir)
+				.printErrors(true), null);
+		facade.check();
+		
+		Assert.assertTrue(true);
+		
+		Assert.assertEquals(path, System.getProperty("user.dir"));
+
+	}
 
 }
