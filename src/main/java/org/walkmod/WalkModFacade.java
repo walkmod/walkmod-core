@@ -15,9 +15,7 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -32,11 +30,12 @@ import java.util.Locale;
 import org.apache.log4j.Logger;
 import org.walkmod.conf.ConfigurationManager;
 import org.walkmod.conf.ConfigurationProvider;
+import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.PluginConfig;
+import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.providers.IvyConfigurationProvider;
-import org.walkmod.conf.providers.XMLConfigurationProvider;
 import org.walkmod.exceptions.InvalidConfigurationException;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.impl.DefaultChainAdapterFactory;
@@ -54,7 +53,7 @@ public class WalkModFacade {
 	protected static Logger log = Logger.getLogger(WalkModFacade.class);
 
 	private static final String DEFAULT_WALKMOD_XML_FILE = "walkmod.xml";
-	
+
 	private static final String DEFAULT_WALKMOD_YML_FILE = "walkmod.yml";
 
 	private Options options;
@@ -280,9 +279,9 @@ public class WalkModFacade {
 			this.cfg = walkmodCfg.getAbsoluteFile();
 		} else {
 			this.cfg = new File(options.getExecutionDirectory().getAbsolutePath(), DEFAULT_WALKMOD_XML_FILE);
-			if(!cfg.exists()){
+			if (!cfg.exists()) {
 				File yml = new File(options.getExecutionDirectory().getAbsolutePath(), DEFAULT_WALKMOD_YML_FILE);
-				if(yml.exists()){
+				if (yml.exists()) {
 					cfg = yml;
 				}
 			}
@@ -500,64 +499,118 @@ public class WalkModFacade {
 
 	/**
 	 * Initializes an empty walkmod configuration file
-	 * @throws IOException in case that the walkmod configuration file can't be created or written
+	 * 
+	 * @throws IOException
+	 *             in case that the walkmod configuration file can't be created
+	 *             or written
 	 */
 	public void init() throws IOException {
-		if (!cfg.exists()) {
-			if (cfg.createNewFile()) {
-				FileWriter fos = new FileWriter(cfg);
+		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
 
-				BufferedWriter bos = new BufferedWriter(fos);
-				try {
-					bos.write("<!DOCTYPE walkmod PUBLIC \"-//WALKMOD//DTD\"  \"http://www.walkmod.com/dtd/walkmod-1.1.dtd\" >");
-					bos.newLine();
-					bos.write("<walkmod>");
-					bos.newLine();
-					bos.write("</walkmod>");
-					if (options.isVerbose()) {
-						log.info("CONFIGURATION FILE [ " + cfg.getAbsolutePath() + "] CREATION COMPLETE");
-					}
-				} finally {
-					bos.close();
+		if (!cfg.exists()) {
+
+			ConfigurationManager manager = new ConfigurationManager(cfg, false);
+
+			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
+			try {
+				cfgProvider.createConfig();
+				if (options.isVerbose()) {
+					log.info("CONFIGURATION FILE [ " + cfg.getAbsolutePath() + "] CREATION COMPLETE");
 				}
-			} else {
+			} catch (IOException aux) {
 				if (options.isVerbose()) {
 					log.error("The system can't create the file [ " + cfg.getAbsolutePath() + "]");
 				}
-
+				if (options.isThrowException()) {
+					System.setProperty("user.dir", userDir);
+					throw aux;
+				}
 			}
+
 		} else {
 			if (options.isVerbose()) {
 				log.error("The configuration file [" + cfg.getAbsolutePath() + "] already exists");
 			}
 		}
+		System.setProperty("user.dir", userDir);
 	}
-	
+
 	/**
 	 * Adds a new chain configuration into the configuration file
-	 * @param chainCfg chain configuration to add
-	 * @throws Exception in case that the walkmod configuration file can't be read or written.
+	 * 
+	 * @param chainCfg
+	 *            chain configuration to add
+	 * @throws Exception
+	 *             in case that the walkmod configuration file can't be read or
+	 *             written.
 	 */
-	public void addChainConfig(ChainConfig chainCfg) throws Exception{
-		if(!cfg.exists()){
+	public void addChainConfig(ChainConfig chainCfg) throws Exception {
+		if (!cfg.exists()) {
 			init();
 		}
-		XMLConfigurationProvider cfgProvider = new XMLConfigurationProvider(cfg.getAbsolutePath(), true);
-		
-		cfgProvider.addChainConfig(chainCfg);
+		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+		try {
+			ConfigurationManager manager = new ConfigurationManager(cfg, false);
+
+			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
+
+			cfgProvider.addChainConfig(chainCfg);
+		} finally {
+			System.setProperty("user.dir", userDir);
+		}
 	}
-	
+
+	/**
+	 * Adds a new transformation configuration into the configuration file
+	 * 
+	 * @param chainCfg
+	 *            chain configuration to add
+	 * @throws Exception
+	 *             in case that the walkmod configuration file can't be read or
+	 *             written.
+	 */
+	public void addTransformationConfig(String chain, TransformationConfig transformationCfg) throws Exception {
+		if (!cfg.exists()) {
+			init();
+		}
+		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+		try {
+			ConfigurationManager manager = new ConfigurationManager(cfg, false);
+
+			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
+
+			cfgProvider.addTransformationConfig(chain, transformationCfg);
+		} finally {
+			System.setProperty("user.dir", userDir);
+		}
+	}
+
 	/**
 	 * Adds a new plugin into the configuration file
-	 * @param pluginConfig the plugin to add
-	 * @throws Exception in case that the walkmod configuration file can't be read or written.
+	 * 
+	 * @param pluginConfig
+	 *            the plugin to add
+	 * @throws Exception
+	 *             in case that the walkmod configuration file can't be read or
+	 *             written.
 	 */
-	public void addPluginConfig(PluginConfig pluginConfig) throws Exception{
-		if(!cfg.exists()){
+	public void addPluginConfig(PluginConfig pluginConfig) throws Exception {
+		if (!cfg.exists()) {
 			init();
 		}
-		XMLConfigurationProvider cfgProvider = new XMLConfigurationProvider(cfg.getAbsolutePath(), true);
-		cfgProvider.addPluginConfig(pluginConfig);
+		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+		try {
+			ConfigurationManager manager = new ConfigurationManager(cfg, false);
+
+			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
+			cfgProvider.addPluginConfig(pluginConfig);
+		} finally {
+			System.setProperty("user.dir", userDir);
+		}
 	}
 
 	/**

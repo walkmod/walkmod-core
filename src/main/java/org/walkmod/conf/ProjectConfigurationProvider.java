@@ -15,17 +15,23 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf;
 
+import java.io.IOException;
+
 import javax.xml.transform.TransformerException;
 
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.PluginConfig;
+import org.walkmod.conf.entities.TransformationConfig;
 
 public interface ProjectConfigurationProvider extends ConfigurationProvider{
 	
 	public boolean addPluginConfig(PluginConfig pluginConfig) throws TransformerException;
 	
 	public boolean addChainConfig(ChainConfig chainCfg) throws TransformerException;
+
+	public boolean addTransformationConfig(String chain, TransformationConfig transformationCfg) throws TransformerException;
 	
+	public void createConfig() throws IOException;
 	
 
 }

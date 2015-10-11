@@ -66,7 +66,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 	private YAMLFactory factory;
 
 	private ObjectMapper mapper;
-	
+
 	private JSONConfigParser converter = new JSONConfigParser();
 
 	public YAMLConfigurationProvider() {
@@ -193,7 +193,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 
 					if (current.has("reader")) {
 						JsonNode reader = current.get("reader");
-						
+
 						chainCfg.setReaderConfig(converter.getReader(reader));
 					} else {
 						addDefaultReaderConfig(chainCfg);
@@ -201,13 +201,13 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 					if (current.has("writer")) {
 
 						JsonNode writer = current.get("writer");
-						
+
 						chainCfg.setWriterConfig(converter.getWriter(writer));
 					} else {
 						addDefaultWriterConfig(chainCfg);
 					}
 					if (current.has("walker")) {
-						
+
 						chainCfg.setWalkerConfig(converter.getWalker(current));
 					} else {
 						addDefaultWalker(chainCfg);
@@ -221,7 +221,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 				configuration.setChainConfigs(chains);
 
 			} else if (node.has("transformations")) {
-				
+
 				Collection<ChainConfig> chains = new LinkedList<ChainConfig>();
 				ChainConfig chainCfg = new ChainConfigImpl();
 				chainCfg.setName("");
@@ -349,8 +349,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 			populateWriterReader(readerNode, readerCfg.getPath(), readerCfg.getType(), readerCfg.getIncludes(),
 					readerCfg.getExcludes(), readerCfg.getParameters());
 
-		}
-		else{
+		} else {
 			addDefaultReaderConfig(chainCfg);
 		}
 
@@ -419,25 +418,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 				for (TransformationConfig transCfg : transformationList) {
 					ObjectNode transformationNode = new ObjectNode(mapper.getNodeFactory());
 					transformationListNode.add(transformationNode);
-					String name = transCfg.getName();
-					if (name != null) {
-						transformationNode.set("name", new TextNode(name));
-					}
-					String typeName = transCfg.getType();
-					if (typeName != null) {
-						transformationNode.set("type", new TextNode(typeName));
-					}
-					String mergePolicy = transCfg.getMergePolicy();
-					if (mergePolicy != null) {
-						transformationNode.set("merge-policy", new TextNode(mergePolicy));
-					}
-					if (transCfg.isMergeable()) {
-						transformationNode.set("isMergeable", BooleanNode.TRUE);
-					}
-					Map<String, Object> params = transCfg.getParameters();
-					if (params != null && !params.isEmpty()) {
-						populateParams(transformationNode, params);
-					}
+					createTransformation(transformationNode, transCfg);
 				}
 
 			}
@@ -457,8 +438,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 			populateWriterReader(writerNode, writerCfg.getPath(), writerCfg.getType(), writerCfg.getIncludes(),
 					writerCfg.getExcludes(), writerCfg.getParams());
 
-		}
-		else{
+		} else {
 			addDefaultWriterConfig(chainCfg);
 		}
 		if (chainsList != null) {
@@ -466,6 +446,29 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 		}
 		write(chainsNode);
 		return true;
+	}
+
+	private void createTransformation(ObjectNode transformationNode, TransformationConfig transCfg) {
+
+		String name = transCfg.getName();
+		if (name != null) {
+			transformationNode.set("name", new TextNode(name));
+		}
+		String typeName = transCfg.getType();
+		if (typeName != null) {
+			transformationNode.set("type", new TextNode(typeName));
+		}
+		String mergePolicy = transCfg.getMergePolicy();
+		if (mergePolicy != null) {
+			transformationNode.set("merge-policy", new TextNode(mergePolicy));
+		}
+		if (transCfg.isMergeable()) {
+			transformationNode.set("isMergeable", BooleanNode.TRUE);
+		}
+		Map<String, Object> params = transCfg.getParameters();
+		if (params != null && !params.isEmpty()) {
+			populateParams(transformationNode, params);
+		}
 	}
 
 	private void populateParams(ObjectNode root, Map<String, Object> params) {
@@ -480,10 +483,10 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 
 	private void populateWriterReader(ObjectNode root, String path, String type, String[] includes, String[] excludes,
 			Map<String, Object> params) {
-		if(path != null && !"".equals(path)){
+		if (path != null && !"".equals(path)) {
 			root.set("path", new TextNode(path));
 		}
-	
+
 		if (type != null) {
 			root.set("type", new TextNode(type));
 		}
@@ -507,6 +510,91 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 			populateParams(root, params);
 		}
 
+	}
+
+	@Override
+	public boolean addTransformationConfig(String chain, TransformationConfig transformationCfg)
+			throws TransformerException {
+		File cfg = new File(fileName);
+		ArrayNode transformationsNode = null;
+		JsonNode chainsNode = null;
+		try {
+			chainsNode = mapper.readTree(cfg);
+		} catch (Exception e) {
+
+		}
+		if (chainsNode == null) {
+			chainsNode = new ObjectNode(mapper.getNodeFactory());
+
+		}
+
+		if (!chainsNode.has("chains")) {
+			if (chain == null) {
+				if (chainsNode.has("transformations")) {
+					JsonNode aux = chainsNode.get("transformations");
+					if (aux.isArray()) {
+						transformationsNode = (ArrayNode) aux;
+					}
+				}
+				ObjectNode aux = (ObjectNode) chainsNode;
+				transformationsNode = new ArrayNode(mapper.getNodeFactory());
+				aux.set("transformations", transformationsNode);
+			} else {
+				throw new TransformerException("The chain [" + chain + "] does not exists");
+			}
+		} else {
+			if (chain != null) {
+				JsonNode aux = chainsNode.get("chains");
+				if (aux.isArray()) {
+					Iterator<JsonNode> it = aux.elements();
+					while (it.hasNext()) {
+						JsonNode next = it.next();
+						if (next.has("name")) {
+							String id = next.get("name").asText();
+							if (chain.equals(id)) {
+								if (next.has("transformations")) {
+									JsonNode auxTrans = next.get("transformations");
+									if (auxTrans.isArray()) {
+										transformationsNode = (ArrayNode) auxTrans;
+									} else {
+										throw new TransformerException("The chain [" + chain
+												+ "] does not have a valid transformations node");
+									}
+								} else if (next.isObject()) {
+									ObjectNode auxNext = (ObjectNode) next;
+									transformationsNode = new ArrayNode(mapper.getNodeFactory());
+									auxNext.set("transformations", transformationsNode);
+								} else {
+									throw new TransformerException("The chain [" + chain
+											+ "] does not have a valid structure");
+								}
+							}
+						}
+
+					}
+				}
+			}
+		}
+		if (transformationsNode != null) {
+			ObjectNode transformationNode = new ObjectNode(mapper.getNodeFactory());
+			transformationsNode.add(transformationNode);
+
+			createTransformation(transformationNode, transformationCfg);
+			write(chainsNode);
+			return true;
+		} else if (chain != null) {
+			throw new TransformerException("The chain [" + chain + "] does not exists");
+		}
+
+		return false;
+	}
+
+	@Override
+	public void createConfig() throws IOException {
+		File cfg = new File(fileName);
+		if (!cfg.exists() && !cfg.createNewFile()) {
+			throw new IOException("The system can't create the [" + fileName + "] file");
+		}
 	}
 
 }

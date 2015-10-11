@@ -16,7 +16,9 @@
 
 package org.walkmod.conf.providers;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -43,8 +45,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.conf.ConfigurationException;
+import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.MergePolicyConfig;
@@ -71,7 +73,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 
-public class XMLConfigurationProvider extends AbstractChainConfigurationProvider implements ProjectConfigurationProvider {
+public class XMLConfigurationProvider extends AbstractChainConfigurationProvider implements
+		ProjectConfigurationProvider {
 
 	/**
 	 * Configuration file.
@@ -244,6 +247,39 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		}
 
 		return result;
+	}
+
+	private Element createTransformationElement(TransformationConfig transformationCfg) {
+		Element element = document.createElement("transformation");
+
+		String name = transformationCfg.getName();
+		if (name != null && !"".equals(name)) {
+			element.setAttribute("name", transformationCfg.getName());
+		}
+
+		String type = transformationCfg.getType();
+		if (type != null && !"".equals(type)) {
+			element.setAttribute("type", type);
+		}
+
+		String mergePolicy = transformationCfg.getMergePolicy();
+		if (mergePolicy != null && !"".equals(mergePolicy)) {
+			element.setAttribute("merge-policy", mergePolicy);
+		}
+
+		if (transformationCfg.isMergeable()) {
+			element.setAttribute("isMergeable", "true");
+		}
+		Map<String, Object> params = transformationCfg.getParameters();
+		List<Element> paramListEment = createParamsElement(params);
+		if (paramListEment != null) {
+
+			for (Element param : paramListEment) {
+				element.appendChild(param);
+			}
+		}
+
+		return element;
 	}
 
 	private Element createChainElement(ChainConfig chainCfg) {
@@ -801,7 +837,6 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		wc.setTransformations(transformationConfigs);
 	}
 
-
 	public void loadWriter(Element child, ChainConfig ac) {
 		if ("writer".equals(child.getNodeName())) {
 			WriterConfig wc = new WriterConfigImpl();
@@ -1020,6 +1055,59 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 					}
 				}
 			}
+		}
+	}
+
+	@Override
+	public boolean addTransformationConfig(String chain, TransformationConfig transformationCfg)
+			throws TransformerException {
+		if (document == null) {
+			init();
+		}
+		Element rootElement = document.getDocumentElement();
+		NodeList children = rootElement.getChildNodes();
+		int childSize = children.getLength();
+		if (chain != null && !"".equals(chain)) {
+			for (int i = 0; i < childSize; i++) {
+				Node childNode = children.item(i);
+				if (childNode instanceof Element) {
+					Element child = (Element) childNode;
+					final String nodeName = child.getNodeName();
+					if ("chain".equals(nodeName)) {
+						String name = child.getAttribute("name");
+						if (name.equals(chain)) {
+							child.appendChild(createTransformationElement(transformationCfg));
+							return true;
+						}
+					}
+				}
+			}
+		} else {
+			rootElement.appendChild(createTransformationElement(transformationCfg));
+			persist();
+		}
+
+		return false;
+	}
+
+	@Override
+	public void createConfig() throws IOException {
+		File cfg = new File(configFileName);
+		if (cfg.createNewFile()) {
+			FileWriter fos = new FileWriter(cfg);
+			BufferedWriter bos = new BufferedWriter(fos);
+			try {
+				bos.write("<!DOCTYPE walkmod PUBLIC \"-//WALKMOD//DTD\"  \"http://www.walkmod.com/dtd/walkmod-1.1.dtd\" >");
+				bos.newLine();
+				bos.write("<walkmod>");
+				bos.newLine();
+				bos.write("</walkmod>");
+
+			} finally {
+				bos.close();
+			}
+		} else {
+			throw new IOException("The system can't create the [" + configFileName + "] file");
 		}
 	}
 }

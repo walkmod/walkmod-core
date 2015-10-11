@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.walkmod.commands.AddChainCommand;
+import org.walkmod.commands.AddTransformationCommand;
 import org.walkmod.commands.JSONConverter;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
@@ -303,5 +304,36 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 
+	}
+	
+	@Test
+	public void testAddTransformation() throws Exception{
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null);
+		File file = new File("src/test/resources/yaml/addtransformation.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+		
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			TransformationConfig transCfg = command.buildTransformationCfg();
+
+			provider.addTransformationConfig(null, transCfg);
+			String output = FileUtils.readFileToString(file);
+
+			String desiredOutput = "transformations:\n";
+			desiredOutput += "- type: \"imports-cleaner\"";
+			
+			Assert.assertEquals(desiredOutput, output);
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
 	}
 }

@@ -40,7 +40,7 @@ public class ConfigurationManager {
 		setConfiguration(conf);
 	}
 
-	public ConfigurationManager(File walkmodcfg, ConfigurationProvider... configurationProviders) {
+	public ConfigurationManager(File walkmodcfg, boolean execute, ConfigurationProvider... configurationProviders) {
 		setConfiguration(new ConfigurationImpl());
 		if (walkmodcfg.getName().endsWith(".xml")) {
 			this.configurationProviders.add(new XMLConfigurationProvider(walkmodcfg.getAbsolutePath(), false));
@@ -56,14 +56,31 @@ public class ConfigurationManager {
 		this.configurationProviders.add(new LanguageConfigurationProvider());
 		// the class loader can be modified before
 		this.configurationProviders.add(new SpringConfigurationProvider());
-		executeConfigurationProviders();
-		ConfigurationAdapter ca = new DefaultConfigurationAdapter();
-		ca.setConfiguration(configuration);
-		ca.prepare();
+		if (execute) {
+			executeConfigurationProviders();
+			ConfigurationAdapter ca = new DefaultConfigurationAdapter();
+			ca.setConfiguration(configuration);
+			ca.prepare();
+		}
+	}
+
+	public ConfigurationManager(File walkmodcfg, ConfigurationProvider... configurationProviders) {
+		this(walkmodcfg, true, configurationProviders);
 	}
 
 	public ConfigurationManager(ConfigurationProvider... configurationProviders) {
 		this(new File("walkmod.xml"), configurationProviders);
+	}
+
+	public ProjectConfigurationProvider getProjectConfigurationProvider() {
+		Iterator<ConfigurationProvider> it = configurationProviders.iterator();
+		while (it.hasNext()) {
+			ConfigurationProvider current = it.next();
+			if (current instanceof ProjectConfigurationProvider) {
+				return (ProjectConfigurationProvider) current;
+			}
+		}
+		return null;
 	}
 
 	public void setConfiguration(Configuration configuration) {
