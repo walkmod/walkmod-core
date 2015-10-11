@@ -27,8 +27,10 @@ import org.walkmod.conf.entities.impl.TransformationConfigImpl;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
 
+@Parameters(separators = "=", commandDescription = "Adds a transformation into the walkmod configuration file.")
 public class AddTransformationCommand implements Command {
 
 	@Parameter(names = "--params", description = "Transformation parameters as JSON object", converter = JSONConverter.class)
