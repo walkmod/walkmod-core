@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.transform.TransformerException;
@@ -33,8 +32,8 @@ import org.walkmod.conf.ConfigurationException;
 import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
+import org.walkmod.conf.entities.JSONConfigParser;
 import org.walkmod.conf.entities.MergePolicyConfig;
-import org.walkmod.conf.entities.ParserConfig;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.ReaderConfig;
@@ -43,12 +42,9 @@ import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.conf.entities.WriterConfig;
 import org.walkmod.conf.entities.impl.ChainConfigImpl;
 import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
-import org.walkmod.conf.entities.impl.ParserConfigImpl;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.ProviderConfigImpl;
-import org.walkmod.conf.entities.impl.TransformationConfigImpl;
 import org.walkmod.conf.entities.impl.WalkerConfigImpl;
-import org.walkmod.conf.entities.impl.WriterConfigImpl;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -71,6 +67,8 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 	private YAMLFactory factory;
 
 	private ObjectMapper mapper;
+	
+	private JSONConfigParser converter = new JSONConfigParser();
 
 	public YAMLConfigurationProvider() {
 		this("walkmod.yml");
@@ -174,7 +172,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 					ProviderConfig provCfg = new ProviderConfigImpl();
 					provCfg.setType(next.get("type").asText());
 
-					provCfg.setParameters(getParams(next));
+					provCfg.setParameters(converter.getParams(next));
 					provConfigs.add(provCfg);
 				}
 				configuration.setProviderConfigurations(provConfigs);
@@ -195,75 +193,28 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 					}
 
 					if (current.has("reader")) {
-						ReaderConfig model = new ReaderConfig();
-
 						JsonNode reader = current.get("reader");
-						if (reader.has("path")) {
-							model.setPath(reader.get("path").asText());
-						}
-						if (reader.has("type")) {
-							model.setType(reader.get("type").asText());
-						}
-						if (reader.has("includes")) {
-							JsonNode includesJson = reader.get("includes");
-							model.setIncludes(getFileSet(includesJson));
-						}
-						if (reader.has("excludes")) {
-							JsonNode excludesJson = reader.get("excludes");
-							model.setExcludes(getFileSet(excludesJson));
-						}
-						model.setParameters(getParams(reader));
-						chainCfg.setReaderConfig(model);
+						
+						chainCfg.setReaderConfig(converter.getReader(reader));
 					} else {
 						addDefaultReaderConfig(chainCfg);
 					}
 					if (current.has("writer")) {
-						WriterConfig writerCfg = new WriterConfigImpl();
 
-						JsonNode reader = current.get("writer");
-						if (reader.has("path")) {
-							writerCfg.setPath(reader.get("path").asText());
-						}
-						if (reader.has("type")) {
-							writerCfg.setType(reader.get("type").asText());
-						}
-						if (reader.has("includes")) {
-							JsonNode includesJson = reader.get("includes");
-							writerCfg.setIncludes(getFileSet(includesJson));
-						}
-						if (reader.has("excludes")) {
-							JsonNode excludesJson = reader.get("excludes");
-							writerCfg.setExcludes(getFileSet(excludesJson));
-						}
-						writerCfg.setParams(getParams(reader));
-						chainCfg.setWriterConfig(writerCfg);
+						JsonNode writer = current.get("writer");
+						
+						chainCfg.setWriterConfig(converter.getWriter(writer));
 					} else {
 						addDefaultWriterConfig(chainCfg);
 					}
 					if (current.has("walker")) {
-						WalkerConfig walkerCfg = new WalkerConfigImpl();
-						if (current.has("type")) {
-							walkerCfg.setType(current.get("type").asText());
-						}
-						if (current.has("parser")) {
-							ParserConfig parserCfg = new ParserConfigImpl();
-							JsonNode parserNode = current.get("parser");
-							parserCfg.setType(parserNode.get("type").asText());
-							parserCfg.setParameters(getParams(parserNode));
-							walkerCfg.setParserConfig(parserCfg);
-						}
-						walkerCfg.setTransformations(getTransformationCfgs(current));
-
-						if (current.has("root-namespace")) {
-							walkerCfg.setRootNamespace(current.get("root-namespace").asText());
-						}
-						walkerCfg.setParams(getParams(current));
-						chainCfg.setWalkerConfig(walkerCfg);
+						
+						chainCfg.setWalkerConfig(converter.getWalker(current));
 					} else {
 						addDefaultWalker(chainCfg);
 						if (current.has("transformations")) {
 							WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
-							walkerCfg.setTransformations(getTransformationCfgs(current));
+							walkerCfg.setTransformations(converter.getTransformationCfgs(current));
 						}
 					}
 					chains.add(chainCfg);
@@ -274,7 +225,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 				Collection<ChainConfig> chains = new LinkedList<ChainConfig>();
 				ChainConfig chainCfg = new ChainConfigImpl();
 				WalkerConfig walkerCfg = new WalkerConfigImpl();
-				walkerCfg.setTransformations(getTransformationCfgs(node));
+				walkerCfg.setTransformations(converter.getTransformationCfgs(node));
 				chainCfg.setWalkerConfig(walkerCfg);
 				chains.add(chainCfg);
 				configuration.setChainConfigs(chains);
@@ -286,63 +237,6 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 			throw new ConfigurationException("Error reading the " + fileName + " configuration", e);
 
 		}
-	}
-
-	private List<TransformationConfig> getTransformationCfgs(JsonNode current) {
-		if (current.has("transformations")) {
-			List<TransformationConfig> transList = new LinkedList<TransformationConfig>();
-			Iterator<JsonNode> itTrans = current.get("transformations").iterator();
-
-			while (itTrans.hasNext()) {
-				JsonNode item = itTrans.next();
-				TransformationConfig trans = new TransformationConfigImpl();
-				if (item.has("type")) {
-					trans.setType(item.get("type").asText());
-				}
-				if (item.has("name")) {
-					trans.setName(item.get("name").asText());
-				}
-				if (item.has("merge-policy")) {
-					trans.setMergePolicy(item.get("merge-policy").asText());
-				}
-				if (item.has("isMergeable")) {
-					trans.isMergeable(item.get("isMergeable").asBoolean());
-				}
-
-				trans.setParameters(getParams(item));
-				transList.add(trans);
-			}
-			return transList;
-
-		}
-		return null;
-	}
-
-	private String[] getFileSet(JsonNode parent) {
-		String[] includes = new String[parent.size()];
-		Iterator<JsonNode> includesIt = parent.iterator();
-		int j = 0;
-		while (includesIt.hasNext()) {
-			JsonNode item = includesIt.next();
-			includes[j] = item.asText();
-			j++;
-		}
-		return includes;
-	}
-
-	private Map<String, Object> getParams(JsonNode next) {
-		if (next.has("params")) {
-			Iterator<Entry<String, JsonNode>> it2 = next.get("params").fields();
-			Map<String, Object> params = new HashMap<String, Object>();
-			while (it2.hasNext()) {
-				Entry<String, JsonNode> param = it2.next();
-
-				params.put(param.getKey(), param.getValue().asText());
-			}
-			return params;
-
-		}
-		return null;
 	}
 
 	@Override
@@ -383,23 +277,25 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 	}
 
 	private void write(JsonNode node) throws TransformerException {
-		File cfg = new File(fileName);
+		if (node != null) {
+			File cfg = new File(fileName);
 
-		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream(cfg);
-			JsonGenerator generator = mapper.getFactory().createGenerator(fos);
+			FileOutputStream fos = null;
+			try {
+				fos = new FileOutputStream(cfg);
+				JsonGenerator generator = mapper.getFactory().createGenerator(fos);
 
-			generator.useDefaultPrettyPrinter();
-			mapper.writeTree(generator, node);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (fos != null) {
-				try {
-					fos.close();
-				} catch (IOException e) {
-					throw new TransformerException("Error writting the configuration", e);
+				generator.useDefaultPrettyPrinter();
+				mapper.writeTree(generator, node);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				if (fos != null) {
+					try {
+						fos.close();
+					} catch (IOException e) {
+						throw new TransformerException("Error writting the configuration", e);
+					}
 				}
 			}
 		}
@@ -574,7 +470,10 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 
 	private void populateWriterReader(ObjectNode root, String path, String type, String[] includes, String[] excludes,
 			Map<String, Object> params) {
-		root.set("path", new TextNode(path));
+		if(path != null && !"".equals(path)){
+			root.set("path", new TextNode(path));
+		}
+	
 		if (type != null) {
 			root.set("type", new TextNode(type));
 		}

@@ -15,18 +15,33 @@
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.commands;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.beust.jcommander.IStringConverter;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class JSONConverter implements IStringConverter<JSONObject> {
+public class JSONConverter implements IStringConverter<JsonNode> {
+	private ObjectMapper mapper;
+	
+	public JSONConverter(){
+		mapper = new ObjectMapper();
+		
+		mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
+		mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
+	}
+	
 	@Override
-	public JSONObject convert(String value) {
-		DefaultJSONParser parser = new DefaultJSONParser(value);
-		JSONObject object = parser.parseObject();
-		parser.close();
-		return object;
+	public JsonNode convert(String value) {
+		JsonNode node = null;
+		try {
+			 node = mapper.readTree(value);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		
+		return node;
 	}
 
 }

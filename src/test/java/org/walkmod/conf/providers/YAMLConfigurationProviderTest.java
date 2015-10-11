@@ -1,28 +1,23 @@
 package org.walkmod.conf.providers;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.walkmod.commands.AddChainCommand;
+import org.walkmod.commands.JSONConverter;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
-import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.conf.entities.impl.ChainConfigImpl;
 import org.walkmod.conf.entities.impl.ConfigurationImpl;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
-import org.walkmod.conf.entities.impl.TransformationConfigImpl;
-import org.walkmod.conf.entities.impl.WalkerConfigImpl;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class YAMLConfigurationProviderTest {
 
@@ -135,14 +130,14 @@ public class YAMLConfigurationProviderTest {
 			pluginCfg.setVersion("1.0");
 
 			provider.addPluginConfig(pluginCfg);
-			
+
 			String output = FileUtils.readFileToString(file);
-			
+
 			String desiredOutput = "plugins:\n";
-			desiredOutput+="- \"org.walkmod:myplugin:1.0\"";
-			
+			desiredOutput += "- \"org.walkmod:myplugin:1.0\"";
+
 			Assert.assertEquals(desiredOutput, output);
-				
+
 		} finally {
 			if (file.exists()) {
 				file.delete();
@@ -151,7 +146,99 @@ public class YAMLConfigurationProviderTest {
 	}
 
 	@Test
-	public void testAddChain() throws Exception {
+	public void testEmptyChain() throws Exception {
+		File file = new File("src/test/resources/yaml/addEmptychain.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+		YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+		Configuration conf = new ConfigurationImpl();
+		provider.init(conf);
+		ChainConfig chainCfg = new ChainConfigImpl();
+
+		try {
+			provider.addChainConfig(chainCfg);
+
+			String output = FileUtils.readFileToString(file);
+
+			Assert.assertEquals("", output);
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+
+	@Test
+	public void testChainWithDifferentDefaultPath() throws Exception {
+
+		AddChainCommand command = new AddChainCommand(null, "src", null, null, null);
+		ChainConfig chainCfg = command.buildChainCfg();
+
+		File file = new File("src/test/resources/yaml/addEmptychain.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+		YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+		Configuration conf = new ConfigurationImpl();
+		provider.init(conf);
+		try {
+			provider.addChainConfig(chainCfg);
+
+			String output = FileUtils.readFileToString(file);
+
+			String validOutput = "chains:\n";
+			validOutput += "- reader:\n";
+			validOutput += "    path: \"src\"\n";
+			validOutput += "  writer:\n";
+			validOutput += "    path: \"src\"";
+			Assert.assertEquals(validOutput, output);
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+
+	@Test
+	public void testChainWithName() throws Exception {
+
+		AddChainCommand command = new AddChainCommand("hello", "src/main/java", null, null, null);
+		ChainConfig chainCfg = command.buildChainCfg();
+
+		File file = new File("src/test/resources/yaml/addEmptychain.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+		YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+		Configuration conf = new ConfigurationImpl();
+		provider.init(conf);
+		try {
+			provider.addChainConfig(chainCfg);
+
+			String output = FileUtils.readFileToString(file);
+
+			Assert.assertEquals("", output);
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+	
+	@Test
+	public void testAddChainWithReader() throws Exception{
+		JSONConverter converter = new JSONConverter();
+		JsonNode reader = converter
+				.convert("{type: \"custom-reader\"}");
+		AddChainCommand command = new AddChainCommand("mychain", "src/main/java", reader, null, null);
+
 		File file = new File("src/test/resources/yaml/addchain.yml");
 		if (file.exists()) {
 			file.delete();
@@ -163,23 +250,43 @@ public class YAMLConfigurationProviderTest {
 			Configuration conf = new ConfigurationImpl();
 			provider.init(conf);
 
-			ChainConfig chainCfg = new ChainConfigImpl();
-			chainCfg.setName("mychain");
-			WalkerConfig walkerCfg = new WalkerConfigImpl();
-			chainCfg.setWalkerConfig(walkerCfg);
+			ChainConfig chainCfg = command.buildChainCfg();
 
-			List<TransformationConfig> transformations = new LinkedList<TransformationConfig>();
+			provider.addChainConfig(chainCfg);
+			String output = FileUtils.readFileToString(file);
 
-			TransformationConfig transCfg = new TransformationConfigImpl();
-			transformations.add(transCfg);
+			String desiredOutput = "chains:\n";
+			desiredOutput += "- reader:\n";
+			desiredOutput += "    type: \"custom-reader\"";
 
-			transCfg.setType("walkmod:commons:method-refactor");
+			Assert.assertEquals(desiredOutput, output);
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
 
-			Map<String, Object> params = new HashMap<String, Object>();
-			transCfg.setParameters(params);
-			params.put("refactoringConfigFile", "src/conf/refactoring-methods.json");
+	@Test
+	public void testAddChainTransformation() throws Exception {
 
-			walkerCfg.setTransformations(transformations);
+		JSONConverter converter = new JSONConverter();
+		JsonNode walker = converter
+				.convert("{transformations: [ { type: \"walkmod:commons:method-refactor\", params: { refactoringConfigFile: \"src/conf/refactoring-methods.json\"} }]}");
+		AddChainCommand command = new AddChainCommand("mychain", "src/main/java", null, null, walker);
+
+		File file = new File("src/test/resources/yaml/addchain.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			ChainConfig chainCfg = command.buildChainCfg();
 
 			provider.addChainConfig(chainCfg);
 			String output = FileUtils.readFileToString(file);
