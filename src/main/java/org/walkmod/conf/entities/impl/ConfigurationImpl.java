@@ -117,7 +117,17 @@ public class ConfigurationImpl implements Configuration {
 			result = beanFactory.getBean(name);
 		}
 		if(!name.contains(":")){
-			result = beanFactory.getBean("walkmod:commons:"+name);
+			result = beanFactory.getBean("org.walkmod:walkmod-"+name+"-plugin:"+name);
+		}
+		else{
+			String[] parts = name.split(":");
+			if(parts.length == 2){
+				String pluginId = parts[0].trim();
+				String beanId = parts[1].trim();
+				if(pluginId.length() > 0 && beanId.length() > 0){
+					result = beanFactory.getBean("org.walkmod:walkmod-"+pluginId+"-plugin:"+beanId);
+				}
+			}
 		}
 		if (result == null) {
 			try {
