@@ -1,4 +1,2 @@
-plugins:
- - org.walkmod:walkmod-imports-cleaner-plugin:[2.0, 3.0]
 transformations:
- - type: import-cleaner
+ - type: imports-cleaner

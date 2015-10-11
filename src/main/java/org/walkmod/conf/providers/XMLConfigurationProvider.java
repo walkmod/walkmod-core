@@ -868,6 +868,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		loadProviders();
 		loadMergePolicies();
 		loadChains();
+		inferPlugins(configuration);
 	}
 
 	private void loadModules() {

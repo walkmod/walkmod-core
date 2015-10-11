@@ -240,6 +240,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 			throw new ConfigurationException("Error reading the " + fileName + " configuration", e);
 
 		}
+		inferPlugins(configuration);
 	}
 
 	@Override
