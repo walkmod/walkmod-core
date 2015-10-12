@@ -404,4 +404,39 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testRemoveTranformation() throws Exception{
+		List<String> list = new LinkedList<String>();
+		list.add("imports-cleaner");
+	
+		File file = new File("src/test/resources/yaml/rmTransf.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		String input = "transformations:\n";
+		input += "- type: \"imports-cleaner\"";
+		
+		FileUtils.write(file, input);
+		
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			provider.removeTransformations(null, list);
+			
+			String output = FileUtils.readFileToString(file);
+
+			String desiredOutput = "transformations: []";
+			
+			
+			Assert.assertEquals(desiredOutput, output);
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
 }

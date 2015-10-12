@@ -24,35 +24,32 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-@Parameters(separators = "=", commandDescription = "Adds modules to the configuration.")
-public class AddModuleCommand implements Command {
+@Parameters(separators = "=", commandDescription = "Removes a list of transformations.")
+public class RemoveTransformationCommand implements Command {
 
-	@Parameter(description = "List of modules to add", required = true)
-	private List<String> modules;
+	@Parameter(description = "The list of transformation types", required = true)
+	private List<String> types = null;
 
 	@Parameter(names = "--help", help = true, hidden = true)
 	private boolean help;
 
 	private JCommander jcommander;
 
-	public AddModuleCommand(JCommander jcommander) {
-		this.jcommander = jcommander;
-	}
+	@Parameter(names = { "--chain" }, description = "The chain identifier")
+	private String chain = null;
 
-	public AddModuleCommand(List<String> modules) {
-		this.modules = modules;
+	public RemoveTransformationCommand(JCommander jcommander) {
+		this.jcommander = jcommander;
 	}
 
 	@Override
 	public void execute() throws Exception {
 		if (help) {
-			jcommander.usage("add-module");
+			jcommander.usage("rm");
 		} else {
-
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-			facade.addModules(modules);
+			facade.removeTransformations(chain, types);
 		}
-
 	}
 
 }

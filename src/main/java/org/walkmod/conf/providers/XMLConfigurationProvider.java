@@ -1220,4 +1220,95 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		}
 
 	}
+
+	private boolean removeTransformation(Element rootNode, HashSet<String> transformations) {
+		NodeList children = rootNode.getChildNodes();
+		int childSize = children.getLength();
+		Element child = null;
+		boolean modified = false;
+		for (int i = 0; i < childSize; i++) {
+			Node childNode = children.item(i);
+			if (childNode instanceof Element) {
+				child = (Element) childNode;
+				final String nodeName = child.getNodeName();
+
+				if ("transformations".equals(nodeName)) {
+					NodeList transfNodeList = child.getChildNodes();
+					int limit = transfNodeList.getLength();
+					for (int j = 0; j < limit; j++) {
+						Node aux = transfNodeList.item(j);
+						Element elemAux = (Element) aux;
+						if (elemAux.hasAttribute("type")) {
+							String type = elemAux.getAttribute("type");
+							if (transformations.contains(type)) {
+								child.removeChild(aux);
+								modified = true;
+							}
+						}
+					}
+					if (transfNodeList.getLength() == 0) {
+						rootNode.getParentNode().removeChild(rootNode);
+					}
+				} else if (("transformation").equals(nodeName)) {
+
+					if (child.hasAttribute("type")) {
+						String type = child.getAttribute("type");
+						if (transformations.contains(type)) {
+							rootNode.removeChild(child);
+							modified = true;
+						}
+					}
+					if (children.getLength() == 0) {
+						if (!rootNode.getNodeName().equals("walkmod")) {
+							rootNode.getParentNode().removeChild(rootNode);
+						}
+					}
+				}
+			}
+		}
+		return modified;
+	}
+
+	@Override
+	public void removeTransformations(String chain, List<String> transformations) throws TransformerException {
+		if (transformations != null && !transformations.isEmpty()) {
+			if (document == null) {
+				init();
+			}
+			Element rootElement = document.getDocumentElement();
+			HashSet<String> transformationsToRemove = new HashSet<String>(transformations);
+			boolean modified = false;
+			if (chain == null) {
+				modified = removeTransformation(rootElement, transformationsToRemove);
+			} else {
+
+				NodeList children = rootElement.getChildNodes();
+				int childSize = children.getLength();
+
+				Element child = null;
+
+				for (int i = 0; i < childSize; i++) {
+					Node childNode = children.item(i);
+					if (childNode instanceof Element) {
+						child = (Element) childNode;
+						final String nodeName = child.getNodeName();
+
+						if ("chain".equals(nodeName)) {
+
+							if (child.hasAttribute("name")) {
+								String name = child.getAttribute("name");
+								if (name.equals(chain)) {
+									modified = modified || removeTransformation(child, transformationsToRemove);
+								}
+							}
+						}
+
+					}
+				}
+			}
+			if (modified) {
+				persist();
+			}
+		}
+	}
 }

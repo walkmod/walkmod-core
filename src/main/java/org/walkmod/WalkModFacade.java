@@ -1003,4 +1003,25 @@ public class WalkModFacade {
 
 	}
 
+	public void removeTransformations(String chain, List<String> transformations) throws Exception {
+		if (transformations != null) {
+			if (!cfg.exists()) {
+				init();
+			}
+			userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+			System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+			try {
+				ConfigurationManager manager = new ConfigurationManager(cfg, false);
+
+				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
+
+				cfgProvider.removeTransformations(chain, transformations);
+			} finally {
+				System.setProperty("user.dir", userDir);
+			}
+		}
+
+		
+	}
+
 }

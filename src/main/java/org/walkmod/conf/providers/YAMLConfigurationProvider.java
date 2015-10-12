@@ -695,4 +695,70 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 
 	}
 
+	@Override
+	public void removeTransformations(String chain, List<String> transformations) throws TransformerException {
+		if (transformations != null && !transformations.isEmpty()) {
+			File cfg = new File(fileName);
+			JsonNode node = null;
+			try {
+				node = mapper.readTree(cfg);
+			} catch (Exception e) {
+
+			}
+			if (node == null) {
+				node = new ObjectNode(mapper.getNodeFactory());
+			}
+			HashSet<String> transList = new HashSet<String>(transformations);
+			JsonNode transfListNode = null;
+			if (chain == null || "".equals(chain)) {
+				if (node.has("transformations")) {
+					transfListNode = node.get("transformations");
+
+				}
+			} else {
+				if (node.has("chains")) {
+					JsonNode chainsListNode = node.get("chains");
+					if (chainsListNode.isArray()) {
+						Iterator<JsonNode> it = chainsListNode.iterator();
+						boolean found = false;
+						while (it.hasNext() && !found) {
+							JsonNode current = it.next();
+							if (current.has("name")) {
+								String name = current.get("name").asText();
+								found = name.equals(chain);
+
+								if (current.has("transformations")) {
+									transfListNode = current.get("transformations");
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if (transfListNode != null) {
+				if (transfListNode.isArray()) {
+					ArrayNode transArray = (ArrayNode) transfListNode;
+					Iterator<JsonNode> it = transArray.iterator();
+					List<Integer> removeIndex = new LinkedList<Integer>();
+					int i = 0;
+					while (it.hasNext()) {
+						JsonNode transfNode = it.next();
+						if (transfNode.has("type")) {
+							String type = transfNode.get("type").asText();
+							if (transList.contains(type)) {
+								removeIndex.add(i);
+							}
+						}
+						i++;
+					}
+					for (Integer pos : removeIndex) {
+						transArray.remove(pos);
+					}
+				}
+				write(node);
+			}
+		}
+	}
+
 }

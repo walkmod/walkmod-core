@@ -38,6 +38,8 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider{
 	public boolean addProviderConfig(ProviderConfig providerCfg) throws TransformerException;
 
 	public void addModules(List<String> modules) throws TransformerException;
+
+	public void removeTransformations(String chain, List<String> transformations) throws TransformerException;
 	
 
 }
