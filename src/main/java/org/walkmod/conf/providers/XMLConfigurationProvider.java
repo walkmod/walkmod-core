@@ -1198,7 +1198,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 						NodeList moduleNodeList = child.getChildNodes();
 						int max = moduleNodeList.getLength();
 						for (int j = 0; j < max; j++) {
-							String value = moduleNodeList.item(j).getNodeValue().trim();
+							String value = moduleNodeList.item(j).getTextContent().trim();
 							modulesToAdd.remove(value);
 						}
 					}
@@ -1211,7 +1211,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 						rootElement.appendChild(child);
 					}
 					Element element = document.createElement("module");
-					element.setNodeValue(module);
+					element.setTextContent(module);
 					child.appendChild(element);
 
 				}

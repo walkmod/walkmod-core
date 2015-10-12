@@ -1,6 +1,8 @@
 package org.walkmod.conf.providers;
 
 import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
@@ -74,6 +76,32 @@ public class XMLConfigurationProviderTest {
 			System.out.println(output);
 
 			Assert.assertTrue(output.contains("maven"));
+		} finally {
+			if (xml.exists()) {
+				xml.delete();
+			}
+		}
+
+	}
+	
+	@Test
+	public void testAddModulesConfig() throws Exception {
+		
+		File aux = new File("src/test/resources/xml");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+			List<String> modules = new LinkedList<String>();
+			modules.add("module1");
+			prov.addModules(modules);
+
+			String output = FileUtils.readFileToString(xml);
+
+			System.out.println(output);
+
+			Assert.assertTrue(output.contains("module1"));
 		} finally {
 			if (xml.exists()) {
 				xml.delete();
