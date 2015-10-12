@@ -74,7 +74,7 @@ public class WalkmodDispatcherTest {
 
 	@Test
 	public void testPrintPlugins() throws Exception {
-		Assert.assertTrue(run(new String[] { "plugins" }).contains("walkmod-javalang-plugin"));
+		Assert.assertTrue(run(new String[] { "plugins" }).contains("javalang"));
 	}
 
 	@Test
