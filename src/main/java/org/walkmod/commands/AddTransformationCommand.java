@@ -15,6 +15,9 @@
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.commands;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.walkmod.OptionsBuilder;
 import org.walkmod.WalkModFacade;
 import org.walkmod.conf.entities.JSONConfigParser;
@@ -35,14 +38,14 @@ public class AddTransformationCommand implements Command {
 	@Parameter(names = "--merge-policy", description = "Merge policy to apply after executing the transformation")
 	private String mergePolicy = null;
 
-	@Parameter(names = { "--chain" }, description = "The chain identifier", required = true)
+	@Parameter(names = { "--chain" }, description = "The chain identifier")
 	private String chain = null;
 
 	@Parameter(names = { "--isMergeabe" }, description = "Sets if the changes made by the transformation requires to be merged")
 	private boolean isMergeable = false;
 
-	@Parameter(description = "The transformation type identifier", required = true)
-	private String type = null;
+	@Parameter(arity = 1, description = "The transformation type identifier", required = true)
+	private List<String> type = null;
 
 	@Parameter(names = "--help", help = true, hidden = true)
 	private boolean help;
@@ -50,7 +53,8 @@ public class AddTransformationCommand implements Command {
 	private JCommander jcommander;
 
 	public AddTransformationCommand(String type, String chain, boolean isMergeable, String mergePolicy, JsonNode params) {
-		this.type = type;
+		this.type = new LinkedList<String>();
+		this.type.add(type);
 		this.chain = chain;
 		this.isMergeable = isMergeable;
 		this.mergePolicy = mergePolicy;
@@ -63,7 +67,7 @@ public class AddTransformationCommand implements Command {
 
 	public TransformationConfig buildTransformationCfg() {
 		TransformationConfig tconfig = new TransformationConfigImpl();
-		tconfig.setType(type);
+		tconfig.setType(type.get(0));
 		tconfig.isMergeable(isMergeable);
 		tconfig.setMergePolicy(mergePolicy);
 

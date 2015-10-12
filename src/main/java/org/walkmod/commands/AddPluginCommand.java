@@ -15,6 +15,8 @@
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.commands;
 
+import java.util.List;
+
 import org.walkmod.OptionsBuilder;
 import org.walkmod.WalkModFacade;
 import org.walkmod.conf.entities.PluginConfig;
@@ -27,14 +29,8 @@ import com.beust.jcommander.Parameters;
 @Parameters(separators = "=", commandDescription = "Adds plugin in the walkmod configuration file.")
 public class AddPluginCommand implements Command {
 
-	@Parameter(names = { "--groupId", "-g" }, description = "Plugin groupId", required = true)
-	private String groupId = "";
-
-	@Parameter(names = { "--artifactId", "-a" }, description = "Plugin artifactId", required = true)
-	private String artifactId = "";
-
-	@Parameter(names = { "--version", "-v" }, description = "Plugin version", required = true)
-	private String version = "";
+	@Parameter(description = "List of plugin identifiers separated by spaces.", required = true)
+	private List<String> plugins = null;
 
 	@Parameter(names = "--help", help = true, hidden = true)
 	private boolean help;
@@ -50,12 +46,36 @@ public class AddPluginCommand implements Command {
 		if (help) {
 			command.usage("add-plugin");
 		} else {
-			PluginConfig pluginConfig = new PluginConfigImpl();
-			pluginConfig.setGroupId(groupId);
-			pluginConfig.setArtifactId(artifactId);
-			pluginConfig.setVersion(version);
-			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-			facade.addPluginConfig(pluginConfig);
+			for (String plugin : plugins) {
+				PluginConfig pluginConfig = new PluginConfigImpl();
+				String[] parts = plugin.split(":");
+				boolean valid = parts.length <= 3;
+				for (int i = 0; i < parts.length && valid; i++) {
+					valid = !parts[i].trim().equals("");
+				}
+
+				if (valid) {
+					if (parts.length == 1) {
+						pluginConfig.setGroupId("org.walkmod");
+						pluginConfig.setArtifactId(parts[0].trim());
+						pluginConfig.setVersion("latest.integration");
+					} else if (parts.length == 2) {
+						pluginConfig.setGroupId(parts[0].trim());
+						pluginConfig.setArtifactId(parts[1].trim());
+						pluginConfig.setVersion("latest.integration");
+					} else {
+						pluginConfig.setGroupId(parts[0].trim());
+						pluginConfig.setArtifactId(parts[1].trim());
+						pluginConfig.setVersion(parts[2].trim());
+					}
+				} else {
+					throw new IllegalArgumentException(
+							"The plugin identifier is not well defined. The expected format is [groupId:artifactId:version]");
+				}
+
+				WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+				facade.addPluginConfig(pluginConfig);
+			}
 		}
 	}
 
