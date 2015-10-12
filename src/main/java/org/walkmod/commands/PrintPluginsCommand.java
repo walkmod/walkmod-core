@@ -92,10 +92,20 @@ public class PrintPluginsCommand implements Command {
 								if (nList.getLength() == 1) {
 									description = nList.item(0).getTextContent();
 								}
-								System.out.println();
-								System.out.println(groupId + ":" + artifactId + ":" + latestVersion + " => "
-										+ description);
-								System.out.println();
+								String id ="";
+								if(!groupId.equals("org.walkmod")){
+									id = groupId+":";
+								}
+								id+= artifactId.substring("walkmod-".length(), artifactId.length()-"-plugin".length());
+								
+								if (Character.isLowerCase(description.charAt(0))){
+									description = Character.toUpperCase(description.charAt(0))+ description.substring(1, description.length());
+								}
+								if(!description.endsWith(".")){
+									description = description +".";
+								}
+								System.out.printf("  %-20.40s  %-40.130s%n",id, description);
+									
 							} finally {
 								projectIs.close();
 							}

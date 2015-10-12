@@ -30,7 +30,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
 
-@Parameters(separators = "=", commandDescription = "Adds a chain in the walkmod configuration file.")
+@Parameters(separators = "=", commandDescription = "Creates a chain of transformations for an specific source directory.")
 public class AddChainCommand implements Command {
 
 	@Parameter(names = "--name", description = "The chain identifier")
@@ -54,7 +54,7 @@ public class AddChainCommand implements Command {
 	private boolean help;
 
 	private JCommander command;
-	
+
 	private JSONConfigParser parser = new JSONConfigParser();
 
 	public AddChainCommand(JCommander command) {
@@ -68,13 +68,13 @@ public class AddChainCommand implements Command {
 		this.writer = writer;
 		this.walker = walker;
 	}
-	
-	public ChainConfig buildChainCfg() throws Exception{
+
+	public ChainConfig buildChainCfg() throws Exception {
 		ChainConfig chainCfg = new ChainConfigImpl();
 		chainCfg.setName(name);
 
 		if (reader != null) {
-			
+
 			chainCfg.setReaderConfig(parser.getReader(reader));
 		} else {
 			if (!readerPath.equals(DEFAULT_PATH)) {
@@ -99,7 +99,7 @@ public class AddChainCommand implements Command {
 		} else {
 			chainCfg.setWalkerConfig(new WalkerConfigImpl());
 		}
-		
+
 		return chainCfg;
 
 	}
@@ -109,7 +109,7 @@ public class AddChainCommand implements Command {
 		if (help) {
 			command.usage("add-plugin");
 		} else {
-			
+
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
 			facade.addChainConfig(buildChainCfg());
 		}

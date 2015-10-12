@@ -26,7 +26,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
 
-@Parameters(separators = "=", commandDescription = "Adds a configuration provider to enrich the configuration.e.g Calculate the project classpath")
+@Parameters(separators = "=", commandDescription = "Adds a configuration provider.e.g maven or gradle to calculate the project classpath")
 public class AddCfgProviderCommand implements Command {
 
 	@Parameter(description = "The configuration provider type identifier", required = true)
@@ -66,7 +66,7 @@ public class AddCfgProviderCommand implements Command {
 	@Override
 	public void execute() throws Exception {
 		if (help) {
-			command.usage("add-cfgprovider");
+			command.usage("add-provider");
 		} else {
 
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());

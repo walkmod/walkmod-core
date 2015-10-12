@@ -17,6 +17,7 @@
 package org.walkmod;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,7 +48,7 @@ public class WalkModDispatcher {
 
 	private static Logger log = Logger.getLogger(WalkModDispatcher.class);
 
-	private Map<String, Command> commands = new HashMap<String, Command>();
+	private Map<String, Command> commands = new LinkedHashMap<String, Command>();
 
 	public WalkModDispatcher() {
 
@@ -86,19 +87,21 @@ public class WalkModDispatcher {
 	}
 
 	public void execute(JCommander jcommander, String[] args) throws Exception {
-		commands.put("apply", new ApplyCommand(jcommander));
-		commands.put("check", new CheckCommand(jcommander));
-		commands.put("install", new InstallCommand(jcommander));
-		commands.put("plugins", new PrintPluginsCommand(jcommander));
-		commands.put("init", new InitCommand(jcommander));
+		commands.put("add", new AddTransformationCommand(jcommander));
 		commands.put("add-chain", new AddChainCommand(jcommander));
 		commands.put("add-plugin", new AddPluginCommand(jcommander));
-		commands.put("add", new AddTransformationCommand(jcommander));
-		commands.put("add-cfgprovider", new AddCfgProviderCommand(jcommander));
+		commands.put("add-provider", new AddCfgProviderCommand(jcommander));
+		commands.put("apply", new ApplyCommand(jcommander));
+		commands.put("check", new CheckCommand(jcommander));
+		commands.put("init", new InitCommand(jcommander));
+		commands.put("install", new InstallCommand(jcommander));
+		commands.put("plugins", new PrintPluginsCommand(jcommander));
 		commands.put("--version", new VersionCommand());
 		commands.put("--help", new HelpCommand(jcommander));
 
 		Set<String> keys = commands.keySet();
+		
+		
 		for (String key : keys) {
 			if (!key.startsWith("--")) {
 				jcommander.addCommand(key, commands.get(key));

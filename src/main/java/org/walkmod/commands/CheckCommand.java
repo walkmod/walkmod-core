@@ -20,7 +20,7 @@ import org.walkmod.WalkModFacade;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameters;
 
-@Parameters(separators = "=", commandDescription = "Checks and shows which classes must be reviewed")
+@Parameters(separators = "=", commandDescription = "Checks which classes needs to be modified according your code transformations")
 public class CheckCommand extends AbstractChainCommand implements Command {
 
 	private JCommander command;
@@ -28,7 +28,7 @@ public class CheckCommand extends AbstractChainCommand implements Command {
 	public CheckCommand(JCommander command) {
 		this.command = command;
 	}
-	
+
 	@Override
 	public void execute() throws Exception {
 		if (isHelpNeeded()) {
