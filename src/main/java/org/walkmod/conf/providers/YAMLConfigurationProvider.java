@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -610,7 +611,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 		if (node == null) {
 			node = new ObjectNode(mapper.getNodeFactory());
 		}
-		
+
 		if (node.has("conf-providers")) {
 			JsonNode list = node.get("conf-providers");
 			Iterator<JsonNode> it = list.iterator();
@@ -619,8 +620,8 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 				JsonNode next = it.next();
 				found = providerCfg.getType().equals(next.get("type").asText());
 			}
-			if(!found){
-				if(list.isArray()){
+			if (!found) {
+				if (list.isArray()) {
 					ArrayNode aux = (ArrayNode) list;
 					ObjectNode prov = new ObjectNode(mapper.getNodeFactory());
 					prov.set("type", new TextNode(providerCfg.getType()));
@@ -633,8 +634,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 					return true;
 				}
 			}
-		}
-		else{
+		} else {
 			ArrayNode aux = new ArrayNode(mapper.getNodeFactory());
 			ObjectNode prov = new ObjectNode(mapper.getNodeFactory());
 			prov.set("type", new TextNode(providerCfg.getType()));
@@ -648,8 +648,51 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 			write(node);
 			return true;
 		}
-		
+
 		return false;
+	}
+
+	@Override
+	public void addModules(List<String> modules) throws TransformerException {
+		File cfg = new File(fileName);
+		JsonNode node = null;
+		try {
+			node = mapper.readTree(cfg);
+		} catch (Exception e) {
+
+		}
+		if (node == null) {
+			node = new ObjectNode(mapper.getNodeFactory());
+		}
+		ArrayNode aux = null;
+		HashSet<String> modulesToAdd = new HashSet<String>(modules);
+		if (node.has("modules")) {
+			JsonNode list = node.get("modules");
+			Iterator<JsonNode> it = list.iterator();
+
+			while (it.hasNext()) {
+				JsonNode next = it.next();
+				modulesToAdd.remove(next.asText().trim());
+
+			}
+			if (!modulesToAdd.isEmpty()) {
+				if (list.isArray()) {
+					aux = (ArrayNode) list;
+				}
+			}
+		} else {
+			aux = new ArrayNode(mapper.getNodeFactory());
+		}
+		if (!modulesToAdd.isEmpty()) {
+			for (String moduleToAdd : modulesToAdd) {
+				TextNode prov = new TextNode(moduleToAdd);
+				aux.add(prov);
+			}
+			ObjectNode auxNode = (ObjectNode) node;
+			auxNode.set("modules", aux);
+			write(node);
+		}
+
 	}
 
 }

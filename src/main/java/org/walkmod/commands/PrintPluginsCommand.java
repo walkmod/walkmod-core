@@ -41,7 +41,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-@Parameters(separators = "=", commandDescription = "Shows the available walkmod plugins created by the community")
+@Parameters(separators = "=", commandDescription = "Shows the available walkmod plugins created by the community.")
 public class PrintPluginsCommand implements Command {
 
 	public final static String MVN_SEARCH_URL = "https://search.maven.org/solrsearch/select?q=walkmod&&rows=50&&wt=json";

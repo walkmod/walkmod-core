@@ -228,7 +228,7 @@ public class WalkModFacade {
 	 */
 	@Deprecated
 	public WalkModFacade(boolean offline, boolean verbose, boolean printError, String[] includes, String[] excludes) {
-		this(new File(DEFAULT_WALKMOD_FILE_NAME+".xml"), offline, verbose, printError, includes, excludes);
+		this(new File(DEFAULT_WALKMOD_FILE_NAME + ".xml"), offline, verbose, printError, includes, excludes);
 	}
 
 	/**
@@ -981,6 +981,26 @@ public class WalkModFacade {
 				return;
 			}
 		}
+	}
+
+	public void addModules(List<String> modules) throws Exception {
+		if (modules != null) {
+			if (!cfg.exists()) {
+				init();
+			}
+			userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+			System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+			try {
+				ConfigurationManager manager = new ConfigurationManager(cfg, false);
+
+				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
+
+				cfgProvider.addModules(modules);
+			} finally {
+				System.setProperty("user.dir", userDir);
+			}
+		}
+
 	}
 
 }

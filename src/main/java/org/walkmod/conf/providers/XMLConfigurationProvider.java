@@ -26,6 +26,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -1129,7 +1130,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 				if (childNode instanceof Element) {
 					child = (Element) childNode;
 					final String nodeName = child.getNodeName();
-					
+
 					if ("conf-providers".equals(nodeName)) {
 
 						Node aux = (Node) child;
@@ -1163,7 +1164,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 						element.appendChild(param);
 					}
 				}
-				if(child == null){
+				if (child == null) {
 					child = document.createElement("conf-providers");
 					rootElement.appendChild(child);
 				}
@@ -1172,6 +1173,51 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 			}
 		}
 		return false;
+
+	}
+
+	@Override
+	public void addModules(List<String> modules) throws TransformerException {
+		if (modules != null && !modules.isEmpty()) {
+			if (document == null) {
+				init();
+			}
+			Element rootElement = document.getDocumentElement();
+			NodeList children = rootElement.getChildNodes();
+			int childSize = children.getLength();
+			boolean exists = false;
+			Element child = null;
+			HashSet<String> modulesToAdd = new HashSet<String>(modules);
+			for (int i = 0; i < childSize && !exists; i++) {
+				Node childNode = children.item(i);
+				if (childNode instanceof Element) {
+					child = (Element) childNode;
+					final String nodeName = child.getNodeName();
+
+					if ("modules".equals(nodeName)) {
+						NodeList moduleNodeList = child.getChildNodes();
+						int max = moduleNodeList.getLength();
+						for (int j = 0; j < max; j++) {
+							String value = moduleNodeList.item(j).getNodeValue().trim();
+							modulesToAdd.remove(value);
+						}
+					}
+				}
+			}
+			if (!modulesToAdd.isEmpty()) {
+				for (String module : modulesToAdd) {
+					if (child == null) {
+						child = document.createElement("modules");
+						rootElement.appendChild(child);
+					}
+					Element element = document.createElement("module");
+					element.setNodeValue(module);
+					child.appendChild(element);
+
+				}
+				persist();
+			}
+		}
 
 	}
 }

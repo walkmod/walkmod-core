@@ -16,7 +16,6 @@
 
 package org.walkmod;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +23,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.walkmod.commands.AddCfgProviderCommand;
 import org.walkmod.commands.AddChainCommand;
+import org.walkmod.commands.AddModuleCommand;
 import org.walkmod.commands.AddPluginCommand;
 import org.walkmod.commands.AddTransformationCommand;
 import org.walkmod.commands.ApplyCommand;
@@ -89,6 +89,7 @@ public class WalkModDispatcher {
 	public void execute(JCommander jcommander, String[] args) throws Exception {
 		commands.put("add", new AddTransformationCommand(jcommander));
 		commands.put("add-chain", new AddChainCommand(jcommander));
+		commands.put("add-module", new AddModuleCommand(jcommander));
 		commands.put("add-plugin", new AddPluginCommand(jcommander));
 		commands.put("add-provider", new AddCfgProviderCommand(jcommander));
 		commands.put("apply", new ApplyCommand(jcommander));

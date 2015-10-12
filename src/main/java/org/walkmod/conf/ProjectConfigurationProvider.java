@@ -16,6 +16,7 @@
 package org.walkmod.conf;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.xml.transform.TransformerException;
 
@@ -35,6 +36,8 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider{
 	public void createConfig() throws IOException;
 
 	public boolean addProviderConfig(ProviderConfig providerCfg) throws TransformerException;
+
+	public void addModules(List<String> modules) throws TransformerException;
 	
 
 }

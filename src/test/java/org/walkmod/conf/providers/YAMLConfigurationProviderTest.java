@@ -2,12 +2,15 @@ package org.walkmod.conf.providers;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.walkmod.commands.AddCfgProviderCommand;
 import org.walkmod.commands.AddChainCommand;
+import org.walkmod.commands.AddModuleCommand;
 import org.walkmod.commands.AddTransformationCommand;
 import org.walkmod.commands.JSONConverter;
 import org.walkmod.conf.entities.ChainConfig;
@@ -361,6 +364,38 @@ public class YAMLConfigurationProviderTest {
 
 			String desiredOutput = "conf-providers:\n";
 			desiredOutput += "- type: \"maven\"";
+			
+			Assert.assertEquals(desiredOutput, output);
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+	
+	@Test
+	public void testAddModulesToConfig() throws Exception{
+		List<String> list = new LinkedList<String>();
+		list.add("module1");
+	
+		File file = new File("src/test/resources/yaml/addmodules.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+		
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			provider.addModules(list);
+			
+			String output = FileUtils.readFileToString(file);
+
+			String desiredOutput = "modules:\n";
+			desiredOutput += "- \"module1\"";
 			
 			Assert.assertEquals(desiredOutput, output);
 		} finally {

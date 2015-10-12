@@ -22,7 +22,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-@Parameters(separators = "=", commandDescription = "Downloads and installs the specified walkmod plugins and all their dependencies")
+@Parameters(separators = "=", commandDescription = "Downloads and installs the specified walkmod plugins and all their dependencies.")
 public class InstallCommand implements Command {
 
 	@Parameter(names = "--help", help = true, hidden = true)
