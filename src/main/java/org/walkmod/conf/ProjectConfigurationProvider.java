@@ -40,6 +40,8 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider{
 	public void addModules(List<String> modules) throws TransformerException;
 
 	public void removeTransformations(String chain, List<String> transformations) throws TransformerException;
+
+	public void setWriter(String chain, String type) throws TransformerException;
 	
 
 }

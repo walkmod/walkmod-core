@@ -761,4 +761,59 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 		}
 	}
 
+	@Override
+	public void setWriter(String chain, String type) throws TransformerException {
+		if (type != null && !"".equals(type.trim())) {
+			File cfg = new File(fileName);
+			JsonNode node = null;
+			try {
+				node = mapper.readTree(cfg);
+			} catch (Exception e) {
+
+			}
+			if (node == null) {
+				node = new ObjectNode(mapper.getNodeFactory());
+			}
+			ObjectNode writer = null;
+			if (chain != null && !"".equals(chain.trim())) {
+
+				if (node.has("chains")) {
+					JsonNode chainsListNode = node.get("chains");
+					if (chainsListNode.isArray()) {
+						Iterator<JsonNode> it = chainsListNode.iterator();
+						boolean found = false;
+						while (it.hasNext() && !found) {
+							JsonNode current = it.next();
+							if (current.has("name")) {
+								String name = current.get("name").asText();
+								found = name.equals(chain);
+								if (found) {
+									if (current.has("writer")) {
+										writer = (ObjectNode) current.get("writer");
+									} else {
+										writer = new ObjectNode(mapper.getNodeFactory());
+									}
+									writer.set("type", new TextNode(type));
+								}
+							}
+						}
+					}
+				}
+			} else {
+				if (node.has("writer")) {
+					writer = (ObjectNode) node.get("writer");
+				} else {
+					writer = new ObjectNode(mapper.getNodeFactory());
+					ObjectNode aux = (ObjectNode) node;
+					aux.set("writer", writer);
+				}
+				writer.set("type", new TextNode(type));
+			}
+
+			if (writer != null) {
+				write(node);
+			}
+		}
+
+	}
 }

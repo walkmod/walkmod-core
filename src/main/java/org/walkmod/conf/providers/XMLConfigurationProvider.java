@@ -1311,4 +1311,65 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 			}
 		}
 	}
+
+	@Override
+	public void setWriter(String chain, String type) throws TransformerException {
+		if (type != null && !type.trim().equals("")) {
+			if (document == null) {
+				init();
+			}
+			Element rootElement = document.getDocumentElement();
+			Element writerParent = null;
+
+			NodeList children = rootElement.getChildNodes();
+			int childSize = children.getLength();
+
+			Element child = null;
+
+			for (int i = 0; i < childSize; i++) {
+				Node childNode = children.item(i);
+				if (childNode instanceof Element) {
+					child = (Element) childNode;
+					final String nodeName = child.getNodeName();
+
+					if ("chain".equals(nodeName)) {
+
+						if (child.hasAttribute("name")) {
+							String name = child.getAttribute("name");
+							if (name.equals(chain)) {
+								writerParent = child;
+
+							}
+						}
+					} else if ("transformation".equals(nodeName)) {
+						if (chain == null) {
+							writerParent = rootElement;
+						}
+					}
+				}
+			}
+			if(writerParent != null){
+				NodeList siblings = writerParent.getChildNodes();
+				int limit = siblings.getLength();
+				boolean updated = false;
+				for(int i = 0; i < limit && !updated; i++){
+					Node childNode = siblings.item(i);
+					if (childNode instanceof Element) {
+						Element aux = (Element) childNode;
+						if("writer".equals(aux.getNodeName())){
+							aux.setAttribute("type", type);
+							updated = true;
+						}
+					}
+				}
+				if(!updated){
+					Element writerElem = document.createElement("writer");
+					writerElem.setAttribute("type", type);
+					writerParent.appendChild(writerElem);
+				}
+				persist();
+			}
+
+		}
+	}
 }

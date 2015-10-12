@@ -296,6 +296,40 @@ public class WalkmodDispatcherTest {
 			
 		}
 	}
+	
+	
+	@Test
+	public void testSetWriter() throws Exception{
+		File tmp = new File("src/test/resources/setWriter");
+		tmp.mkdirs();
+		if(tmp.exists()){
+			String userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+			System.setProperty("user.dir", tmp.getAbsolutePath());
+			try {
+				run(new String[] { "add",  "imports-cleaner" });
+				run(new String[] { "set-writer",  "javalang:string-writer" });
+			}
+			catch(Exception e){
+				e.printStackTrace();
+				Assert.assertFalse(false);
+			}
+			finally {
+				System.setProperty("user.dir", userDir);
+				
+				File cfg = new File(tmp, "walkmod.xml");
+				Assert.assertTrue(cfg.exists());
+				
+				String content = FileUtils.readFileToString(cfg);
+				
+				System.out.println(content);
+				
+				Assert.assertTrue(content.contains("javalang:string-writer"));
+				
+				FileUtils.deleteDirectory(tmp);
+			}
+			
+		}
+	}
 
 
 	private String run(String[] args) throws Exception {

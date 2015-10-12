@@ -129,9 +129,9 @@ public class XMLConfigurationProviderTest {
 		try {
 			Configuration conf = new ConfigurationImpl();
 			prov.init(conf);
-			
+
 			prov.createConfig();
-			
+
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null);
 
 			prov.addTransformationConfig(null, command.buildTransformationCfg());
@@ -147,8 +147,7 @@ public class XMLConfigurationProviderTest {
 			}
 		}
 	}
-	
-	
+
 	@Test
 	public void testRemoveTranformationRecursively() throws Exception {
 		List<String> list = new LinkedList<String>();
@@ -162,28 +161,29 @@ public class XMLConfigurationProviderTest {
 		try {
 			Configuration conf = new ConfigurationImpl();
 			prov.init(conf);
-			
+
 			prov.createConfig();
-			
+
 			ObjectMapper mapper = new ObjectMapper();
-			
+
 			ObjectNode walker = new ObjectNode(mapper.getNodeFactory());
-			
+
 			ArrayNode transformations = new ArrayNode(mapper.getNodeFactory());
-			
+
 			ObjectNode firstTrans = new ObjectNode(mapper.getNodeFactory());
-			
+
 			firstTrans.set("type", new TextNode("license-applier"));
-			
+
 			transformations.add(firstTrans);
-			
+
 			walker.set("transformations", transformations);
-			
+
 			AddChainCommand precommand = new AddChainCommand("mychain", "src/main/java", null, null, walker);
-			
+
 			prov.addChainConfig(precommand.buildChainCfg());
-			
-			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null, null);
+
+			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
+					null);
 
 			prov.addTransformationConfig("mychain", command.buildTransformationCfg());
 
@@ -192,16 +192,49 @@ public class XMLConfigurationProviderTest {
 			String output = FileUtils.readFileToString(xml);
 
 			Assert.assertTrue(!output.contains("imports-cleaner"));
-			
+
 			Assert.assertTrue(output.contains("license-applier"));
-			
+
 			list.add("license-applier");
-			
+
 			prov.removeTransformations("mychain", list);
-			
+
 			output = FileUtils.readFileToString(xml);
-			
+
 			Assert.assertTrue(!output.contains("chain"));
+		} finally {
+			if (xml.exists()) {
+				xml.delete();
+			}
+		}
+	}
+
+	@Test
+	public void testSetWriter() throws Exception {
+
+		File aux = new File("src/test/resources/xml");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+
+		try {
+			Configuration conf = new ConfigurationImpl();
+			prov.init(conf);
+
+			prov.createConfig();
+
+			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null);
+
+			prov.addTransformationConfig(null, command.buildTransformationCfg());
+
+			prov.setWriter(null, "javalang:string-writer");
+
+			String output = FileUtils.readFileToString(xml);
+			
+			System.out.println(output);
+
+			Assert.assertTrue(output.contains("javalang:string-writer"));
+
 		} finally {
 			if (xml.exists()) {
 				xml.delete();

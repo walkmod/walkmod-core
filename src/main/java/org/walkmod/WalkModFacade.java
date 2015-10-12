@@ -1024,4 +1024,23 @@ public class WalkModFacade {
 		
 	}
 
+	public void setWriter(String chain, String type) throws Exception{
+		if(type != null && !"".equals(type.trim())){
+			if (!cfg.exists()) {
+				init();
+			}
+			userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+			System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+			try {
+				ConfigurationManager manager = new ConfigurationManager(cfg, false);
+
+				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
+
+				cfgProvider.setWriter(chain, type);
+			} finally {
+				System.setProperty("user.dir", userDir);
+			}
+		}
+	}
+
 }

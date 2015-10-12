@@ -439,4 +439,40 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testSetWriter() throws Exception{
+		List<String> list = new LinkedList<String>();
+		list.add("javalang:string-writer");
+	
+		File file = new File("src/test/resources/yaml/setWriter.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		String input = "transformations:\n";
+		input += "- type: \"imports-cleaner\"";
+		
+		FileUtils.write(file, input);
+		
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			provider.setWriter(null, list.get(0));
+			
+			String output = FileUtils.readFileToString(file);
+
+			String desiredOutput = input+"\n";
+			desiredOutput+="writer:\n";
+			desiredOutput+="  type: \"javalang:string-writer\"";
+			
+			Assert.assertEquals(desiredOutput, output);
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
 }

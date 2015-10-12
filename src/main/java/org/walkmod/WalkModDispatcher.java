@@ -34,6 +34,7 @@ import org.walkmod.commands.InitCommand;
 import org.walkmod.commands.InstallCommand;
 import org.walkmod.commands.PrintPluginsCommand;
 import org.walkmod.commands.RemoveTransformationCommand;
+import org.walkmod.commands.SetWriterCommand;
 import org.walkmod.commands.VersionCommand;
 
 import com.beust.jcommander.JCommander;
@@ -98,6 +99,7 @@ public class WalkModDispatcher {
 		commands.put("init", new InitCommand(jcommander));
 		commands.put("install", new InstallCommand(jcommander));
 		commands.put("rm", new RemoveTransformationCommand(jcommander));
+		commands.put("set-writer", new SetWriterCommand(jcommander));
 		commands.put("plugins", new PrintPluginsCommand(jcommander));
 		commands.put("--version", new VersionCommand());
 		commands.put("--help", new HelpCommand(jcommander));
