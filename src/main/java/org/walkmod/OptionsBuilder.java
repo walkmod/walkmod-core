@@ -177,6 +177,20 @@ public class OptionsBuilder {
 		options.setExecutionDirectory(executionDirectory);
 		return this;
 	}
+	
+	/**
+	 * Sets the configuration format (xml or yml)
+	 * @param configurationFormat
+	 * 			configuration format (file extension)
+	 * 
+	 * @return updated OptionBuilder instance
+	 * 
+	 * @see Options#CONFIGURATION_FILE_FORMAT
+	 */
+	public OptionsBuilder configurationFormat(String configurationFormat){
+		options.setConfigurationFormat(configurationFormat);
+		return this;
+	}
 
 	/**
 	 * 

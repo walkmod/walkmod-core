@@ -79,7 +79,7 @@ public class WalkmodDispatcherTest {
 
 	@Test
 	public void testInitWithExistingCfgFile() throws Exception {
-		Assert.assertTrue(run(new String[] { "init" }).contains("already exists"));
+		Assert.assertTrue(run(new String[] { "init" , "-f", "xml"}).contains("already exists"));
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class WalkmodDispatcherTest {
 			String userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
 			System.setProperty("user.dir", tmp.getAbsolutePath());
 			try {
-				Assert.assertTrue(run(new String[] { "init" }).contains("walkmod.xml] CREATION COMPLETE"));
+				Assert.assertTrue(run(new String[] { "init", "-f", "xml" }).contains("walkmod.xml] CREATION COMPLETE"));
 			} finally {
 				System.setProperty("user.dir", userDir);
 				FileUtils.deleteDirectory(tmp);

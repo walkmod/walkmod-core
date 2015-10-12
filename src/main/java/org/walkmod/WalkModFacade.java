@@ -53,9 +53,7 @@ public class WalkModFacade {
 
 	protected static Logger log = Logger.getLogger(WalkModFacade.class);
 
-	private static final String DEFAULT_WALKMOD_XML_FILE = "walkmod.xml";
-
-	private static final String DEFAULT_WALKMOD_YML_FILE = "walkmod.yml";
+	private static final String DEFAULT_WALKMOD_FILE_NAME = "walkmod";
 
 	private Options options;
 
@@ -208,7 +206,7 @@ public class WalkModFacade {
 	 */
 	@Deprecated
 	public WalkModFacade(boolean offline, boolean verbose, boolean printError) {
-		this(new File(DEFAULT_WALKMOD_XML_FILE), offline, verbose, printError);
+		this(new File(DEFAULT_WALKMOD_FILE_NAME), offline, verbose, printError);
 	}
 
 	/**
@@ -230,7 +228,7 @@ public class WalkModFacade {
 	 */
 	@Deprecated
 	public WalkModFacade(boolean offline, boolean verbose, boolean printError, String[] includes, String[] excludes) {
-		this(new File(DEFAULT_WALKMOD_XML_FILE), offline, verbose, printError, includes, excludes);
+		this(new File(DEFAULT_WALKMOD_FILE_NAME+".xml"), offline, verbose, printError, includes, excludes);
 	}
 
 	/**
@@ -279,13 +277,8 @@ public class WalkModFacade {
 		if (walkmodCfg != null) {
 			this.cfg = walkmodCfg.getAbsoluteFile();
 		} else {
-			this.cfg = new File(options.getExecutionDirectory().getAbsolutePath(), DEFAULT_WALKMOD_XML_FILE);
-			if (!cfg.exists()) {
-				File yml = new File(options.getExecutionDirectory().getAbsolutePath(), DEFAULT_WALKMOD_YML_FILE);
-				if (yml.exists()) {
-					cfg = yml;
-				}
-			}
+			this.cfg = new File(options.getExecutionDirectory().getAbsolutePath(), DEFAULT_WALKMOD_FILE_NAME + "."
+					+ options.getConfigurationFormat());
 		}
 
 		if (configurationProvider != null)
@@ -567,7 +560,8 @@ public class WalkModFacade {
 	 * Adds a new transformation configuration into the configuration file
 	 * 
 	 * @param chain
-	 * 		      chain identifier where the transformation will be appended. It can be null.
+	 *            chain identifier where the transformation will be appended. It
+	 *            can be null.
 	 * @param transformationCfg
 	 *            transformation configuration to add
 	 * @throws Exception
@@ -590,17 +584,17 @@ public class WalkModFacade {
 			System.setProperty("user.dir", userDir);
 		}
 	}
-	
+
 	/**
 	 * Adds a new provider configuration into the configuration file
 	 * 
 	 * @param providerCfg
-	 * 		      provider configuration to add.
+	 *            provider configuration to add.
 	 * @throws Exception
 	 *             in case that the walkmod configuration file can't be read or
 	 *             written.
 	 */
-	public void addProviderConfig(ProviderConfig providerCfg) throws Exception{
+	public void addProviderConfig(ProviderConfig providerCfg) throws Exception {
 		if (!cfg.exists()) {
 			init();
 		}

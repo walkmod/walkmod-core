@@ -30,8 +30,15 @@ public class InitCommand implements Command {
 
 	private JCommander command;
 
+	@Parameter(names = { "--format", "-f" }, description = "configuration format")
+	private String format = "yml";
+
 	public InitCommand(JCommander command) {
 		this.command = command;
+	}
+	
+	public InitCommand(String format){
+		this.format = format;
 	}
 
 	@Override
@@ -39,7 +46,7 @@ public class InitCommand implements Command {
 		if (help) {
 			command.usage("init");
 		} else {
-			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().configurationFormat(format));
 			facade.init();
 		}
 	}

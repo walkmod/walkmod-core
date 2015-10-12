@@ -64,6 +64,11 @@ public class Options {
 	public static final String EXECUTION_DIRECTORY = "execution_directory";
 
 	/**
+	 * (String) File extension of the walkmod configuration
+	 */
+	public static final String CONFIGURATION_FILE_FORMAT = "format";
+
+	/**
 	 * Stored options
 	 */
 	private Map<String, Object> options = new HashMap<String, Object>();
@@ -95,13 +100,37 @@ public class Options {
 			if (!options.containsKey(EXECUTION_DIRECTORY)) {
 				setExecutionDirectory(new File(System.getProperty("user.dir")));
 			}
+			if (!options.containsKey(CONFIGURATION_FILE_FORMAT)) {
+				setConfigurationFormat("xml");
+			}
 		} else {
 			setOffline(false);
 			setVerbose(true);
 			setPrintErrors(false);
 			setThrowException(false);
 			setExecutionDirectory(new File(System.getProperty("user.dir")));
+			setConfigurationFormat("xml");
 		}
+	}
+
+	public void setConfigurationFormat(String format) {
+		String aux = format.toLowerCase().trim();
+		if(aux.equals("yaml") || aux.equals("json")){
+			aux = "yml";
+		}
+		if (aux.equals("xml") || aux.equals("yml")) {
+			this.options.put(CONFIGURATION_FILE_FORMAT, aux);
+		} else {
+			throw new IllegalArgumentException("The configuration format "+aux+" is not supported");
+		}
+	}
+
+	public String getConfigurationFormat() {
+		Object value = this.options.get(CONFIGURATION_FILE_FORMAT);
+		if (value == null) {
+			value = "xml";
+		}
+		return value.toString();
 	}
 
 	public void setOffline(boolean offline) {

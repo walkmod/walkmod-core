@@ -39,9 +39,10 @@ public class OptionsTest {
 
         Options _options = new Options(myOptions);
         Map<String,Object> options = _options.asMap();
-        assertThat(options.values().size(), is(6)); //default values(5) + includes
+        assertThat(options.values().size(), is(7)); //default values(6) + includes
         assertThat(_options.getIncludes().size(), is(3));
         assertThat(_options.isOffline(), is(true));
+        assertThat(_options.getConfigurationFormat(), is("xml"));
         assertThat(_options.isThrowException(), is(true));
         assertThat(_options.getIncludes(), contains("one/path", "two/path", "three/path"));
     }
