@@ -15,6 +15,9 @@
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.commands;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.walkmod.OptionsBuilder;
 import org.walkmod.WalkModFacade;
 import org.walkmod.conf.entities.JSONConfigParser;
@@ -29,8 +32,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 @Parameters(separators = "=", commandDescription = "Adds a configuration provider.e.g maven or gradle to calculate the project classpath")
 public class AddCfgProviderCommand implements Command {
 
-	@Parameter(description = "The configuration provider type identifier", required = true)
-	private String type;
+	@Parameter(arity = 1, description = "The configuration provider type identifier", required = true)
+	private List<String> type;
 
 	@Parameter(names = "--params", description = "Transformation parameters as JSON object", converter = JSONConverter.class)
 	private JsonNode params;
@@ -45,14 +48,15 @@ public class AddCfgProviderCommand implements Command {
 	}
 
 	public AddCfgProviderCommand(String type, JsonNode params) {
-		this.type = type;
+		this.type = new LinkedList<String>();
+		this.type.add(type);
 		this.params = params;
 	}
 
 	public ProviderConfig build() throws Exception {
 		ProviderConfig prov = new ProviderConfigImpl();
 
-		prov.setType(type);
+		prov.setType(type.get(0));
 
 		if (params != null) {
 			JSONConfigParser parser = new JSONConfigParser();
