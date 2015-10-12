@@ -30,7 +30,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
 
-@Parameters(separators = "=", commandDescription = "Creates a chain of transformations for an specific source directory.")
+@Parameters(separators = "=", commandDescription = "Creates a chain/group of transformations for an specific source directory.")
 public class AddChainCommand implements Command {
 
 	@Parameter(names = "--name", description = "The chain identifier")
