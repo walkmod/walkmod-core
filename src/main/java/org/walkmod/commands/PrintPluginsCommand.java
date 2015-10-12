@@ -20,6 +20,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -58,6 +64,7 @@ public class PrintPluginsCommand implements Command {
 			try {
 				URL searchURL = new URL(MVN_SEARCH_URL);
 				InputStream is = null;
+				Map<String, String> pluginsList = new LinkedHashMap<String, String>();
 				try {
 					is = searchURL.openStream();
 
@@ -104,7 +111,8 @@ public class PrintPluginsCommand implements Command {
 								if(!description.endsWith(".")){
 									description = description +".";
 								}
-								System.out.printf("  %-20.40s  %-40.130s%n",id, description);
+								pluginsList.put(id, description);
+								
 									
 							} finally {
 								projectIs.close();
@@ -114,7 +122,14 @@ public class PrintPluginsCommand implements Command {
 				} finally {
 					is.close();
 				}
+				Set<String> keys = pluginsList.keySet();
+				List<String> sortedKeys = new LinkedList<String>(keys);
+				Collections.sort(sortedKeys);
+				for(String key: sortedKeys){
+					System.out.printf("  %-20.40s  %-40.130s%n",key, pluginsList.get(key));
 
+				}
+				
 			} catch (Exception e) {
 				throw new WalkModException("Invalid plugins URL", e);
 			}
