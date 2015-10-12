@@ -21,6 +21,7 @@ import javax.xml.transform.TransformerException;
 
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.PluginConfig;
+import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
 
 public interface ProjectConfigurationProvider extends ConfigurationProvider{
@@ -32,6 +33,8 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider{
 	public boolean addTransformationConfig(String chain, TransformationConfig transformationCfg) throws TransformerException;
 	
 	public void createConfig() throws IOException;
+
+	public boolean addProviderConfig(ProviderConfig providerCfg) throws TransformerException;
 	
 
 }

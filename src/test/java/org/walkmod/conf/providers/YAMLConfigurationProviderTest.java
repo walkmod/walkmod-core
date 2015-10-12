@@ -6,6 +6,7 @@ import java.util.Iterator;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.walkmod.commands.AddCfgProviderCommand;
 import org.walkmod.commands.AddChainCommand;
 import org.walkmod.commands.AddTransformationCommand;
 import org.walkmod.commands.JSONConverter;
@@ -328,6 +329,38 @@ public class YAMLConfigurationProviderTest {
 
 			String desiredOutput = "transformations:\n";
 			desiredOutput += "- type: \"imports-cleaner\"";
+			
+			Assert.assertEquals(desiredOutput, output);
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+	
+	@Test
+	public void testConfigProvidersConfig() throws Exception{
+		AddCfgProviderCommand command = new AddCfgProviderCommand("maven", null);
+		
+		File file = new File("src/test/resources/yaml/addcfgproviders.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+		
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			ProviderConfig provCfg = command.build();
+			provider.addProviderConfig(provCfg);
+			
+			String output = FileUtils.readFileToString(file);
+
+			String desiredOutput = "conf-providers:\n";
+			desiredOutput += "- type: \"maven\"";
 			
 			Assert.assertEquals(desiredOutput, output);
 		} finally {

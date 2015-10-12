@@ -143,7 +143,20 @@ public class JSONConfigParser {
 			Map<String, Object> params = new HashMap<String, Object>();
 			while (it2.hasNext()) {
 				Entry<String, JsonNode> param = it2.next();
-
+				JsonNode value = param.getValue();
+				if (value.isTextual()) {
+					params.put(param.getKey(), value.asText());
+				} else if (value.isInt()) {
+					params.put(param.getKey(), value.asInt());
+				} else if (value.isBoolean()) {
+					params.put(param.getKey(), value.asBoolean());
+				} else if (value.isDouble() || value.isFloat() || value.isBigDecimal()) {
+					params.put(param.getKey(), value.asDouble());
+				} else if (value.isLong() || value.isBigInteger()) {
+					params.put(param.getKey(), value.asLong());
+				} else {
+					params.put(param.getKey(), value);
+				}
 				params.put(param.getKey(), param.getValue().asText());
 			}
 			return params;

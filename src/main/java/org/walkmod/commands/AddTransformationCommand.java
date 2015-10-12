@@ -15,13 +15,9 @@
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.commands;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.walkmod.OptionsBuilder;
 import org.walkmod.WalkModFacade;
+import org.walkmod.conf.entities.JSONConfigParser;
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.impl.TransformationConfigImpl;
 
@@ -45,7 +41,7 @@ public class AddTransformationCommand implements Command {
 	@Parameter(names = { "--isMergeabe" }, description = "Sets if the changes made by the transformation requires to be merged")
 	private boolean isMergeable = false;
 
-	@Parameter(description = "The transformatio type identifier", required = true)
+	@Parameter(description = "The transformation type identifier", required = true)
 	private String type = null;
 
 	@Parameter(names = "--help", help = true, hidden = true)
@@ -72,28 +68,9 @@ public class AddTransformationCommand implements Command {
 		tconfig.setMergePolicy(mergePolicy);
 
 		if (params != null) {
-			Map<String, Object> transformationParams = new HashMap<String, Object>();
+			JSONConfigParser parser = new JSONConfigParser();
 
-			Iterator<Entry<String, JsonNode>> it = params.fields();
-			while (it.hasNext()) {
-				Entry<String, JsonNode> entry = it.next();
-				JsonNode value = entry.getValue();
-				if (value.isTextual()) {
-					transformationParams.put(entry.getKey(), value.asText());
-				} else if (value.isInt()) {
-					transformationParams.put(entry.getKey(), value.asInt());
-				} else if (value.isBoolean()) {
-					transformationParams.put(entry.getKey(), value.asBoolean());
-				} else if (value.isDouble() || value.isFloat() || value.isBigDecimal()) {
-					transformationParams.put(entry.getKey(), value.asDouble());
-				} else if (value.isLong() || value.isBigInteger()) {
-					transformationParams.put(entry.getKey(), value.asLong());
-				} else {
-					transformationParams.put(entry.getKey(), value);
-				}
-			}
-
-			tconfig.setParameters(transformationParams);
+			tconfig.setParameters(parser.getParams(params));
 		}
 
 		return tconfig;

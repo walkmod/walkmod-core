@@ -5,8 +5,10 @@ import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.walkmod.commands.AddCfgProviderCommand;
 import org.walkmod.commands.AddTransformationCommand;
 import org.walkmod.conf.entities.Configuration;
+import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.impl.ConfigurationImpl;
 
 public class XMLConfigurationProviderTest {
@@ -35,20 +37,45 @@ public class XMLConfigurationProviderTest {
 	@Test
 	public void testAddTransformation() throws Exception {
 		File aux = new File("src/test/resources/xml");
-		if (aux.mkdirs()) {
-			File xml = new File(aux, "walkmod.xml");
-			XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
-			try {
-				prov.createConfig();
-				AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null,
-						null);
-				prov.addTransformationConfig(null, command.buildTransformationCfg());
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null);
+			prov.addTransformationConfig(null, command.buildTransformationCfg());
 
-				String content = FileUtils.readFileToString(xml);
-				
-			    Assert.assertTrue(content.contains("imports-cleaner"));
-				
-			} finally {
+			String content = FileUtils.readFileToString(xml);
+
+			Assert.assertTrue(content.contains("imports-cleaner"));
+
+		} finally {
+			xml.delete();
+		}
+
+	}
+
+	@Test
+	public void testConfigProvidersConfig() throws Exception {
+		AddCfgProviderCommand command = new AddCfgProviderCommand("maven", null);
+
+		File aux = new File("src/test/resources/xml");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+
+			ProviderConfig provCfg = command.build();
+			prov.addProviderConfig(provCfg);
+
+			String output = FileUtils.readFileToString(xml);
+
+			System.out.println(output);
+
+			Assert.assertTrue(output.contains("maven"));
+		} finally {
+			if (xml.exists()) {
 				xml.delete();
 			}
 		}

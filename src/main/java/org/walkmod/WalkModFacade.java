@@ -34,6 +34,7 @@ import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.PluginConfig;
+import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.providers.IvyConfigurationProvider;
 import org.walkmod.exceptions.InvalidConfigurationException;
@@ -565,8 +566,10 @@ public class WalkModFacade {
 	/**
 	 * Adds a new transformation configuration into the configuration file
 	 * 
-	 * @param chainCfg
-	 *            chain configuration to add
+	 * @param chain
+	 * 		      chain identifier where the transformation will be appended. It can be null.
+	 * @param transformationCfg
+	 *            transformation configuration to add
 	 * @throws Exception
 	 *             in case that the walkmod configuration file can't be read or
 	 *             written.
@@ -583,6 +586,32 @@ public class WalkModFacade {
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
 			cfgProvider.addTransformationConfig(chain, transformationCfg);
+		} finally {
+			System.setProperty("user.dir", userDir);
+		}
+	}
+	
+	/**
+	 * Adds a new provider configuration into the configuration file
+	 * 
+	 * @param providerCfg
+	 * 		      provider configuration to add.
+	 * @throws Exception
+	 *             in case that the walkmod configuration file can't be read or
+	 *             written.
+	 */
+	public void addProviderConfig(ProviderConfig providerCfg) throws Exception{
+		if (!cfg.exists()) {
+			init();
+		}
+		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+		try {
+			ConfigurationManager manager = new ConfigurationManager(cfg, false);
+
+			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
+
+			cfgProvider.addProviderConfig(providerCfg);
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}

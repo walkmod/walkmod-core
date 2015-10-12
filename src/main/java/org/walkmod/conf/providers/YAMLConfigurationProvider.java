@@ -515,77 +515,78 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 	@Override
 	public boolean addTransformationConfig(String chain, TransformationConfig transformationCfg)
 			throws TransformerException {
-		File cfg = new File(fileName);
-		ArrayNode transformationsNode = null;
-		JsonNode chainsNode = null;
-		try {
-			chainsNode = mapper.readTree(cfg);
-		} catch (Exception e) {
+		if (transformationCfg != null) {
+			File cfg = new File(fileName);
+			ArrayNode transformationsNode = null;
+			JsonNode chainsNode = null;
+			try {
+				chainsNode = mapper.readTree(cfg);
+			} catch (Exception e) {
 
-		}
-		if (chainsNode == null) {
-			chainsNode = new ObjectNode(mapper.getNodeFactory());
-
-		}
-
-		if (!chainsNode.has("chains")) {
-			if (chain == null) {
-				if (chainsNode.has("transformations")) {
-					JsonNode aux = chainsNode.get("transformations");
-					if (aux.isArray()) {
-						transformationsNode = (ArrayNode) aux;
-					}
-				}
-				ObjectNode aux = (ObjectNode) chainsNode;
-				transformationsNode = new ArrayNode(mapper.getNodeFactory());
-				aux.set("transformations", transformationsNode);
-			} else {
-				throw new TransformerException("The chain [" + chain + "] does not exists");
 			}
-		} else {
-			if (chain != null) {
-				JsonNode aux = chainsNode.get("chains");
-				if (aux.isArray()) {
-					Iterator<JsonNode> it = aux.elements();
-					while (it.hasNext()) {
-						JsonNode next = it.next();
-						if (next.has("name")) {
-							String id = next.get("name").asText();
-							if (chain.equals(id)) {
-								if (next.has("transformations")) {
-									JsonNode auxTrans = next.get("transformations");
-									if (auxTrans.isArray()) {
-										transformationsNode = (ArrayNode) auxTrans;
+			if (chainsNode == null) {
+				chainsNode = new ObjectNode(mapper.getNodeFactory());
+
+			}
+
+			if (!chainsNode.has("chains")) {
+				if (chain == null) {
+					if (chainsNode.has("transformations")) {
+						JsonNode aux = chainsNode.get("transformations");
+						if (aux.isArray()) {
+							transformationsNode = (ArrayNode) aux;
+						}
+					}
+					ObjectNode aux = (ObjectNode) chainsNode;
+					transformationsNode = new ArrayNode(mapper.getNodeFactory());
+					aux.set("transformations", transformationsNode);
+				} else {
+					throw new TransformerException("The chain [" + chain + "] does not exists");
+				}
+			} else {
+				if (chain != null) {
+					JsonNode aux = chainsNode.get("chains");
+					if (aux.isArray()) {
+						Iterator<JsonNode> it = aux.elements();
+						while (it.hasNext()) {
+							JsonNode next = it.next();
+							if (next.has("name")) {
+								String id = next.get("name").asText();
+								if (chain.equals(id)) {
+									if (next.has("transformations")) {
+										JsonNode auxTrans = next.get("transformations");
+										if (auxTrans.isArray()) {
+											transformationsNode = (ArrayNode) auxTrans;
+										} else {
+											throw new TransformerException("The chain [" + chain
+													+ "] does not have a valid transformations node");
+										}
+									} else if (next.isObject()) {
+										ObjectNode auxNext = (ObjectNode) next;
+										transformationsNode = new ArrayNode(mapper.getNodeFactory());
+										auxNext.set("transformations", transformationsNode);
 									} else {
 										throw new TransformerException("The chain [" + chain
-												+ "] does not have a valid transformations node");
+												+ "] does not have a valid structure");
 									}
-								} else if (next.isObject()) {
-									ObjectNode auxNext = (ObjectNode) next;
-									transformationsNode = new ArrayNode(mapper.getNodeFactory());
-									auxNext.set("transformations", transformationsNode);
-								} else {
-									throw new TransformerException("The chain [" + chain
-											+ "] does not have a valid structure");
 								}
 							}
-						}
 
+						}
 					}
 				}
 			}
-		}
-		if (transformationsNode != null) {
-			ObjectNode transformationNode = new ObjectNode(mapper.getNodeFactory());
-			transformationsNode.add(transformationNode);
+			if (transformationsNode != null) {
+				ObjectNode transformationNode = new ObjectNode(mapper.getNodeFactory());
+				transformationsNode.add(transformationNode);
 
-			createTransformation(transformationNode, transformationCfg);
-			write(chainsNode);
-			return true;
-		} else if (chain != null) {
-			throw new TransformerException("The chain [" + chain + "] does not exists");
+				createTransformation(transformationNode, transformationCfg);
+				write(chainsNode);
+				return true;
+			} else if (chain != null) {
+				throw new TransformerException("The chain [" + chain + "] does not exists");
+			}
 		}
-
 		return false;
 	}
 
@@ -595,6 +596,60 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 		if (!cfg.exists() && !cfg.createNewFile()) {
 			throw new IOException("The system can't create the [" + fileName + "] file");
 		}
+	}
+
+	@Override
+	public boolean addProviderConfig(ProviderConfig providerCfg) throws TransformerException {
+		File cfg = new File(fileName);
+		JsonNode node = null;
+		try {
+			node = mapper.readTree(cfg);
+		} catch (Exception e) {
+
+		}
+		if (node == null) {
+			node = new ObjectNode(mapper.getNodeFactory());
+		}
+		
+		if (node.has("conf-providers")) {
+			JsonNode list = node.get("conf-providers");
+			Iterator<JsonNode> it = list.iterator();
+			boolean found = false;
+			while (it.hasNext() && !found) {
+				JsonNode next = it.next();
+				found = providerCfg.getType().equals(next.get("type").asText());
+			}
+			if(!found){
+				if(list.isArray()){
+					ArrayNode aux = (ArrayNode) list;
+					ObjectNode prov = new ObjectNode(mapper.getNodeFactory());
+					prov.set("type", new TextNode(providerCfg.getType()));
+					Map<String, Object> params = providerCfg.getParameters();
+					if (params != null && !params.isEmpty()) {
+						populateParams(prov, params);
+					}
+					aux.add(prov);
+					write(node);
+					return true;
+				}
+			}
+		}
+		else{
+			ArrayNode aux = new ArrayNode(mapper.getNodeFactory());
+			ObjectNode prov = new ObjectNode(mapper.getNodeFactory());
+			prov.set("type", new TextNode(providerCfg.getType()));
+			Map<String, Object> params = providerCfg.getParameters();
+			if (params != null && !params.isEmpty()) {
+				populateParams(prov, params);
+			}
+			aux.add(prov);
+			ObjectNode auxNode = (ObjectNode) node;
+			auxNode.set("conf-providers", aux);
+			write(node);
+			return true;
+		}
+		
+		return false;
 	}
 
 }

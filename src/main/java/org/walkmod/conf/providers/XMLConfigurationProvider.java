@@ -1061,30 +1061,32 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	@Override
 	public boolean addTransformationConfig(String chain, TransformationConfig transformationCfg)
 			throws TransformerException {
-		if (document == null) {
-			init();
-		}
-		Element rootElement = document.getDocumentElement();
-		NodeList children = rootElement.getChildNodes();
-		int childSize = children.getLength();
-		if (chain != null && !"".equals(chain)) {
-			for (int i = 0; i < childSize; i++) {
-				Node childNode = children.item(i);
-				if (childNode instanceof Element) {
-					Element child = (Element) childNode;
-					final String nodeName = child.getNodeName();
-					if ("chain".equals(nodeName)) {
-						String name = child.getAttribute("name");
-						if (name.equals(chain)) {
-							child.appendChild(createTransformationElement(transformationCfg));
-							return true;
+		if (transformationCfg != null) {
+			if (document == null) {
+				init();
+			}
+			Element rootElement = document.getDocumentElement();
+			NodeList children = rootElement.getChildNodes();
+			int childSize = children.getLength();
+			if (chain != null && !"".equals(chain)) {
+				for (int i = 0; i < childSize; i++) {
+					Node childNode = children.item(i);
+					if (childNode instanceof Element) {
+						Element child = (Element) childNode;
+						final String nodeName = child.getNodeName();
+						if ("chain".equals(nodeName)) {
+							String name = child.getAttribute("name");
+							if (name.equals(chain)) {
+								child.appendChild(createTransformationElement(transformationCfg));
+								return true;
+							}
 						}
 					}
 				}
+			} else {
+				rootElement.appendChild(createTransformationElement(transformationCfg));
+				persist();
 			}
-		} else {
-			rootElement.appendChild(createTransformationElement(transformationCfg));
-			persist();
 		}
 
 		return false;
@@ -1109,5 +1111,67 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		} else {
 			throw new IOException("The system can't create the [" + configFileName + "] file");
 		}
+	}
+
+	@Override
+	public boolean addProviderConfig(ProviderConfig providerCfg) throws TransformerException {
+		if (providerCfg != null) {
+			if (document == null) {
+				init();
+			}
+			Element rootElement = document.getDocumentElement();
+			NodeList children = rootElement.getChildNodes();
+			int childSize = children.getLength();
+			boolean exists = false;
+			Element child = null;
+			for (int i = 0; i < childSize && !exists; i++) {
+				Node childNode = children.item(i);
+				if (childNode instanceof Element) {
+					child = (Element) childNode;
+					final String nodeName = child.getNodeName();
+					
+					if ("conf-providers".equals(nodeName)) {
+
+						Node aux = (Node) child;
+						NodeList cfgchildren = aux.getChildNodes();
+
+						int cfgchildrenSize = cfgchildren.getLength();
+
+						for (int j = 0; j < cfgchildrenSize && !exists; j++) {
+							Node provNode = cfgchildren.item(j);
+							Element entryElem = (Element) provNode;
+							String otype = entryElem.getAttribute("name");
+							exists = otype.equals(providerCfg.getType());
+						}
+
+					}
+				}
+			}
+			if (!exists) {
+				Element element = document.createElement("conf-provider");
+
+				String type = providerCfg.getType();
+				if (type != null && !"".equals(type)) {
+					element.setAttribute("type", type);
+				}
+
+				Map<String, Object> params = providerCfg.getParameters();
+				List<Element> paramListEment = createParamsElement(params);
+				if (paramListEment != null) {
+
+					for (Element param : paramListEment) {
+						element.appendChild(param);
+					}
+				}
+				if(child == null){
+					child = document.createElement("conf-providers");
+					rootElement.appendChild(child);
+				}
+				child.appendChild(element);
+				persist();
+			}
+		}
+		return false;
+
 	}
 }
