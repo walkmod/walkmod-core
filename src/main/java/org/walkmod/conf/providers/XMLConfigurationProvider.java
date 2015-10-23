@@ -909,8 +909,6 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		inferPlugins(configuration);
 	}
 
-
-
 	private void loadModules() {
 		Element rootElement = document.getDocumentElement();
 		NodeList children = rootElement.getChildNodes();
@@ -1064,7 +1062,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	}
 
 	@Override
-	public boolean addTransformationConfig(String chain, TransformationConfig transformationCfg)
+	public boolean addTransformationConfig(String chain, String path, TransformationConfig transformationCfg)
 			throws TransformerException {
 		if (transformationCfg != null) {
 			if (document == null) {
@@ -1074,7 +1072,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 			NodeList children = rootElement.getChildNodes();
 			int childSize = children.getLength();
 			if (chain != null && !"".equals(chain) && !"default".equals(chain)) {
-				
+
 				boolean isTransformationList = false;
 				for (int i = 0; i < childSize && !isTransformationList; i++) {
 					Node childNode = children.item(i);
@@ -1087,31 +1085,38 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 								child.appendChild(createTransformationElement(transformationCfg));
 								return true;
 							}
-						}
-						else if("transformation".equals(nodeName)){
+						} else if ("transformation".equals(nodeName)) {
 							isTransformationList = true;
 						}
 					}
 				}
-				if(isTransformationList){
+				if (isTransformationList) {
 					this.configuration = new ConfigurationImpl();
-					//we write specifically a default chain, and afterwards, we add the requested one.
+					// we write specifically a default chain, and afterwards, we
+					// add the requested one.
 					loadChains();
-					Collection<ChainConfig> chainCfgs= configuration.getChainConfigs();
+					Collection<ChainConfig> chainCfgs = configuration.getChainConfigs();
 					ChainConfig chainCfg = chainCfgs.iterator().next();
 					rootElement.appendChild(createChainElement(chainCfg));
 				}
-				
+
 				ChainConfig chainCfg = new ChainConfigImpl();
 				chainCfg.setName(chain);
-				WalkerConfig walkerCfg = new WalkerConfigImpl();
+				addDefaultReaderConfig(chainCfg);
+				
+				addDefaultWriterConfig(chainCfg);
+				if (path != null && !"".equals(path.trim())) {
+					chainCfg.getReaderConfig().setPath(path);
+					chainCfg.getWriterConfig().setPath(path);
+				}
+				addDefaultWalker(chainCfg);
+				WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
 				List<TransformationConfig> transfs = new LinkedList<TransformationConfig>();
 				transfs.add(transformationCfg);
 				walkerCfg.setTransformations(transfs);
 				chainCfg.setWalkerConfig(walkerCfg);
 				rootElement.appendChild(createChainElement(chainCfg));
-				
-				
+				persist();
 			} else {
 				boolean containsChains = false;
 				for (int i = 0; i < childSize && !containsChains; i++) {
@@ -1122,8 +1127,10 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 						containsChains = "chain".equals(nodeName);
 					}
 				}
-				if(containsChains){
-					throw new TransformerException("The user must specify a chain name (new or existing) where to add the transformation: ["+transformationCfg.getType()+"]");
+				if (containsChains) {
+					throw new TransformerException(
+							"The user must specify a chain name (new or existing) where to add the transformation: ["
+									+ transformationCfg.getType() + "]");
 				}
 				rootElement.appendChild(createTransformationElement(transformationCfg));
 				persist();
@@ -1298,7 +1305,18 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 							modified = true;
 						}
 					}
-					if (children.getLength() == 0) {
+					
+					boolean thereAreMoreTransformations = false;
+					int childSize2 = children.getLength();
+					for (int j = 0; j < childSize2 && !thereAreMoreTransformations; j++) {
+						Node childNode2 = children.item(j);
+						if (childNode2 instanceof Element) {
+							Element child2 = (Element) childNode2;
+							final String nodeName2 = child2.getNodeName();
+							thereAreMoreTransformations = nodeName2.equals("transformation");
+						}
+					}
+					if(!thereAreMoreTransformations){
 						if (!rootNode.getNodeName().equals("walkmod")) {
 							rootNode.getParentNode().removeChild(rootNode);
 						}
@@ -1388,21 +1406,21 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 					}
 				}
 			}
-			if(writerParent != null){
+			if (writerParent != null) {
 				NodeList siblings = writerParent.getChildNodes();
 				int limit = siblings.getLength();
 				boolean updated = false;
-				for(int i = 0; i < limit && !updated; i++){
+				for (int i = 0; i < limit && !updated; i++) {
 					Node childNode = siblings.item(i);
 					if (childNode instanceof Element) {
 						Element aux = (Element) childNode;
-						if("writer".equals(aux.getNodeName())){
+						if ("writer".equals(aux.getNodeName())) {
 							aux.setAttribute("type", type);
 							updated = true;
 						}
 					}
 				}
-				if(!updated){
+				if (!updated) {
 					Element writerElem = document.createElement("writer");
 					writerElem.setAttribute("type", type);
 					writerParent.appendChild(writerElem);

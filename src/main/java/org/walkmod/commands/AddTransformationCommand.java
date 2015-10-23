@@ -46,6 +46,9 @@ public class AddTransformationCommand implements Command {
 
 	@Parameter(names = { "--isMergeabe" }, description = "Sets if the changes made by the transformation requires to be merged")
 	private boolean isMergeable = false;
+	
+	@Parameter(names= {"--path", "-d"}, description = "Source directory when the specified chain does not exists")
+	private String path = null;
 
 	@Parameter(arity = 1, description = "The transformation type identifier", required = true)
 	private List<String> type = null;
@@ -55,13 +58,14 @@ public class AddTransformationCommand implements Command {
 
 	private JCommander jcommander;
 
-	public AddTransformationCommand(String type, String chain, boolean isMergeable, String mergePolicy, JsonNode params) {
+	public AddTransformationCommand(String type, String chain, boolean isMergeable, String mergePolicy, String path, JsonNode params) {
 		this.type = new LinkedList<String>();
 		this.type.add(type);
 		this.chain = chain;
 		this.isMergeable = isMergeable;
 		this.mergePolicy = mergePolicy;
 		this.params = params;
+		this.path = path;
 	}
 
 	public AddTransformationCommand(JCommander jcommander) {
@@ -97,7 +101,7 @@ public class AddTransformationCommand implements Command {
 		} else {
 
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-			facade.addTransformationConfig(chain, buildTransformationCfg());
+			facade.addTransformationConfig(chain, path, buildTransformationCfg());
 		}
 	}
 
