@@ -900,6 +900,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	public void load() throws ConfigurationException {
 		Map<String, Object> params = getParams(document.getDocumentElement());
 		configuration.setParameters(params);
+		inferInitializers(configuration);
 		loadModules();
 		loadPlugins();
 		loadProviders();

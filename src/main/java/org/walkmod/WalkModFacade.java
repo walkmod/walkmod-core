@@ -30,13 +30,15 @@ import java.util.Locale;
 import org.apache.log4j.Logger;
 import org.walkmod.conf.ConfigurationManager;
 import org.walkmod.conf.ConfigurationProvider;
+import org.walkmod.conf.Initializer;
 import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
+import org.walkmod.conf.entities.InitializerConfig;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
-import org.walkmod.conf.entities.impl.ProviderConfigImpl;
+import org.walkmod.conf.entities.impl.ConfigurationImpl;
 import org.walkmod.conf.providers.IvyConfigurationProvider;
 import org.walkmod.exceptions.InvalidConfigurationException;
 import org.walkmod.exceptions.WalkModException;
@@ -492,10 +494,10 @@ public class WalkModFacade {
 		return result;
 	}
 
-	
 	/**
 	 * Initializes an empty walkmod configuration file
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	public void init() throws Exception {
 		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
@@ -503,15 +505,37 @@ public class WalkModFacade {
 
 		if (!cfg.exists()) {
 
-			ConfigurationManager manager = new ConfigurationManager(cfg, false);
+			ConfigurationManager manager = new ConfigurationManager(cfg, false, locateConfigurationProvider());
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 			try {
 				cfgProvider.createConfig();
-				
-				if (options.isVerbose()) {
-					log.info("CONFIGURATION FILE [ " + cfg.getAbsolutePath() + "] CREATION COMPLETE");
+
+				manager.executeConfigurationProviders();
+
+				Configuration conf = manager.getConfiguration();
+
+				List<InitializerConfig> initializers = conf.getInitializers();
+
+				if (initializers != null) {
+					for (InitializerConfig initCfg : initializers) {
+						String beanId = initCfg.getPluginGroupId() + ":" + initCfg.getPluginArtifactId() + ":"
+								+ initCfg.getType();
+						
+						if (conf.containsBean(beanId)) {
+
+							Object o = conf.getBean(beanId, initCfg.getParams());
+							if (o != null && o instanceof Initializer) {
+								((Initializer) o).execute(cfgProvider);
+							}
+						}
+					}
 				}
+
+				if (options.isVerbose()) {
+					log.info("CONFIGURATION FILE [" + cfg.getAbsolutePath() + "] CREATION COMPLETE");
+				}
+
 			} catch (IOException aux) {
 				if (options.isVerbose()) {
 					log.error("The system can't create the file [ " + cfg.getAbsolutePath() + "]");
@@ -1021,11 +1045,10 @@ public class WalkModFacade {
 			}
 		}
 
-		
 	}
 
-	public void setWriter(String chain, String type) throws Exception{
-		if(type != null && !"".equals(type.trim())){
+	public void setWriter(String chain, String type) throws Exception {
+		if (type != null && !"".equals(type.trim())) {
 			if (!cfg.exists()) {
 				init();
 			}

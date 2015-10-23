@@ -92,6 +92,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 
 		try {
 			JsonNode node = mapper.readTree(new File(fileName));
+			inferInitializers(configuration);
 			if (node.has("plugins")) {
 
 				Iterator<JsonNode> it = node.get("plugins").iterator();

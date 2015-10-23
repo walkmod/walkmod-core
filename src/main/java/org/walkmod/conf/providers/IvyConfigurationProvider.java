@@ -164,6 +164,9 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 				URLClassLoader childClassLoader = new URLClassLoader(urls, configuration.getClassLoader());
 				configuration.setClassLoader(childClassLoader);
 			}
+			else{
+				configuration.setClassLoader(Thread.currentThread().getContextClassLoader());
+			}
 		} catch (Exception e) {
 			if (!(e instanceof ConfigurationException)) {
 

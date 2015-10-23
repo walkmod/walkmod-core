@@ -24,15 +24,16 @@ import java.util.List;
 
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
+import org.walkmod.conf.entities.InitializerConfig;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.ReaderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.conf.entities.WriterConfig;
+import org.walkmod.conf.entities.impl.InitializerConfigImpl;
 import org.walkmod.conf.entities.impl.ParserConfigImpl;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
-import org.walkmod.conf.entities.impl.ProviderConfigImpl;
 import org.walkmod.conf.entities.impl.WalkerConfigImpl;
 import org.walkmod.conf.entities.impl.WriterConfigImpl;
 
@@ -58,7 +59,29 @@ public class AbstractChainConfigurationProvider {
 		wc.setType(null);
 		ac.setWriterConfig(wc);
 	}
-	
+
+	public void inferInitializers(Configuration config) {
+		InitializerConfig init = null;
+		File pom = new File("pom.xml");
+		if (pom.exists()) {
+			init = new InitializerConfigImpl();
+			init.setType("maven-initializer");
+		} else {
+			File gradle = new File("settings.gradle");
+			if (gradle.exists()) {
+				init = new InitializerConfigImpl();
+				init.setType("gradle-initializer");
+			}
+		}
+		if(init != null){
+			List<InitializerConfig> list = config.getInitializers();
+			if(list == null){
+				list = new LinkedList<InitializerConfig>();
+			}
+			list.add(init);
+			config.setInitializers(list);
+		}
+	}
 
 	public void inferPlugins(Configuration config) {
 		Collection<PluginConfig> pluginCfg = config.getPlugins();
@@ -97,6 +120,13 @@ public class AbstractChainConfigurationProvider {
 			for (ProviderConfig provider : providers) {
 				String type = provider.getType();
 				composeName(type, plugins);
+			}
+		}
+		
+		Collection<InitializerConfig> initializers = config.getInitializers();
+		if (providers != null) {
+			for (InitializerConfig initializer : initializers) {
+				plugins.add(initializer.getPluginGroupId()+":walkmod-"+initializer.getPluginArtifactId()+"-plugin");
 			}
 		}
 

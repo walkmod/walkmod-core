@@ -28,6 +28,7 @@ import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanFactory;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
+import org.walkmod.conf.entities.InitializerConfig;
 import org.walkmod.conf.entities.MergePolicyConfig;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
@@ -54,7 +55,9 @@ public class ConfigurationImpl implements Configuration {
 	private String defaultLanguage;
 
 	private Collection<ProviderConfig> providers;
-	
+
+	private List<InitializerConfig> initializers;
+
 	private List<String> modules;
 
 	public ConfigurationImpl() {
@@ -116,16 +119,15 @@ public class ConfigurationImpl implements Configuration {
 		if (beanFactory != null && beanFactory.containsBean(name)) {
 			result = beanFactory.getBean(name);
 		}
-		if(!name.contains(":")){
-			result = beanFactory.getBean("org.walkmod:walkmod-"+name+"-plugin:"+name);
-		}
-		else{
+		if (!name.contains(":")) {
+			result = beanFactory.getBean("org.walkmod:walkmod-" + name + "-plugin:" + name);
+		} else {
 			String[] parts = name.split(":");
-			if(parts.length == 2){
+			if (parts.length == 2) {
 				String pluginId = parts[0].trim();
 				String beanId = parts[1].trim();
-				if(pluginId.length() > 0 && beanId.length() > 0){
-					result = beanFactory.getBean("org.walkmod:walkmod-"+pluginId+"-plugin:"+beanId);
+				if (pluginId.length() > 0 && beanId.length() > 0) {
+					result = beanFactory.getBean("org.walkmod:walkmod-" + pluginId + "-plugin:" + beanId);
 				}
 			}
 		}
@@ -248,6 +250,27 @@ public class ConfigurationImpl implements Configuration {
 	@Override
 	public List<String> getModules() {
 		return modules;
+	}
+
+	@Override
+	public void setInitializers(List<InitializerConfig> initializers) {
+		this.initializers = initializers;
+	}
+
+	@Override
+	public List<InitializerConfig> getInitializers() {
+		return initializers;
+	}
+
+	@Override
+	public boolean containsBean(String beanId) {
+		if (beanFactory != null) {
+			if (!beanId.contains(":")) {
+				return  beanFactory.containsBean("org.walkmod:walkmod-" + beanId + "-plugin:" + beanId);
+			}
+			return beanFactory.containsBean(beanId);
+		}
+		return false;
 	}
 
 }

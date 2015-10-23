@@ -70,4 +70,10 @@ public interface Configuration {
 	public void setModules(List<String> modules);
 	
 	public List<String> getModules();
+	
+	public void setInitializers(List<InitializerConfig> initializers);
+	
+	public List<InitializerConfig> getInitializers();
+
+	public boolean containsBean(String beanId);
 }
