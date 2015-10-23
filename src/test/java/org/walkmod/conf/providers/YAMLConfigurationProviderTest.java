@@ -9,8 +9,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.walkmod.commands.AddCfgProviderCommand;
-import org.walkmod.commands.AddChainCommand;
-import org.walkmod.commands.AddModuleCommand;
 import org.walkmod.commands.AddTransformationCommand;
 import org.walkmod.commands.JSONConverter;
 import org.walkmod.conf.entities.ChainConfig;
@@ -176,109 +174,14 @@ public class YAMLConfigurationProviderTest {
 		}
 	}
 
-	@Test
-	public void testChainWithDifferentDefaultPath() throws Exception {
-
-		AddChainCommand command = new AddChainCommand(null, "src", null, null, null);
-		ChainConfig chainCfg = command.buildChainCfg();
-
-		File file = new File("src/test/resources/yaml/addEmptychain.yml");
-		if (file.exists()) {
-			file.delete();
-		}
-		file.createNewFile();
-		FileUtils.write(file, "");
-		YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
-		Configuration conf = new ConfigurationImpl();
-		provider.init(conf);
-		try {
-			provider.addChainConfig(chainCfg);
-
-			String output = FileUtils.readFileToString(file);
-
-			String validOutput = "chains:\n";
-			validOutput += "- reader:\n";
-			validOutput += "    path: \"src\"\n";
-			validOutput += "  writer:\n";
-			validOutput += "    path: \"src\"";
-			Assert.assertEquals(validOutput, output);
-		} finally {
-			if (file.exists()) {
-				file.delete();
-			}
-		}
-	}
-
-	@Test
-	public void testChainWithName() throws Exception {
-
-		AddChainCommand command = new AddChainCommand("hello", "src/main/java", null, null, null);
-		ChainConfig chainCfg = command.buildChainCfg();
-
-		File file = new File("src/test/resources/yaml/addEmptychain.yml");
-		if (file.exists()) {
-			file.delete();
-		}
-		file.createNewFile();
-		FileUtils.write(file, "");
-		YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
-		Configuration conf = new ConfigurationImpl();
-		provider.init(conf);
-		try {
-			provider.addChainConfig(chainCfg);
-
-			String output = FileUtils.readFileToString(file);
-
-			Assert.assertEquals("", output);
-		} finally {
-			if (file.exists()) {
-				file.delete();
-			}
-		}
-	}
 	
-	@Test
-	public void testAddChainWithReader() throws Exception{
-		JSONConverter converter = new JSONConverter();
-		JsonNode reader = converter
-				.convert("{type: \"custom-reader\"}");
-		AddChainCommand command = new AddChainCommand("mychain", "src/main/java", reader, null, null);
-
-		File file = new File("src/test/resources/yaml/addchain.yml");
-		if (file.exists()) {
-			file.delete();
-		}
-		file.createNewFile();
-		FileUtils.write(file, "");
-		try {
-			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
-			Configuration conf = new ConfigurationImpl();
-			provider.init(conf);
-
-			ChainConfig chainCfg = command.buildChainCfg();
-
-			provider.addChainConfig(chainCfg);
-			String output = FileUtils.readFileToString(file);
-
-			String desiredOutput = "chains:\n";
-			desiredOutput += "- reader:\n";
-			desiredOutput += "    type: \"custom-reader\"";
-
-			Assert.assertEquals(desiredOutput, output);
-		} finally {
-			if (file.exists()) {
-				file.delete();
-			}
-		}
-	}
-
 	@Test
 	public void testAddChainTransformation() throws Exception {
 
 		JSONConverter converter = new JSONConverter();
 		JsonNode walker = converter
-				.convert("{transformations: [ { type: \"walkmod:commons:method-refactor\", params: { refactoringConfigFile: \"src/conf/refactoring-methods.json\"} }]}");
-		AddChainCommand command = new AddChainCommand("mychain", "src/main/java", null, null, walker);
+				.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor",null, false, null, walker);
 
 		File file = new File("src/test/resources/yaml/addchain.yml");
 		if (file.exists()) {
@@ -291,9 +194,9 @@ public class YAMLConfigurationProviderTest {
 			Configuration conf = new ConfigurationImpl();
 			provider.init(conf);
 
-			ChainConfig chainCfg = command.buildChainCfg();
+			TransformationConfig transformationCfg = command.buildTransformationCfg();
 
-			provider.addChainConfig(chainCfg);
+			provider.addTransformationConfig(null, transformationCfg);
 			String output = FileUtils.readFileToString(file);
 
 			String desiredOutput = "transformations:\n";
@@ -307,7 +210,116 @@ public class YAMLConfigurationProviderTest {
 				file.delete();
 			}
 		}
+	}
+	
+	
+	@Test
+	public void testAddChainTransformationToChainAfterTranfList() throws Exception {
 
+		JSONConverter converter = new JSONConverter();
+		JsonNode walker = converter
+				.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor",null, false, null, walker);
+
+		File file = new File("src/test/resources/yaml/addchain.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			TransformationConfig transformationCfg = command.buildTransformationCfg();
+
+			provider.addTransformationConfig(null, transformationCfg);
+			command = new AddTransformationCommand("walkmod:commons:class-refactor","mychain", false, null, walker);
+			transformationCfg = command.buildTransformationCfg();
+			provider.addTransformationConfig("mychain", transformationCfg);
+			
+			String output = FileUtils.readFileToString(file);
+
+			
+
+			Assert.assertTrue(output.contains("mychain") && output.contains("default"));
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+	
+	
+	@Test
+	public void testAddChainTransformationWithNewChain() throws Exception {
+
+		JSONConverter converter = new JSONConverter();
+		JsonNode walker = converter
+				.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor","mychain", false, null, walker);
+
+		File file = new File("src/test/resources/yaml/addchain.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			TransformationConfig transformationCfg = command.buildTransformationCfg();
+
+			provider.addTransformationConfig("mychain", transformationCfg);
+			
+			String output = FileUtils.readFileToString(file);
+			
+			Assert.assertTrue(output.contains("mychain"));
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+	
+	@Test
+	public void testAddChainTransformationWithExistingChain() throws Exception {
+
+		JSONConverter converter = new JSONConverter();
+		JsonNode walker = converter
+				.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor","mychain", false, null, walker);
+
+		File file = new File("src/test/resources/yaml/addchain.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			TransformationConfig transformationCfg = command.buildTransformationCfg();
+
+			provider.addTransformationConfig("mychain", transformationCfg);
+			command = new AddTransformationCommand("walkmod:commons:class-refactor","mychain", false, null, walker);
+			transformationCfg = command.buildTransformationCfg();
+			provider.addTransformationConfig("mychain", transformationCfg);
+			
+			
+			String output = FileUtils.readFileToString(file);
+			
+			Assert.assertTrue(output.contains("walkmod:commons:class-refactor") && !output.contains("default"));
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
 	}
 	
 	@Test

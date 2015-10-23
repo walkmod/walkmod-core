@@ -8,16 +8,10 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.walkmod.commands.AddCfgProviderCommand;
-import org.walkmod.commands.AddChainCommand;
 import org.walkmod.commands.AddTransformationCommand;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.impl.ConfigurationImpl;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 
 public class XMLConfigurationProviderTest {
 
@@ -164,23 +158,10 @@ public class XMLConfigurationProviderTest {
 
 			prov.createConfig();
 
-			ObjectMapper mapper = new ObjectMapper();
+			AddTransformationCommand command0 = new AddTransformationCommand("license-applier", "mychain", false, null,
+					null);
 
-			ObjectNode walker = new ObjectNode(mapper.getNodeFactory());
-
-			ArrayNode transformations = new ArrayNode(mapper.getNodeFactory());
-
-			ObjectNode firstTrans = new ObjectNode(mapper.getNodeFactory());
-
-			firstTrans.set("type", new TextNode("license-applier"));
-
-			transformations.add(firstTrans);
-
-			walker.set("transformations", transformations);
-
-			AddChainCommand precommand = new AddChainCommand("mychain", "src/main/java", null, null, walker);
-
-			prov.addChainConfig(precommand.buildChainCfg());
+			prov.addTransformationConfig("mychain", command0.buildTransformationCfg());
 
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
 					null);
