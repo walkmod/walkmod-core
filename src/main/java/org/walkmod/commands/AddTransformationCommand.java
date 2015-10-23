@@ -28,6 +28,9 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 @Parameters(separators = "=", commandDescription = "Adds a code transformation/convention.")
 public class AddTransformationCommand implements Command {
@@ -39,7 +42,7 @@ public class AddTransformationCommand implements Command {
 	private String mergePolicy = null;
 
 	@Parameter(names = { "--chain" }, description = "The chain identifier")
-	private String chain = null;
+	private String chain = "default";
 
 	@Parameter(names = { "--isMergeabe" }, description = "Sets if the changes made by the transformation requires to be merged")
 	private boolean isMergeable = false;
@@ -73,8 +76,15 @@ public class AddTransformationCommand implements Command {
 
 		if (params != null) {
 			JSONConfigParser parser = new JSONConfigParser();
-
-			tconfig.setParameters(parser.getParams(params));
+			if(!params.has("params")){
+				ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+				ObjectNode aux = new ObjectNode(mapper.getNodeFactory());
+				aux.set("params", params);
+				tconfig.setParameters(parser.getParams(aux));
+			}
+			else{
+				tconfig.setParameters(parser.getParams(params));
+			}
 		}
 
 		return tconfig;

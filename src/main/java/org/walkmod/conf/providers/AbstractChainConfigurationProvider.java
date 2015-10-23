@@ -15,6 +15,7 @@
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.providers;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,6 +32,7 @@ import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.conf.entities.WriterConfig;
 import org.walkmod.conf.entities.impl.ParserConfigImpl;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
+import org.walkmod.conf.entities.impl.ProviderConfigImpl;
 import org.walkmod.conf.entities.impl.WalkerConfigImpl;
 import org.walkmod.conf.entities.impl.WriterConfigImpl;
 
@@ -56,6 +58,7 @@ public class AbstractChainConfigurationProvider {
 		wc.setType(null);
 		ac.setWriterConfig(wc);
 	}
+	
 
 	public void inferPlugins(Configuration config) {
 		Collection<PluginConfig> pluginCfg = config.getPlugins();

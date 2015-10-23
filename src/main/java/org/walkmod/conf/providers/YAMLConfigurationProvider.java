@@ -530,23 +530,60 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 				chainsNode = new ObjectNode(mapper.getNodeFactory());
 
 			}
-
+			boolean validChainName = chain != null && !"".equals(chain) && !"default".equals(chain);
 			if (!chainsNode.has("chains")) {
-				if (chain == null) {
-					if (chainsNode.has("transformations")) {
-						JsonNode aux = chainsNode.get("transformations");
-						if (aux.isArray()) {
-							transformationsNode = (ArrayNode) aux;
-						}
+				if (chainsNode.has("transformations")) {
+					JsonNode aux = chainsNode.get("transformations");
+					if (aux.isArray()) {
+						transformationsNode = (ArrayNode) aux;
 					}
-					ObjectNode aux = (ObjectNode) chainsNode;
-					transformationsNode = new ArrayNode(mapper.getNodeFactory());
-					aux.set("transformations", transformationsNode);
-				} else {
-					throw new TransformerException("The chain [" + chain + "] does not exists");
+					
+					if (!validChainName) {
+						ObjectNode auxRoot = (ObjectNode) chainsNode;
+						if(transformationsNode == null){
+							transformationsNode = new ArrayNode(mapper.getNodeFactory());
+						}
+						auxRoot.set("transformations", transformationsNode);
+					} else {
+						//reset the root
+						chainsNode = new ObjectNode(mapper.getNodeFactory());
+						ObjectNode auxRoot = (ObjectNode) chainsNode;
+						
+						//the default chain list added
+						ObjectNode chainObject = new ObjectNode(mapper.getNodeFactory());
+						chainObject.set("name", new TextNode("default"));
+						chainObject.set("transformations", transformationsNode);
+						ArrayNode chainsListNode = new ArrayNode(mapper.getNodeFactory());
+						chainsListNode.add(chainObject);
+						
+						//the requested chain added
+						ObjectNode newChain = new ObjectNode(mapper.getNodeFactory());
+						newChain.set("name", new TextNode(chain));
+						transformationsNode = new ArrayNode(mapper.getNodeFactory());
+						newChain.set("transformations", transformationsNode);
+						chainsListNode.add(newChain);
+						
+						auxRoot.set("chains", chainsListNode);
+						
+					}
 				}
+				else{
+					ObjectNode auxRoot = (ObjectNode) chainsNode;
+					transformationsNode = new ArrayNode(mapper.getNodeFactory());
+					if (validChainName){
+						ArrayNode auxChainsList = new ArrayNode(mapper.getNodeFactory());
+						ObjectNode aux = new ObjectNode(mapper.getNodeFactory());
+						auxChainsList.add(aux);
+						auxRoot.set("chains", auxChainsList);
+						
+						aux.set("name", new TextNode(chain));
+						auxRoot = aux;
+					}
+					auxRoot.set("transformations", transformationsNode);
+				}
+				
 			} else {
-				if (chain != null) {
+				if (validChainName) {
 					JsonNode aux = chainsNode.get("chains");
 					boolean found = false;
 					if (aux.isArray()) {

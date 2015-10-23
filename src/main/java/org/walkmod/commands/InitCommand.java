@@ -32,7 +32,7 @@ public class InitCommand implements Command {
 
 	@Parameter(names = { "--format", "-f" }, description = "configuration format")
 	private String format = "yml";
-
+	
 	public InitCommand(JCommander command) {
 		this.command = command;
 	}

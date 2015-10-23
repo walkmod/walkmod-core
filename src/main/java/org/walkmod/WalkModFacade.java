@@ -36,6 +36,7 @@ import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
+import org.walkmod.conf.entities.impl.ProviderConfigImpl;
 import org.walkmod.conf.providers.IvyConfigurationProvider;
 import org.walkmod.exceptions.InvalidConfigurationException;
 import org.walkmod.exceptions.WalkModException;
@@ -491,14 +492,12 @@ public class WalkModFacade {
 		return result;
 	}
 
+	
 	/**
 	 * Initializes an empty walkmod configuration file
-	 * 
-	 * @throws IOException
-	 *             in case that the walkmod configuration file can't be created
-	 *             or written
+	 * @throws Exception 
 	 */
-	public void init() throws IOException {
+	public void init() throws Exception {
 		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
 		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
 
@@ -509,6 +508,7 @@ public class WalkModFacade {
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 			try {
 				cfgProvider.createConfig();
+				
 				if (options.isVerbose()) {
 					log.info("CONFIGURATION FILE [ " + cfg.getAbsolutePath() + "] CREATION COMPLETE");
 				}

@@ -44,5 +44,17 @@ public class ProviderConfigImpl implements ProviderConfig {
 	public void setParameters(Map<String, Object> parameters) {
 		this.parameters = parameters;
 	}
+	
+	@Override
+	public boolean equals(Object o){
+		if(o instanceof ProviderConfig){
+			String type2 = ((ProviderConfig) o).getType();
+			if(type2 == null || type == null){
+				return type == type2;
+			}
+			return type.equals(type2);
+		}
+		return false;
+	}
 
 }

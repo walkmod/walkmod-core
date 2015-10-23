@@ -59,6 +59,7 @@ import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.conf.entities.WriterConfig;
 import org.walkmod.conf.entities.impl.ChainConfigImpl;
+import org.walkmod.conf.entities.impl.ConfigurationImpl;
 import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
 import org.walkmod.conf.entities.impl.ParserConfigImpl;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
@@ -663,7 +664,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 				} else if ("transformation".equals(nodeName)) {
 
 					ChainConfig ac = new ChainConfigImpl();
-					ac.setName("chain_1");
+					ac.setName("default");
 					List<TransformationConfig> transformationConfigs = getTransformationItems(rootElement, true);
 					WalkerConfig wc = new WalkerConfigImpl();
 					wc.setType(null);
@@ -907,6 +908,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		inferPlugins(configuration);
 	}
 
+
+
 	private void loadModules() {
 		Element rootElement = document.getDocumentElement();
 		NodeList children = rootElement.getChildNodes();
@@ -1069,8 +1072,10 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 			Element rootElement = document.getDocumentElement();
 			NodeList children = rootElement.getChildNodes();
 			int childSize = children.getLength();
-			if (chain != null && !"".equals(chain)) {
-				for (int i = 0; i < childSize; i++) {
+			if (chain != null && !"".equals(chain) && !"default".equals(chain)) {
+				
+				boolean isTransformationList = false;
+				for (int i = 0; i < childSize && !isTransformationList; i++) {
 					Node childNode = children.item(i);
 					if (childNode instanceof Element) {
 						Element child = (Element) childNode;
@@ -1082,8 +1087,20 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 								return true;
 							}
 						}
+						else if("transformation".equals(nodeName)){
+							isTransformationList = true;
+						}
 					}
 				}
+				if(isTransformationList){
+					this.configuration = new ConfigurationImpl();
+					//we write specifically a default chain, and afterwards, we add the requested one.
+					loadChains();
+					Collection<ChainConfig> chainCfgs= configuration.getChainConfigs();
+					ChainConfig chainCfg = chainCfgs.iterator().next();
+					rootElement.appendChild(createChainElement(chainCfg));
+				}
+				
 				ChainConfig chainCfg = new ChainConfigImpl();
 				chainCfg.setName(chain);
 				WalkerConfig walkerCfg = new WalkerConfigImpl();
