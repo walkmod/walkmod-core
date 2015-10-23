@@ -45,6 +45,7 @@ import org.walkmod.conf.entities.impl.ChainConfigImpl;
 import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.ProviderConfigImpl;
+import org.walkmod.conf.entities.impl.WalkerConfigImpl;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -547,6 +548,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 			} else {
 				if (chain != null) {
 					JsonNode aux = chainsNode.get("chains");
+					boolean found = false;
 					if (aux.isArray()) {
 						Iterator<JsonNode> it = aux.elements();
 						while (it.hasNext()) {
@@ -554,6 +556,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 							if (next.has("name")) {
 								String id = next.get("name").asText();
 								if (chain.equals(id)) {
+									found = true;
 									if (next.has("transformations")) {
 										JsonNode auxTrans = next.get("transformations");
 										if (auxTrans.isArray()) {
@@ -574,7 +577,23 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 							}
 
 						}
+						if (!found) {
+							ChainConfig chainCfg = new ChainConfigImpl();
+							chainCfg.setName(chain);
+							WalkerConfig walkerCfg = new WalkerConfigImpl();
+							List<TransformationConfig> transfs = new LinkedList<TransformationConfig>();
+							transfs.add(transformationCfg);
+							walkerCfg.setTransformations(transfs);
+							chainCfg.setWalkerConfig(walkerCfg);
+							addChainConfig(chainCfg);
+							return true;
+						}
 					}
+				} else {
+					throw new TransformerException(
+							"The user must specify a chain name (new or existing) where to add the transformation: ["
+									+ transformationCfg.getType() + "]");
+
 				}
 			}
 			if (transformationsNode != null) {

@@ -1084,7 +1084,29 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 						}
 					}
 				}
+				ChainConfig chainCfg = new ChainConfigImpl();
+				chainCfg.setName(chain);
+				WalkerConfig walkerCfg = new WalkerConfigImpl();
+				List<TransformationConfig> transfs = new LinkedList<TransformationConfig>();
+				transfs.add(transformationCfg);
+				walkerCfg.setTransformations(transfs);
+				chainCfg.setWalkerConfig(walkerCfg);
+				rootElement.appendChild(createChainElement(chainCfg));
+				
+				
 			} else {
+				boolean containsChains = false;
+				for (int i = 0; i < childSize && !containsChains; i++) {
+					Node childNode = children.item(i);
+					if (childNode instanceof Element) {
+						Element child = (Element) childNode;
+						final String nodeName = child.getNodeName();
+						containsChains = "chain".equals(nodeName);
+					}
+				}
+				if(containsChains){
+					throw new TransformerException("The user must specify a chain name (new or existing) where to add the transformation: ["+transformationCfg.getType()+"]");
+				}
 				rootElement.appendChild(createTransformationElement(transformationCfg));
 				persist();
 			}
