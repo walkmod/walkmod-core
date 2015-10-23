@@ -44,8 +44,9 @@ public class XMLConfigurationProviderTest {
 		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
 		try {
 			prov.createConfig();
-			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null, null);
-			prov.addTransformationConfig(null,null, command.buildTransformationCfg());
+			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
+					null);
+			prov.addTransformationConfig(null, null, command.buildTransformationCfg());
 
 			String content = FileUtils.readFileToString(xml);
 
@@ -56,7 +57,7 @@ public class XMLConfigurationProviderTest {
 		}
 
 	}
-	
+
 	@Test
 	public void testAddTransformationWithChainAndPath() throws Exception {
 		File aux = new File("src/test/resources/xml");
@@ -65,8 +66,9 @@ public class XMLConfigurationProviderTest {
 		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
 		try {
 			prov.createConfig();
-			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null, "src", null);
-			prov.addTransformationConfig("mychain","src", command.buildTransformationCfg());
+			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
+					"src", null);
+			prov.addTransformationConfig("mychain", "src", command.buildTransformationCfg());
 
 			String content = FileUtils.readFileToString(xml);
 
@@ -78,6 +80,53 @@ public class XMLConfigurationProviderTest {
 
 	}
 
+	@Test
+	public void testAddTransformationWithPath() throws Exception {
+		File aux = new File("src/test/resources/xml");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null,
+					"src", null);
+			prov.addTransformationConfig(null, "src", command.buildTransformationCfg());
+
+			String content = FileUtils.readFileToString(xml);
+
+			Assert.assertTrue(content.contains("imports-cleaner") && content.contains("src"));
+
+		} finally {
+			xml.delete();
+		}
+
+	}
+
+	@Test
+	public void testAddMultipleTransformationWithPath() throws Exception {
+		File aux = new File("src/test/resources/xml");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null,
+					"src", null);
+			prov.addTransformationConfig(null, "src", command.buildTransformationCfg());
+
+			command = new AddTransformationCommand("license-header", null, false, null, "src", null);
+			prov.addTransformationConfig(null, "src", command.buildTransformationCfg());
+
+			String content = FileUtils.readFileToString(xml);
+
+			Assert.assertTrue(content.contains("imports-cleaner") && content.contains("license-header")
+					&& content.contains("src"));
+
+		} finally {
+			xml.delete();
+		}
+
+	}
 
 	@Test
 	public void testConfigProvidersConfig() throws Exception {
@@ -148,9 +197,10 @@ public class XMLConfigurationProviderTest {
 
 			prov.createConfig();
 
-			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null, null);
+			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
+					null);
 
-			prov.addTransformationConfig(null,null, command.buildTransformationCfg());
+			prov.addTransformationConfig(null, null, command.buildTransformationCfg());
 
 			prov.removeTransformations(null, list);
 
@@ -180,15 +230,15 @@ public class XMLConfigurationProviderTest {
 
 			prov.createConfig();
 
-			AddTransformationCommand command0 = new AddTransformationCommand("license-applier", "mychain", false, null,null,
-					null);
+			AddTransformationCommand command0 = new AddTransformationCommand("license-applier", "mychain", false, null,
+					null, null);
 
-			prov.addTransformationConfig("mychain",null, command0.buildTransformationCfg());
+			prov.addTransformationConfig("mychain", null, command0.buildTransformationCfg());
 
-			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,null,
-					null);
+			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
+					null, null);
 
-			prov.addTransformationConfig("mychain", null,command.buildTransformationCfg());
+			prov.addTransformationConfig("mychain", null, command.buildTransformationCfg());
 
 			prov.removeTransformations("mychain", list);
 
@@ -226,14 +276,15 @@ public class XMLConfigurationProviderTest {
 
 			prov.createConfig();
 
-			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null, null);
+			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
+					null);
 
-			prov.addTransformationConfig(null,null, command.buildTransformationCfg());
+			prov.addTransformationConfig(null, null, command.buildTransformationCfg());
 
 			prov.setWriter(null, "javalang:string-writer");
 
 			String output = FileUtils.readFileToString(xml);
-			
+
 			System.out.println(output);
 
 			Assert.assertTrue(output.contains("javalang:string-writer"));
