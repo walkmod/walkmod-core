@@ -587,7 +587,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 						writeChainInfo = path != null && !"".equals(path.trim());
 						chain = "default";
 					}
-					if(writeChainInfo){
+					if (writeChainInfo) {
 						ArrayNode auxChainsList = new ArrayNode(mapper.getNodeFactory());
 						ObjectNode aux = new ObjectNode(mapper.getNodeFactory());
 						auxChainsList.add(aux);
@@ -861,6 +861,11 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 				node = new ObjectNode(mapper.getNodeFactory());
 			}
 			ObjectNode writer = null;
+
+			if (node.has("chains") && (chain == null || "".equals(chain.trim()))) {
+				chain = "default";
+			}
+
 			if (chain != null && !"".equals(chain.trim())) {
 
 				if (node.has("chains")) {
@@ -885,20 +890,93 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 						}
 					}
 				}
-			} else {
-				if (node.has("writer")) {
-					writer = (ObjectNode) node.get("writer");
-				} else {
-					writer = new ObjectNode(mapper.getNodeFactory());
-					ObjectNode aux = (ObjectNode) node;
-					aux.set("writer", writer);
+				if (writer != null) {
+					write(node);
 				}
-				writer.set("type", new TextNode(type));
+			} else {
+				if (!node.has("chains")) {
+					ArrayNode chains = new ArrayNode(mapper.getNodeFactory());
+					ObjectNode defaultChain = new ObjectNode(mapper.getNodeFactory());
+					defaultChain.set("name", new TextNode("default"));
+					ObjectNode readerNode = new ObjectNode(mapper.getNodeFactory());
+					readerNode.set("type", new TextNode(type));
+
+					if (node.has("transformations")) {
+						defaultChain.set("transformations", node.get("transformations"));
+					}
+					defaultChain.set("writer", readerNode);
+					chains.add(defaultChain);
+					write(chains);
+				}
 			}
 
-			if (writer != null) {
-				write(node);
+		}
+
+	}
+
+	@Override
+	public void setReader(String chain, String type) throws TransformerException {
+		if (type != null && !"".equals(type.trim())) {
+			File cfg = new File(fileName);
+			JsonNode node = null;
+			try {
+				node = mapper.readTree(cfg);
+			} catch (Exception e) {
+
 			}
+			if (node == null) {
+				node = new ObjectNode(mapper.getNodeFactory());
+			}
+			ObjectNode reader = null;
+
+			if (node.has("chains") && (chain == null || "".equals(chain.trim()))) {
+				chain = "default";
+			}
+
+			if (chain != null && !"".equals(chain.trim())) {
+
+				if (node.has("chains")) {
+					JsonNode chainsListNode = node.get("chains");
+					if (chainsListNode.isArray()) {
+						Iterator<JsonNode> it = chainsListNode.iterator();
+						boolean found = false;
+						while (it.hasNext() && !found) {
+							JsonNode current = it.next();
+							if (current.has("name")) {
+								String name = current.get("name").asText();
+								found = name.equals(chain);
+								if (found) {
+									if (current.has("reader")) {
+										reader = (ObjectNode) current.get("reader");
+									} else {
+										reader = new ObjectNode(mapper.getNodeFactory());
+									}
+									reader.set("type", new TextNode(type));
+								}
+							}
+						}
+					}
+				}
+				if (reader != null) {
+					write(node);
+				}
+			} else {
+				if (!node.has("chains")) {
+					ArrayNode chains = new ArrayNode(mapper.getNodeFactory());
+					ObjectNode defaultChain = new ObjectNode(mapper.getNodeFactory());
+					defaultChain.set("name", new TextNode("default"));
+					ObjectNode readerNode = new ObjectNode(mapper.getNodeFactory());
+					readerNode.set("type", new TextNode(type));
+					defaultChain.set("reader", readerNode);
+					if (node.has("transformations")) {
+						defaultChain.set("transformations", node.get("transformations"));
+					}
+					chains.add(defaultChain);
+					write(chains);
+				}
+
+			}
+
 		}
 
 	}

@@ -25,14 +25,15 @@ import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
 
-public interface ProjectConfigurationProvider extends ConfigurationProvider{
-	
+public interface ProjectConfigurationProvider extends ConfigurationProvider {
+
 	public boolean addPluginConfig(PluginConfig pluginConfig) throws TransformerException;
-	
+
 	public boolean addChainConfig(ChainConfig chainCfg) throws TransformerException;
 
-	public boolean addTransformationConfig(String chain, String path, TransformationConfig transformationCfg) throws TransformerException;
-	
+	public boolean addTransformationConfig(String chain, String path, TransformationConfig transformationCfg)
+			throws TransformerException;
+
 	public void createConfig() throws IOException;
 
 	public boolean addProviderConfig(ProviderConfig providerCfg) throws TransformerException;
@@ -42,6 +43,7 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider{
 	public void removeTransformations(String chain, List<String> transformations) throws TransformerException;
 
 	public void setWriter(String chain, String type) throws TransformerException;
-	
+
+	public void setReader(String chain, String type) throws TransformerException;
 
 }

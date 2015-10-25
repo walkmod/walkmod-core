@@ -1465,6 +1465,16 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 					}
 				}
 			}
+			if (writerParent == rootElement) {
+				document.removeChild(rootElement);
+				Element chainElem = document.createElement("chain");
+				document.appendChild(chainElem);
+				chainElem.setAttribute("name", "default");
+				for (int i = 0; i < childSize; i++) {
+					chainElem.appendChild(children.item(i));
+				}
+				writerParent = chainElem;
+			}
 			if (writerParent != null) {
 				NodeList siblings = writerParent.getChildNodes();
 				int limit = siblings.getLength();
@@ -1483,6 +1493,76 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 					Element writerElem = document.createElement("writer");
 					writerElem.setAttribute("type", type);
 					writerParent.appendChild(writerElem);
+				}
+				persist();
+			}
+
+		}
+	}
+
+	@Override
+	public void setReader(String chain, String type) throws TransformerException {
+		if (type != null && !type.trim().equals("")) {
+			if (document == null) {
+				init();
+			}
+			Element rootElement = document.getDocumentElement();
+			Element readerParent = null;
+
+			NodeList children = rootElement.getChildNodes();
+			int childSize = children.getLength();
+
+			Element child = null;
+			for (int i = 0; i < childSize; i++) {
+				Node childNode = children.item(i);
+				if (childNode instanceof Element) {
+					child = (Element) childNode;
+					final String nodeName = child.getNodeName();
+
+					if ("chain".equals(nodeName)) {
+
+						if (child.hasAttribute("name")) {
+							String name = child.getAttribute("name");
+							if (name.equals(chain)) {
+								readerParent = child;
+
+							}
+						}
+					} else if ("transformation".equals(nodeName)) {
+						if (chain == null) {
+							readerParent = rootElement;
+						}
+					}
+				}
+			}
+			if (readerParent == rootElement) {
+				document.removeChild(rootElement);
+				Element chainElem = document.createElement("chain");
+				document.appendChild(chainElem);
+				chainElem.setAttribute("name", "default");
+				for (int i = 0; i < childSize; i++) {
+					chainElem.appendChild(children.item(i));
+				}
+				readerParent = chainElem;
+			}
+			if (readerParent != null) {
+				NodeList siblings = readerParent.getChildNodes();
+				int limit = siblings.getLength();
+				boolean updated = false;
+				for (int i = 0; i < limit && !updated; i++) {
+					Node childNode = siblings.item(i);
+					if (childNode instanceof Element) {
+						Element aux = (Element) childNode;
+						if ("reader".equals(aux.getNodeName())) {
+							aux.setAttribute("type", type);
+							updated = true;
+						}
+					}
+				}
+				if (!updated) {
+					Element readerElement = document.createElement("reader");
+					readerElement.setAttribute("type", type);
+					readerParent.insertBefore(readerElement, readerParent.getFirstChild());
 				}
 				persist();
 			}
