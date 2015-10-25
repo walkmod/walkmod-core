@@ -582,7 +582,12 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 				} else {
 					ObjectNode auxRoot = (ObjectNode) chainsNode;
 					transformationsNode = new ArrayNode(mapper.getNodeFactory());
-					if (validChainName) {
+					boolean writeChainInfo = validChainName;
+					if (!writeChainInfo) {
+						writeChainInfo = path != null && !"".equals(path.trim());
+						chain = "default";
+					}
+					if(writeChainInfo){
 						ArrayNode auxChainsList = new ArrayNode(mapper.getNodeFactory());
 						ObjectNode aux = new ObjectNode(mapper.getNodeFactory());
 						auxChainsList.add(aux);

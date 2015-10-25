@@ -350,6 +350,35 @@ public class YAMLConfigurationProviderTest {
 		}
 	}
 	
+	
+	@Test
+	public void testAddTransformationToPath2() throws Exception{
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, "src", null);
+		File file = new File("src/test/resources/yaml/addtransformation.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			TransformationConfig transCfg = command.buildTransformationCfg();
+
+			provider.addTransformationConfig(null,"src",transCfg);
+			String output = FileUtils.readFileToString(file);
+
+		
+			Assert.assertTrue(output.contains("src"));
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+	
 	@Test
 	public void testAddTransformation() throws Exception{
 		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null, null);
