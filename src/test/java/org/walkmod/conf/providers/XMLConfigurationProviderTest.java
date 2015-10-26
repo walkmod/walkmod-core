@@ -417,4 +417,39 @@ public class XMLConfigurationProviderTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testRemoveProviders() throws Exception{
+		AddCfgProviderCommand command = new AddCfgProviderCommand("maven", null);
+
+		File aux = new File("src/test/resources/xml");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+
+			ProviderConfig provCfg = command.build();
+			prov.addProviderConfig(provCfg);
+
+			String output = FileUtils.readFileToString(xml);
+
+			System.out.println(output);
+
+			Assert.assertTrue(output.contains("maven"));
+			List<String> providers = new LinkedList<String>();
+			
+			providers.add("maven");
+			prov.removeProviders(providers);
+			
+			output = FileUtils.readFileToString(xml);
+			System.out.println(output);
+
+			Assert.assertTrue(!output.contains("maven"));
+		} finally {
+			if (xml.exists()) {
+				xml.delete();
+			}
+		}
+	}
 }

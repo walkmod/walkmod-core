@@ -520,7 +520,7 @@ public class WalkModFacade {
 					for (InitializerConfig initCfg : initializers) {
 						String beanId = initCfg.getPluginGroupId() + ":" + initCfg.getPluginArtifactId() + ":"
 								+ initCfg.getType();
-						
+
 						if (conf.containsBean(beanId)) {
 
 							Object o = conf.getBean(beanId, initCfg.getParams());
@@ -591,7 +591,8 @@ public class WalkModFacade {
 	 *             in case that the walkmod configuration file can't be read or
 	 *             written.
 	 */
-	public void addTransformationConfig(String chain, String path, TransformationConfig transformationCfg) throws Exception {
+	public void addTransformationConfig(String chain, String path, TransformationConfig transformationCfg)
+			throws Exception {
 		if (!cfg.exists()) {
 			init();
 		}
@@ -1065,7 +1066,7 @@ public class WalkModFacade {
 		}
 	}
 
-	public void setReader(String chain, String type) throws Exception{
+	public void setReader(String chain, String type) throws Exception {
 		if (type != null && !"".equals(type.trim())) {
 			if (!cfg.exists()) {
 				init();
@@ -1098,10 +1099,10 @@ public class WalkModFacade {
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}
-		
+
 	}
 
-	public void removeModules(List<String> modules) throws Exception{
+	public void removeModules(List<String> modules) throws Exception {
 		if (!cfg.exists()) {
 			init();
 		}
@@ -1112,6 +1113,22 @@ public class WalkModFacade {
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 			cfgProvider.removeModules(modules);
+		} finally {
+			System.setProperty("user.dir", userDir);
+		}
+	}
+
+	public void removeProviders(List<String> providers) throws Exception {
+		if (!cfg.exists()) {
+			init();
+		}
+		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+		try {
+			ConfigurationManager manager = new ConfigurationManager(cfg, false);
+
+			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
+			cfgProvider.removeProviders(providers);
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}

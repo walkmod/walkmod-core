@@ -1073,4 +1073,64 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 		}
 
 	}
+
+	@Override
+	public void removeProviders(List<String> providers) throws TransformerException {
+		if (providers != null) {
+			File cfg = new File(fileName);
+
+			ArrayNode providersList = null;
+			JsonNode node = null;
+			try {
+				node = mapper.readTree(cfg);
+			} catch (Exception e) {
+
+			}
+			if (node == null) {
+				node = new ObjectNode(mapper.getNodeFactory());
+			}
+			HashSet<String> providerSet = new HashSet<String>();
+			for(String elem: providers){
+				String[] partsType = elem.split(":");
+				if (partsType.length == 1) {
+					elem = "org.walkmod:walkmod-" + elem + "-plugin:" + elem;
+				}
+				if(partsType.length != 3 && partsType.length !=1){
+					throw new TransformerException("Invalid conf-provider");
+				}
+				providerSet.add(elem);
+			}
+			if (node.has("conf-providers")) {
+				JsonNode aux = node.get("conf-providers");
+				if (aux.isArray()) {
+					providersList = (ArrayNode) node.get("conf-providers");
+					Iterator<JsonNode> it = providersList.iterator();
+					ArrayNode newProvidersList = new ArrayNode(mapper.getNodeFactory());
+					while (it.hasNext()) {
+						JsonNode next = it.next();
+						if (next.isObject()) {
+							String type = next.get("type").asText();
+							String[] parts = type.split(":");
+							if(parts.length == 1){
+								type = "org.walkmod:walkmod-" + type + "-plugin:" + type;
+							}
+							else if(parts.length != 3){
+								throw new TransformerException("Invalid conf-provider");
+							}
+							if (!providerSet.contains(type)) {
+								newProvidersList.add(next);
+							}
+						}
+					}
+					ObjectNode oNode = (ObjectNode) node;
+					if (newProvidersList.size() > 0) {
+						oNode.set("conf-providers", newProvidersList);
+					} else {
+						oNode.remove("conf-providers");
+					}
+					write(node);
+				}
+			}
+		}
+	}
 }

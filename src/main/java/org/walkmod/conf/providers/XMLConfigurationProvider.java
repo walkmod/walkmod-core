@@ -1615,7 +1615,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 			Element rootElement = document.getDocumentElement();
 			NodeList children = rootElement.getChildNodes();
 			int childSize = children.getLength();
-			
+
 			Element child = null;
 			int removed = 0;
 			for (int i = 0; i < childSize; i++) {
@@ -1634,7 +1634,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 								removed++;
 							}
 						}
-						if(removed == max){
+						if (removed == max) {
 							rootElement.removeChild(child);
 						}
 					}
@@ -1646,5 +1646,72 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 				persist();
 			}
 		}
+	}
+
+	@Override
+	public void removeProviders(List<String> providers) throws TransformerException {
+		if (providers != null && !providers.isEmpty()) {
+			if (document == null) {
+				init();
+			}
+			HashSet<String> aux = new HashSet<String>();
+			for(String elem: providers){
+				String[] partsType = elem.split(":");
+				if (partsType.length == 1) {
+					elem = "org.walkmod:walkmod-" + elem + "-plugin:" + elem;
+				}
+				if(partsType.length != 3 && partsType.length !=1){
+					throw new TransformerException("Invalid conf-provider");
+				}
+				aux.add(elem);
+			}
+			
+			Element rootElement = document.getDocumentElement();
+			NodeList children = rootElement.getChildNodes();
+			int childSize = children.getLength();
+
+			Element child = null;
+			int removed = 0;
+			for (int i = 0; i < childSize; i++) {
+				Node childNode = children.item(i);
+				if (childNode instanceof Element) {
+					child = (Element) childNode;
+					final String nodeName = child.getNodeName();
+
+					if ("conf-providers".equals(nodeName)) {
+						NodeList moduleNodeList = child.getChildNodes();
+						int max = moduleNodeList.getLength();
+						for (int j = 0; j < max; j++) {
+							Node providerNode = moduleNodeList.item(j);
+							if (providerNode instanceof Element) {
+								Element elemProvider = (Element) providerNode;
+								String type = elemProvider.getAttribute("type");
+								String[] partsType = type.split(":");
+								if (partsType.length == 1) {
+									type = "org.walkmod:walkmod-" + type + "-plugin:" + type;
+								}
+								if(partsType.length != 3 && partsType.length !=1){
+									throw new TransformerException("Invalid conf-provider");
+								}
+								if(aux.contains(type)){
+									child.removeChild(providerNode);
+									removed++;
+								}
+
+							}
+						}
+						if (removed == max) {
+							rootElement.removeChild(child);
+						}
+					}
+				}
+			}
+
+			if (removed > 0) {
+
+				persist();
+			}
+		}
+
 	}
 }

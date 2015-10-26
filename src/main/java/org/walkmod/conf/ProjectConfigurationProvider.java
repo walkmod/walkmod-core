@@ -50,4 +50,6 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
 	public void removeModules(List<String> modules) throws TransformerException;
 
+	public void removeProviders(List<String> providers) throws TransformerException;
+
 }

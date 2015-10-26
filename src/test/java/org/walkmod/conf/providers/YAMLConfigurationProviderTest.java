@@ -174,52 +174,13 @@ public class YAMLConfigurationProviderTest {
 		}
 	}
 
-	
 	@Test
 	public void testAddChainTransformation() throws Exception {
 
 		JSONConverter converter = new JSONConverter();
-		JsonNode walker = converter
-				.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
-		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor",null, false, null, null, walker);
-
-		File file = new File("src/test/resources/yaml/addchain.yml");
-		if (file.exists()) {
-			file.delete();
-		}
-		file.createNewFile();
-		FileUtils.write(file, "");
-		try {
-			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
-			Configuration conf = new ConfigurationImpl();
-			provider.init(conf);
-
-			TransformationConfig transformationCfg = command.buildTransformationCfg();
-
-			provider.addTransformationConfig(null,null, transformationCfg);
-			String output = FileUtils.readFileToString(file);
-
-			String desiredOutput = "transformations:\n";
-			desiredOutput += "- type: \"walkmod:commons:method-refactor\"\n";
-			desiredOutput += "  params:\n";
-			desiredOutput += "    refactoringConfigFile: \"src/conf/refactoring-methods.json\"";
-
-			Assert.assertEquals(desiredOutput, output);
-		} finally {
-			if (file.exists()) {
-				file.delete();
-			}
-		}
-	}
-	
-	
-	@Test
-	public void testAddChainTransformationToChainAfterTranfList() throws Exception {
-
-		JSONConverter converter = new JSONConverter();
-		JsonNode walker = converter
-				.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
-		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor",null, false, null,null, walker);
+		JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", null, false,
+				null, null, walker);
 
 		File file = new File("src/test/resources/yaml/addchain.yml");
 		if (file.exists()) {
@@ -235,13 +196,49 @@ public class YAMLConfigurationProviderTest {
 			TransformationConfig transformationCfg = command.buildTransformationCfg();
 
 			provider.addTransformationConfig(null, null, transformationCfg);
-			command = new AddTransformationCommand("walkmod:commons:class-refactor","mychain", false, null, null, walker);
-			transformationCfg = command.buildTransformationCfg();
-			provider.addTransformationConfig("mychain",null, transformationCfg);
-			
 			String output = FileUtils.readFileToString(file);
 
-			
+			String desiredOutput = "transformations:\n";
+			desiredOutput += "- type: \"walkmod:commons:method-refactor\"\n";
+			desiredOutput += "  params:\n";
+			desiredOutput += "    refactoringConfigFile: \"src/conf/refactoring-methods.json\"";
+
+			Assert.assertEquals(desiredOutput, output);
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+
+	@Test
+	public void testAddChainTransformationToChainAfterTranfList() throws Exception {
+
+		JSONConverter converter = new JSONConverter();
+		JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", null, false,
+				null, null, walker);
+
+		File file = new File("src/test/resources/yaml/addchain.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			TransformationConfig transformationCfg = command.buildTransformationCfg();
+
+			provider.addTransformationConfig(null, null, transformationCfg);
+			command = new AddTransformationCommand("walkmod:commons:class-refactor", "mychain", false, null, null,
+					walker);
+			transformationCfg = command.buildTransformationCfg();
+			provider.addTransformationConfig("mychain", null, transformationCfg);
+
+			String output = FileUtils.readFileToString(file);
 
 			Assert.assertTrue(output.contains("mychain") && output.contains("default"));
 		} finally {
@@ -250,15 +247,14 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
-	
-	
+
 	@Test
 	public void testAddChainTransformationWithNewChain() throws Exception {
 
 		JSONConverter converter = new JSONConverter();
-		JsonNode walker = converter
-				.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
-		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor","mychain", false,null, null, walker);
+		JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", "mychain",
+				false, null, null, walker);
 
 		File file = new File("src/test/resources/yaml/addchain.yml");
 		if (file.exists()) {
@@ -274,9 +270,9 @@ public class YAMLConfigurationProviderTest {
 			TransformationConfig transformationCfg = command.buildTransformationCfg();
 
 			provider.addTransformationConfig("mychain", null, transformationCfg);
-			
+
 			String output = FileUtils.readFileToString(file);
-			
+
 			Assert.assertTrue(output.contains("mychain"));
 		} finally {
 			if (file.exists()) {
@@ -284,14 +280,14 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
-	
+
 	@Test
 	public void testAddChainTransformationWithExistingChain() throws Exception {
 
 		JSONConverter converter = new JSONConverter();
-		JsonNode walker = converter
-				.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
-		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor","mychain", false, null, null, walker);
+		JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", "mychain",
+				false, null, null, walker);
 
 		File file = new File("src/test/resources/yaml/addchain.yml");
 		if (file.exists()) {
@@ -307,13 +303,13 @@ public class YAMLConfigurationProviderTest {
 			TransformationConfig transformationCfg = command.buildTransformationCfg();
 
 			provider.addTransformationConfig("mychain", null, transformationCfg);
-			command = new AddTransformationCommand("walkmod:commons:class-refactor","mychain", false, null, null, walker);
+			command = new AddTransformationCommand("walkmod:commons:class-refactor", "mychain", false, null, null,
+					walker);
 			transformationCfg = command.buildTransformationCfg();
 			provider.addTransformationConfig("mychain", null, transformationCfg);
-			
-			
+
 			String output = FileUtils.readFileToString(file);
-			
+
 			Assert.assertTrue(output.contains("walkmod:commons:class-refactor") && !output.contains("default"));
 		} finally {
 			if (file.exists()) {
@@ -321,10 +317,11 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
-	
+
 	@Test
-	public void testAddTransformationToPath() throws Exception{
-		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null, "src", null);
+	public void testAddTransformationToPath() throws Exception {
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
+				"src", null);
 		File file = new File("src/test/resources/yaml/addtransformation.yml");
 		if (file.exists()) {
 			file.delete();
@@ -338,10 +335,9 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transCfg = command.buildTransformationCfg();
 
-			provider.addTransformationConfig("mychain","src",transCfg);
+			provider.addTransformationConfig("mychain", "src", transCfg);
 			String output = FileUtils.readFileToString(file);
 
-		
 			Assert.assertTrue(output.contains("src"));
 		} finally {
 			if (file.exists()) {
@@ -349,11 +345,11 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
-	
-	
+
 	@Test
-	public void testAddTransformationToPath2() throws Exception{
-		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, "src", null);
+	public void testAddTransformationToPath2() throws Exception {
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, "src",
+				null);
 		File file = new File("src/test/resources/yaml/addtransformation.yml");
 		if (file.exists()) {
 			file.delete();
@@ -367,10 +363,9 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transCfg = command.buildTransformationCfg();
 
-			provider.addTransformationConfig(null,"src",transCfg);
+			provider.addTransformationConfig(null, "src", transCfg);
 			String output = FileUtils.readFileToString(file);
 
-		
 			Assert.assertTrue(output.contains("src"));
 		} finally {
 			if (file.exists()) {
@@ -378,17 +373,18 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
-	
+
 	@Test
-	public void testAddTransformation() throws Exception{
-		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null, null);
+	public void testAddTransformation() throws Exception {
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
+				null);
 		File file = new File("src/test/resources/yaml/addtransformation.yml");
 		if (file.exists()) {
 			file.delete();
 		}
 		file.createNewFile();
 		FileUtils.write(file, "");
-		
+
 		try {
 			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
 			Configuration conf = new ConfigurationImpl();
@@ -396,12 +392,12 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transCfg = command.buildTransformationCfg();
 
-			provider.addTransformationConfig(null,null,transCfg);
+			provider.addTransformationConfig(null, null, transCfg);
 			String output = FileUtils.readFileToString(file);
 
 			String desiredOutput = "transformations:\n";
 			desiredOutput += "- type: \"imports-cleaner\"";
-			
+
 			Assert.assertEquals(desiredOutput, output);
 		} finally {
 			if (file.exists()) {
@@ -409,18 +405,18 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
-	
+
 	@Test
-	public void testConfigProvidersConfig() throws Exception{
+	public void testConfigProvidersConfig() throws Exception {
 		AddCfgProviderCommand command = new AddCfgProviderCommand("maven", null);
-		
+
 		File file = new File("src/test/resources/yaml/addcfgproviders.yml");
 		if (file.exists()) {
 			file.delete();
 		}
 		file.createNewFile();
 		FileUtils.write(file, "");
-		
+
 		try {
 			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
 			Configuration conf = new ConfigurationImpl();
@@ -428,12 +424,12 @@ public class YAMLConfigurationProviderTest {
 
 			ProviderConfig provCfg = command.build();
 			provider.addProviderConfig(provCfg);
-			
+
 			String output = FileUtils.readFileToString(file);
 
 			String desiredOutput = "conf-providers:\n";
 			desiredOutput += "- type: \"maven\"";
-			
+
 			Assert.assertEquals(desiredOutput, output);
 		} finally {
 			if (file.exists()) {
@@ -441,31 +437,31 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
-	
+
 	@Test
-	public void testAddModulesToConfig() throws Exception{
+	public void testAddModulesToConfig() throws Exception {
 		List<String> list = new LinkedList<String>();
 		list.add("module1");
-	
+
 		File file = new File("src/test/resources/yaml/addmodules.yml");
 		if (file.exists()) {
 			file.delete();
 		}
 		file.createNewFile();
 		FileUtils.write(file, "");
-		
+
 		try {
 			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
 			Configuration conf = new ConfigurationImpl();
 			provider.init(conf);
 
 			provider.addModules(list);
-			
+
 			String output = FileUtils.readFileToString(file);
 
 			String desiredOutput = "modules:\n";
 			desiredOutput += "- \"module1\"";
-			
+
 			Assert.assertEquals(desiredOutput, output);
 		} finally {
 			if (file.exists()) {
@@ -473,12 +469,12 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
-	
+
 	@Test
-	public void testRemoveTranformation() throws Exception{
+	public void testRemoveTranformation() throws Exception {
 		List<String> list = new LinkedList<String>();
 		list.add("imports-cleaner");
-	
+
 		File file = new File("src/test/resources/yaml/rmTransf.yml");
 		if (file.exists()) {
 			file.delete();
@@ -486,21 +482,20 @@ public class YAMLConfigurationProviderTest {
 		file.createNewFile();
 		String input = "transformations:\n";
 		input += "- type: \"imports-cleaner\"";
-		
+
 		FileUtils.write(file, input);
-		
+
 		try {
 			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
 			Configuration conf = new ConfigurationImpl();
 			provider.init(conf);
 
 			provider.removeTransformations(null, list);
-			
+
 			String output = FileUtils.readFileToString(file);
 
 			String desiredOutput = "transformations: []";
-			
-			
+
 			Assert.assertEquals(desiredOutput, output);
 		} finally {
 			if (file.exists()) {
@@ -508,12 +503,12 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
-	
+
 	@Test
-	public void testSetWriter() throws Exception{
+	public void testSetWriter() throws Exception {
 		List<String> list = new LinkedList<String>();
 		list.add("javalang:string-writer");
-	
+
 		File file = new File("src/test/resources/yaml/setWriter.yml");
 		if (file.exists()) {
 			file.delete();
@@ -521,16 +516,16 @@ public class YAMLConfigurationProviderTest {
 		file.createNewFile();
 		String input = "transformations:\n";
 		input += "- type: \"imports-cleaner\"";
-		
+
 		FileUtils.write(file, input);
-		
+
 		try {
 			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
 			Configuration conf = new ConfigurationImpl();
 			provider.init(conf);
 
 			provider.setWriter(null, list.get(0));
-			
+
 			String output = FileUtils.readFileToString(file);
 			System.out.println(output);
 			Assert.assertTrue(output.contains("javalang:string-writer"));
@@ -540,9 +535,9 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
-	
+
 	@Test
-	public void testRemovePlugin() throws Exception{
+	public void testRemovePlugin() throws Exception {
 		List<String> list = new LinkedList<String>();
 		list.add("org.walkmod:javalang");
 		File file = new File("src/test/resources/yaml/removePlugin.yml");
@@ -553,7 +548,7 @@ public class YAMLConfigurationProviderTest {
 		String input = "plugins:\n";
 		input += "- \"org.walkmod:imports-cleaner:2.0\"";
 		FileUtils.write(file, input);
-		
+
 		try {
 			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
 			Configuration conf = new ConfigurationImpl();
@@ -563,7 +558,7 @@ public class YAMLConfigurationProviderTest {
 			pc.setArtifactId("imports-cleaner");
 
 			provider.removePluginConfig(pc);
-			
+
 			String output = FileUtils.readFileToString(file);
 			System.out.println(output);
 			Assert.assertTrue(!output.contains("imports-cleaner"));
@@ -573,9 +568,9 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
-	
+
 	@Test
-	public void testRemoveModule() throws Exception{
+	public void testRemoveModule() throws Exception {
 		List<String> list = new LinkedList<String>();
 		list.add("module1");
 		File file = new File("src/test/resources/yaml/removeModule.yml");
@@ -586,18 +581,49 @@ public class YAMLConfigurationProviderTest {
 		String input = "modules:\n";
 		input += "- \"module1\"";
 		FileUtils.write(file, input);
-		
+
 		try {
 			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
 			Configuration conf = new ConfigurationImpl();
 			provider.init(conf);
-			
 
 			provider.removeModules(list);
-			
+
 			String output = FileUtils.readFileToString(file);
 			System.out.println(output);
 			Assert.assertTrue(!output.contains("module1"));
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+
+	@Test
+	public void testRemoveProvider() throws Exception {
+		AddCfgProviderCommand command = new AddCfgProviderCommand("maven", null);
+
+		File file = new File("src/test/resources/yaml/addcfgproviders.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			ProviderConfig provCfg = command.build();
+			provider.addProviderConfig(provCfg);
+			List<String> providers = new LinkedList<String>();
+			providers.add("maven");
+			provider.removeProviders(providers);
+
+			String output = FileUtils.readFileToString(file);
+			System.out.println(output);
+			Assert.assertTrue(!output.contains("maven"));
 		} finally {
 			if (file.exists()) {
 				file.delete();
