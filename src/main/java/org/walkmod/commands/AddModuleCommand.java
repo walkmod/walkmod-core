@@ -24,7 +24,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-@Parameters(separators = "=", commandDescription = "Adds modules to the configuration.")
+@Parameters(separators = "=", commandDescription = "Adds modules (walkmod subprojects) to the configuration.")
 public class AddModuleCommand implements Command {
 
 	@Parameter(description = "List of modules to add", required = true)

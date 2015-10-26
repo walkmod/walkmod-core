@@ -20,7 +20,7 @@ import org.walkmod.WalkModFacade;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameters;
 
-@Parameters(separators = "=", commandDescription = "Upgrades your code to apply your code transformation.")
+@Parameters(separators = "=", commandDescription = "Upgrades your code to apply all your code transformations.")
 public class ApplyCommand extends AbstractChainCommand implements Command {
 
 	private JCommander command;

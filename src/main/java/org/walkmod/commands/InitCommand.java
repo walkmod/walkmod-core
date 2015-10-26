@@ -22,7 +22,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-@Parameters(separators = "=", commandDescription = "Creates an empty walkmod configuration file.")
+@Parameters(separators = "=", commandDescription = "Creates an empty walkmod configuration file in your favorite format (yml or xml).")
 public class InitCommand implements Command {
 
 	@Parameter(names = "--help", help = true, hidden = true)

@@ -29,7 +29,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
 
-@Parameters(separators = "=", commandDescription = "Adds a configuration provider.e.g maven or gradle to calculate the project classpath.")
+@Parameters(separators = "=", commandDescription = "Adds a configuration provider (e.g maven or gradle to calculate the project classpath).")
 public class AddCfgProviderCommand implements Command {
 
 	@Parameter(arity = 1, description = "The configuration provider type identifier", required = true)

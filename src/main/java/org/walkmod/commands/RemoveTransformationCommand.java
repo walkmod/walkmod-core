@@ -24,7 +24,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-@Parameters(separators = "=", commandDescription = "Removes a list of transformations.")
+@Parameters(separators = "=", commandDescription = "Removes a list of transformations from your configuration.")
 public class RemoveTransformationCommand implements Command {
 
 	@Parameter(description = "The list of transformation types", required = true)
@@ -35,8 +35,8 @@ public class RemoveTransformationCommand implements Command {
 
 	private JCommander jcommander;
 
-	@Parameter(names = { "--chain" }, description = "The chain identifier")
-	private String chain = null;
+	@Parameter(names = { "--chain" }, description = "The chain name")
+	private String chain = "default";
 
 	public RemoveTransformationCommand(JCommander jcommander) {
 		this.jcommander = jcommander;

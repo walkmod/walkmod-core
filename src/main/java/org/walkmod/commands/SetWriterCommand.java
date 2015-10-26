@@ -25,7 +25,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-@Parameters(separators = "=", commandDescription = "Sets an specific writer, optionally, for an specific chain")
+@Parameters(separators = "=", commandDescription = "Sets an specific writer for an specific chain.")
 public class SetWriterCommand implements Command {
 
 	@Parameter(arity = 1, description = "The writer type identifier", required = true)
@@ -37,7 +37,7 @@ public class SetWriterCommand implements Command {
 	private JCommander jcommander;
 
 	@Parameter(names = { "--chain" }, description = "The chain identifier", required = false)
-	private String chain = null;
+	private String chain = "default";
 
 	public SetWriterCommand(JCommander jcommander) {
 		this.jcommander = jcommander;

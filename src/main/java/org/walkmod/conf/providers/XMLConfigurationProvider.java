@@ -1393,34 +1393,38 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 			Element rootElement = document.getDocumentElement();
 			HashSet<String> transformationsToRemove = new HashSet<String>(transformations);
 			boolean modified = false;
-			if (chain == null) {
-				modified = removeTransformation(rootElement, transformationsToRemove);
-			} else {
+			boolean hasChains = false;
 
-				NodeList children = rootElement.getChildNodes();
-				int childSize = children.getLength();
+			NodeList children = rootElement.getChildNodes();
+			int childSize = children.getLength();
 
-				Element child = null;
+			Element child = null;
 
-				for (int i = 0; i < childSize; i++) {
-					Node childNode = children.item(i);
-					if (childNode instanceof Element) {
-						child = (Element) childNode;
-						final String nodeName = child.getNodeName();
+			for (int i = 0; i < childSize; i++) {
+				Node childNode = children.item(i);
+				if (childNode instanceof Element) {
+					child = (Element) childNode;
+					final String nodeName = child.getNodeName();
 
-						if ("chain".equals(nodeName)) {
-
-							if (child.hasAttribute("name")) {
-								String name = child.getAttribute("name");
-								if (name.equals(chain)) {
-									modified = modified || removeTransformation(child, transformationsToRemove);
-								}
+					if ("chain".equals(nodeName)) {
+						hasChains = true;
+						if (chain == null) {
+							chain = "default";
+						}
+						if (child.hasAttribute("name")) {
+							String name = child.getAttribute("name");
+							if (name.equals(chain)) {
+								modified = modified || removeTransformation(child, transformationsToRemove);
 							}
 						}
-
 					}
+
 				}
 			}
+			if (!hasChains && (chain == null || "default".equals(chain))) {
+				modified = removeTransformation(rootElement, transformationsToRemove);
+			}
+
 			if (modified) {
 				persist();
 			}
@@ -1457,7 +1461,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 							}
 						}
 					} else if ("transformation".equals(nodeName)) {
-						if (chain == null) {
+						if (chain == null || "default".equals(chain)) {
 							writerParent = rootElement;
 						}
 					}
@@ -1527,7 +1531,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 							}
 						}
 					} else if ("transformation".equals(nodeName)) {
-						if (chain == null) {
+						if (chain == null || "default".equals(chain)) {
 							readerParent = rootElement;
 						}
 					}
@@ -1655,17 +1659,17 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 				init();
 			}
 			HashSet<String> aux = new HashSet<String>();
-			for(String elem: providers){
+			for (String elem : providers) {
 				String[] partsType = elem.split(":");
 				if (partsType.length == 1) {
 					elem = "org.walkmod:walkmod-" + elem + "-plugin:" + elem;
 				}
-				if(partsType.length != 3 && partsType.length !=1){
+				if (partsType.length != 3 && partsType.length != 1) {
 					throw new TransformerException("Invalid conf-provider");
 				}
 				aux.add(elem);
 			}
-			
+
 			Element rootElement = document.getDocumentElement();
 			NodeList children = rootElement.getChildNodes();
 			int childSize = children.getLength();
@@ -1690,10 +1694,10 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 								if (partsType.length == 1) {
 									type = "org.walkmod:walkmod-" + type + "-plugin:" + type;
 								}
-								if(partsType.length != 3 && partsType.length !=1){
+								if (partsType.length != 3 && partsType.length != 1) {
 									throw new TransformerException("Invalid conf-provider");
 								}
-								if(aux.contains(type)){
+								if (aux.contains(type)) {
 									child.removeChild(providerNode);
 									removed++;
 								}

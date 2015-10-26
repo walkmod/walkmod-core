@@ -27,7 +27,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-@Parameters(separators = "=", commandDescription = "Adds plugin in the walkmod configuration file.")
+@Parameters(separators = "=", commandDescription = "Adds plugin to the configuration file.")
 public class AddPluginCommand implements Command {
 
 	@Parameter(description = "List of plugin identifiers separated by spaces.", required = true)

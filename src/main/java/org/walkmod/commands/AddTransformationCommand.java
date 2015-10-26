@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-@Parameters(separators = "=", commandDescription = "Adds a code transformation/convention.")
+@Parameters(separators = "=", commandDescription = "Adds a code transformation/convention into a chain.")
 public class AddTransformationCommand implements Command {
 
 	@Parameter(names = "--params", description = "Transformation parameters as JSON object", converter = JSONConverter.class)
@@ -41,7 +41,7 @@ public class AddTransformationCommand implements Command {
 	@Parameter(names = "--merge-policy", description = "Merge policy to apply after executing the transformation")
 	private String mergePolicy = null;
 
-	@Parameter(names = { "--chain" }, description = "The chain identifier")
+	@Parameter(names = { "--chain" }, description = "The chain name")
 	private String chain = "default";
 
 	@Parameter(names = { "--isMergeabe" }, description = "Sets if the changes made by the transformation requires to be merged")
