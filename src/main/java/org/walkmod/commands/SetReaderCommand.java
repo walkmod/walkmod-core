@@ -28,7 +28,7 @@ import com.beust.jcommander.Parameters;
 @Parameters(separators = "=", commandDescription = "Sets an specific reader for an specific chain.")
 public class SetReaderCommand implements Command {
 
-	@Parameter(arity = 1, description = "The reader type identifier", required = true)
+	@Parameter(arity = 1, description = "The reader type identifier", required = false)
 	public List<String> readerType;
 
 	@Parameter(names = "--help", help = true, hidden = true)
@@ -38,6 +38,9 @@ public class SetReaderCommand implements Command {
 
 	@Parameter(names = { "--chain" }, description = "The chain identifier", required = false)
 	private String chain = "default";
+	
+	@Parameter(names = { "--path", "-d"}, description = "The reader path", required = false)
+	private String path = "src/main/java";
 
 	public SetReaderCommand(JCommander jcommander) {
 		this.jcommander = jcommander;
@@ -55,7 +58,7 @@ public class SetReaderCommand implements Command {
 			jcommander.usage("set-reader");
 		} else {
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-			facade.setReader(chain, readerType.get(0));
+			facade.setReader(chain, readerType.get(0), path);
 		}
 	}
 

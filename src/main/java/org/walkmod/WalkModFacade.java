@@ -1047,8 +1047,8 @@ public class WalkModFacade {
 
 	}
 
-	public void setWriter(String chain, String type) throws Exception {
-		if (type != null && !"".equals(type.trim())) {
+	public void setWriter(String chain, String type, String path) throws Exception {
+		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))){
 			if (!cfg.exists()) {
 				init();
 			}
@@ -1059,15 +1059,15 @@ public class WalkModFacade {
 
 				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-				cfgProvider.setWriter(chain, type);
+				cfgProvider.setWriter(chain, type, path);
 			} finally {
 				System.setProperty("user.dir", userDir);
 			}
 		}
 	}
 
-	public void setReader(String chain, String type) throws Exception {
-		if (type != null && !"".equals(type.trim())) {
+	public void setReader(String chain, String type, String path) throws Exception {
+		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))){
 			if (!cfg.exists()) {
 				init();
 			}
@@ -1078,7 +1078,7 @@ public class WalkModFacade {
 
 				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-				cfgProvider.setReader(chain, type);
+				cfgProvider.setReader(chain, type, path);
 			} finally {
 				System.setProperty("user.dir", userDir);
 			}

@@ -283,7 +283,7 @@ public class XMLConfigurationProviderTest {
 
 			prov.addTransformationConfig(null, null, command.buildTransformationCfg());
 
-			prov.setWriter(null, "javalang:string-writer");
+			prov.setWriter(null, "javalang:string-writer", null);
 
 			String output = FileUtils.readFileToString(xml);
 
@@ -317,7 +317,7 @@ public class XMLConfigurationProviderTest {
 
 			prov.addTransformationConfig(null, null, command.buildTransformationCfg());
 
-			prov.setReader(null, "walkmod:commons:file-reader");
+			prov.setReader(null, "walkmod:commons:file-reader", null);
 
 			String output = FileUtils.readFileToString(xml);
 

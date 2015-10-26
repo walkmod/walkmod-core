@@ -28,7 +28,7 @@ import com.beust.jcommander.Parameters;
 @Parameters(separators = "=", commandDescription = "Sets an specific writer for an specific chain.")
 public class SetWriterCommand implements Command {
 
-	@Parameter(arity = 1, description = "The writer type identifier", required = true)
+	@Parameter(arity = 1, description = "The writer type identifier", required = false)
 	public List<String> writerType;
 
 	@Parameter(names = "--help", help = true, hidden = true)
@@ -38,6 +38,9 @@ public class SetWriterCommand implements Command {
 
 	@Parameter(names = { "--chain" }, description = "The chain identifier", required = false)
 	private String chain = "default";
+	
+	@Parameter(names = { "--path", "-d"}, description = "The reader path", required = false)
+	private String path = "src/main/java";
 
 	public SetWriterCommand(JCommander jcommander) {
 		this.jcommander = jcommander;
@@ -55,7 +58,7 @@ public class SetWriterCommand implements Command {
 			jcommander.usage("set-writer");
 		} else {
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-			facade.setWriter(chain, writerType.get(0));
+			facade.setWriter(chain, writerType.get(0), path);
 		}
 	}
 

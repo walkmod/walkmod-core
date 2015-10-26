@@ -524,7 +524,7 @@ public class YAMLConfigurationProviderTest {
 			Configuration conf = new ConfigurationImpl();
 			provider.init(conf);
 
-			provider.setWriter(null, list.get(0));
+			provider.setWriter(null, list.get(0), null);
 
 			String output = FileUtils.readFileToString(file);
 			System.out.println(output);

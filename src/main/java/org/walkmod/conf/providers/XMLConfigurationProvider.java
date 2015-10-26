@@ -1432,8 +1432,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	}
 
 	@Override
-	public void setWriter(String chain, String type) throws TransformerException {
-		if (type != null && !type.trim().equals("")) {
+	public void setWriter(String chain, String type, String path) throws TransformerException {
+		if ((type != null && !type.trim().equals(""))|| (path != null && !path.trim().equals(""))) {
 			if (document == null) {
 				init();
 			}
@@ -1486,14 +1486,24 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 					if (childNode instanceof Element) {
 						Element aux = (Element) childNode;
 						if ("writer".equals(aux.getNodeName())) {
-							aux.setAttribute("type", type);
+							if(type != null && !"".equals(type.trim())){
+								aux.setAttribute("type", type);
+							}
+							if(path != null && !"".equals(path.trim())){
+								aux.setAttribute("path", path);
+							}
 							updated = true;
 						}
 					}
 				}
 				if (!updated) {
 					Element writerElem = document.createElement("writer");
-					writerElem.setAttribute("type", type);
+					if(type != null && !"".equals(type.trim())){
+						writerElem.setAttribute("type", type);
+					}
+					if(path != null && !"".equals(path.trim())){
+						writerElem.setAttribute("path", path);
+					}
 					writerParent.appendChild(writerElem);
 				}
 				persist();
@@ -1503,8 +1513,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	}
 
 	@Override
-	public void setReader(String chain, String type) throws TransformerException {
-		if (type != null && !type.trim().equals("")) {
+	public void setReader(String chain, String type, String path) throws TransformerException {
+		if ((type != null && !type.trim().equals("")) || (path != null && !path.trim().equals(""))) {
 			if (document == null) {
 				init();
 			}
@@ -1556,14 +1566,24 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 					if (childNode instanceof Element) {
 						Element aux = (Element) childNode;
 						if ("reader".equals(aux.getNodeName())) {
-							aux.setAttribute("type", type);
+							if(type != null && !"".equals(type.trim())){
+								aux.setAttribute("type", type);
+							}
+							if(path != null && !"".equals(path.trim())){
+								aux.setAttribute("path", path);
+							}
 							updated = true;
 						}
 					}
 				}
 				if (!updated) {
 					Element readerElement = document.createElement("reader");
-					readerElement.setAttribute("type", type);
+					if(type != null && !"".equals(type.trim())){
+						readerElement.setAttribute("type", type);
+					}
+					if(path != null && !"".equals(path.trim())){
+						readerElement.setAttribute("path", path);
+					}
 					readerParent.insertBefore(readerElement, readerParent.getFirstChild());
 				}
 				persist();

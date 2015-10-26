@@ -848,8 +848,8 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 	}
 
 	@Override
-	public void setWriter(String chain, String type) throws TransformerException {
-		if (type != null && !"".equals(type.trim())) {
+	public void setWriter(String chain, String type, String path) throws TransformerException {
+		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
 			File cfg = new File(fileName);
 			JsonNode node = null;
 			try {
@@ -884,7 +884,14 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 									} else {
 										writer = new ObjectNode(mapper.getNodeFactory());
 									}
-									writer.set("type", new TextNode(type));
+
+									if (type != null && !"".equals(type.trim())) {
+										writer.set("type", new TextNode(type));
+									}
+									if (path != null && !"".equals(path.trim())) {
+										writer.set("path", new TextNode(path));
+									}
+
 								}
 							}
 						}
@@ -899,7 +906,13 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 					ObjectNode defaultChain = new ObjectNode(mapper.getNodeFactory());
 					defaultChain.set("name", new TextNode("default"));
 					ObjectNode readerNode = new ObjectNode(mapper.getNodeFactory());
-					readerNode.set("type", new TextNode(type));
+
+					if (type != null && !"".equals(type.trim())) {
+						readerNode.set("type", new TextNode(type));
+					}
+					if (path != null && !"".equals(path.trim())) {
+						readerNode.set("path", new TextNode(path));
+					}
 
 					if (node.has("transformations")) {
 						defaultChain.set("transformations", node.get("transformations"));
@@ -915,8 +928,8 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 	}
 
 	@Override
-	public void setReader(String chain, String type) throws TransformerException {
-		if (type != null && !"".equals(type.trim())) {
+	public void setReader(String chain, String type, String path) throws TransformerException {
+		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
 			File cfg = new File(fileName);
 			JsonNode node = null;
 			try {
@@ -951,7 +964,12 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 									} else {
 										reader = new ObjectNode(mapper.getNodeFactory());
 									}
-									reader.set("type", new TextNode(type));
+									if (type != null && !"".equals(type.trim())) {
+										reader.set("type", new TextNode(type));
+									}
+									if (path != null && !"".equals(path.trim())) {
+										reader.set("path", new TextNode(path));
+									}
 								}
 							}
 						}
@@ -966,7 +984,14 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 					ObjectNode defaultChain = new ObjectNode(mapper.getNodeFactory());
 					defaultChain.set("name", new TextNode("default"));
 					ObjectNode readerNode = new ObjectNode(mapper.getNodeFactory());
-					readerNode.set("type", new TextNode(type));
+
+					if (type != null && !"".equals(type.trim())) {
+						readerNode.set("type", new TextNode(type));
+					}
+					if (path != null && !"".equals(path.trim())) {
+						readerNode.set("path", new TextNode(path));
+					}
+
 					defaultChain.set("reader", readerNode);
 					if (node.has("transformations")) {
 						defaultChain.set("transformations", node.get("transformations"));
@@ -1090,12 +1115,12 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 				node = new ObjectNode(mapper.getNodeFactory());
 			}
 			HashSet<String> providerSet = new HashSet<String>();
-			for(String elem: providers){
+			for (String elem : providers) {
 				String[] partsType = elem.split(":");
 				if (partsType.length == 1) {
 					elem = "org.walkmod:walkmod-" + elem + "-plugin:" + elem;
 				}
-				if(partsType.length != 3 && partsType.length !=1){
+				if (partsType.length != 3 && partsType.length != 1) {
 					throw new TransformerException("Invalid conf-provider");
 				}
 				providerSet.add(elem);
@@ -1111,10 +1136,9 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 						if (next.isObject()) {
 							String type = next.get("type").asText();
 							String[] parts = type.split(":");
-							if(parts.length == 1){
+							if (parts.length == 1) {
 								type = "org.walkmod:walkmod-" + type + "-plugin:" + type;
-							}
-							else if(parts.length != 3){
+							} else if (parts.length != 3) {
 								throw new TransformerException("Invalid conf-provider");
 							}
 							if (!providerSet.contains(type)) {

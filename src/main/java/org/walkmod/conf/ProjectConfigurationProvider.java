@@ -42,9 +42,9 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
 	public void removeTransformations(String chain, List<String> transformations) throws TransformerException;
 
-	public void setWriter(String chain, String type) throws TransformerException;
+	public void setWriter(String chain, String type, String path) throws TransformerException;
 
-	public void setReader(String chain, String type) throws TransformerException;
+	public void setReader(String chain, String type, String path) throws TransformerException;
 
 	public void removePluginConfig(PluginConfig pluginConfig) throws TransformerException;
 
