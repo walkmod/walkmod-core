@@ -46,4 +46,6 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
 	public void setReader(String chain, String type) throws TransformerException;
 
+	public void removePluginConfig(PluginConfig pluginConfig) throws TransformerException;
+
 }

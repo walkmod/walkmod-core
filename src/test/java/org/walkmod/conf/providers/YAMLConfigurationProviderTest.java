@@ -540,4 +540,37 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testRemovePlugin() throws Exception{
+		List<String> list = new LinkedList<String>();
+		list.add("org.walkmod:javalang");
+		File file = new File("src/test/resources/yaml/removePlugin.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		String input = "plugins:\n";
+		input += "- \"org.walkmod:imports-cleaner:2.0\"";
+		FileUtils.write(file, input);
+		
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+			PluginConfig pc = new PluginConfigImpl();
+			pc.setGroupId("org.walkmod");
+			pc.setArtifactId("imports-cleaner");
+
+			provider.removePluginConfig(pc);
+			
+			String output = FileUtils.readFileToString(file);
+			System.out.println(output);
+			Assert.assertTrue(!output.contains("imports-cleaner"));
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
 }

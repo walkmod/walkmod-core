@@ -425,11 +425,9 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 
 		if (childSize > 0) {
 			if (pluginListElem != null) {
-				if (pluginListElem.hasChildNodes()) {
-					pluginListElem.insertBefore(plugin, children.item(0));
-				} else {
-					pluginListElem.appendChild(plugin);
-				}
+
+				pluginListElem.appendChild(plugin);
+
 			} else {
 				Element pluginList = document.createElement("plugins");
 				pluginList.appendChild(plugin);
@@ -1568,5 +1566,43 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 			}
 
 		}
+	}
+
+	@Override
+	public void removePluginConfig(PluginConfig pluginConfig) throws TransformerException {
+		if (document == null) {
+			init();
+		}
+		Element rootElement = document.getDocumentElement();
+		NodeList children = rootElement.getChildNodes();
+		int childSize = children.getLength();
+		for (int i = 0; i < childSize; i++) {
+			Node childNode = children.item(i);
+			if (childNode instanceof Element) {
+				Element child = (Element) childNode;
+				final String nodeName = child.getNodeName();
+				if ("plugins".equals(nodeName)) {
+
+					NodeList pluginNodes = child.getChildNodes();
+					int modulesSize = pluginNodes.getLength();
+					for (int j = 0; j < modulesSize; j++) {
+						Node pluginNode = pluginNodes.item(j);
+						if ("plugin".equals(pluginNode.getNodeName())) {
+							Element aux = (Element) pluginNode;
+							String groupId = aux.getAttribute("groupId");
+							String artifactId = aux.getAttribute("artifactId");
+							if (groupId.equals(pluginConfig.getGroupId())
+									&& artifactId.equals(pluginConfig.getArtifactId())) {
+								child.removeChild(aux);
+								persist();
+								return;
+							}
+						}
+					}
+
+				}
+			}
+		}
+
 	}
 }

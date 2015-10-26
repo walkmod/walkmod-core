@@ -8,8 +8,10 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.walkmod.commands.AddCfgProviderCommand;
+import org.walkmod.commands.AddPluginCommand;
 import org.walkmod.commands.AddTransformationCommand;
 import org.walkmod.conf.entities.Configuration;
+import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.impl.ConfigurationImpl;
 
@@ -323,6 +325,51 @@ public class XMLConfigurationProviderTest {
 
 			Assert.assertTrue(output.contains("walkmod:commons:file-reader"));
 
+		} finally {
+			if (xml.exists()) {
+				xml.delete();
+			}
+		}
+	}
+	
+	
+	@Test
+	public void testRemovePlugin() throws Exception{
+		File aux = new File("src/test/resources/xml");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+
+		try {
+			Configuration conf = new ConfigurationImpl();
+			prov.init(conf);
+
+			prov.createConfig();
+			
+			List<String> plugins = new LinkedList<String>();
+			plugins.add("org.walkmod:imports-cleaner");
+			
+			AddPluginCommand command = new AddPluginCommand(plugins);
+
+			List<PluginConfig> pluginCfgs = command.build();
+			
+			prov.addPluginConfig(pluginCfgs.get(0));
+			
+			String output = FileUtils.readFileToString(xml);
+
+			System.out.println(output);
+
+			Assert.assertTrue(output.contains("imports-cleaner"));
+			
+			prov.removePluginConfig(pluginCfgs.get(0));
+			
+			output = FileUtils.readFileToString(xml);
+
+			System.out.println(output);
+
+			Assert.assertTrue(!output.contains("imports-cleaner"));
+			
+			
 		} finally {
 			if (xml.exists()) {
 				xml.delete();

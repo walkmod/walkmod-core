@@ -25,10 +25,8 @@ import org.walkmod.conf.entities.impl.PluginConfigImpl;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 
-@Parameters(separators = "=", commandDescription = "Adds plugin in the walkmod configuration file.")
-public class AddPluginCommand implements Command {
+public class RemovePluginCommand implements Command {
 
 	@Parameter(description = "List of plugin identifiers separated by spaces.", required = true)
 	private List<String> plugins = null;
@@ -38,12 +36,8 @@ public class AddPluginCommand implements Command {
 
 	private JCommander command;
 
-	public AddPluginCommand(JCommander command) {
+	public RemovePluginCommand(JCommander command) {
 		this.command = command;
-	}
-
-	public AddPluginCommand(List<String> plugins) {
-		this.plugins = plugins;
 	}
 
 	public List<PluginConfig> build() {
@@ -89,16 +83,15 @@ public class AddPluginCommand implements Command {
 	@Override
 	public void execute() throws Exception {
 		if (help) {
-			command.usage("add-plugin");
+			command.usage("rm-plugin");
 		} else {
-
 			List<PluginConfig> list = build();
 			for (PluginConfig pc : list) {
 				WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-				facade.addPluginConfig(pc);
+				facade.removePluginConfig(pc);
 			}
-
 		}
+
 	}
 
 }

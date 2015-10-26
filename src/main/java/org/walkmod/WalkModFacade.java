@@ -1084,4 +1084,21 @@ public class WalkModFacade {
 		}
 	}
 
+	public void removePluginConfig(PluginConfig pluginConfig) throws Exception {
+		if (!cfg.exists()) {
+			init();
+		}
+		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+		try {
+			ConfigurationManager manager = new ConfigurationManager(cfg, false);
+
+			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
+			cfgProvider.removePluginConfig(pluginConfig);
+		} finally {
+			System.setProperty("user.dir", userDir);
+		}
+		
+	}
+
 }

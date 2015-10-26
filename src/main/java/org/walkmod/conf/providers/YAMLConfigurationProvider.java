@@ -980,4 +980,53 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 		}
 
 	}
+
+	@Override
+	public void removePluginConfig(PluginConfig pluginConfig) throws TransformerException {
+		File cfg = new File(fileName);
+
+		ArrayNode pluginList = null;
+		JsonNode node = null;
+		try {
+			node = mapper.readTree(cfg);
+		} catch (Exception e) {
+
+		}
+		if (node == null) {
+			node = new ObjectNode(mapper.getNodeFactory());
+		}
+		if (node.has("plugins")) {
+
+			JsonNode aux = node.get("plugins");
+			if (aux.isArray()) {
+				pluginList = (ArrayNode) node.get("plugins");
+				Iterator<JsonNode> it = pluginList.iterator();
+
+				int index = -1;
+				int i = 0;
+				while (it.hasNext() && index == -1) {
+					JsonNode next = it.next();
+					if (next.isTextual()) {
+						String text = next.asText();
+						String[] parts = text.split(":");
+						if (parts.length >= 2) {
+							if (parts[0].equals(pluginConfig.getGroupId())
+									&& parts[1].equals(pluginConfig.getArtifactId())) {
+								index = i;
+							}
+						}
+					}
+					i++;
+				}
+				if (index > -1) {
+					pluginList.remove(index);
+				}
+
+			} else {
+				throw new TransformerException("The plugins element is not a valid array");
+			}
+		}
+
+		write(node);
+	}
 }
