@@ -1605,4 +1605,46 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		}
 
 	}
+
+	@Override
+	public void removeModules(List<String> modules) throws TransformerException {
+		if (modules != null && !modules.isEmpty()) {
+			if (document == null) {
+				init();
+			}
+			Element rootElement = document.getDocumentElement();
+			NodeList children = rootElement.getChildNodes();
+			int childSize = children.getLength();
+			
+			Element child = null;
+			int removed = 0;
+			for (int i = 0; i < childSize; i++) {
+				Node childNode = children.item(i);
+				if (childNode instanceof Element) {
+					child = (Element) childNode;
+					final String nodeName = child.getNodeName();
+
+					if ("modules".equals(nodeName)) {
+						NodeList moduleNodeList = child.getChildNodes();
+						int max = moduleNodeList.getLength();
+						for (int j = 0; j < max; j++) {
+							String value = moduleNodeList.item(j).getTextContent().trim();
+							if (modules.contains(value)) {
+								child.removeChild(moduleNodeList.item(j));
+								removed++;
+							}
+						}
+						if(removed == max){
+							rootElement.removeChild(child);
+						}
+					}
+				}
+			}
+
+			if (removed > 0) {
+
+				persist();
+			}
+		}
+	}
 }

@@ -1029,4 +1029,48 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 
 		write(node);
 	}
+
+	@Override
+	public void removeModules(List<String> modules) throws TransformerException {
+		if (modules != null) {
+			File cfg = new File(fileName);
+
+			ArrayNode modulesList = null;
+			JsonNode node = null;
+			try {
+				node = mapper.readTree(cfg);
+			} catch (Exception e) {
+
+			}
+			if (node == null) {
+				node = new ObjectNode(mapper.getNodeFactory());
+			}
+			if (node.has("modules")) {
+				JsonNode aux = node.get("modules");
+				if (aux.isArray()) {
+					modulesList = (ArrayNode) node.get("modules");
+					Iterator<JsonNode> it = modulesList.iterator();
+					ArrayNode newModulesList = new ArrayNode(mapper.getNodeFactory());
+					while (it.hasNext()) {
+						JsonNode next = it.next();
+						if (next.isTextual()) {
+							String text = next.asText();
+							if (!modules.contains(text)) {
+								newModulesList.add(text);
+							}
+						}
+					}
+					ObjectNode oNode = (ObjectNode) node;
+					if (newModulesList.size() > 0) {
+						oNode.set("modules", newModulesList);
+					} else {
+						oNode.remove("modules");
+					}
+					write(node);
+				}
+			}
+
+		}
+
+	}
 }

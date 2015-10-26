@@ -48,4 +48,6 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
 	public void removePluginConfig(PluginConfig pluginConfig) throws TransformerException;
 
+	public void removeModules(List<String> modules) throws TransformerException;
+
 }

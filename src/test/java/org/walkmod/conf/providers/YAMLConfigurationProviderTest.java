@@ -573,4 +573,35 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testRemoveModule() throws Exception{
+		List<String> list = new LinkedList<String>();
+		list.add("module1");
+		File file = new File("src/test/resources/yaml/removeModule.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		String input = "modules:\n";
+		input += "- \"module1\"";
+		FileUtils.write(file, input);
+		
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+			
+
+			provider.removeModules(list);
+			
+			String output = FileUtils.readFileToString(file);
+			System.out.println(output);
+			Assert.assertTrue(!output.contains("module1"));
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
 }

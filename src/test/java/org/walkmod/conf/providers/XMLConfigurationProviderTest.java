@@ -376,4 +376,45 @@ public class XMLConfigurationProviderTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testRemoveModule() throws Exception{
+		File aux = new File("src/test/resources/xml");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+
+		try {
+			Configuration conf = new ConfigurationImpl();
+			prov.init(conf);
+
+			prov.createConfig();
+			
+			List<String> modules = new LinkedList<String>();
+			modules.add("module1");
+			
+			
+			prov.addModules(modules);
+			
+			String output = FileUtils.readFileToString(xml);
+
+			System.out.println(output);
+
+			Assert.assertTrue(output.contains("module1"));
+			
+			prov.removeModules(modules);
+			
+			output = FileUtils.readFileToString(xml);
+
+			System.out.println(output);
+
+			Assert.assertTrue(!output.contains("module1"));
+			
+			
+		} finally {
+			if (xml.exists()) {
+				xml.delete();
+			}
+		}
+	}
 }
