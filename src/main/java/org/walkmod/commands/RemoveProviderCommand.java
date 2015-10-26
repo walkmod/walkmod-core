@@ -22,7 +22,9 @@ import org.walkmod.WalkModFacade;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 
+@Parameters(separators = "=", commandDescription = "Removes configuration providers from the configuration.")
 public class RemoveProviderCommand implements Command{
 
 	@Parameter(description = "List of provider identifiers separated by spaces.", required = true)
