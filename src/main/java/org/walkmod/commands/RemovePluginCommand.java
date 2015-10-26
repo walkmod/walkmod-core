@@ -25,7 +25,9 @@ import org.walkmod.conf.entities.impl.PluginConfigImpl;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 
+@Parameters(separators = "=", commandDescription = "Removes plugins from the configuration.")
 public class RemovePluginCommand implements Command {
 
 	@Parameter(description = "List of plugin identifiers separated by spaces.", required = true)
