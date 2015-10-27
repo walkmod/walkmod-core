@@ -35,8 +35,11 @@ public class InspectCommand implements Command {
 
 	private JCommander command;
 
-	@Parameter
+	@Parameter(description = "The plugin id to inspect (e.g imports-cleaner)")
 	private List<String> pluginId;
+	
+	@Parameter(names = "--offline", description = "Resolves the walkmod plugins and their dependencies in offline mode")
+	private boolean offline = false;
 
 	public InspectCommand(JCommander command) {
 		this.command = command;
@@ -47,7 +50,7 @@ public class InspectCommand implements Command {
 		if (help) {
 			command.usage("inspect");
 		} else {
-			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().offline(offline));
 			List<BeanDefinition> beans = facade.inspectPlugin(new PluginConfigImpl(pluginId.get(0)));
 			if (beans != null) {
 				String line = "";
