@@ -30,6 +30,7 @@ import org.walkmod.commands.CheckCommand;
 import org.walkmod.commands.Command;
 import org.walkmod.commands.HelpCommand;
 import org.walkmod.commands.InitCommand;
+import org.walkmod.commands.InspectCommand;
 import org.walkmod.commands.InstallCommand;
 import org.walkmod.commands.PrintChainsCommand;
 import org.walkmod.commands.PrintPluginsCommand;
@@ -102,6 +103,7 @@ public class WalkModDispatcher {
 		commands.put("chains", new PrintChainsCommand(jcommander));
 		commands.put("check", new CheckCommand(jcommander));
 		commands.put("init", new InitCommand(jcommander));
+		commands.put("inspect", new InspectCommand(jcommander));
 		commands.put("install", new InstallCommand(jcommander));
 		commands.put("rm", new RemoveTransformationCommand(jcommander));
 		commands.put("rm-chain", new RemoveChainCommand(jcommander));

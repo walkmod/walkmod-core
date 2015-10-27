@@ -37,7 +37,7 @@ public class InstallCommand implements Command {
 	@Override
 	public void execute() throws Exception {
 		if (help) {
-			command.usage("init");
+			command.usage("install");
 		} else {
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
 			facade.install();

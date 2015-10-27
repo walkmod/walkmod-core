@@ -39,6 +39,19 @@ public class ConfigurationManager {
 	public ConfigurationManager(Configuration conf) {
 		setConfiguration(conf);
 	}
+	
+	public ConfigurationManager(Configuration conf, ConfigurationProvider... configurationProviders) {
+		setConfiguration(conf);
+		this.configurationProviders.add(new PluginsConfigurationProvider());
+		if (configurationProviders != null) {
+			for (ConfigurationProvider cp : configurationProviders) {
+				this.configurationProviders.add(cp);
+			}
+		}
+		this.configurationProviders.add(new LanguageConfigurationProvider());
+		this.configurationProviders.add(new SpringConfigurationProvider());
+		
+	}
 
 	public ConfigurationManager(File walkmodcfg, boolean execute, ConfigurationProvider... configurationProviders) {
 		setConfiguration(new ConfigurationImpl());

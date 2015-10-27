@@ -68,9 +68,10 @@ public class SpringConfigurationProvider implements ConfigurationProvider, BeanF
 							configuration.getClassLoader()));
 				}
 			}
-
+			configuration.setBeanDefinitionRegistry(reader.getRegistry());
 			ctx.refresh();
 		}
+		
 		configuration.setBeanFactory(ctx);
 	}
 

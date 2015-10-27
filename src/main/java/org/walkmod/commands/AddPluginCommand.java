@@ -49,39 +49,10 @@ public class AddPluginCommand implements Command {
 	public List<PluginConfig> build() {
 		List<PluginConfig> result = new LinkedList<PluginConfig>();
 		for (String plugin : plugins) {
-			PluginConfig pluginConfig = new PluginConfigImpl();
-			String[] parts = plugin.split(":");
-			boolean valid = parts.length <= 3;
-			for (int i = 0; i < parts.length && valid; i++) {
-				valid = !parts[i].trim().equals("");
-			}
+			PluginConfig pluginConfig = new PluginConfigImpl(plugin);
 
-			if (valid) {
-				if (parts.length == 1) {
-					pluginConfig.setGroupId("org.walkmod");
-					String artifactId = parts[0].trim();
-					if(!artifactId.startsWith("walkmod-")){
-						artifactId = "walkmod-"+artifactId;
-					}
-					if(!artifactId.endsWith("-plugin")){
-						artifactId = artifactId+"-plugin";
-					}
-					pluginConfig.setArtifactId(artifactId);
-					pluginConfig.setVersion("latest.integration");
-				} else if (parts.length == 2) {
-					pluginConfig.setGroupId(parts[0].trim());
-					pluginConfig.setArtifactId(parts[1].trim());
-					pluginConfig.setVersion("latest.integration");
-				} else {
-					pluginConfig.setGroupId(parts[0].trim());
-					pluginConfig.setArtifactId(parts[1].trim());
-					pluginConfig.setVersion(parts[2].trim());
-				}
-				result.add(pluginConfig);
-			} else {
-				throw new IllegalArgumentException(
-						"The plugin identifier is not well defined. The expected format is [groupId:artifactId:version]");
-			}
+			result.add(pluginConfig);
+
 		}
 		return result;
 	}

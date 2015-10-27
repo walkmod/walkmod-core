@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.walkmod.exceptions.WalkModException;
@@ -65,6 +66,7 @@ public class PrintPluginsCommand implements Command {
 				URL searchURL = new URL(MVN_SEARCH_URL);
 				InputStream is = null;
 				Map<String, String> pluginsList = new LinkedHashMap<String, String>();
+				Map<String, String> pluginsURLs = new LinkedHashMap<String, String>();
 				try {
 					is = searchURL.openStream();
 
@@ -112,7 +114,19 @@ public class PrintPluginsCommand implements Command {
 									description = description +".";
 								}
 								pluginsList.put(id, description);
+								nList = doc.getChildNodes().item(0).getChildNodes();
+								int max = nList.getLength();
+								String url = "unavailable url";
 								
+								for(int j = 0; j < max; j++){
+									String name = nList.item(j).getNodeName();
+									if(name.equals("url")){
+										url = nList.item(j).getTextContent();
+										j = max;
+									}
+								}
+								
+								pluginsURLs.put(id, url);
 									
 							} finally {
 								projectIs.close();
@@ -125,15 +139,34 @@ public class PrintPluginsCommand implements Command {
 				Set<String> keys = pluginsList.keySet();
 				List<String> sortedKeys = new LinkedList<String>(keys);
 				Collections.sort(sortedKeys);
+				String line = "";
+
+				for (int i = 0; i < 2 + 23 +63 + 103; i++) {
+					line = line + "-";
+				}
+				System.out.println(line);
+				System.out.printf("| %-20s | %-60s | %-100s |%n", StringUtils.center("PLUGIN NAME (ID)", 20),
+						StringUtils.center("URL", 60), StringUtils.center("DESCRIPTION", 100));
+				System.out.println(line);
+				
 				for(String key: sortedKeys){
-					System.out.printf("  %-20.40s  %-40.130s%n",key, pluginsList.get(key));
+					System.out.printf("| %-20s | %-60s | %-100s |%n", fill(key, 20), fill(pluginsURLs.get(key), 60), pluginsList.get(key));
 
 				}
+				System.out.println(line);
 				
 			} catch (Exception e) {
 				throw new WalkModException("Invalid plugins URL", e);
 			}
 		}
+	}
+	
+	private String fill(String aux, int limit){
+		String result = aux;
+		for(int i = aux.length(); i < limit; i++){
+			result = result + " ";
+		}
+		return result;
 	}
 
 	private String readInputStreamAsString(InputStream is) throws IOException {

@@ -32,12 +32,14 @@ import org.walkmod.conf.ConfigurationManager;
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.Initializer;
 import org.walkmod.conf.ProjectConfigurationProvider;
+import org.walkmod.conf.entities.BeanDefinition;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.InitializerConfig;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
+import org.walkmod.conf.entities.impl.ConfigurationImpl;
 import org.walkmod.conf.providers.IvyConfigurationProvider;
 import org.walkmod.exceptions.InvalidConfigurationException;
 import org.walkmod.exceptions.WalkModException;
@@ -1165,6 +1167,16 @@ public class WalkModFacade {
 			}
 		}
 
+	}
+
+	public List<BeanDefinition> inspectPlugin(PluginConfig plugin) {
+		Configuration conf = new ConfigurationImpl();
+		Collection<PluginConfig> plugins = new LinkedList<PluginConfig>();
+		plugins.add(plugin);
+		conf.setPlugins(plugins);
+		ConfigurationManager manager = new ConfigurationManager(conf, locateConfigurationProvider());
+		manager.executeConfigurationProviders();
+		return conf.getAvailableBeans(plugin);
 	}
 
 }

@@ -26,6 +26,13 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.walkmod.ChainReader;
+import org.walkmod.ChainWalker;
+import org.walkmod.ChainWriter;
+import org.walkmod.conf.ConfigurationProvider;
+import org.walkmod.conf.Initializer;
+import org.walkmod.conf.entities.BeanDefinition;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.InitializerConfig;
@@ -34,6 +41,7 @@ import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.merger.MergeEngine;
+import org.walkmod.merger.MergePolicy;
 import org.walkmod.walkers.VisitorMessage;
 
 public class ConfigurationImpl implements Configuration {
@@ -59,6 +67,8 @@ public class ConfigurationImpl implements Configuration {
 	private List<InitializerConfig> initializers;
 
 	private List<String> modules;
+
+	private BeanDefinitionRegistry beanDefinitionRegistry;
 
 	public ConfigurationImpl() {
 		this.parameters = new LinkedHashMap<String, Object>();
@@ -190,7 +200,7 @@ public class ConfigurationImpl implements Configuration {
 
 	@Override
 	public ClassLoader getClassLoader() {
-		if(classLoader == null){
+		if (classLoader == null) {
 			return Thread.currentThread().getContextClassLoader();
 		}
 		return classLoader;
@@ -266,11 +276,76 @@ public class ConfigurationImpl implements Configuration {
 	public boolean containsBean(String beanId) {
 		if (beanFactory != null) {
 			if (!beanId.contains(":")) {
-				return  beanFactory.containsBean("org.walkmod:walkmod-" + beanId + "-plugin:" + beanId);
+				return beanFactory.containsBean("org.walkmod:walkmod-" + beanId + "-plugin:" + beanId);
 			}
 			return beanFactory.containsBean(beanId);
 		}
 		return false;
+	}
+
+	public List<BeanDefinition> getAvailableBeans(PluginConfig pc) {
+		List<BeanDefinition> result = new LinkedList<BeanDefinition>();
+
+		String[] names = beanDefinitionRegistry.getBeanDefinitionNames();
+		if (names != null) {
+			for (String name : names) {
+				if (name.startsWith(pc.getGroupId() + ":" + pc.getArtifactId())) {
+					Object o = beanFactory.getBean(name);
+					String classification = "transformation";
+					if (o instanceof ChainReader) {
+						classification = "reader";
+					} else if (o instanceof ChainWriter) {
+						classification = "writer";
+					} else if (o instanceof ChainWalker) {
+						classification = "walker";
+					} else if (o instanceof Initializer) {
+						classification = "initializer";
+					} else if (o instanceof ConfigurationProvider) {
+						classification = "conf-provider";
+					}
+					else if(o instanceof MergePolicy){
+						classification = "policy-entry";
+					}
+
+					String id = name;
+					int index0 = "walkmod-".length();
+					int index1 = pc.getArtifactId().indexOf("-plugin");
+					if (index1 != -1) {
+						id =  pc.getArtifactId().substring(index0, index1);
+						String uniqueFullName = pc.getGroupId() + ":" + pc.getArtifactId() + ":" + id;
+						if (!name.equals(uniqueFullName)) {
+							if (!beanDefinitionRegistry.isAlias(name)) {
+								String[] aliases = beanDefinitionRegistry.getAliases(name);
+								boolean add = true;
+								if (aliases != null) {
+									for (int i = 0; i < aliases.length && add; i++) {
+										add = !(aliases[i].equals(uniqueFullName));
+									}
+								}
+								if (add) {
+									result.add(new BeanDefinitionImpl(classification, name, beanDefinitionRegistry
+											.getBeanDefinition(name).getDescription()));
+								}
+								else{
+									result.add(new BeanDefinitionImpl(classification, id, beanDefinitionRegistry
+											.getBeanDefinition(name).getDescription()));
+								}
+							}
+						} else {
+							result.add(new BeanDefinitionImpl(classification, id, beanDefinitionRegistry
+									.getBeanDefinition(name).getDescription()));
+						}
+					}
+
+				}
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public void setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) {
+		this.beanDefinitionRegistry = beanDefinitionRegistry;
 	}
 
 }
