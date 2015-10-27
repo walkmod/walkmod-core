@@ -133,7 +133,7 @@ public class YAMLConfigurationProviderTest {
 			pluginCfg.setArtifactId("myplugin");
 			pluginCfg.setVersion("1.0");
 
-			provider.addPluginConfig(pluginCfg);
+			provider.addPluginConfig(pluginCfg, false);
 
 			String output = FileUtils.readFileToString(file);
 
@@ -145,6 +145,51 @@ public class YAMLConfigurationProviderTest {
 		} finally {
 			if (file.exists()) {
 				file.delete();
+			}
+		}
+	}
+	
+	
+	@Test
+	public void testAddPluginRecursively() throws Exception {
+
+		File dir = new File("src/test/resources/multimoduleyaml");
+		dir.mkdirs();
+		
+		File module0 = new File(dir, "module0");
+		module0.mkdir();
+		
+		File moduleCfg = new File(module0, "walkmod.yml");
+		
+		File file = new File(dir, "walkmod.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+			
+			provider.addModules(Arrays.asList("module0"));
+
+			PluginConfig pluginCfg = new PluginConfigImpl();
+			pluginCfg.setGroupId("org.walkmod");
+			pluginCfg.setArtifactId("myplugin");
+			pluginCfg.setVersion("1.0");
+
+			provider.addPluginConfig(pluginCfg, true);
+
+			String output = FileUtils.readFileToString(moduleCfg);
+
+			String desiredOutput = "plugins:\n";
+			desiredOutput += "- \"org.walkmod:myplugin:1.0\"";
+
+			Assert.assertEquals(desiredOutput, output);
+
+		} finally {
+			if (dir.exists()) {
+				FileUtils.deleteDirectory(dir);
 			}
 		}
 	}

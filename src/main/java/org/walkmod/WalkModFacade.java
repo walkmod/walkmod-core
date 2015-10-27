@@ -642,11 +642,12 @@ public class WalkModFacade {
 	 * 
 	 * @param pluginConfig
 	 *            the plugin to add
+	 * @param recursive 
 	 * @throws Exception
 	 *             in case that the walkmod configuration file can't be read or
 	 *             written.
 	 */
-	public void addPluginConfig(PluginConfig pluginConfig) throws Exception {
+	public void addPluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception {
 		if (!cfg.exists()) {
 			init();
 		}
@@ -656,7 +657,7 @@ public class WalkModFacade {
 			ConfigurationManager manager = new ConfigurationManager(cfg, false);
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
-			cfgProvider.addPluginConfig(pluginConfig);
+			cfgProvider.addPluginConfig(pluginConfig, recursive);
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}

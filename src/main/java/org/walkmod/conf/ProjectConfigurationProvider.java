@@ -27,7 +27,7 @@ import org.walkmod.conf.entities.TransformationConfig;
 
 public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
-	public boolean addPluginConfig(PluginConfig pluginConfig) throws TransformerException;
+	public boolean addPluginConfig(PluginConfig pluginConfig, boolean recursive) throws TransformerException;
 
 	public boolean addChainConfig(ChainConfig chainCfg) throws TransformerException;
 

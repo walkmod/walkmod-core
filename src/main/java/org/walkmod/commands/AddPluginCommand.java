@@ -37,6 +37,10 @@ public class AddPluginCommand implements Command {
 	private boolean help;
 
 	private JCommander command;
+	
+	@Parameter(names = {"--recursive", "-R"}, description = "Adds the plugin to all submodules")
+	private boolean recursive = false;
+
 
 	public AddPluginCommand(JCommander command) {
 		this.command = command;
@@ -66,7 +70,7 @@ public class AddPluginCommand implements Command {
 			List<PluginConfig> list = build();
 			for (PluginConfig pc : list) {
 				WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-				facade.addPluginConfig(pc);
+				facade.addPluginConfig(pc, recursive);
 			}
 
 		}

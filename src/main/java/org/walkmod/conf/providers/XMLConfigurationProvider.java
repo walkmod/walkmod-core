@@ -384,7 +384,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		return true;
 	}
 
-	public boolean addPluginConfig(PluginConfig pluginConfig) throws TransformerException {
+	@Override
+	public boolean addPluginConfig(PluginConfig pluginConfig, boolean recursive) throws TransformerException {
 		if (document == null) {
 			init();
 		}
@@ -392,6 +393,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		NodeList children = rootElement.getChildNodes();
 		int childSize = children.getLength();
 		Element pluginListElem = null;
+		boolean multimodule = false;
+		boolean exists = false;
 		for (int i = 0; i < childSize; i++) {
 			Node childNode = children.item(i);
 			if (childNode instanceof Element) {
@@ -409,37 +412,64 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 							String artifactId = aux.getAttribute("artifactId");
 							if (groupId.equals(pluginConfig.getGroupId())
 									&& artifactId.equals(pluginConfig.getArtifactId())) {
-								return false;
+								exists = true;
 							}
 						}
 					}
 
+				} else if ("modules".equals(nodeName) && recursive) {
+					multimodule = true;
+					NodeList modulesList = child.getChildNodes();
+					int max2 = modulesList.getLength();
+
+					for (int j = 0; j < max2; j++) {
+
+						Node moduleElem = modulesList.item(j);
+
+						try {
+							File auxFile = new File(configFileName).getCanonicalFile();
+
+							XMLConfigurationProvider aux = new XMLConfigurationProvider(auxFile.getParent()
+									+ File.separator + moduleElem.getTextContent() + File.separator + "walkmod.xml",
+									false);
+
+							aux.createConfig();
+
+							aux.addPluginConfig(pluginConfig, recursive);
+
+						} catch (Exception e) {
+							throw new TransformerException("Error creating the configuration for the module ["
+									+ moduleElem.getTextContent() + "]", e);
+						}
+
+					}
 				}
 			}
 		}
-		Element plugin = document.createElement("plugin");
+		if (!(multimodule && recursive) && !exists) {
+			Element plugin = document.createElement("plugin");
 
-		plugin.setAttribute("groupId", pluginConfig.getGroupId());
-		plugin.setAttribute("artifactId", pluginConfig.getArtifactId());
-		plugin.setAttribute("version", pluginConfig.getVersion());
+			plugin.setAttribute("groupId", pluginConfig.getGroupId());
+			plugin.setAttribute("artifactId", pluginConfig.getArtifactId());
+			plugin.setAttribute("version", pluginConfig.getVersion());
 
-		if (childSize > 0) {
-			if (pluginListElem != null) {
+			if (childSize > 0) {
+				if (pluginListElem != null) {
 
-				pluginListElem.appendChild(plugin);
+					pluginListElem.appendChild(plugin);
 
+				} else {
+					Element pluginList = document.createElement("plugins");
+					pluginList.appendChild(plugin);
+					rootElement.appendChild(pluginList);
+				}
 			} else {
 				Element pluginList = document.createElement("plugins");
 				pluginList.appendChild(plugin);
 				rootElement.appendChild(pluginList);
 			}
-		} else {
-			Element pluginList = document.createElement("plugins");
-			pluginList.appendChild(plugin);
-			rootElement.appendChild(pluginList);
+			persist();
 		}
-		persist();
-
 		return true;
 	}
 

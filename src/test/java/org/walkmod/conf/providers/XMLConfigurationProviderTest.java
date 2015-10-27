@@ -9,7 +9,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.walkmod.commands.AddCfgProviderCommand;
-import org.walkmod.commands.AddModuleCommand;
 import org.walkmod.commands.AddPluginCommand;
 import org.walkmod.commands.AddTransformationCommand;
 import org.walkmod.conf.entities.Configuration;
@@ -311,8 +310,7 @@ public class XMLConfigurationProviderTest {
 			}
 		}
 	}
-	
-	
+
 	@Test
 	public void testRemoveTransformationsRecursively() throws Exception {
 		List<String> list = new LinkedList<String>();
@@ -324,11 +322,10 @@ public class XMLConfigurationProviderTest {
 		File module1 = new File(aux, "module1");
 		File cfg0 = new File(module0, "walkmod.xml");
 		File cfg1 = new File(module1, "walkmod.xml");
-		
+
 		module0.mkdir();
 		module1.mkdir();
-		
-		
+
 		File xml = new File(aux, "walkmod.xml");
 		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
 
@@ -337,9 +334,8 @@ public class XMLConfigurationProviderTest {
 			prov.init(conf);
 
 			prov.createConfig();
-			
+
 			prov.addModules(Arrays.asList("module0", "module1"));
-			
 
 			AddTransformationCommand command0 = new AddTransformationCommand("license-applier", "mychain", false, null,
 					null, null, true);
@@ -358,21 +354,19 @@ public class XMLConfigurationProviderTest {
 			Assert.assertTrue(!output.contains("imports-cleaner"));
 
 			Assert.assertTrue(output.contains("license-applier"));
-			
+
 			output = FileUtils.readFileToString(cfg1);
-			
+
 			Assert.assertTrue(!output.contains("imports-cleaner"));
 
 			Assert.assertTrue(output.contains("license-applier"));
 
-			
 		} finally {
 			if (aux.exists()) {
 				FileUtils.deleteDirectory(aux);
 			}
 		}
 	}
-
 
 	@Test
 	public void testSetWriter() throws Exception {
@@ -462,7 +456,7 @@ public class XMLConfigurationProviderTest {
 
 			List<PluginConfig> pluginCfgs = command.build();
 
-			prov.addPluginConfig(pluginCfgs.get(0));
+			prov.addPluginConfig(pluginCfgs.get(0), false);
 
 			String output = FileUtils.readFileToString(xml);
 
@@ -481,6 +475,49 @@ public class XMLConfigurationProviderTest {
 		} finally {
 			if (xml.exists()) {
 				xml.delete();
+			}
+		}
+	}
+
+	@Test
+	public void testAddPluginRecursively() throws Exception {
+		File aux = new File("src/test/resources/multmodulexml");
+		aux.mkdirs();
+
+		File module0 = new File(aux, "module0");
+		module0.mkdir();
+
+		File xml = new File(aux, "walkmod.xml");
+		File modulexml = new File(module0, "walkmod.xml");
+
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+
+		try {
+			Configuration conf = new ConfigurationImpl();
+			prov.init(conf);
+
+			prov.createConfig();
+
+			prov.addModules(Arrays.asList("module0"));
+
+			List<String> plugins = new LinkedList<String>();
+			plugins.add("org.walkmod:imports-cleaner");
+
+			AddPluginCommand command = new AddPluginCommand(plugins);
+
+			List<PluginConfig> pluginCfgs = command.build();
+
+			prov.addPluginConfig(pluginCfgs.get(0), true);
+
+			String output = FileUtils.readFileToString(modulexml);
+
+			System.out.println(output);
+
+			Assert.assertTrue(output.contains("imports-cleaner"));
+
+		} finally {
+			if (aux.exists()) {
+				FileUtils.deleteQuietly(aux);
 			}
 		}
 	}

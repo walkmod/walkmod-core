@@ -247,7 +247,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 	}
 
 	@Override
-	public boolean addPluginConfig(final PluginConfig pluginConfig) throws TransformerException {
+	public boolean addPluginConfig(final PluginConfig pluginConfig, boolean recursive) throws TransformerException {
 
 		File cfg = new File(fileName);
 
@@ -261,25 +261,50 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 		if (node == null) {
 			node = new ObjectNode(mapper.getNodeFactory());
 		}
-		if (!node.has("plugins")) {
-			pluginList = new ArrayNode(mapper.getNodeFactory());
-			if (node.isObject()) {
-				ObjectNode aux = (ObjectNode) node;
-				aux.set("plugins", pluginList);
-			} else {
-				throw new TransformerException("The root element is not a JSON node");
+		if (recursive && node.has("modules")) {
+			JsonNode aux = node.get("modules");
+			if (aux.isArray()) {
+				ArrayNode modules = (ArrayNode) aux;
+				int max = modules.size();
+				for (int i = 0; i < max; i++) {
+					JsonNode module = modules.get(i);
+					if (module.isTextual()) {
+						String moduleDir = module.asText();
+
+						try {
+							File auxFile = new File(fileName).getCanonicalFile().getParentFile();
+							YAMLConfigurationProvider child = new YAMLConfigurationProvider(auxFile.getAbsolutePath()
+									+ File.separator + moduleDir + File.separator + "walkmod.yml");
+							child.createConfig();
+							child.addPluginConfig(pluginConfig, recursive);
+						} catch (IOException e) {
+							throw new TransformerException(e);
+						}
+
+					}
+				}
 			}
 		} else {
-			JsonNode aux = node.get("plugins");
-			if (aux.isArray()) {
-				pluginList = (ArrayNode) node.get("plugins");
+			if (!node.has("plugins")) {
+				pluginList = new ArrayNode(mapper.getNodeFactory());
+				if (node.isObject()) {
+					ObjectNode aux = (ObjectNode) node;
+					aux.set("plugins", pluginList);
+				} else {
+					throw new TransformerException("The root element is not a JSON node");
+				}
 			} else {
-				throw new TransformerException("The plugins element is not a valid array");
+				JsonNode aux = node.get("plugins");
+				if (aux.isArray()) {
+					pluginList = (ArrayNode) node.get("plugins");
+				} else {
+					throw new TransformerException("The plugins element is not a valid array");
+				}
 			}
+			pluginList.add(new TextNode(pluginConfig.getGroupId() + ":" + pluginConfig.getArtifactId() + ":"
+					+ pluginConfig.getVersion()));
+			write(node);
 		}
-		pluginList.add(new TextNode(pluginConfig.getGroupId() + ":" + pluginConfig.getArtifactId() + ":"
-				+ pluginConfig.getVersion()));
-		write(node);
 		return true;
 	}
 
