@@ -22,7 +22,9 @@ import org.walkmod.WalkModFacade;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 
+@Parameters(separators = "=", commandDescription = "Removes chains from the configuration.")
 public class RemoveChainCommand implements Command{
 
 	@Parameter(description = "List of chains to remove", required = true)
