@@ -1,6 +1,7 @@
 package org.walkmod.conf.providers;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -251,7 +252,7 @@ public class XMLConfigurationProviderTest {
 
 			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false);
 
-			prov.removeTransformations(null, list);
+			prov.removeTransformations(null, list, false);
 
 			String output = FileUtils.readFileToString(xml);
 
@@ -264,7 +265,7 @@ public class XMLConfigurationProviderTest {
 	}
 
 	@Test
-	public void testRemoveTranformationRecursively() throws Exception {
+	public void testRemoveChainTransformations() throws Exception {
 		List<String> list = new LinkedList<String>();
 		list.add("imports-cleaner");
 
@@ -289,7 +290,7 @@ public class XMLConfigurationProviderTest {
 
 			prov.addTransformationConfig("mychain", null, command.buildTransformationCfg(), false);
 
-			prov.removeTransformations("mychain", list);
+			prov.removeTransformations("mychain", list, false);
 
 			String output = FileUtils.readFileToString(xml);
 
@@ -299,7 +300,7 @@ public class XMLConfigurationProviderTest {
 
 			list.add("license-applier");
 
-			prov.removeTransformations("mychain", list);
+			prov.removeTransformations("mychain", list, false);
 
 			output = FileUtils.readFileToString(xml);
 
@@ -310,6 +311,68 @@ public class XMLConfigurationProviderTest {
 			}
 		}
 	}
+	
+	
+	@Test
+	public void testRemoveTransformationsRecursively() throws Exception {
+		List<String> list = new LinkedList<String>();
+		list.add("imports-cleaner");
+
+		File aux = new File("src/test/resources/xmlmultimodule");
+		aux.mkdirs();
+		File module0 = new File(aux, "module0");
+		File module1 = new File(aux, "module1");
+		File cfg0 = new File(module0, "walkmod.xml");
+		File cfg1 = new File(module1, "walkmod.xml");
+		
+		module0.mkdir();
+		module1.mkdir();
+		
+		
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+
+		try {
+			Configuration conf = new ConfigurationImpl();
+			prov.init(conf);
+
+			prov.createConfig();
+			
+			prov.addModules(Arrays.asList("module0", "module1"));
+			
+
+			AddTransformationCommand command0 = new AddTransformationCommand("license-applier", "mychain", false, null,
+					null, null, true);
+
+			prov.addTransformationConfig("mychain", null, command0.buildTransformationCfg(), true);
+
+			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
+					null, null, true);
+
+			prov.addTransformationConfig("mychain", null, command.buildTransformationCfg(), true);
+
+			prov.removeTransformations("mychain", list, true);
+
+			String output = FileUtils.readFileToString(cfg0);
+
+			Assert.assertTrue(!output.contains("imports-cleaner"));
+
+			Assert.assertTrue(output.contains("license-applier"));
+			
+			output = FileUtils.readFileToString(cfg1);
+			
+			Assert.assertTrue(!output.contains("imports-cleaner"));
+
+			Assert.assertTrue(output.contains("license-applier"));
+
+			
+		} finally {
+			if (aux.exists()) {
+				FileUtils.deleteDirectory(aux);
+			}
+		}
+	}
+
 
 	@Test
 	public void testSetWriter() throws Exception {

@@ -1029,7 +1029,7 @@ public class WalkModFacade {
 
 	}
 
-	public void removeTransformations(String chain, List<String> transformations) throws Exception {
+	public void removeTransformations(String chain, List<String> transformations, boolean recursive) throws Exception {
 		if (transformations != null) {
 			if (!cfg.exists()) {
 				init();
@@ -1041,7 +1041,7 @@ public class WalkModFacade {
 
 				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-				cfgProvider.removeTransformations(chain, transformations);
+				cfgProvider.removeTransformations(chain, transformations, recursive);
 			} finally {
 				System.setProperty("user.dir", userDir);
 			}

@@ -1,6 +1,7 @@
 package org.walkmod.conf.providers;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -548,7 +549,7 @@ public class YAMLConfigurationProviderTest {
 			Configuration conf = new ConfigurationImpl();
 			provider.init(conf);
 
-			provider.removeTransformations(null, list);
+			provider.removeTransformations(null, list, false);
 
 			String output = FileUtils.readFileToString(file);
 
@@ -558,6 +559,59 @@ public class YAMLConfigurationProviderTest {
 		} finally {
 			if (file.exists()) {
 				file.delete();
+			}
+		}
+	}
+	
+	@Test
+	public void testRemoveTranformationRecursively() throws Exception {
+		
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
+				null, false);
+		
+		
+		List<String> list = new LinkedList<String>();
+		list.add("imports-cleaner");
+
+		File dir = new File("src/test/resources/yamlmultimodule");
+		dir.mkdirs();
+		
+		File module0 = new File(dir, "module0");
+		module0.mkdir();
+		
+		File module1 = new File(dir, "module1");
+		module1.mkdir();
+		
+		File file = new File(dir, "walkmod.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		
+		File cfg0 = new File(module0, "walkmod.yml");
+
+		
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			provider.createConfig();
+			provider.addModules(Arrays.asList("module0", "module1"));
+			
+			provider.addTransformationConfig(null, null, command.buildTransformationCfg(), true);
+			
+			String output = FileUtils.readFileToString(cfg0);
+			
+			Assert.assertTrue(output.contains("imports-cleaner"));
+			
+			provider.removeTransformations(null, list, true);
+
+			output = FileUtils.readFileToString(cfg0);
+
+			Assert.assertTrue(!output.contains("imports-cleaner"));
+		} finally {
+			if (file.exists()) {
+				FileUtils.deleteDirectory(dir);
 			}
 		}
 	}

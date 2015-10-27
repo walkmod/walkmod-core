@@ -811,7 +811,8 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 	}
 
 	@Override
-	public void removeTransformations(String chain, List<String> transformations) throws TransformerException {
+	public void removeTransformations(String chain, List<String> transformations, boolean recursive)
+			throws TransformerException {
 		if (transformations != null && !transformations.isEmpty()) {
 			File cfg = new File(fileName);
 			JsonNode node = null;
@@ -846,6 +847,31 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 									transfListNode = current.get("transformations");
 								}
 							}
+						}
+					}
+				}
+			}
+			if (recursive && node.has("modules")) {
+				JsonNode aux = node.get("modules");
+				if (aux.isArray()) {
+					ArrayNode modules = (ArrayNode) aux;
+					int max = modules.size();
+					for (int i = 0; i < max; i++) {
+						JsonNode module = modules.get(i);
+						if (module.isTextual()) {
+							String moduleDir = module.asText();
+
+							try {
+								File auxFile = new File(fileName).getCanonicalFile().getParentFile();
+								YAMLConfigurationProvider child = new YAMLConfigurationProvider(
+										auxFile.getAbsolutePath() + File.separator + moduleDir + File.separator
+												+ "walkmod.yml");
+								child.createConfig();
+								child.removeTransformations(chain, transformations, recursive);
+							} catch (IOException e) {
+								throw new TransformerException(e);
+							}
+
 						}
 					}
 				}

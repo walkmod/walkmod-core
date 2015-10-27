@@ -46,8 +46,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.walkmod.OptionsBuilder;
-import org.walkmod.WalkModFacade;
 import org.walkmod.conf.ConfigurationException;
 import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
@@ -1069,13 +1067,12 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 			if (document == null) {
 				init();
 			}
-			
+
 			boolean isMultiModule = false;
 			if (recursive) {
 				Element rootElement = document.getDocumentElement();
 				NodeList children = rootElement.getChildNodes();
 				int childSize = children.getLength();
-				
 
 				for (int i = 0; i < childSize; i++) {
 					Node childNode = children.item(i);
@@ -1100,7 +1097,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 
 									aux.createConfig();
 
-									result =  aux.addTransformationConfig(chain, path, transformationCfg, recursive) || result;
+									result = aux.addTransformationConfig(chain, path, transformationCfg, recursive)
+											|| result;
 
 								} catch (Exception e) {
 									throw new TransformerException("Error creating the configuration for the module ["
@@ -1249,21 +1247,23 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	@Override
 	public void createConfig() throws IOException {
 		File cfg = new File(configFileName);
-		if (!cfg.exists() && cfg.createNewFile()) {
-			FileWriter fos = new FileWriter(cfg);
-			BufferedWriter bos = new BufferedWriter(fos);
-			try {
-				bos.write("<!DOCTYPE walkmod PUBLIC \"-//WALKMOD//DTD\"  \"http://www.walkmod.com/dtd/walkmod-1.1.dtd\" >");
-				bos.newLine();
-				bos.write("<walkmod>");
-				bos.newLine();
-				bos.write("</walkmod>");
+		if (!cfg.exists()) {
+			if (cfg.createNewFile()) {
+				FileWriter fos = new FileWriter(cfg);
+				BufferedWriter bos = new BufferedWriter(fos);
+				try {
+					bos.write("<!DOCTYPE walkmod PUBLIC \"-//WALKMOD//DTD\"  \"http://www.walkmod.com/dtd/walkmod-1.1.dtd\" >");
+					bos.newLine();
+					bos.write("<walkmod>");
+					bos.newLine();
+					bos.write("</walkmod>");
 
-			} finally {
-				bos.close();
+				} finally {
+					bos.close();
+				}
+			} else {
+				throw new IOException("The system can't create the [" + configFileName + "] file");
 			}
-		} else {
-			throw new IOException("The system can't create the [" + configFileName + "] file");
 		}
 	}
 
@@ -1434,7 +1434,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	}
 
 	@Override
-	public void removeTransformations(String chain, List<String> transformations) throws TransformerException {
+	public void removeTransformations(String chain, List<String> transformations, boolean recursive)
+			throws TransformerException {
 		if (transformations != null && !transformations.isEmpty()) {
 			if (document == null) {
 				init();
@@ -1465,6 +1466,32 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 							if (name.equals(chain)) {
 								modified = modified || removeTransformation(child, transformationsToRemove);
 							}
+						}
+					} else if ("modules".equals(nodeName) && recursive) {
+
+						NodeList modulesList = child.getChildNodes();
+						int max2 = modulesList.getLength();
+
+						for (int j = 0; j < max2; j++) {
+
+							Node moduleElem = modulesList.item(j);
+
+							try {
+								File auxFile = new File(configFileName).getCanonicalFile();
+
+								XMLConfigurationProvider aux = new XMLConfigurationProvider(
+										auxFile.getParent() + File.separator + moduleElem.getTextContent()
+												+ File.separator + "walkmod.xml", false);
+
+								aux.createConfig();
+
+								aux.removeTransformations(chain, transformations, recursive);
+
+							} catch (Exception e) {
+								throw new TransformerException("Error creating the configuration for the module ["
+										+ moduleElem.getTextContent() + "]", e);
+							}
+
 						}
 					}
 
