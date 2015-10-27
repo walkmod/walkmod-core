@@ -161,12 +161,11 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 					urls[i] = jar.toURI().toURL();
 					i++;
 				}
+				
 				URLClassLoader childClassLoader = new URLClassLoader(urls, configuration.getClassLoader());
 				configuration.setClassLoader(childClassLoader);
 			}
-			else{
-				configuration.setClassLoader(Thread.currentThread().getContextClassLoader());
-			}
+			
 		} catch (Exception e) {
 			if (!(e instanceof ConfigurationException)) {
 

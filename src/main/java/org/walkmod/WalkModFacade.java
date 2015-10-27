@@ -1134,4 +1134,21 @@ public class WalkModFacade {
 		}
 	}
 
+	public Configuration getConfiguration() throws Exception {
+		Configuration result = null;
+		if (!cfg.exists()) {
+			init();
+		}
+		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+		try {
+			ConfigurationManager manager = new ConfigurationManager(cfg, false);
+			manager.executeConfigurationProviders();
+			result = manager.getConfiguration();
+		} finally {
+			System.setProperty("user.dir", userDir);
+		}
+		return result;
+	}
+
 }

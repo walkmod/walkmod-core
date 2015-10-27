@@ -31,6 +31,7 @@ import org.walkmod.commands.Command;
 import org.walkmod.commands.HelpCommand;
 import org.walkmod.commands.InitCommand;
 import org.walkmod.commands.InstallCommand;
+import org.walkmod.commands.PrintChainsCommand;
 import org.walkmod.commands.PrintPluginsCommand;
 import org.walkmod.commands.RemoveModuleCommand;
 import org.walkmod.commands.RemovePluginCommand;
@@ -97,6 +98,7 @@ public class WalkModDispatcher {
 		commands.put("add-plugin", new AddPluginCommand(jcommander));
 		commands.put("add-provider", new AddCfgProviderCommand(jcommander));
 		commands.put("apply", new ApplyCommand(jcommander));
+		commands.put("chains", new PrintChainsCommand(jcommander));
 		commands.put("check", new CheckCommand(jcommander));
 		commands.put("init", new InitCommand(jcommander));
 		commands.put("install", new InstallCommand(jcommander));

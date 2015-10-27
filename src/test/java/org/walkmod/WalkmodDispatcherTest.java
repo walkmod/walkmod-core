@@ -26,7 +26,9 @@ public class WalkmodDispatcherTest {
 
 	@Test
 	public void testApply() throws Exception {
-		Assert.assertTrue(run(new String[] { "apply" }).contains("TRANSFORMATION CHAIN SUCCESS"));
+		String aux = run(new String[] { "apply", "-e" });
+		System.out.println(aux);
+		Assert.assertTrue(aux.contains("TRANSFORMATION CHAIN SUCCESS"));
 	}
 
 	@Test
@@ -243,12 +245,11 @@ public class WalkmodDispatcherTest {
 				String content = FileUtils.readFileToString(cfg);
 
 				FileUtils.deleteDirectory(tmp);
-				
+
 				System.out.println(content);
 
 				Assert.assertTrue(!content.contains("imports-cleaner"));
 
-				
 			}
 
 		}
@@ -277,13 +278,20 @@ public class WalkmodDispatcherTest {
 				Assert.assertTrue(content.contains("javalang:string-writer"));
 			} catch (Exception e) {
 				e.printStackTrace();
-				
+
 			} finally {
 				System.setProperty("user.dir", userDir);
 
 			}
 
 		}
+	}
+
+	@Test
+	public void testChains() throws Exception {
+
+		run(new String[] { "chains" });
+
 	}
 
 	private String run(String[] args) throws Exception {

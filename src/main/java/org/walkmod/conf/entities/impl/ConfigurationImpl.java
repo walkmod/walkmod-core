@@ -190,8 +190,8 @@ public class ConfigurationImpl implements Configuration {
 
 	@Override
 	public ClassLoader getClassLoader() {
-		if (classLoader == null) {
-			return getClass().getClassLoader();
+		if(classLoader == null){
+			return Thread.currentThread().getContextClassLoader();
 		}
 		return classLoader;
 	}

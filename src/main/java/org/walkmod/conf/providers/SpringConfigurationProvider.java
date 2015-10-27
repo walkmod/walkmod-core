@@ -49,26 +49,28 @@ public class SpringConfigurationProvider implements ConfigurationProvider, BeanF
 	public void loadBeanFactory() throws ConfigurationException {
 
 		GenericApplicationContext ctx = new GenericApplicationContext();
-
-		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(ctx);
-		reader.setBeanClassLoader(configuration.getClassLoader());
-		reader.loadBeanDefinitions(new ClassPathResource(config, configuration.getClassLoader()));
-		Collection<PluginConfig> plugins = configuration.getPlugins();
-		if (plugins != null) {
-			for (PluginConfig plugin : plugins) {
-				String descriptorName = plugin.getArtifactId();
-				if (!descriptorName.startsWith("walkmod-")) {
-					descriptorName = "walkmod-" + descriptorName;
+		ClassLoader currentClassLoader = configuration.getClassLoader();
+		if (currentClassLoader != Thread.currentThread().getContextClassLoader()) {
+			XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(ctx);
+			reader.setBeanClassLoader(currentClassLoader);
+			reader.loadBeanDefinitions(new ClassPathResource(config, currentClassLoader));
+			Collection<PluginConfig> plugins = configuration.getPlugins();
+			if (plugins != null) {
+				for (PluginConfig plugin : plugins) {
+					String descriptorName = plugin.getArtifactId();
+					if (!descriptorName.startsWith("walkmod-")) {
+						descriptorName = "walkmod-" + descriptorName;
+					}
+					if (!descriptorName.endsWith("-plugin")) {
+						descriptorName = descriptorName + "-plugin";
+					}
+					reader.loadBeanDefinitions(new ClassPathResource("META-INF/walkmod/" + descriptorName + ".xml",
+							configuration.getClassLoader()));
 				}
-				if (!descriptorName.endsWith("-plugin")) {
-					descriptorName = descriptorName + "-plugin";
-				}
-				reader.loadBeanDefinitions(new ClassPathResource("META-INF/walkmod/" + descriptorName + ".xml",
-						configuration.getClassLoader()));
 			}
-		}
 
-		ctx.refresh();
+			ctx.refresh();
+		}
 		configuration.setBeanFactory(ctx);
 	}
 
