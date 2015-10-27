@@ -31,7 +31,7 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
 	public boolean addChainConfig(ChainConfig chainCfg) throws TransformerException;
 
-	public boolean addTransformationConfig(String chain, String path, TransformationConfig transformationCfg)
+	public boolean addTransformationConfig(String chain, String path, TransformationConfig transformationCfg, boolean recursive)
 			throws TransformerException;
 
 	public void createConfig() throws IOException;

@@ -593,7 +593,7 @@ public class WalkModFacade {
 	 *             in case that the walkmod configuration file can't be read or
 	 *             written.
 	 */
-	public void addTransformationConfig(String chain, String path, TransformationConfig transformationCfg)
+	public void addTransformationConfig(String chain, String path, boolean recursive, TransformationConfig transformationCfg)
 			throws Exception {
 		if (!cfg.exists()) {
 			init();
@@ -605,7 +605,7 @@ public class WalkModFacade {
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-			cfgProvider.addTransformationConfig(chain, path, transformationCfg);
+			cfgProvider.addTransformationConfig(chain, path, transformationCfg, false);
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}

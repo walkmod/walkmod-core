@@ -180,7 +180,7 @@ public class YAMLConfigurationProviderTest {
 		JSONConverter converter = new JSONConverter();
 		JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
 		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", null, false,
-				null, null, walker);
+				null, null, walker, false);
 
 		File file = new File("src/test/resources/yaml/addchain.yml");
 		if (file.exists()) {
@@ -195,7 +195,7 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transformationCfg = command.buildTransformationCfg();
 
-			provider.addTransformationConfig(null, null, transformationCfg);
+			provider.addTransformationConfig(null, null, transformationCfg, false);
 			String output = FileUtils.readFileToString(file);
 
 			String desiredOutput = "transformations:\n";
@@ -212,12 +212,70 @@ public class YAMLConfigurationProviderTest {
 	}
 
 	@Test
+	public void testAddChainTransformationRecursively() throws Exception {
+
+		JSONConverter converter = new JSONConverter();
+		JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", null, false,
+				null, null, walker, false);
+
+		File dir = new File("src/test/resources/multimoduleyaml");
+
+		File module1 = new File(dir, "module1");
+		File module2 = new File(dir, "module2");
+
+		dir.mkdirs();
+
+		module1.mkdir();
+		module2.mkdir();
+
+		File file = new File(dir, "walkmod.yml");
+
+		File file2 = new File(module1, "walkmod.yml");
+
+		File file3 = new File(module2, "walkmod.yml");
+
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			List<String> modules = new LinkedList<String>();
+			modules.add("module1");
+			modules.add("module2");
+
+			provider.addModules(modules);
+
+			TransformationConfig transformationCfg = command.buildTransformationCfg();
+
+			provider.addTransformationConfig(null, null, transformationCfg, true);
+
+			String output = FileUtils.readFileToString(file);
+			Assert.assertTrue(!output.contains("method-refactor"));
+
+			output = FileUtils.readFileToString(file2);
+			Assert.assertTrue(output.contains("method-refactor"));
+
+			output = FileUtils.readFileToString(file3);
+			Assert.assertTrue(output.contains("method-refactor"));
+
+		} finally {
+			FileUtils.deleteDirectory(dir);
+		}
+	}
+
+	@Test
 	public void testAddChainTransformationToChainAfterTranfList() throws Exception {
 
 		JSONConverter converter = new JSONConverter();
 		JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
 		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", null, false,
-				null, null, walker);
+				null, null, walker, false);
 
 		File file = new File("src/test/resources/yaml/addchain.yml");
 		if (file.exists()) {
@@ -232,11 +290,11 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transformationCfg = command.buildTransformationCfg();
 
-			provider.addTransformationConfig(null, null, transformationCfg);
+			provider.addTransformationConfig(null, null, transformationCfg, false);
 			command = new AddTransformationCommand("walkmod:commons:class-refactor", "mychain", false, null, null,
-					walker);
+					walker, false);
 			transformationCfg = command.buildTransformationCfg();
-			provider.addTransformationConfig("mychain", null, transformationCfg);
+			provider.addTransformationConfig("mychain", null, transformationCfg, false);
 
 			String output = FileUtils.readFileToString(file);
 
@@ -254,7 +312,7 @@ public class YAMLConfigurationProviderTest {
 		JSONConverter converter = new JSONConverter();
 		JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
 		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", "mychain",
-				false, null, null, walker);
+				false, null, null, walker, false);
 
 		File file = new File("src/test/resources/yaml/addchain.yml");
 		if (file.exists()) {
@@ -269,7 +327,7 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transformationCfg = command.buildTransformationCfg();
 
-			provider.addTransformationConfig("mychain", null, transformationCfg);
+			provider.addTransformationConfig("mychain", null, transformationCfg, false);
 
 			String output = FileUtils.readFileToString(file);
 
@@ -287,7 +345,7 @@ public class YAMLConfigurationProviderTest {
 		JSONConverter converter = new JSONConverter();
 		JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
 		AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", "mychain",
-				false, null, null, walker);
+				false, null, null, walker, false);
 
 		File file = new File("src/test/resources/yaml/addchain.yml");
 		if (file.exists()) {
@@ -302,11 +360,11 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transformationCfg = command.buildTransformationCfg();
 
-			provider.addTransformationConfig("mychain", null, transformationCfg);
+			provider.addTransformationConfig("mychain", null, transformationCfg, false);
 			command = new AddTransformationCommand("walkmod:commons:class-refactor", "mychain", false, null, null,
-					walker);
+					walker, false);
 			transformationCfg = command.buildTransformationCfg();
-			provider.addTransformationConfig("mychain", null, transformationCfg);
+			provider.addTransformationConfig("mychain", null, transformationCfg, false);
 
 			String output = FileUtils.readFileToString(file);
 
@@ -321,7 +379,7 @@ public class YAMLConfigurationProviderTest {
 	@Test
 	public void testAddTransformationToPath() throws Exception {
 		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
-				"src", null);
+				"src", null, false);
 		File file = new File("src/test/resources/yaml/addtransformation.yml");
 		if (file.exists()) {
 			file.delete();
@@ -335,7 +393,7 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transCfg = command.buildTransformationCfg();
 
-			provider.addTransformationConfig("mychain", "src", transCfg);
+			provider.addTransformationConfig("mychain", "src", transCfg, false);
 			String output = FileUtils.readFileToString(file);
 
 			Assert.assertTrue(output.contains("src"));
@@ -349,7 +407,7 @@ public class YAMLConfigurationProviderTest {
 	@Test
 	public void testAddTransformationToPath2() throws Exception {
 		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, "src",
-				null);
+				null, false);
 		File file = new File("src/test/resources/yaml/addtransformation.yml");
 		if (file.exists()) {
 			file.delete();
@@ -363,7 +421,7 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transCfg = command.buildTransformationCfg();
 
-			provider.addTransformationConfig(null, "src", transCfg);
+			provider.addTransformationConfig(null, "src", transCfg, false);
 			String output = FileUtils.readFileToString(file);
 
 			Assert.assertTrue(output.contains("src"));
@@ -377,7 +435,7 @@ public class YAMLConfigurationProviderTest {
 	@Test
 	public void testAddTransformation() throws Exception {
 		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
-				null);
+				null, false);
 		File file = new File("src/test/resources/yaml/addtransformation.yml");
 		if (file.exists()) {
 			file.delete();
@@ -392,7 +450,7 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transCfg = command.buildTransformationCfg();
 
-			provider.addTransformationConfig(null, null, transCfg);
+			provider.addTransformationConfig(null, null, transCfg, false);
 			String output = FileUtils.readFileToString(file);
 
 			String desiredOutput = "transformations:\n";
@@ -630,11 +688,11 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
-	
-	
+
 	@Test
 	public void testRemoveChains() throws Exception {
-		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null, null, null);
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
+				null, null, false);
 
 		File file = new File("src/test/resources/yaml/rmchains.yml");
 		if (file.exists()) {
@@ -649,7 +707,7 @@ public class YAMLConfigurationProviderTest {
 			provider.init(conf);
 
 			TransformationConfig transformationCfg = command.buildTransformationCfg();
-			provider.addTransformationConfig("mychain", null, transformationCfg);
+			provider.addTransformationConfig("mychain", null, transformationCfg, false);
 			List<String> chains = new LinkedList<String>();
 			chains.add("mychain");
 			provider.removeChains(chains);

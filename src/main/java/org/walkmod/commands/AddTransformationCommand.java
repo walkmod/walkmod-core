@@ -55,10 +55,14 @@ public class AddTransformationCommand implements Command {
 
 	@Parameter(names = "--help", help = true, hidden = true)
 	private boolean help;
+	
+	
+	@Parameter(names = {"--recursive", "-R"}, description = "Adds the transformation to all submodules")
+	private boolean recursive = false;
 
 	private JCommander jcommander;
 
-	public AddTransformationCommand(String type, String chain, boolean isMergeable, String mergePolicy, String path, JsonNode params) {
+	public AddTransformationCommand(String type, String chain, boolean isMergeable, String mergePolicy, String path, JsonNode params, boolean recursive) {
 		this.type = new LinkedList<String>();
 		this.type.add(type);
 		this.chain = chain;
@@ -66,6 +70,7 @@ public class AddTransformationCommand implements Command {
 		this.mergePolicy = mergePolicy;
 		this.params = params;
 		this.path = path;
+		this.recursive = recursive;
 	}
 
 	public AddTransformationCommand(JCommander jcommander) {
@@ -101,7 +106,7 @@ public class AddTransformationCommand implements Command {
 		} else {
 
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-			facade.addTransformationConfig(chain, path, buildTransformationCfg());
+			facade.addTransformationConfig(chain, path, recursive, buildTransformationCfg());
 		}
 	}
 

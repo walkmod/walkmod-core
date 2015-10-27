@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.walkmod.commands.AddCfgProviderCommand;
+import org.walkmod.commands.AddModuleCommand;
 import org.walkmod.commands.AddPluginCommand;
 import org.walkmod.commands.AddTransformationCommand;
 import org.walkmod.conf.entities.Configuration;
@@ -48,8 +49,8 @@ public class XMLConfigurationProviderTest {
 		try {
 			prov.createConfig();
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
-					null);
-			prov.addTransformationConfig(null, null, command.buildTransformationCfg());
+					null, false);
+			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false);
 
 			String content = FileUtils.readFileToString(xml);
 
@@ -57,6 +58,51 @@ public class XMLConfigurationProviderTest {
 
 		} finally {
 			xml.delete();
+		}
+
+	}
+
+	@Test
+	public void testAddTransformationRecursively() throws Exception {
+		File aux = new File("src/test/resources/modulesxml");
+		File aux1 = new File(aux, "module1");
+		File aux2 = new File(aux, "module2");
+
+		aux.mkdirs();
+		aux1.mkdir();
+		aux2.mkdir();
+
+		File xml = new File(aux, "walkmod.xml");
+		File xml1 = new File(aux1, "walkmod.xml");
+		File xml2 = new File(aux2, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+			List<String> modules = new LinkedList<String>();
+
+			modules.add("module1");
+			modules.add("module2");
+
+			prov.addModules(modules);
+
+			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
+					null, true);
+
+			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), true);
+
+			String content = FileUtils.readFileToString(xml);
+
+			Assert.assertTrue(!content.contains("imports-cleaner"));
+
+			content = FileUtils.readFileToString(xml1);
+			Assert.assertTrue(content.contains("imports-cleaner"));
+
+			content = FileUtils.readFileToString(xml2);
+			Assert.assertTrue(content.contains("imports-cleaner"));
+
+		} finally {
+			FileUtils.deleteDirectory(aux);
+
 		}
 
 	}
@@ -70,8 +116,8 @@ public class XMLConfigurationProviderTest {
 		try {
 			prov.createConfig();
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
-					"src", null);
-			prov.addTransformationConfig("mychain", "src", command.buildTransformationCfg());
+					"src", null, false);
+			prov.addTransformationConfig("mychain", "src", command.buildTransformationCfg(), false);
 
 			String content = FileUtils.readFileToString(xml);
 
@@ -92,8 +138,8 @@ public class XMLConfigurationProviderTest {
 		try {
 			prov.createConfig();
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null,
-					"src", null);
-			prov.addTransformationConfig(null, "src", command.buildTransformationCfg());
+					"src", null, false);
+			prov.addTransformationConfig(null, "src", command.buildTransformationCfg(), false);
 
 			String content = FileUtils.readFileToString(xml);
 
@@ -114,11 +160,11 @@ public class XMLConfigurationProviderTest {
 		try {
 			prov.createConfig();
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null,
-					"src", null);
-			prov.addTransformationConfig(null, "src", command.buildTransformationCfg());
+					"src", null, false);
+			prov.addTransformationConfig(null, "src", command.buildTransformationCfg(), false);
 
-			command = new AddTransformationCommand("license-header", null, false, null, "src", null);
-			prov.addTransformationConfig(null, "src", command.buildTransformationCfg());
+			command = new AddTransformationCommand("license-header", null, false, null, "src", null, false);
+			prov.addTransformationConfig(null, "src", command.buildTransformationCfg(), false);
 
 			String content = FileUtils.readFileToString(xml);
 
@@ -201,9 +247,9 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
-					null);
+					null, false);
 
-			prov.addTransformationConfig(null, null, command.buildTransformationCfg());
+			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false);
 
 			prov.removeTransformations(null, list);
 
@@ -234,14 +280,14 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 
 			AddTransformationCommand command0 = new AddTransformationCommand("license-applier", "mychain", false, null,
-					null, null);
+					null, null, false);
 
-			prov.addTransformationConfig("mychain", null, command0.buildTransformationCfg());
+			prov.addTransformationConfig("mychain", null, command0.buildTransformationCfg(), false);
 
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
-					null, null);
+					null, null, false);
 
-			prov.addTransformationConfig("mychain", null, command.buildTransformationCfg());
+			prov.addTransformationConfig("mychain", null, command.buildTransformationCfg(), false);
 
 			prov.removeTransformations("mychain", list);
 
@@ -280,9 +326,9 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
-					null);
+					null, false);
 
-			prov.addTransformationConfig(null, null, command.buildTransformationCfg());
+			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false);
 
 			prov.setWriter(null, "javalang:string-writer", null);
 
@@ -314,9 +360,9 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
-					null);
+					null, false);
 
-			prov.addTransformationConfig(null, null, command.buildTransformationCfg());
+			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false);
 
 			prov.setReader(null, "walkmod:commons:file-reader", null);
 
@@ -453,7 +499,7 @@ public class XMLConfigurationProviderTest {
 	@Test
 	public void testRemoveChains() throws Exception {
 		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
-				null, null);
+				null, null, false);
 
 		File aux = new File("src/test/resources/xml");
 		aux.mkdirs();
@@ -463,7 +509,7 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 
 			TransformationConfig transfCfg = command.buildTransformationCfg();
-			prov.addTransformationConfig("mychain", null, transfCfg);
+			prov.addTransformationConfig("mychain", null, transfCfg, false);
 
 			String output = FileUtils.readFileToString(xml);
 
