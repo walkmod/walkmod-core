@@ -52,4 +52,6 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
 	public void removeProviders(List<String> providers) throws TransformerException;
 
+	public void removeChains(List<String> chains) throws TransformerException;
+
 }

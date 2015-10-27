@@ -1157,4 +1157,54 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 			}
 		}
 	}
+
+	@Override
+	public void removeChains(List<String> chains) throws TransformerException {
+		if (chains != null) {
+			File cfg = new File(fileName);
+
+			ArrayNode chainsList = null;
+			JsonNode node = null;
+			try {
+				node = mapper.readTree(cfg);
+			} catch (Exception e) {
+
+			}
+			if (node == null) {
+				node = new ObjectNode(mapper.getNodeFactory());
+			}
+			HashSet<String> chainsSet = new HashSet<String>(chains);
+			
+			if (node.has("chains")) {
+				JsonNode aux = node.get("chains");
+				if (aux.isArray()) {
+					chainsList = (ArrayNode) node.get("chains");
+					Iterator<JsonNode> it = chainsList.iterator();
+					ArrayNode newChainsList = new ArrayNode(mapper.getNodeFactory());
+					while (it.hasNext()) {
+						JsonNode next = it.next();
+						if (next.isObject()) {
+							String type = next.get("name").asText();
+							if(!chainsSet.contains(type)){
+								newChainsList.add(next);
+							}
+						}
+					}
+					ObjectNode oNode = (ObjectNode) node;
+					if (newChainsList.size() > 0) {
+						oNode.set("chains", newChainsList);
+					} else {
+						oNode.remove("chains");
+					}
+					write(node);
+				}
+			}
+			else if(node.has("transformations") && chainsSet.contains("default")){
+				ObjectNode oNode = (ObjectNode) node;
+				oNode.remove("transformations");
+				write(node);
+			}
+		}
+		
+	}
 }

@@ -630,4 +630,37 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
+	
+	
+	@Test
+	public void testRemoveChains() throws Exception {
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null, null, null);
+
+		File file = new File("src/test/resources/yaml/rmchains.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			TransformationConfig transformationCfg = command.buildTransformationCfg();
+			provider.addTransformationConfig("mychain", null, transformationCfg);
+			List<String> chains = new LinkedList<String>();
+			chains.add("mychain");
+			provider.removeChains(chains);
+
+			String output = FileUtils.readFileToString(file);
+			System.out.println(output);
+			Assert.assertTrue(!output.contains("mychain"));
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
 }

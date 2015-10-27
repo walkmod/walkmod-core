@@ -1048,7 +1048,7 @@ public class WalkModFacade {
 	}
 
 	public void setWriter(String chain, String type, String path) throws Exception {
-		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))){
+		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
 			if (!cfg.exists()) {
 				init();
 			}
@@ -1067,7 +1067,7 @@ public class WalkModFacade {
 	}
 
 	public void setReader(String chain, String type, String path) throws Exception {
-		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))){
+		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
 			if (!cfg.exists()) {
 				init();
 			}
@@ -1136,19 +1136,35 @@ public class WalkModFacade {
 
 	public Configuration getConfiguration() throws Exception {
 		Configuration result = null;
-		if (!cfg.exists()) {
-			init();
-		}
-		userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
-		System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
-		try {
-			ConfigurationManager manager = new ConfigurationManager(cfg, false);
-			manager.executeConfigurationProviders();
-			result = manager.getConfiguration();
-		} finally {
-			System.setProperty("user.dir", userDir);
+		if (cfg.exists()) {
+
+			userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+			System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+			try {
+				ConfigurationManager manager = new ConfigurationManager(cfg, false);
+				manager.executeConfigurationProviders();
+				result = manager.getConfiguration();
+			} finally {
+				System.setProperty("user.dir", userDir);
+			}
 		}
 		return result;
+	}
+
+	public void removeChains(List<String> chains) throws Exception {
+
+		if (cfg.exists()) {
+
+			userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+			System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+			try {
+				ConfigurationManager manager = new ConfigurationManager(cfg, false);
+				manager.getProjectConfigurationProvider().removeChains(chains);
+			} finally {
+				System.setProperty("user.dir", userDir);
+			}
+		}
+
 	}
 
 }

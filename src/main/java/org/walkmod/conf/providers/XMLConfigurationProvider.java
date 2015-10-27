@@ -1433,7 +1433,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 
 	@Override
 	public void setWriter(String chain, String type, String path) throws TransformerException {
-		if ((type != null && !type.trim().equals(""))|| (path != null && !path.trim().equals(""))) {
+		if ((type != null && !type.trim().equals("")) || (path != null && !path.trim().equals(""))) {
 			if (document == null) {
 				init();
 			}
@@ -1486,10 +1486,10 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 					if (childNode instanceof Element) {
 						Element aux = (Element) childNode;
 						if ("writer".equals(aux.getNodeName())) {
-							if(type != null && !"".equals(type.trim())){
+							if (type != null && !"".equals(type.trim())) {
 								aux.setAttribute("type", type);
 							}
-							if(path != null && !"".equals(path.trim())){
+							if (path != null && !"".equals(path.trim())) {
 								aux.setAttribute("path", path);
 							}
 							updated = true;
@@ -1498,10 +1498,10 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 				}
 				if (!updated) {
 					Element writerElem = document.createElement("writer");
-					if(type != null && !"".equals(type.trim())){
+					if (type != null && !"".equals(type.trim())) {
 						writerElem.setAttribute("type", type);
 					}
-					if(path != null && !"".equals(path.trim())){
+					if (path != null && !"".equals(path.trim())) {
 						writerElem.setAttribute("path", path);
 					}
 					writerParent.appendChild(writerElem);
@@ -1566,10 +1566,10 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 					if (childNode instanceof Element) {
 						Element aux = (Element) childNode;
 						if ("reader".equals(aux.getNodeName())) {
-							if(type != null && !"".equals(type.trim())){
+							if (type != null && !"".equals(type.trim())) {
 								aux.setAttribute("type", type);
 							}
-							if(path != null && !"".equals(path.trim())){
+							if (path != null && !"".equals(path.trim())) {
 								aux.setAttribute("path", path);
 							}
 							updated = true;
@@ -1578,10 +1578,10 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 				}
 				if (!updated) {
 					Element readerElement = document.createElement("reader");
-					if(type != null && !"".equals(type.trim())){
+					if (type != null && !"".equals(type.trim())) {
 						readerElement.setAttribute("type", type);
 					}
-					if(path != null && !"".equals(path.trim())){
+					if (path != null && !"".equals(path.trim())) {
 						readerElement.setAttribute("path", path);
 					}
 					readerParent.insertBefore(readerElement, readerParent.getFirstChild());
@@ -1737,5 +1737,46 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 			}
 		}
 
+	}
+
+	@Override
+	public void removeChains(List<String> chains) throws TransformerException {
+		if (chains != null && !chains.isEmpty()) {
+			if (document == null) {
+				init();
+			}
+			HashSet<String> aux = new HashSet<String>(chains);
+
+			Element rootElement = document.getDocumentElement();
+			NodeList children = rootElement.getChildNodes();
+			int childSize = children.getLength();
+
+			Element child = null;
+			int removed = 0;
+			for (int i = 0; i < childSize; i++) {
+				Node childNode = children.item(i);
+				if (childNode instanceof Element) {
+					child = (Element) childNode;
+					final String nodeName = child.getNodeName();
+
+					if ("chain".equals(nodeName)) {
+						if (aux.contains(child.getAttribute("name"))) {
+							rootElement.removeChild(childNode);
+							removed++;
+						}
+					}
+
+					else if ("transformation".equals(nodeName) && aux.contains("default")) {
+						rootElement.removeChild(childNode);
+						removed++;
+					}
+				}
+			}
+
+			if (removed > 0) {
+
+				persist();
+			}
+		}
 	}
 }

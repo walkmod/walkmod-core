@@ -13,6 +13,7 @@ import org.walkmod.commands.AddTransformationCommand;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
+import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.impl.ConfigurationImpl;
 
 public class XMLConfigurationProviderTest {
@@ -297,7 +298,7 @@ public class XMLConfigurationProviderTest {
 			}
 		}
 	}
-	
+
 	@Test
 	public void testSetReader() throws Exception {
 
@@ -331,10 +332,9 @@ public class XMLConfigurationProviderTest {
 			}
 		}
 	}
-	
-	
+
 	@Test
-	public void testRemovePlugin() throws Exception{
+	public void testRemovePlugin() throws Exception {
 		File aux = new File("src/test/resources/xml");
 		aux.mkdirs();
 		File xml = new File(aux, "walkmod.xml");
@@ -345,40 +345,39 @@ public class XMLConfigurationProviderTest {
 			prov.init(conf);
 
 			prov.createConfig();
-			
+
 			List<String> plugins = new LinkedList<String>();
 			plugins.add("org.walkmod:imports-cleaner");
-			
+
 			AddPluginCommand command = new AddPluginCommand(plugins);
 
 			List<PluginConfig> pluginCfgs = command.build();
-			
+
 			prov.addPluginConfig(pluginCfgs.get(0));
-			
+
 			String output = FileUtils.readFileToString(xml);
 
 			System.out.println(output);
 
 			Assert.assertTrue(output.contains("imports-cleaner"));
-			
+
 			prov.removePluginConfig(pluginCfgs.get(0));
-			
+
 			output = FileUtils.readFileToString(xml);
 
 			System.out.println(output);
 
 			Assert.assertTrue(!output.contains("imports-cleaner"));
-			
-			
+
 		} finally {
 			if (xml.exists()) {
 				xml.delete();
 			}
 		}
 	}
-	
+
 	@Test
-	public void testRemoveModule() throws Exception{
+	public void testRemoveModule() throws Exception {
 		File aux = new File("src/test/resources/xml");
 		aux.mkdirs();
 		File xml = new File(aux, "walkmod.xml");
@@ -389,37 +388,35 @@ public class XMLConfigurationProviderTest {
 			prov.init(conf);
 
 			prov.createConfig();
-			
+
 			List<String> modules = new LinkedList<String>();
 			modules.add("module1");
-			
-			
+
 			prov.addModules(modules);
-			
+
 			String output = FileUtils.readFileToString(xml);
 
 			System.out.println(output);
 
 			Assert.assertTrue(output.contains("module1"));
-			
+
 			prov.removeModules(modules);
-			
+
 			output = FileUtils.readFileToString(xml);
 
 			System.out.println(output);
 
 			Assert.assertTrue(!output.contains("module1"));
-			
-			
+
 		} finally {
 			if (xml.exists()) {
 				xml.delete();
 			}
 		}
 	}
-	
+
 	@Test
-	public void testRemoveProviders() throws Exception{
+	public void testRemoveProviders() throws Exception {
 		AddCfgProviderCommand command = new AddCfgProviderCommand("maven", null);
 
 		File aux = new File("src/test/resources/xml");
@@ -438,14 +435,49 @@ public class XMLConfigurationProviderTest {
 
 			Assert.assertTrue(output.contains("maven"));
 			List<String> providers = new LinkedList<String>();
-			
+
 			providers.add("maven");
 			prov.removeProviders(providers);
-			
+
 			output = FileUtils.readFileToString(xml);
 			System.out.println(output);
 
 			Assert.assertTrue(!output.contains("maven"));
+		} finally {
+			if (xml.exists()) {
+				xml.delete();
+			}
+		}
+	}
+
+	@Test
+	public void testRemoveChains() throws Exception {
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
+				null, null);
+
+		File aux = new File("src/test/resources/xml");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+
+			TransformationConfig transfCfg = command.buildTransformationCfg();
+			prov.addTransformationConfig("mychain", null, transfCfg);
+
+			String output = FileUtils.readFileToString(xml);
+
+			Assert.assertTrue(output.contains("mychain"));
+
+			List<String> chains = new LinkedList<String>();
+
+			chains.add("mychain");
+			prov.removeChains(chains);
+
+			output = FileUtils.readFileToString(xml);
+			System.out.println(output);
+
+			Assert.assertTrue(!output.contains("mychain"));
 		} finally {
 			if (xml.exists()) {
 				xml.delete();
