@@ -616,11 +616,12 @@ public class WalkModFacade {
 	 * 
 	 * @param providerCfg
 	 *            provider configuration to add.
+	 * @param recursive 
 	 * @throws Exception
 	 *             in case that the walkmod configuration file can't be read or
 	 *             written.
 	 */
-	public void addProviderConfig(ProviderConfig providerCfg) throws Exception {
+	public void addProviderConfig(ProviderConfig providerCfg, boolean recursive) throws Exception {
 		if (!cfg.exists()) {
 			init();
 		}
@@ -631,7 +632,7 @@ public class WalkModFacade {
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-			cfgProvider.addProviderConfig(providerCfg);
+			cfgProvider.addProviderConfig(providerCfg, recursive);
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}

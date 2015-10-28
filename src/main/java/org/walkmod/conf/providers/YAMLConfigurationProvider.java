@@ -740,7 +740,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 	}
 
 	@Override
-	public boolean addProviderConfig(ProviderConfig providerCfg) throws TransformerException {
+	public boolean addProviderConfig(ProviderConfig providerCfg, boolean recursive) throws TransformerException {
 		File cfg = new File(fileName);
 		JsonNode node = null;
 		try {
@@ -752,43 +752,71 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 			node = new ObjectNode(mapper.getNodeFactory());
 		}
 
-		if (node.has("conf-providers")) {
-			JsonNode list = node.get("conf-providers");
-			Iterator<JsonNode> it = list.iterator();
-			boolean found = false;
-			while (it.hasNext() && !found) {
-				JsonNode next = it.next();
-				found = providerCfg.getType().equals(next.get("type").asText());
-			}
-			if (!found) {
-				if (list.isArray()) {
-					ArrayNode aux = (ArrayNode) list;
-					ObjectNode prov = new ObjectNode(mapper.getNodeFactory());
-					prov.set("type", new TextNode(providerCfg.getType()));
-					Map<String, Object> params = providerCfg.getParameters();
-					if (params != null && !params.isEmpty()) {
-						populateParams(prov, params);
+		boolean isMultiModule = node.has("modules");
+		if (recursive && isMultiModule) {
+
+			JsonNode aux = node.get("modules");
+			if (aux.isArray()) {
+				ArrayNode modules = (ArrayNode) aux;
+				int max = modules.size();
+				for (int i = 0; i < max; i++) {
+					JsonNode module = modules.get(i);
+					if (module.isTextual()) {
+						String moduleDir = module.asText();
+
+						try {
+							File auxFile = new File(fileName).getCanonicalFile().getParentFile();
+							YAMLConfigurationProvider child = new YAMLConfigurationProvider(auxFile.getAbsolutePath()
+									+ File.separator + moduleDir + File.separator + "walkmod.yml");
+							child.createConfig();
+							child.addProviderConfig(providerCfg, recursive);
+						} catch (IOException e) {
+							throw new TransformerException(e);
+						}
+
 					}
-					aux.add(prov);
-					write(node);
-					return true;
 				}
 			}
-		} else {
-			ArrayNode aux = new ArrayNode(mapper.getNodeFactory());
-			ObjectNode prov = new ObjectNode(mapper.getNodeFactory());
-			prov.set("type", new TextNode(providerCfg.getType()));
-			Map<String, Object> params = providerCfg.getParameters();
-			if (params != null && !params.isEmpty()) {
-				populateParams(prov, params);
-			}
-			aux.add(prov);
-			ObjectNode auxNode = (ObjectNode) node;
-			auxNode.set("conf-providers", aux);
-			write(node);
-			return true;
-		}
 
+		}
+		if (!isMultiModule) {
+			if (node.has("conf-providers")) {
+				JsonNode list = node.get("conf-providers");
+				Iterator<JsonNode> it = list.iterator();
+				boolean found = false;
+				while (it.hasNext() && !found) {
+					JsonNode next = it.next();
+					found = providerCfg.getType().equals(next.get("type").asText());
+				}
+				if (!found) {
+					if (list.isArray()) {
+						ArrayNode aux = (ArrayNode) list;
+						ObjectNode prov = new ObjectNode(mapper.getNodeFactory());
+						prov.set("type", new TextNode(providerCfg.getType()));
+						Map<String, Object> params = providerCfg.getParameters();
+						if (params != null && !params.isEmpty()) {
+							populateParams(prov, params);
+						}
+						aux.add(prov);
+						write(node);
+						return true;
+					}
+				}
+			} else {
+				ArrayNode aux = new ArrayNode(mapper.getNodeFactory());
+				ObjectNode prov = new ObjectNode(mapper.getNodeFactory());
+				prov.set("type", new TextNode(providerCfg.getType()));
+				Map<String, Object> params = providerCfg.getParameters();
+				if (params != null && !params.isEmpty()) {
+					populateParams(prov, params);
+				}
+				aux.add(prov);
+				ObjectNode auxNode = (ObjectNode) node;
+				auxNode.set("conf-providers", aux);
+				write(node);
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -1338,12 +1366,12 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 					if (chain == null || chain.equals(next.get("name").asText())) {
 						if (category != null) {
 							if (node.has(category)) { // reader, walker,
-													  // writer
+														// writer
 								JsonNode categoryNode = node.get(category);
 								analyzeNode(categoryNode, type, name, elementsToModify);
 							} else {
-								if(category.equals("transformation")){
-									if(node.has("transformations")){
+								if (category.equals("transformation")) {
+									if (node.has("transformations")) {
 										transformationsNode = node.get("transformations");
 									}
 								}

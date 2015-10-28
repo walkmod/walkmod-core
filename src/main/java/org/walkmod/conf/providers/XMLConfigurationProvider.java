@@ -1304,7 +1304,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	}
 
 	@Override
-	public boolean addProviderConfig(ProviderConfig providerCfg) throws TransformerException {
+	public boolean addProviderConfig(ProviderConfig providerCfg, boolean recursive) throws TransformerException {
+		boolean result = false;
 		if (providerCfg != null) {
 			if (document == null) {
 				init();
@@ -1314,54 +1315,96 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 			int childSize = children.getLength();
 			boolean exists = false;
 			Element child = null;
-			for (int i = 0; i < childSize && !exists; i++) {
-				Node childNode = children.item(i);
-				if (childNode instanceof Element) {
-					child = (Element) childNode;
-					final String nodeName = child.getNodeName();
+			
+			boolean isMultiModule = false;
+			if (recursive) {
 
-					if ("conf-providers".equals(nodeName)) {
+				for (int i = 0; i < childSize; i++) {
+					Node childNode = children.item(i);
+					if (childNode instanceof Element) {
+						Element child2 = (Element) childNode;
+						final String nodeName = child2.getNodeName();
+						if ("modules".equals(nodeName)) {
+							isMultiModule = true;
+							NodeList modulesList = child2.getChildNodes();
+							int max2 = modulesList.getLength();
 
-						Node aux = (Node) child;
-						NodeList cfgchildren = aux.getChildNodes();
+							for (int j = 0; j < max2; j++) {
 
-						int cfgchildrenSize = cfgchildren.getLength();
+								Node moduleElem = modulesList.item(j);
 
-						for (int j = 0; j < cfgchildrenSize && !exists; j++) {
-							Node provNode = cfgchildren.item(j);
-							Element entryElem = (Element) provNode;
-							String otype = entryElem.getAttribute("name");
-							exists = otype.equals(providerCfg.getType());
+								try {
+									File auxFile = new File(configFileName).getCanonicalFile();
+
+									XMLConfigurationProvider aux = new XMLConfigurationProvider(auxFile.getParent()
+											+ File.separator + moduleElem.getTextContent() + File.separator
+											+ "walkmod.xml", false);
+
+									aux.createConfig();
+
+									result = aux.addProviderConfig(providerCfg, recursive)
+											|| result;
+
+								} catch (Exception e) {
+									throw new TransformerException("Error creating the configuration for the module ["
+											+ moduleElem.getTextContent() + "]", e);
+								}
+
+							}
 						}
-
 					}
 				}
 			}
-			if (!exists) {
-				Element element = document.createElement("conf-provider");
+			if (!isMultiModule) {
+				for (int i = 0; i < childSize && !exists; i++) {
+					Node childNode = children.item(i);
+					if (childNode instanceof Element) {
+						child = (Element) childNode;
+						final String nodeName = child.getNodeName();
 
-				String type = providerCfg.getType();
-				if (type != null && !"".equals(type)) {
-					element.setAttribute("type", type);
-				}
+						if ("conf-providers".equals(nodeName)) {
 
-				Map<String, Object> params = providerCfg.getParameters();
-				List<Element> paramListEment = createParamsElement(params);
-				if (paramListEment != null) {
+							Node aux = (Node) child;
+							NodeList cfgchildren = aux.getChildNodes();
 
-					for (Element param : paramListEment) {
-						element.appendChild(param);
+							int cfgchildrenSize = cfgchildren.getLength();
+
+							for (int j = 0; j < cfgchildrenSize && !exists; j++) {
+								Node provNode = cfgchildren.item(j);
+								Element entryElem = (Element) provNode;
+								String otype = entryElem.getAttribute("name");
+								exists = otype.equals(providerCfg.getType());
+							}
+
+						}
 					}
 				}
-				if (child == null) {
-					child = document.createElement("conf-providers");
-					rootElement.appendChild(child);
+				if (!exists) {
+					Element element = document.createElement("conf-provider");
+
+					String type = providerCfg.getType();
+					if (type != null && !"".equals(type)) {
+						element.setAttribute("type", type);
+					}
+
+					Map<String, Object> params = providerCfg.getParameters();
+					List<Element> paramListEment = createParamsElement(params);
+					if (paramListEment != null) {
+
+						for (Element param : paramListEment) {
+							element.appendChild(param);
+						}
+					}
+					if (child == null) {
+						child = document.createElement("conf-providers");
+						rootElement.appendChild(child);
+					}
+					child.appendChild(element);
+					persist();
 				}
-				child.appendChild(element);
-				persist();
 			}
 		}
-		return false;
+		return result;
 
 	}
 
@@ -1580,14 +1623,14 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 				}
 			}
 			if (writerParent == rootElement) {
-				
+
 				Element chainElem = document.createElement("chain");
 				rootElement.appendChild(chainElem);
 				chainElem.setAttribute("name", "default");
 				for (int i = 0; i < childSize; i++) {
 					chainElem.appendChild(children.item(i).cloneNode(true));
 				}
-				for(int i = 0; i < childSize; i++){
+				for (int i = 0; i < childSize; i++) {
 					rootElement.removeChild(children.item(i));
 				}
 				writerParent = chainElem;

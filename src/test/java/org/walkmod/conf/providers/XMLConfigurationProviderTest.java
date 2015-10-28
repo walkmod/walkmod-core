@@ -189,9 +189,42 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 
 			ProviderConfig provCfg = command.build();
-			prov.addProviderConfig(provCfg);
+			prov.addProviderConfig(provCfg, false);
 
 			String output = FileUtils.readFileToString(xml);
+
+			System.out.println(output);
+
+			Assert.assertTrue(output.contains("maven"));
+		} finally {
+			if (xml.exists()) {
+				xml.delete();
+			}
+		}
+
+	}
+	
+	@Test
+	public void testConfigProvidersConfigRecursively() throws Exception {
+		AddCfgProviderCommand command = new AddCfgProviderCommand("maven", null);
+
+		
+		File aux = new File("src/test/resources/xmlmultimodule");
+		aux.mkdirs();
+		File module0 = new File(aux, "module0");
+		module0.mkdir();
+		
+		File xml = new File(aux, "walkmod.xml");
+		File cfg = new File(module0, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+
+			ProviderConfig provCfg = command.build();
+			prov.addModules(Arrays.asList("module0"));
+			prov.addProviderConfig(provCfg, true);
+
+			String output = FileUtils.readFileToString(cfg);
 
 			System.out.println(output);
 
@@ -573,7 +606,7 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 
 			ProviderConfig provCfg = command.build();
-			prov.addProviderConfig(provCfg);
+			prov.addProviderConfig(provCfg, false);
 
 			String output = FileUtils.readFileToString(xml);
 

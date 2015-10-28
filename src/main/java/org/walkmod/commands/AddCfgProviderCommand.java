@@ -42,7 +42,11 @@ public class AddCfgProviderCommand implements Command {
 
 	@Parameter(names = "--help", help = true, hidden = true)
 	private boolean help;
+	
+	@Parameter(names = {"--recursive", "-R"}, description = "Adds the provider to all submodules")
+	private boolean recursive = false;
 
+	
 	public AddCfgProviderCommand(JCommander command) {
 		this.command = command;
 	}
@@ -74,7 +78,7 @@ public class AddCfgProviderCommand implements Command {
 		} else {
 
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-			facade.addProviderConfig(build());
+			facade.addProviderConfig(build(), recursive);
 		}
 
 	}

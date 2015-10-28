@@ -527,7 +527,7 @@ public class YAMLConfigurationProviderTest {
 			provider.init(conf);
 
 			ProviderConfig provCfg = command.build();
-			provider.addProviderConfig(provCfg);
+			provider.addProviderConfig(provCfg, false);
 
 			String output = FileUtils.readFileToString(file);
 
@@ -538,6 +538,47 @@ public class YAMLConfigurationProviderTest {
 		} finally {
 			if (file.exists()) {
 				file.delete();
+			}
+		}
+	}
+	
+	@Test
+	public void testConfigProvidersConfigRecursive() throws Exception {
+		AddCfgProviderCommand command = new AddCfgProviderCommand("maven", null);
+		File parentDir = new File("src/test/resources/multimoduleyaml");
+		parentDir.mkdirs();
+		
+		File module0 = new File(parentDir, "module0");
+		module0.mkdir();
+		
+		
+		File file = new File(parentDir, "walkmod.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+
+		File cfg0 = new File(module0, "walkmod.yml");
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			ProviderConfig provCfg = command.build();
+			provider.addModules(Arrays.asList("module0"));
+			
+			provider.addProviderConfig(provCfg, true);
+
+			String output = FileUtils.readFileToString(cfg0);
+
+			String desiredOutput = "conf-providers:\n";
+			desiredOutput += "- type: \"maven\"";
+
+			Assert.assertEquals(desiredOutput, output);
+		} finally {
+			if (parentDir.exists()) {
+				FileUtils.deleteDirectory(parentDir);
 			}
 		}
 	}
@@ -773,7 +814,7 @@ public class YAMLConfigurationProviderTest {
 			provider.init(conf);
 
 			ProviderConfig provCfg = command.build();
-			provider.addProviderConfig(provCfg);
+			provider.addProviderConfig(provCfg, false);
 			List<String> providers = new LinkedList<String>();
 			providers.add("maven");
 			provider.removeProviders(providers);
