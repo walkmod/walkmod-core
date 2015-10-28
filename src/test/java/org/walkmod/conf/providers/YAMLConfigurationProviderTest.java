@@ -820,4 +820,174 @@ public class YAMLConfigurationProviderTest {
 			}
 		}
 	}
+	
+	
+	@Test
+	public void testAddConfigurationParameter() throws Exception{
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
+				null, null, false);
+
+		File file = new File("src/test/resources/yaml/rmchains.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			TransformationConfig transformationCfg = command.buildTransformationCfg();
+			provider.addTransformationConfig("mychain", null, transformationCfg, false);
+			provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, null);
+
+			String output = FileUtils.readFileToString(file);
+			System.out.println(output);
+			Assert.assertTrue(output.contains("params") && output.contains("testParam") && output.contains("hello"));
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+	
+	@Test
+	public void testAddConfigurationParameterWithChain() throws Exception{
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
+				null, null, false);
+
+		File file = new File("src/test/resources/yaml/rmchains.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			TransformationConfig transformationCfg = command.buildTransformationCfg();
+			provider.addTransformationConfig("mychain", null, transformationCfg, false);
+			provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, "mychain");
+
+			String output = FileUtils.readFileToString(file);
+			System.out.println(output);
+			Assert.assertTrue(output.contains("params") && output.contains("testParam") && output.contains("hello"));
+			
+			provider.addConfigurationParameter("testParam", "bye", "imports-cleaner", null, null, "mychain2");
+			output = FileUtils.readFileToString(file);
+			System.out.println(output);
+			Assert.assertFalse(output.contains("params") && output.contains("testParam") && output.contains("bye"));
+			
+			
+			provider.addConfigurationParameter("testParam", "bye", "imports-cleaner", null, null, "mychain");
+			output = FileUtils.readFileToString(file);
+			System.out.println(output);
+			Assert.assertTrue(output.contains("params") && output.contains("testParam") && output.contains("bye") && !output.contains("hello"));
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+	
+	@Test
+	public void testAddConfigurationParameter2() throws Exception{
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null,
+				null, null, false);
+
+		File file = new File("src/test/resources/yaml/rmchains.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			TransformationConfig transformationCfg = command.buildTransformationCfg();
+			provider.addTransformationConfig(null, null, transformationCfg, false);
+			provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, null);
+
+			String output = FileUtils.readFileToString(file);
+			System.out.println(output);
+			Assert.assertTrue(output.contains("params") && output.contains("testParam") && output.contains("hello"));
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+	
+
+	@Test
+	public void testAddConfigurationParameterWithCategory() throws Exception{
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null,
+				null, null, false);
+
+		File file = new File("src/test/resources/yaml/rmchains.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			TransformationConfig transformationCfg = command.buildTransformationCfg();
+			provider.addTransformationConfig(null, null, transformationCfg, false);
+			provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", "transformation", null, null);
+
+			String output = FileUtils.readFileToString(file);
+			System.out.println(output);
+			Assert.assertTrue(output.contains("params") && output.contains("testParam") && output.contains("hello"));
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+	
+	@Test
+	public void testAddConfigurationParameterToWriter() throws Exception{
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null,
+				null, null, false);
+
+		File file = new File("src/test/resources/yaml/rmchains.yml");
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileUtils.write(file, "");
+
+		try {
+			YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+			Configuration conf = new ConfigurationImpl();
+			provider.init(conf);
+
+			TransformationConfig transformationCfg = command.buildTransformationCfg();
+			provider.addTransformationConfig(null, null, transformationCfg, false);
+			provider.setWriter(null, "eclipse-writer", null);
+			
+			provider.addConfigurationParameter("testParam", "hello", "eclipse-writer", null, null, null);
+
+			String output = FileUtils.readFileToString(file);
+			System.out.println(output);
+			Assert.assertTrue(output.contains("params") && output.contains("testParam") && output.contains("hello"));
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
 }

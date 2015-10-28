@@ -39,6 +39,7 @@ import org.walkmod.commands.RemoveModuleCommand;
 import org.walkmod.commands.RemovePluginCommand;
 import org.walkmod.commands.RemoveProviderCommand;
 import org.walkmod.commands.RemoveTransformationCommand;
+import org.walkmod.commands.AddParamCommand;
 import org.walkmod.commands.SetReaderCommand;
 import org.walkmod.commands.SetWriterCommand;
 import org.walkmod.commands.VersionCommand;
@@ -97,6 +98,7 @@ public class WalkModDispatcher {
 	public void execute(JCommander jcommander, String[] args) throws Exception {
 		commands.put("add", new AddTransformationCommand(jcommander));
 		commands.put("add-module", new AddModuleCommand(jcommander));
+		commands.put("add-param", new AddParamCommand(jcommander));
 		commands.put("add-plugin", new AddPluginCommand(jcommander));
 		commands.put("add-provider", new AddCfgProviderCommand(jcommander));
 		commands.put("apply", new ApplyCommand(jcommander));
@@ -117,8 +119,7 @@ public class WalkModDispatcher {
 		commands.put("--help", new HelpCommand(jcommander));
 
 		Set<String> keys = commands.keySet();
-		
-		
+
 		for (String key : keys) {
 			if (!key.startsWith("--")) {
 				jcommander.addCommand(key, commands.get(key));

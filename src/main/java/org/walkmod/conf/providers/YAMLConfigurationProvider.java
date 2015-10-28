@@ -999,7 +999,10 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 					}
 					defaultChain.set("writer", readerNode);
 					chains.add(defaultChain);
-					write(chains);
+					ObjectNode root = new ObjectNode(mapper.getNodeFactory());
+
+					root.set("chains", chains);
+					write(root);
 				}
 			}
 
@@ -1283,6 +1286,146 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 				oNode.remove("transformations");
 				write(node);
 			}
+		}
+
+	}
+
+	private void analyzeNode(JsonNode node, String type, String name, List<JsonNode> elementsToModify) {
+		if (type != null && node.has("type")) {
+			if (node.get("type").textValue().equals(type)) {
+				if (name != null && node.has("name")) {
+					if (node.get("name").textValue().equals(name)) {
+						elementsToModify.add(node);
+					}
+				} else {
+					elementsToModify.add(node);
+				}
+			}
+
+		}
+	}
+
+	@Override
+	public void addConfigurationParameter(String param, String value, String type, String category, String name,
+			String chain) throws TransformerException {
+		if (param == null || value == null) {
+			throw new TransformerException("The param and value arguments cannot be null");
+		}
+
+		File cfg = new File(fileName);
+		List<JsonNode> elementsToModify = new LinkedList<JsonNode>();
+
+		JsonNode node = null;
+		try {
+			node = mapper.readTree(cfg);
+		} catch (Exception e) {
+
+		}
+		if (node == null) {
+			node = new ObjectNode(mapper.getNodeFactory());
+		}
+
+		if (node.has("chains")) {
+			JsonNode aux = node.get("chains");
+			if (aux.isArray()) {
+				ArrayNode chainsList = (ArrayNode) node.get("chains");
+				Iterator<JsonNode> it = chainsList.iterator();
+
+				while (it.hasNext()) {
+					JsonNode next = it.next();
+					JsonNode walkerNode = null;
+					JsonNode transformationsNode = null;
+					if (chain == null || chain.equals(next.get("name").asText())) {
+						if (category != null) {
+							if (node.has(category)) { // reader, walker,
+													  // writer
+								JsonNode categoryNode = node.get(category);
+								analyzeNode(categoryNode, type, name, elementsToModify);
+							} else {
+								if(category.equals("transformation")){
+									if(node.has("transformations")){
+										transformationsNode = node.get("transformations");
+									}
+								}
+								if (node.has("walker")) {
+									walkerNode = node.get("walker");
+								}
+							}
+						} else {
+							Iterator<JsonNode> it2 = next.iterator();
+							while (it2.hasNext()) {
+								analyzeNode(it2.next(), type, name, elementsToModify);
+							}
+							if (next.has("walker")) {
+								walkerNode = next.get("walker");
+
+							} else if (next.has("transformations")) {
+								transformationsNode = next.get("transformations");
+							}
+						}
+					}
+					if (walkerNode != null) {
+						if (category != null) {
+
+							if (walkerNode.has(category)) {
+								JsonNode categoryNode = node.get(category);
+								analyzeNode(categoryNode, type, name, elementsToModify);
+							}
+						} else if (walkerNode.has("transformations")) {
+							transformationsNode = walkerNode.get("transformations");
+
+						}
+
+					}
+					if (transformationsNode != null) {
+						if (transformationsNode.isArray()) {
+							ArrayNode transformationsArray = (ArrayNode) transformationsNode;
+							Iterator<JsonNode> it2 = transformationsArray.iterator();
+
+							while (it2.hasNext()) {
+								JsonNode current = it2.next();
+
+								analyzeNode(current, type, name, elementsToModify);
+							}
+						}
+					}
+				}
+			}
+		} else if (node.has("transformations") && (category == null || "transformation".equals(category))) {
+
+			JsonNode transformationsNode = node.get("transformations");
+			if (transformationsNode.isArray()) {
+				ArrayNode transformationsArray = (ArrayNode) transformationsNode;
+				Iterator<JsonNode> it = transformationsArray.iterator();
+
+				while (it.hasNext()) {
+					JsonNode current = it.next();
+					analyzeNode(current, type, name, elementsToModify);
+				}
+			}
+
+		}
+
+		Iterator<JsonNode> it = elementsToModify.iterator();
+		while (it.hasNext()) {
+			JsonNode current = it.next();
+			if (current.isObject()) {
+				JsonNode params = null;
+				if (current.has("params")) {
+					params = current.get("params");
+					if (params.isObject()) {
+						((ObjectNode) params).set(param, new TextNode(value));
+					}
+				} else {
+					Map<String, Object> paramToAdd = new HashMap<String, Object>();
+					paramToAdd.put(param, value);
+					populateParams((ObjectNode) current, paramToAdd);
+				}
+			}
+		}
+
+		if (!elementsToModify.isEmpty()) {
+			write(node);
 		}
 
 	}

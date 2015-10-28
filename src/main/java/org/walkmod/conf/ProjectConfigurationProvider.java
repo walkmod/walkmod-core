@@ -31,8 +31,8 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
 	public boolean addChainConfig(ChainConfig chainCfg) throws TransformerException;
 
-	public boolean addTransformationConfig(String chain, String path, TransformationConfig transformationCfg, boolean recursive)
-			throws TransformerException;
+	public boolean addTransformationConfig(String chain, String path, TransformationConfig transformationCfg,
+			boolean recursive) throws TransformerException;
 
 	public void createConfig() throws IOException;
 
@@ -40,7 +40,8 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
 	public void addModules(List<String> modules) throws TransformerException;
 
-	public void removeTransformations(String chain, List<String> transformations, boolean recursive) throws TransformerException;
+	public void removeTransformations(String chain, List<String> transformations, boolean recursive)
+			throws TransformerException;
 
 	public void setWriter(String chain, String type, String path) throws TransformerException;
 
@@ -53,5 +54,8 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 	public void removeProviders(List<String> providers) throws TransformerException;
 
 	public void removeChains(List<String> chains) throws TransformerException;
+
+	public void addConfigurationParameter(String param, String value, String type, String category, String name,
+			String chain) throws TransformerException;
 
 }

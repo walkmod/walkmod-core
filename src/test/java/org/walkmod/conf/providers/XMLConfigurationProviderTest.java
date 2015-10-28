@@ -630,4 +630,134 @@ public class XMLConfigurationProviderTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testAddConfigurationParameter() throws Exception{
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
+				null, null, false);
+		
+		File aux = new File("src/test/resources/xmlparams");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+			
+			TransformationConfig transfCfg = command.buildTransformationCfg();
+			prov.addTransformationConfig("mychain", null, transfCfg, false);
+			
+			prov.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, null);
+			
+			String output = FileUtils.readFileToString(xml);
+			System.out.println(output);
+
+			Assert.assertTrue(output.contains("testParam") && output.contains("hello"));
+		} finally {
+			FileUtils.deleteDirectory(aux);
+		}
+	}
+	
+	@Test
+	public void testAddConfigurationParameterWithoutChain() throws Exception{
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null,
+				null, null, false);
+		
+		File aux = new File("src/test/resources/xmlparams");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+			
+			TransformationConfig transfCfg = command.buildTransformationCfg();
+			prov.addTransformationConfig(null, null, transfCfg, false);
+			
+			prov.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, null);
+			
+			String output = FileUtils.readFileToString(xml);
+			System.out.println(output);
+
+			Assert.assertTrue(output.contains("testParam") && output.contains("hello"));
+		} finally {
+			FileUtils.deleteDirectory(aux);
+		}
+	}
+	
+	@Test
+	public void testAddConfigurationParameterToWriter() throws Exception{
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
+				null, null, false);
+		
+		File aux = new File("src/test/resources/xmlparams");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+			
+			TransformationConfig transfCfg = command.buildTransformationCfg();
+			prov.addTransformationConfig("mychain", null, transfCfg, false);
+			prov.setWriter("mychain", "eclipse-writer", null);
+			prov.addConfigurationParameter("testParam", "hello", "eclipse-writer", null, null, null);
+			
+			String output = FileUtils.readFileToString(xml);
+			System.out.println(output);
+
+			Assert.assertTrue(output.contains("testParam") && output.contains("hello"));
+		} finally {
+			FileUtils.deleteDirectory(aux);
+		}
+	}
+	
+	@Test
+	public void testAddConfigurationParameterToWriterWithoutChain() throws Exception{
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null,
+				null, null, false);
+		
+		File aux = new File("src/test/resources/xmlparams");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+			
+			TransformationConfig transfCfg = command.buildTransformationCfg();
+			prov.addTransformationConfig(null, null, transfCfg, false);
+			prov.setWriter(null, "eclipse-writer", null);
+			prov.addConfigurationParameter("testParam", "hello", "eclipse-writer", null, null, null);
+			
+			String output = FileUtils.readFileToString(xml);
+			System.out.println(output);
+
+			Assert.assertTrue(output.contains("testParam") && output.contains("hello"));
+		} finally {
+			FileUtils.deleteDirectory(aux);
+		}
+	}
+	
+	@Test
+	public void testAddConfigurationParameterWithChainFilter() throws Exception{
+		AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
+				null, null, false);
+		
+		File aux = new File("src/test/resources/xmlparams");
+		aux.mkdirs();
+		File xml = new File(aux, "walkmod.xml");
+		XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+		try {
+			prov.createConfig();
+			
+			TransformationConfig transfCfg = command.buildTransformationCfg();
+			prov.addTransformationConfig("mychain", null, transfCfg, false);
+			prov.setWriter("mychain", "eclipse-writer", null);
+			prov.addConfigurationParameter("testParam", "hello", "eclipse-writer", null, null, "mychain");
+			
+			String output = FileUtils.readFileToString(xml);
+			System.out.println(output);
+
+			Assert.assertTrue(output.contains("testParam") && output.contains("hello"));
+		} finally {
+			FileUtils.deleteDirectory(aux);
+		}
+	}
 }

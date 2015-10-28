@@ -593,8 +593,8 @@ public class WalkModFacade {
 	 *             in case that the walkmod configuration file can't be read or
 	 *             written.
 	 */
-	public void addTransformationConfig(String chain, String path, boolean recursive, TransformationConfig transformationCfg)
-			throws Exception {
+	public void addTransformationConfig(String chain, String path, boolean recursive,
+			TransformationConfig transformationCfg) throws Exception {
 		if (!cfg.exists()) {
 			init();
 		}
@@ -642,7 +642,7 @@ public class WalkModFacade {
 	 * 
 	 * @param pluginConfig
 	 *            the plugin to add
-	 * @param recursive 
+	 * @param recursive
 	 * @throws Exception
 	 *             in case that the walkmod configuration file can't be read or
 	 *             written.
@@ -1178,6 +1178,23 @@ public class WalkModFacade {
 		ConfigurationManager manager = new ConfigurationManager(conf, locateConfigurationProvider());
 		manager.executeConfigurationProviders();
 		return conf.getAvailableBeans(plugin);
+	}
+
+	public void addConfigurationParameter(String param, String value, String type, String category, String name,
+			String chain) throws Exception {
+		if (cfg.exists()) {
+
+			userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+			System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+			try {
+				ConfigurationManager manager = new ConfigurationManager(cfg, false);
+				manager.getProjectConfigurationProvider().addConfigurationParameter(param, value, type, category, name,
+						chain);
+			} finally {
+				System.setProperty("user.dir", userDir);
+			}
+		}
+
 	}
 
 }

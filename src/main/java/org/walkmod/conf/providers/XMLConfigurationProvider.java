@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -294,11 +295,14 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		ReaderConfig rConfig = chainCfg.getReaderConfig();
 		if (rConfig != null) {
 
-			Element reader = document.createElement("reader");
-			createReaderOrWriterContent(reader, rConfig.getPath(), rConfig.getType(), rConfig.getParameters(),
-					rConfig.getIncludes(), rConfig.getExcludes());
+			if (rConfig.getType() != null || rConfig.getPath() != null) {
 
-			element.appendChild(reader);
+				Element reader = document.createElement("reader");
+				createReaderOrWriterContent(reader, rConfig.getPath(), rConfig.getType(), rConfig.getParameters(),
+						rConfig.getIncludes(), rConfig.getExcludes());
+
+				element.appendChild(reader);
+			}
 
 		}
 		WalkerConfig wConfig = chainCfg.getWalkerConfig();
@@ -344,11 +348,13 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		WriterConfig writerConfig = chainCfg.getWriterConfig();
 		if (writerConfig != null) {
 
-			Element writer = document.createElement("writer");
-			createReaderOrWriterContent(writer, rConfig.getPath(), rConfig.getType(), rConfig.getParameters(),
-					rConfig.getIncludes(), rConfig.getExcludes());
+			if (writerConfig.getType() != null || writerConfig.getPath() != null) {
+				Element writer = document.createElement("writer");
+				createReaderOrWriterContent(writer, rConfig.getPath(), rConfig.getType(), rConfig.getParameters(),
+						rConfig.getIncludes(), rConfig.getExcludes());
 
-			element.appendChild(writer);
+				element.appendChild(writer);
+			}
 
 		}
 
@@ -1177,9 +1183,9 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 					ChainConfig chainCfg = new ChainConfigImpl();
 					chainCfg.setName(chain);
 					addDefaultReaderConfig(chainCfg);
-
 					addDefaultWriterConfig(chainCfg);
 					if (path != null && !"".equals(path.trim())) {
+
 						chainCfg.getReaderConfig().setPath(path);
 						chainCfg.getWriterConfig().setPath(path);
 					}
@@ -1574,12 +1580,15 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 				}
 			}
 			if (writerParent == rootElement) {
-				document.removeChild(rootElement);
+				
 				Element chainElem = document.createElement("chain");
-				document.appendChild(chainElem);
+				rootElement.appendChild(chainElem);
 				chainElem.setAttribute("name", "default");
 				for (int i = 0; i < childSize; i++) {
-					chainElem.appendChild(children.item(i));
+					chainElem.appendChild(children.item(i).cloneNode(true));
+				}
+				for(int i = 0; i < childSize; i++){
+					rootElement.removeChild(children.item(i));
 				}
 				writerParent = chainElem;
 			}
@@ -1884,5 +1893,134 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 				persist();
 			}
 		}
+	}
+
+	private void analizeBean(Element chainElement, String type, String name, List<Element> elementsToModify) {
+		if (chainElement.hasAttribute("type")) {
+
+			String typeAttribute = chainElement.getAttribute("type");
+			if (type != null && !"".equals(type) && type.equals(typeAttribute)) {
+				if (name != null && !name.equals("")) {
+					if (chainElement.hasAttribute("name")) {
+						if (name.equals(chainElement.getAttribute("name"))) {
+							elementsToModify.add(chainElement);
+						}
+					}
+				} else {
+					elementsToModify.add(chainElement);
+				}
+			}
+		}
+
+	}
+
+	@Override
+	public void addConfigurationParameter(String param, String value, String type, String category, String name,
+			String chain) throws TransformerException {
+		if (param == null || value == null) {
+			throw new TransformerException("The param and value arguments cannot be null");
+		}
+		if (document == null) {
+			init();
+		}
+
+		List<Element> elementsToModify = new LinkedList<Element>();
+
+		Element rootElement = document.getDocumentElement();
+		NodeList children = rootElement.getChildNodes();
+		int childSize = children.getLength();
+
+		for (int i = 0; i < childSize; i++) {
+			Node childNode = children.item(i);
+			if (childNode instanceof Element) {
+				Element child = (Element) childNode;
+				final String nodeName = child.getNodeName();
+				Element chainToAnalyze = null;
+				if ("chain".equals(nodeName)) {
+					if (chain != null && !chain.equals("")) {
+						chainToAnalyze = child;
+					} else {
+						chainToAnalyze = child;
+					}
+					if (chainToAnalyze != null) {
+
+						NodeList chainChildren = chainToAnalyze.getChildNodes();
+						int limit = chainChildren.getLength();
+
+						for (int j = 0; j < limit; j++) {
+							Node chainChild = chainChildren.item(j);
+							if (chainChild instanceof Element) {
+								Element chainElement = (Element) chainChild;
+								final String chainElementName = chainElement.getNodeName();
+
+								if (category != null && category.equals(chainElementName) || category == null) {
+									analizeBean(chainElement, type, name, elementsToModify);
+
+									if (chainElementName.equals("walker")
+											&& (category == null || category.equals("transformation"))) {
+										NodeList walkerChildren = chainChild.getChildNodes();
+										int limit2 = walkerChildren.getLength();
+
+										for (int k = 0; k < limit2; k++) {
+											Node walkerChild = walkerChildren.item(k);
+											if (walkerChild instanceof Element) {
+												if (walkerChild.getNodeName().equals("transformations")) {
+													NodeList transform = walkerChild.getChildNodes();
+													int limit3 = transform.getLength();
+
+													for (int h = 0; h < limit3; h++) {
+														Node transformationItem = transform.item(h);
+														if (transformationItem instanceof Element) {
+															analizeBean((Element) transformationItem, type, name,
+																	elementsToModify);
+														}
+													}
+
+												} else {
+													analizeBean((Element) walkerChild, type, name, elementsToModify);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				} else if ("transformation".equals(nodeName)) {
+
+					analizeBean(child, type, name, elementsToModify);
+
+				}
+			}
+		}
+
+		Iterator<Element> it = elementsToModify.iterator();
+		while (it.hasNext()) {
+			Element current = it.next();
+			NodeList childrenElement = current.getChildNodes();
+			int limit = childrenElement.getLength();
+			boolean found = false;
+			for (int i = 0; i < limit && !found; i++) {
+				Node item = childrenElement.item(i);
+
+				if (item.getNodeName().equals("param")) {
+					Element aux = (Element) item;
+					if (aux.getAttribute("name").equals(param)) {
+						aux.setTextContent(value);
+						found = true;
+					}
+				}
+			}
+			if (!found) {
+				Element paramElement = document.createElement("param");
+				paramElement.setAttribute("name", param);
+				paramElement.setTextContent(value);
+				current.appendChild(paramElement);
+			}
+		}
+		if (!elementsToModify.isEmpty()) {
+			persist();
+		}
+
 	}
 }
