@@ -26,13 +26,10 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -60,7 +57,6 @@ import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.conf.entities.WriterConfig;
 import org.walkmod.conf.entities.impl.ChainConfigImpl;
-import org.walkmod.conf.entities.impl.ConfigurationImpl;
 import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
 import org.walkmod.conf.entities.impl.ParserConfigImpl;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
@@ -68,6 +64,19 @@ import org.walkmod.conf.entities.impl.ProviderConfigImpl;
 import org.walkmod.conf.entities.impl.TransformationConfigImpl;
 import org.walkmod.conf.entities.impl.WalkerConfigImpl;
 import org.walkmod.conf.entities.impl.WriterConfigImpl;
+import org.walkmod.conf.providers.xml.AddChainXMLAction;
+import org.walkmod.conf.providers.xml.AddConfigurationParameterXMLAction;
+import org.walkmod.conf.providers.xml.AddModulesXMLAction;
+import org.walkmod.conf.providers.xml.AddPluginXMLAction;
+import org.walkmod.conf.providers.xml.AddProviderConfigXMLAction;
+import org.walkmod.conf.providers.xml.AddTransformationXMLAction;
+import org.walkmod.conf.providers.xml.RemoveChainsXMLAction;
+import org.walkmod.conf.providers.xml.RemoveModulesXMLAction;
+import org.walkmod.conf.providers.xml.RemovePluginXMLAction;
+import org.walkmod.conf.providers.xml.RemoveProvidersXMLAction;
+import org.walkmod.conf.providers.xml.RemoveTransformationXMLAction;
+import org.walkmod.conf.providers.xml.SetReaderXMLAction;
+import org.walkmod.conf.providers.xml.SetWriterXMLAction;
 import org.walkmod.util.DomHelper;
 import org.xml.sax.InputSource;
 
@@ -136,350 +145,20 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		init(null);
 	}
 
-	private List<Element> createParamsElement(Map<String, Object> params) {
-		List<Element> result = null;
-		if (params != null && !params.isEmpty()) {
-			result = new LinkedList<Element>();
-			Set<String> paramLabels = params.keySet();
-			for (String label : paramLabels) {
-				Element param = document.createElement("param");
-				param.setAttribute("name", label);
-				param.setNodeValue(params.get(label).toString());
-				result.add(param);
-			}
-
-		}
-		return result;
-	}
-
-	private List<Element> createIncludeList(String[] includes) {
-		List<Element> result = null;
-		if (includes != null) {
-			result = new LinkedList<Element>();
-			for (String include : includes) {
-				Element includeElem = document.createElement("include");
-				includeElem.setNodeValue(include);
-				result.add(includeElem);
-			}
-		}
-
-		return result;
-	}
-
-	private List<Element> createExcludeList(String[] excludes) {
-		List<Element> result = null;
-		if (excludes != null) {
-			result = new LinkedList<Element>();
-			for (String exclude : excludes) {
-				Element excludeElem = document.createElement("exclude");
-				excludeElem.setNodeValue(exclude);
-				result.add(excludeElem);
-			}
-		}
-
-		return result;
-	}
-
-	private void createReaderOrWriterContent(Element root, String path, String type, Map<String, Object> params,
-			String[] includes, String[] excludes) {
-
-		root.setAttribute("path", path);
-
-		if (type != null && !"".equals(type)) {
-			root.setAttribute("type", type);
-		}
-
-		List<Element> paramListEment = createParamsElement(params);
-		if (paramListEment != null) {
-
-			for (Element param : paramListEment) {
-				root.appendChild(param);
-			}
-		}
-
-		List<Element> includeElementList = createIncludeList(includes);
-		if (includeElementList != null) {
-			for (Element includeElement : includeElementList) {
-				root.appendChild(includeElement);
-			}
-		}
-
-		List<Element> excludeElementList = createExcludeList(excludes);
-
-		if (excludeElementList != null) {
-			for (Element excludeElement : excludeElementList) {
-				root.appendChild(excludeElement);
-			}
-		}
-
-	}
-
-	private List<Element> createTransformationList(List<TransformationConfig> transformations) {
-		List<Element> result = null;
-
-		if (transformations != null) {
-			result = new LinkedList<Element>();
-			for (TransformationConfig tcfg : transformations) {
-				Element trans = document.createElement("transformation");
-				String name = tcfg.getName();
-
-				if (name != null) {
-					trans.setAttribute("name", name);
-				}
-
-				trans.setAttribute("type", tcfg.getType());
-
-				String mergePolicy = tcfg.getMergePolicy();
-				if (mergePolicy != null) {
-					trans.setAttribute("merge-policy", mergePolicy);
-				}
-				if (tcfg.isMergeable()) {
-					trans.setAttribute("isMergeable", "true");
-				}
-
-				Map<String, Object> params = tcfg.getParameters();
-				List<Element> paramListEment = createParamsElement(params);
-				if (paramListEment != null) {
-
-					for (Element param : paramListEment) {
-						trans.appendChild(param);
-					}
-				}
-				result.add(trans);
-			}
-		}
-
-		return result;
-	}
-
-	private Element createTransformationElement(TransformationConfig transformationCfg) {
-		Element element = document.createElement("transformation");
-
-		String name = transformationCfg.getName();
-		if (name != null && !"".equals(name)) {
-			element.setAttribute("name", transformationCfg.getName());
-		}
-
-		String type = transformationCfg.getType();
-		if (type != null && !"".equals(type)) {
-			element.setAttribute("type", type);
-		}
-
-		String mergePolicy = transformationCfg.getMergePolicy();
-		if (mergePolicy != null && !"".equals(mergePolicy)) {
-			element.setAttribute("merge-policy", mergePolicy);
-		}
-
-		if (transformationCfg.isMergeable()) {
-			element.setAttribute("isMergeable", "true");
-		}
-		Map<String, Object> params = transformationCfg.getParameters();
-		List<Element> paramListEment = createParamsElement(params);
-		if (paramListEment != null) {
-
-			for (Element param : paramListEment) {
-				element.appendChild(param);
-			}
-		}
-
-		return element;
-	}
-
-	private Element createChainElement(ChainConfig chainCfg) {
-		Element element = document.createElement("chain");
-		String name = chainCfg.getName();
-		if (name != null && !"".equals(name)) {
-			element.setAttribute("name", chainCfg.getName());
-		}
-
-		ReaderConfig rConfig = chainCfg.getReaderConfig();
-		if (rConfig != null) {
-
-			if (rConfig.getType() != null || rConfig.getPath() != null) {
-
-				Element reader = document.createElement("reader");
-				createReaderOrWriterContent(reader, rConfig.getPath(), rConfig.getType(), rConfig.getParameters(),
-						rConfig.getIncludes(), rConfig.getExcludes());
-
-				element.appendChild(reader);
-			}
-
-		}
-		WalkerConfig wConfig = chainCfg.getWalkerConfig();
-		if (wConfig != null) {
-			// (param*, parser?, transformations)
-			Map<String, Object> params = wConfig.getParams();
-			List<Element> result = createTransformationList(wConfig.getTransformations());
-
-			if (params == null && (wConfig.getType() == null || "".equals(wConfig.getType()))) {
-
-				if (result != null) {
-					for (Element transformationElement : result) {
-						element.appendChild(transformationElement);
-					}
-				}
-			} else {
-				Element walker = document.createElement("walker");
-				String type = wConfig.getType();
-
-				if (type != null && !"".equals(type)) {
-					walker.setAttribute("type", type);
-				}
-
-				List<Element> paramListEment = createParamsElement(params);
-				if (paramListEment != null) {
-
-					for (Element param : paramListEment) {
-						walker.appendChild(param);
-					}
-				}
-
-				Element transformationList = document.createElement("transformations");
-				if (result != null) {
-					for (Element transformationElement : result) {
-						transformationList.appendChild(transformationElement);
-					}
-				}
-				walker.appendChild(transformationList);
-				element.appendChild(walker);
-
-			}
-		}
-		WriterConfig writerConfig = chainCfg.getWriterConfig();
-		if (writerConfig != null) {
-
-			if (writerConfig.getType() != null || writerConfig.getPath() != null) {
-				Element writer = document.createElement("writer");
-				createReaderOrWriterContent(writer, rConfig.getPath(), rConfig.getType(), rConfig.getParameters(),
-						rConfig.getIncludes(), rConfig.getExcludes());
-
-				element.appendChild(writer);
-			}
-
-		}
-
-		return element;
-	}
-
-	public boolean addChainConfig(ChainConfig chainCfg) throws TransformerException {
-		if (document == null) {
-			init();
-		}
-		Element rootElement = document.getDocumentElement();
-		NodeList children = rootElement.getChildNodes();
-		int childSize = children.getLength();
-		if (chainCfg.getName() != null && !"".equals(chainCfg.getName())) {
-			for (int i = 0; i < childSize; i++) {
-				Node childNode = children.item(i);
-				if (childNode instanceof Element) {
-					Element child = (Element) childNode;
-					final String nodeName = child.getNodeName();
-					if ("chain".equals(nodeName)) {
-						String name = child.getAttribute("name");
-						if (name.equals(chainCfg.getName())) {
-							return false;
-						}
-					}
-				}
-			}
-		}
-		rootElement.appendChild(createChainElement(chainCfg));
-
-		persist();
-
-		return true;
+	@Override
+	public void addChainConfig(ChainConfig chainCfg, boolean recursive) throws Exception {
+		AddChainXMLAction action = new AddChainXMLAction(chainCfg, this, recursive);
+		action.execute();
 	}
 
 	@Override
-	public boolean addPluginConfig(PluginConfig pluginConfig, boolean recursive) throws TransformerException {
-		if (document == null) {
-			init();
-		}
-		Element rootElement = document.getDocumentElement();
-		NodeList children = rootElement.getChildNodes();
-		int childSize = children.getLength();
-		Element pluginListElem = null;
-		boolean multimodule = false;
-		boolean exists = false;
-		for (int i = 0; i < childSize; i++) {
-			Node childNode = children.item(i);
-			if (childNode instanceof Element) {
-				Element child = (Element) childNode;
-				final String nodeName = child.getNodeName();
-				if ("plugins".equals(nodeName)) {
-					pluginListElem = child;
-					NodeList pluginNodes = child.getChildNodes();
-					int modulesSize = pluginNodes.getLength();
-					for (int j = 0; j < modulesSize; j++) {
-						Node pluginNode = pluginNodes.item(j);
-						if ("plugin".equals(pluginNode.getNodeName())) {
-							Element aux = (Element) pluginNode;
-							String groupId = aux.getAttribute("groupId");
-							String artifactId = aux.getAttribute("artifactId");
-							if (groupId.equals(pluginConfig.getGroupId())
-									&& artifactId.equals(pluginConfig.getArtifactId())) {
-								exists = true;
-							}
-						}
-					}
+	public void addPluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception {
 
-				} else if ("modules".equals(nodeName) && recursive) {
-					multimodule = true;
-					NodeList modulesList = child.getChildNodes();
-					int max2 = modulesList.getLength();
-
-					for (int j = 0; j < max2; j++) {
-
-						Node moduleElem = modulesList.item(j);
-
-						try {
-							File auxFile = new File(configFileName).getCanonicalFile();
-
-							XMLConfigurationProvider aux = new XMLConfigurationProvider(auxFile.getParent()
-									+ File.separator + moduleElem.getTextContent() + File.separator + "walkmod.xml",
-									false);
-
-							aux.createConfig();
-
-							aux.addPluginConfig(pluginConfig, recursive);
-
-						} catch (Exception e) {
-							throw new TransformerException("Error creating the configuration for the module ["
-									+ moduleElem.getTextContent() + "]", e);
-						}
-
-					}
-				}
-			}
-		}
-		if (!(multimodule && recursive) && !exists) {
-			Element plugin = document.createElement("plugin");
-
-			plugin.setAttribute("groupId", pluginConfig.getGroupId());
-			plugin.setAttribute("artifactId", pluginConfig.getArtifactId());
-			plugin.setAttribute("version", pluginConfig.getVersion());
-
-			if (childSize > 0) {
-				if (pluginListElem != null) {
-
-					pluginListElem.appendChild(plugin);
-
-				} else {
-					Element pluginList = document.createElement("plugins");
-					pluginList.appendChild(plugin);
-					rootElement.appendChild(pluginList);
-				}
-			} else {
-				Element pluginList = document.createElement("plugins");
-				pluginList.appendChild(plugin);
-				rootElement.appendChild(pluginList);
-			}
-			persist();
-		}
-		return true;
+		AddPluginXMLAction action = new AddPluginXMLAction(pluginConfig, this, recursive);
+		action.execute();
 	}
 
-	private void persist() throws TransformerException {
+	public void persist() throws TransformerException {
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -1096,188 +775,12 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	}
 
 	@Override
-	public boolean addTransformationConfig(String chain, String path, TransformationConfig transformationCfg,
-			boolean recursive) throws TransformerException {
-		boolean result = false;
-		if (transformationCfg != null) {
-			if (document == null) {
-				init();
-			}
+	public void addTransformationConfig(String chain, String path, TransformationConfig transformationCfg,
+			boolean recursive) throws Exception {
+		AddTransformationXMLAction action = new AddTransformationXMLAction(chain, path, transformationCfg, this,
+				recursive);
+		action.execute();
 
-			boolean isMultiModule = false;
-			if (recursive) {
-				Element rootElement = document.getDocumentElement();
-				NodeList children = rootElement.getChildNodes();
-				int childSize = children.getLength();
-
-				for (int i = 0; i < childSize; i++) {
-					Node childNode = children.item(i);
-					if (childNode instanceof Element) {
-						Element child = (Element) childNode;
-						final String nodeName = child.getNodeName();
-						if ("modules".equals(nodeName)) {
-							isMultiModule = true;
-							NodeList modulesList = child.getChildNodes();
-							int max2 = modulesList.getLength();
-
-							for (int j = 0; j < max2; j++) {
-
-								Node moduleElem = modulesList.item(j);
-
-								try {
-									File auxFile = new File(configFileName).getCanonicalFile();
-
-									XMLConfigurationProvider aux = new XMLConfigurationProvider(auxFile.getParent()
-											+ File.separator + moduleElem.getTextContent() + File.separator
-											+ "walkmod.xml", false);
-
-									aux.createConfig();
-
-									result = aux.addTransformationConfig(chain, path, transformationCfg, recursive)
-											|| result;
-
-								} catch (Exception e) {
-									throw new TransformerException("Error creating the configuration for the module ["
-											+ moduleElem.getTextContent() + "]", e);
-								}
-
-							}
-						}
-					}
-				}
-			}
-			if (!isMultiModule) {
-				Element rootElement = document.getDocumentElement();
-				NodeList children = rootElement.getChildNodes();
-				int childSize = children.getLength();
-				if (chain != null && !"".equals(chain) && !"default".equals(chain)) {
-
-					boolean isTransformationList = false;
-					for (int i = 0; i < childSize && !isTransformationList; i++) {
-						Node childNode = children.item(i);
-						if (childNode instanceof Element) {
-							Element child = (Element) childNode;
-							final String nodeName = child.getNodeName();
-							if ("chain".equals(nodeName)) {
-								String name = child.getAttribute("name");
-								if (name.equals(chain)) {
-									child.appendChild(createTransformationElement(transformationCfg));
-									return true;
-								}
-							} else if ("transformation".equals(nodeName)) {
-								isTransformationList = true;
-							}
-						}
-					}
-					if (isTransformationList) {
-						this.configuration = new ConfigurationImpl();
-						// we write specifically a default chain, and
-						// afterwards, we
-						// add the requested one.
-						loadChains();
-						Collection<ChainConfig> chainCfgs = configuration.getChainConfigs();
-						ChainConfig chainCfg = chainCfgs.iterator().next();
-						rootElement.appendChild(createChainElement(chainCfg));
-					}
-
-					ChainConfig chainCfg = new ChainConfigImpl();
-					chainCfg.setName(chain);
-					addDefaultReaderConfig(chainCfg);
-					addDefaultWriterConfig(chainCfg);
-					if (path != null && !"".equals(path.trim())) {
-
-						chainCfg.getReaderConfig().setPath(path);
-						chainCfg.getWriterConfig().setPath(path);
-					}
-					addDefaultWalker(chainCfg);
-					WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
-					List<TransformationConfig> transfs = new LinkedList<TransformationConfig>();
-					transfs.add(transformationCfg);
-					walkerCfg.setTransformations(transfs);
-					chainCfg.setWalkerConfig(walkerCfg);
-					rootElement.appendChild(createChainElement(chainCfg));
-					persist();
-				} else {
-					Element chainNode = null;
-					boolean containsChains = false;
-					for (int i = 0; i < childSize && !containsChains; i++) {
-						Node childNode = children.item(i);
-						if (childNode instanceof Element) {
-							chainNode = (Element) childNode;
-							final String nodeName = chainNode.getNodeName();
-							containsChains = "chain".equals(nodeName);
-						}
-					}
-					if (containsChains) {
-						String attrName = chainNode.getAttribute("name");
-						if (attrName == null || attrName.equals("") || attrName.equals("default")) {
-							if (path != null && !"".equals(path.trim())) {
-								NodeList chainChildren = chainNode.getChildNodes();
-								for (int i = 0; i < chainChildren.getLength(); i++) {
-									Node childNode = chainChildren.item(i);
-									if (childNode.getNodeName().equals("reader")) {
-										Element aux = (Element) childNode;
-										if (!aux.getAttribute("path").equals(path.trim())) {
-											throw new TransformerException(
-													"The user must specify a chain name (new or existing) where to add the transformation: ["
-															+ transformationCfg.getType() + "]");
-										}
-
-									}
-								}
-							}
-						} else {
-							throw new TransformerException(
-									"The user must specify a chain name (new or existing) where to add the transformation: ["
-											+ transformationCfg.getType() + "]");
-						}
-
-					}
-
-					if (path != null && !"".equals(path.trim())) {
-
-						this.configuration = new ConfigurationImpl();
-
-						loadChains();
-						Collection<ChainConfig> chainCfgs = configuration.getChainConfigs();
-						if (chainCfgs.isEmpty()) {
-							ChainConfig chainCfg = new ChainConfigImpl();
-							chainCfg.setName("default");
-							addDefaultReaderConfig(chainCfg);
-
-							addDefaultWriterConfig(chainCfg);
-							if (path != null && !"".equals(path.trim())) {
-								chainCfg.getReaderConfig().setPath(path);
-								chainCfg.getWriterConfig().setPath(path);
-							}
-							addDefaultWalker(chainCfg);
-							WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
-							List<TransformationConfig> transfs = new LinkedList<TransformationConfig>();
-							transfs.add(transformationCfg);
-							walkerCfg.setTransformations(transfs);
-							chainCfg.setWalkerConfig(walkerCfg);
-							rootElement.appendChild(createChainElement(chainCfg));
-
-						} else {
-							ChainConfig chainCfg = chainCfgs.iterator().next();
-							chainCfg.getReaderConfig().setPath(path);
-							chainCfg.getWriterConfig().setPath(path);
-							chainCfg.getWalkerConfig().getTransformations().add(transformationCfg);
-							document.removeChild(rootElement);
-							document.appendChild(createChainElement(chainCfg));
-						}
-						persist();
-						return true;
-
-					}
-
-					rootElement.appendChild(createTransformationElement(transformationCfg));
-					persist();
-				}
-			}
-		}
-
-		return result;
 	}
 
 	@Override
@@ -1304,766 +807,107 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	}
 
 	@Override
-	public boolean addProviderConfig(ProviderConfig providerCfg, boolean recursive) throws TransformerException {
-		boolean result = false;
+	public void addProviderConfig(ProviderConfig providerCfg, boolean recursive) throws Exception {
+
 		if (providerCfg != null) {
-			if (document == null) {
-				init();
-			}
-			Element rootElement = document.getDocumentElement();
-			NodeList children = rootElement.getChildNodes();
-			int childSize = children.getLength();
-			boolean exists = false;
-			Element child = null;
-			
-			boolean isMultiModule = false;
-			if (recursive) {
-
-				for (int i = 0; i < childSize; i++) {
-					Node childNode = children.item(i);
-					if (childNode instanceof Element) {
-						Element child2 = (Element) childNode;
-						final String nodeName = child2.getNodeName();
-						if ("modules".equals(nodeName)) {
-							isMultiModule = true;
-							NodeList modulesList = child2.getChildNodes();
-							int max2 = modulesList.getLength();
-
-							for (int j = 0; j < max2; j++) {
-
-								Node moduleElem = modulesList.item(j);
-
-								try {
-									File auxFile = new File(configFileName).getCanonicalFile();
-
-									XMLConfigurationProvider aux = new XMLConfigurationProvider(auxFile.getParent()
-											+ File.separator + moduleElem.getTextContent() + File.separator
-											+ "walkmod.xml", false);
-
-									aux.createConfig();
-
-									result = aux.addProviderConfig(providerCfg, recursive)
-											|| result;
-
-								} catch (Exception e) {
-									throw new TransformerException("Error creating the configuration for the module ["
-											+ moduleElem.getTextContent() + "]", e);
-								}
-
-							}
-						}
-					}
-				}
-			}
-			if (!isMultiModule) {
-				for (int i = 0; i < childSize && !exists; i++) {
-					Node childNode = children.item(i);
-					if (childNode instanceof Element) {
-						child = (Element) childNode;
-						final String nodeName = child.getNodeName();
-
-						if ("conf-providers".equals(nodeName)) {
-
-							Node aux = (Node) child;
-							NodeList cfgchildren = aux.getChildNodes();
-
-							int cfgchildrenSize = cfgchildren.getLength();
-
-							for (int j = 0; j < cfgchildrenSize && !exists; j++) {
-								Node provNode = cfgchildren.item(j);
-								Element entryElem = (Element) provNode;
-								String otype = entryElem.getAttribute("name");
-								exists = otype.equals(providerCfg.getType());
-							}
-
-						}
-					}
-				}
-				if (!exists) {
-					Element element = document.createElement("conf-provider");
-
-					String type = providerCfg.getType();
-					if (type != null && !"".equals(type)) {
-						element.setAttribute("type", type);
-					}
-
-					Map<String, Object> params = providerCfg.getParameters();
-					List<Element> paramListEment = createParamsElement(params);
-					if (paramListEment != null) {
-
-						for (Element param : paramListEment) {
-							element.appendChild(param);
-						}
-					}
-					if (child == null) {
-						child = document.createElement("conf-providers");
-						rootElement.appendChild(child);
-					}
-					child.appendChild(element);
-					persist();
-				}
-			}
+			AddProviderConfigXMLAction action = new AddProviderConfigXMLAction(providerCfg, this, recursive);
+			action.execute();
 		}
-		return result;
 
 	}
 
 	@Override
-	public void addModules(List<String> modules) throws TransformerException {
+	public void addModules(List<String> modules) throws Exception {
 		if (modules != null && !modules.isEmpty()) {
-			if (document == null) {
-				init();
-			}
-			Element rootElement = document.getDocumentElement();
-			NodeList children = rootElement.getChildNodes();
-			int childSize = children.getLength();
-			boolean exists = false;
-			Element child = null;
-			HashSet<String> modulesToAdd = new HashSet<String>(modules);
-			for (int i = 0; i < childSize && !exists; i++) {
-				Node childNode = children.item(i);
-				if (childNode instanceof Element) {
-					child = (Element) childNode;
-					final String nodeName = child.getNodeName();
-
-					if ("modules".equals(nodeName)) {
-						NodeList moduleNodeList = child.getChildNodes();
-						int max = moduleNodeList.getLength();
-						for (int j = 0; j < max; j++) {
-							String value = moduleNodeList.item(j).getTextContent().trim();
-							modulesToAdd.remove(value);
-						}
-					}
-				}
-			}
-			if (!modulesToAdd.isEmpty()) {
-				for (String module : modulesToAdd) {
-					if (child == null) {
-						child = document.createElement("modules");
-						rootElement.appendChild(child);
-					}
-					Element element = document.createElement("module");
-					element.setTextContent(module);
-					child.appendChild(element);
-
-				}
-				persist();
-			}
+			AddModulesXMLAction action = new AddModulesXMLAction(modules, this);
+			action.execute();
 		}
 
-	}
-
-	private boolean removeTransformation(Element rootNode, HashSet<String> transformations) {
-		NodeList children = rootNode.getChildNodes();
-		int childSize = children.getLength();
-		Element child = null;
-		boolean modified = false;
-		for (int i = 0; i < childSize; i++) {
-			Node childNode = children.item(i);
-			if (childNode instanceof Element) {
-				child = (Element) childNode;
-				final String nodeName = child.getNodeName();
-
-				if ("transformations".equals(nodeName)) {
-					NodeList transfNodeList = child.getChildNodes();
-					int limit = transfNodeList.getLength();
-					for (int j = 0; j < limit; j++) {
-						Node aux = transfNodeList.item(j);
-						Element elemAux = (Element) aux;
-						if (elemAux.hasAttribute("type")) {
-							String type = elemAux.getAttribute("type");
-							if (transformations.contains(type)) {
-								child.removeChild(aux);
-								modified = true;
-							}
-						}
-					}
-					if (transfNodeList.getLength() == 0) {
-						rootNode.getParentNode().removeChild(rootNode);
-					}
-				} else if (("transformation").equals(nodeName)) {
-
-					if (child.hasAttribute("type")) {
-						String type = child.getAttribute("type");
-						if (transformations.contains(type)) {
-							rootNode.removeChild(child);
-							modified = true;
-						}
-					}
-
-					boolean thereAreMoreTransformations = false;
-					int childSize2 = children.getLength();
-					for (int j = 0; j < childSize2 && !thereAreMoreTransformations; j++) {
-						Node childNode2 = children.item(j);
-						if (childNode2 instanceof Element) {
-							Element child2 = (Element) childNode2;
-							final String nodeName2 = child2.getNodeName();
-							thereAreMoreTransformations = nodeName2.equals("transformation");
-						}
-					}
-					if (!thereAreMoreTransformations) {
-						if (!rootNode.getNodeName().equals("walkmod")) {
-							rootNode.getParentNode().removeChild(rootNode);
-						}
-					}
-				}
-			}
-		}
-		return modified;
 	}
 
 	@Override
-	public void removeTransformations(String chain, List<String> transformations, boolean recursive)
-			throws TransformerException {
+	public void removeTransformations(String chain, List<String> transformations, boolean recursive) throws Exception {
+
 		if (transformations != null && !transformations.isEmpty()) {
-			if (document == null) {
-				init();
-			}
-			Element rootElement = document.getDocumentElement();
-			HashSet<String> transformationsToRemove = new HashSet<String>(transformations);
-			boolean modified = false;
-			boolean hasChains = false;
-
-			NodeList children = rootElement.getChildNodes();
-			int childSize = children.getLength();
-
-			Element child = null;
-
-			for (int i = 0; i < childSize; i++) {
-				Node childNode = children.item(i);
-				if (childNode instanceof Element) {
-					child = (Element) childNode;
-					final String nodeName = child.getNodeName();
-
-					if ("chain".equals(nodeName)) {
-						hasChains = true;
-						if (chain == null) {
-							chain = "default";
-						}
-						if (child.hasAttribute("name")) {
-							String name = child.getAttribute("name");
-							if (name.equals(chain)) {
-								modified = modified || removeTransformation(child, transformationsToRemove);
-							}
-						}
-					} else if ("modules".equals(nodeName) && recursive) {
-
-						NodeList modulesList = child.getChildNodes();
-						int max2 = modulesList.getLength();
-
-						for (int j = 0; j < max2; j++) {
-
-							Node moduleElem = modulesList.item(j);
-
-							try {
-								File auxFile = new File(configFileName).getCanonicalFile();
-
-								XMLConfigurationProvider aux = new XMLConfigurationProvider(
-										auxFile.getParent() + File.separator + moduleElem.getTextContent()
-												+ File.separator + "walkmod.xml", false);
-
-								aux.createConfig();
-
-								aux.removeTransformations(chain, transformations, recursive);
-
-							} catch (Exception e) {
-								throw new TransformerException("Error creating the configuration for the module ["
-										+ moduleElem.getTextContent() + "]", e);
-							}
-
-						}
-					}
-
-				}
-			}
-			if (!hasChains && (chain == null || "default".equals(chain))) {
-				modified = removeTransformation(rootElement, transformationsToRemove);
-			}
-
-			if (modified) {
-				persist();
-			}
+			RemoveTransformationXMLAction action = new RemoveTransformationXMLAction(chain, transformations, this,
+					recursive);
+			action.execute();
 		}
 	}
 
 	@Override
-	public void setWriter(String chain, String type, String path) throws TransformerException {
+	public void setWriter(String chain, String type, String path, boolean recursive) throws Exception {
 		if ((type != null && !type.trim().equals("")) || (path != null && !path.trim().equals(""))) {
-			if (document == null) {
-				init();
-			}
-			Element rootElement = document.getDocumentElement();
-			Element writerParent = null;
-
-			NodeList children = rootElement.getChildNodes();
-			int childSize = children.getLength();
-
-			Element child = null;
-
-			for (int i = 0; i < childSize; i++) {
-				Node childNode = children.item(i);
-				if (childNode instanceof Element) {
-					child = (Element) childNode;
-					final String nodeName = child.getNodeName();
-
-					if ("chain".equals(nodeName)) {
-
-						if (child.hasAttribute("name")) {
-							String name = child.getAttribute("name");
-							if (name.equals(chain)) {
-								writerParent = child;
-
-							}
-						}
-					} else if ("transformation".equals(nodeName)) {
-						if (chain == null || "default".equals(chain)) {
-							writerParent = rootElement;
-						}
-					}
-				}
-			}
-			if (writerParent == rootElement) {
-
-				Element chainElem = document.createElement("chain");
-				rootElement.appendChild(chainElem);
-				chainElem.setAttribute("name", "default");
-				for (int i = 0; i < childSize; i++) {
-					chainElem.appendChild(children.item(i).cloneNode(true));
-				}
-				for (int i = 0; i < childSize; i++) {
-					rootElement.removeChild(children.item(i));
-				}
-				writerParent = chainElem;
-			}
-			if (writerParent != null) {
-				NodeList siblings = writerParent.getChildNodes();
-				int limit = siblings.getLength();
-				boolean updated = false;
-				for (int i = 0; i < limit && !updated; i++) {
-					Node childNode = siblings.item(i);
-					if (childNode instanceof Element) {
-						Element aux = (Element) childNode;
-						if ("writer".equals(aux.getNodeName())) {
-							if (type != null && !"".equals(type.trim())) {
-								aux.setAttribute("type", type);
-							}
-							if (path != null && !"".equals(path.trim())) {
-								aux.setAttribute("path", path);
-							}
-							updated = true;
-						}
-					}
-				}
-				if (!updated) {
-					Element writerElem = document.createElement("writer");
-					if (type != null && !"".equals(type.trim())) {
-						writerElem.setAttribute("type", type);
-					}
-					if (path != null && !"".equals(path.trim())) {
-						writerElem.setAttribute("path", path);
-					}
-					writerParent.appendChild(writerElem);
-				}
-				persist();
-			}
-
+			SetWriterXMLAction action = new SetWriterXMLAction(chain, type, path, this, recursive);
+			action.execute();
 		}
 	}
 
 	@Override
-	public void setReader(String chain, String type, String path) throws TransformerException {
+	public void setReader(String chain, String type, String path, boolean recursive) throws Exception {
 		if ((type != null && !type.trim().equals("")) || (path != null && !path.trim().equals(""))) {
-			if (document == null) {
-				init();
-			}
-			Element rootElement = document.getDocumentElement();
-			Element readerParent = null;
-
-			NodeList children = rootElement.getChildNodes();
-			int childSize = children.getLength();
-
-			Element child = null;
-			for (int i = 0; i < childSize; i++) {
-				Node childNode = children.item(i);
-				if (childNode instanceof Element) {
-					child = (Element) childNode;
-					final String nodeName = child.getNodeName();
-
-					if ("chain".equals(nodeName)) {
-
-						if (child.hasAttribute("name")) {
-							String name = child.getAttribute("name");
-							if (name.equals(chain)) {
-								readerParent = child;
-
-							}
-						}
-					} else if ("transformation".equals(nodeName)) {
-						if (chain == null || "default".equals(chain)) {
-							readerParent = rootElement;
-						}
-					}
-				}
-			}
-			if (readerParent == rootElement) {
-				document.removeChild(rootElement);
-				Element chainElem = document.createElement("chain");
-				document.appendChild(chainElem);
-				chainElem.setAttribute("name", "default");
-				for (int i = 0; i < childSize; i++) {
-					chainElem.appendChild(children.item(i));
-				}
-				readerParent = chainElem;
-			}
-			if (readerParent != null) {
-				NodeList siblings = readerParent.getChildNodes();
-				int limit = siblings.getLength();
-				boolean updated = false;
-				for (int i = 0; i < limit && !updated; i++) {
-					Node childNode = siblings.item(i);
-					if (childNode instanceof Element) {
-						Element aux = (Element) childNode;
-						if ("reader".equals(aux.getNodeName())) {
-							if (type != null && !"".equals(type.trim())) {
-								aux.setAttribute("type", type);
-							}
-							if (path != null && !"".equals(path.trim())) {
-								aux.setAttribute("path", path);
-							}
-							updated = true;
-						}
-					}
-				}
-				if (!updated) {
-					Element readerElement = document.createElement("reader");
-					if (type != null && !"".equals(type.trim())) {
-						readerElement.setAttribute("type", type);
-					}
-					if (path != null && !"".equals(path.trim())) {
-						readerElement.setAttribute("path", path);
-					}
-					readerParent.insertBefore(readerElement, readerParent.getFirstChild());
-				}
-				persist();
-			}
-
+			SetReaderXMLAction action = new SetReaderXMLAction(chain, type, path, this, recursive);
+			action.execute();
 		}
 	}
 
 	@Override
-	public void removePluginConfig(PluginConfig pluginConfig) throws TransformerException {
-		if (document == null) {
-			init();
-		}
-		Element rootElement = document.getDocumentElement();
-		NodeList children = rootElement.getChildNodes();
-		int childSize = children.getLength();
-		for (int i = 0; i < childSize; i++) {
-			Node childNode = children.item(i);
-			if (childNode instanceof Element) {
-				Element child = (Element) childNode;
-				final String nodeName = child.getNodeName();
-				if ("plugins".equals(nodeName)) {
-
-					NodeList pluginNodes = child.getChildNodes();
-					int modulesSize = pluginNodes.getLength();
-					for (int j = 0; j < modulesSize; j++) {
-						Node pluginNode = pluginNodes.item(j);
-						if ("plugin".equals(pluginNode.getNodeName())) {
-							Element aux = (Element) pluginNode;
-							String groupId = aux.getAttribute("groupId");
-							String artifactId = aux.getAttribute("artifactId");
-							if (groupId.equals(pluginConfig.getGroupId())
-									&& artifactId.equals(pluginConfig.getArtifactId())) {
-								child.removeChild(aux);
-								persist();
-								return;
-							}
-						}
-					}
-
-				}
-			}
-		}
-
+	public void removePluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception {
+		RemovePluginXMLAction action = new RemovePluginXMLAction(pluginConfig, this, recursive);
+		action.execute();
 	}
 
 	@Override
-	public void removeModules(List<String> modules) throws TransformerException {
+	public void removeModules(List<String> modules) throws Exception {
 		if (modules != null && !modules.isEmpty()) {
-			if (document == null) {
-				init();
-			}
-			Element rootElement = document.getDocumentElement();
-			NodeList children = rootElement.getChildNodes();
-			int childSize = children.getLength();
 
-			Element child = null;
-			int removed = 0;
-			for (int i = 0; i < childSize; i++) {
-				Node childNode = children.item(i);
-				if (childNode instanceof Element) {
-					child = (Element) childNode;
-					final String nodeName = child.getNodeName();
-
-					if ("modules".equals(nodeName)) {
-						NodeList moduleNodeList = child.getChildNodes();
-						int max = moduleNodeList.getLength();
-						for (int j = 0; j < max; j++) {
-							String value = moduleNodeList.item(j).getTextContent().trim();
-							if (modules.contains(value)) {
-								child.removeChild(moduleNodeList.item(j));
-								removed++;
-							}
-						}
-						if (removed == max) {
-							rootElement.removeChild(child);
-						}
-					}
-				}
-			}
-
-			if (removed > 0) {
-
-				persist();
-			}
+			RemoveModulesXMLAction action = new RemoveModulesXMLAction(modules, this);
+			action.execute();
 		}
 	}
 
 	@Override
-	public void removeProviders(List<String> providers) throws TransformerException {
+	public void removeProviders(List<String> providers, boolean recursive) throws Exception {
 		if (providers != null && !providers.isEmpty()) {
-			if (document == null) {
-				init();
-			}
-			HashSet<String> aux = new HashSet<String>();
-			for (String elem : providers) {
-				String[] partsType = elem.split(":");
-				if (partsType.length == 1) {
-					elem = "org.walkmod:walkmod-" + elem + "-plugin:" + elem;
-				}
-				if (partsType.length != 3 && partsType.length != 1) {
-					throw new TransformerException("Invalid conf-provider");
-				}
-				aux.add(elem);
-			}
-
-			Element rootElement = document.getDocumentElement();
-			NodeList children = rootElement.getChildNodes();
-			int childSize = children.getLength();
-
-			Element child = null;
-			int removed = 0;
-			for (int i = 0; i < childSize; i++) {
-				Node childNode = children.item(i);
-				if (childNode instanceof Element) {
-					child = (Element) childNode;
-					final String nodeName = child.getNodeName();
-
-					if ("conf-providers".equals(nodeName)) {
-						NodeList moduleNodeList = child.getChildNodes();
-						int max = moduleNodeList.getLength();
-						for (int j = 0; j < max; j++) {
-							Node providerNode = moduleNodeList.item(j);
-							if (providerNode instanceof Element) {
-								Element elemProvider = (Element) providerNode;
-								String type = elemProvider.getAttribute("type");
-								String[] partsType = type.split(":");
-								if (partsType.length == 1) {
-									type = "org.walkmod:walkmod-" + type + "-plugin:" + type;
-								}
-								if (partsType.length != 3 && partsType.length != 1) {
-									throw new TransformerException("Invalid conf-provider");
-								}
-								if (aux.contains(type)) {
-									child.removeChild(providerNode);
-									removed++;
-								}
-
-							}
-						}
-						if (removed == max) {
-							rootElement.removeChild(child);
-						}
-					}
-				}
-			}
-
-			if (removed > 0) {
-
-				persist();
-			}
+			RemoveProvidersXMLAction action = new RemoveProvidersXMLAction(providers, this, recursive);
+			action.execute();
 		}
 
 	}
 
 	@Override
-	public void removeChains(List<String> chains) throws TransformerException {
+	public void removeChains(List<String> chains, boolean recursive) throws Exception {
 		if (chains != null && !chains.isEmpty()) {
-			if (document == null) {
-				init();
-			}
-			HashSet<String> aux = new HashSet<String>(chains);
-
-			Element rootElement = document.getDocumentElement();
-			NodeList children = rootElement.getChildNodes();
-			int childSize = children.getLength();
-
-			Element child = null;
-			int removed = 0;
-			for (int i = 0; i < childSize; i++) {
-				Node childNode = children.item(i);
-				if (childNode instanceof Element) {
-					child = (Element) childNode;
-					final String nodeName = child.getNodeName();
-
-					if ("chain".equals(nodeName)) {
-						if (aux.contains(child.getAttribute("name"))) {
-							rootElement.removeChild(childNode);
-							removed++;
-						}
-					}
-
-					else if ("transformation".equals(nodeName) && aux.contains("default")) {
-						rootElement.removeChild(childNode);
-						removed++;
-					}
-				}
-			}
-
-			if (removed > 0) {
-
-				persist();
-			}
+			RemoveChainsXMLAction action = new RemoveChainsXMLAction(chains, this, recursive);
+			action.execute();
 		}
-	}
-
-	private void analizeBean(Element chainElement, String type, String name, List<Element> elementsToModify) {
-		if (chainElement.hasAttribute("type")) {
-
-			String typeAttribute = chainElement.getAttribute("type");
-			if (type != null && !"".equals(type) && type.equals(typeAttribute)) {
-				if (name != null && !name.equals("")) {
-					if (chainElement.hasAttribute("name")) {
-						if (name.equals(chainElement.getAttribute("name"))) {
-							elementsToModify.add(chainElement);
-						}
-					}
-				} else {
-					elementsToModify.add(chainElement);
-				}
-			}
-		}
-
 	}
 
 	@Override
 	public void addConfigurationParameter(String param, String value, String type, String category, String name,
-			String chain) throws TransformerException {
+			String chain, boolean recursive) throws Exception {
 		if (param == null || value == null) {
 			throw new TransformerException("The param and value arguments cannot be null");
 		}
-		if (document == null) {
-			init();
-		}
+		AddConfigurationParameterXMLAction action = new AddConfigurationParameterXMLAction(param, value, type,
+				category, name, chain, this, recursive);
+		action.execute();
 
-		List<Element> elementsToModify = new LinkedList<Element>();
+	}
 
-		Element rootElement = document.getDocumentElement();
-		NodeList children = rootElement.getChildNodes();
-		int childSize = children.getLength();
+	public Configuration getConfiguration() {
+		return configuration;
+	}
 
-		for (int i = 0; i < childSize; i++) {
-			Node childNode = children.item(i);
-			if (childNode instanceof Element) {
-				Element child = (Element) childNode;
-				final String nodeName = child.getNodeName();
-				Element chainToAnalyze = null;
-				if ("chain".equals(nodeName)) {
-					if (chain != null && !chain.equals("")) {
-						chainToAnalyze = child;
-					} else {
-						chainToAnalyze = child;
-					}
-					if (chainToAnalyze != null) {
+	public Document getDocument() {
+		return document;
+	}
 
-						NodeList chainChildren = chainToAnalyze.getChildNodes();
-						int limit = chainChildren.getLength();
+	public void setConfiguration(Configuration configuration2) {
+		this.configuration = configuration2;
+	}
 
-						for (int j = 0; j < limit; j++) {
-							Node chainChild = chainChildren.item(j);
-							if (chainChild instanceof Element) {
-								Element chainElement = (Element) chainChild;
-								final String chainElementName = chainElement.getNodeName();
-
-								if (category != null && category.equals(chainElementName) || category == null) {
-									analizeBean(chainElement, type, name, elementsToModify);
-
-									if (chainElementName.equals("walker")
-											&& (category == null || category.equals("transformation"))) {
-										NodeList walkerChildren = chainChild.getChildNodes();
-										int limit2 = walkerChildren.getLength();
-
-										for (int k = 0; k < limit2; k++) {
-											Node walkerChild = walkerChildren.item(k);
-											if (walkerChild instanceof Element) {
-												if (walkerChild.getNodeName().equals("transformations")) {
-													NodeList transform = walkerChild.getChildNodes();
-													int limit3 = transform.getLength();
-
-													for (int h = 0; h < limit3; h++) {
-														Node transformationItem = transform.item(h);
-														if (transformationItem instanceof Element) {
-															analizeBean((Element) transformationItem, type, name,
-																	elementsToModify);
-														}
-													}
-
-												} else {
-													analizeBean((Element) walkerChild, type, name, elementsToModify);
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				} else if ("transformation".equals(nodeName)) {
-
-					analizeBean(child, type, name, elementsToModify);
-
-				}
-			}
-		}
-
-		Iterator<Element> it = elementsToModify.iterator();
-		while (it.hasNext()) {
-			Element current = it.next();
-			NodeList childrenElement = current.getChildNodes();
-			int limit = childrenElement.getLength();
-			boolean found = false;
-			for (int i = 0; i < limit && !found; i++) {
-				Node item = childrenElement.item(i);
-
-				if (item.getNodeName().equals("param")) {
-					Element aux = (Element) item;
-					if (aux.getAttribute("name").equals(param)) {
-						aux.setTextContent(value);
-						found = true;
-					}
-				}
-			}
-			if (!found) {
-				Element paramElement = document.createElement("param");
-				paramElement.setAttribute("name", param);
-				paramElement.setTextContent(value);
-				current.appendChild(paramElement);
-			}
-		}
-		if (!elementsToModify.isEmpty()) {
-			persist();
-		}
-
+	public String getConfigFileName() {
+		return configFileName;
 	}
 }

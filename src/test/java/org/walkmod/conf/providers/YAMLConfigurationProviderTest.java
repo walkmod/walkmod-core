@@ -208,7 +208,7 @@ public class YAMLConfigurationProviderTest {
 		ChainConfig chainCfg = new ChainConfigImpl();
 
 		try {
-			provider.addChainConfig(chainCfg);
+			provider.addChainConfig(chainCfg, false);
 
 			String output = FileUtils.readFileToString(file);
 
@@ -722,7 +722,7 @@ public class YAMLConfigurationProviderTest {
 			Configuration conf = new ConfigurationImpl();
 			provider.init(conf);
 
-			provider.setWriter(null, list.get(0), null);
+			provider.setWriter(null, list.get(0), null, false);
 
 			String output = FileUtils.readFileToString(file);
 			System.out.println(output);
@@ -755,7 +755,7 @@ public class YAMLConfigurationProviderTest {
 			pc.setGroupId("org.walkmod");
 			pc.setArtifactId("imports-cleaner");
 
-			provider.removePluginConfig(pc);
+			provider.removePluginConfig(pc, false);
 
 			String output = FileUtils.readFileToString(file);
 			System.out.println(output);
@@ -817,7 +817,7 @@ public class YAMLConfigurationProviderTest {
 			provider.addProviderConfig(provCfg, false);
 			List<String> providers = new LinkedList<String>();
 			providers.add("maven");
-			provider.removeProviders(providers);
+			provider.removeProviders(providers, false);
 
 			String output = FileUtils.readFileToString(file);
 			System.out.println(output);
@@ -850,7 +850,7 @@ public class YAMLConfigurationProviderTest {
 			provider.addTransformationConfig("mychain", null, transformationCfg, false);
 			List<String> chains = new LinkedList<String>();
 			chains.add("mychain");
-			provider.removeChains(chains);
+			provider.removeChains(chains, false);
 
 			String output = FileUtils.readFileToString(file);
 			System.out.println(output);
@@ -882,7 +882,7 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transformationCfg = command.buildTransformationCfg();
 			provider.addTransformationConfig("mychain", null, transformationCfg, false);
-			provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, null);
+			provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, null, false);
 
 			String output = FileUtils.readFileToString(file);
 			System.out.println(output);
@@ -913,19 +913,19 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transformationCfg = command.buildTransformationCfg();
 			provider.addTransformationConfig("mychain", null, transformationCfg, false);
-			provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, "mychain");
+			provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, "mychain", false);
 
 			String output = FileUtils.readFileToString(file);
 			System.out.println(output);
 			Assert.assertTrue(output.contains("params") && output.contains("testParam") && output.contains("hello"));
 			
-			provider.addConfigurationParameter("testParam", "bye", "imports-cleaner", null, null, "mychain2");
+			provider.addConfigurationParameter("testParam", "bye", "imports-cleaner", null, null, "mychain2", false);
 			output = FileUtils.readFileToString(file);
 			System.out.println(output);
 			Assert.assertFalse(output.contains("params") && output.contains("testParam") && output.contains("bye"));
 			
 			
-			provider.addConfigurationParameter("testParam", "bye", "imports-cleaner", null, null, "mychain");
+			provider.addConfigurationParameter("testParam", "bye", "imports-cleaner", null, null, "mychain", false);
 			output = FileUtils.readFileToString(file);
 			System.out.println(output);
 			Assert.assertTrue(output.contains("params") && output.contains("testParam") && output.contains("bye") && !output.contains("hello"));
@@ -955,7 +955,7 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transformationCfg = command.buildTransformationCfg();
 			provider.addTransformationConfig(null, null, transformationCfg, false);
-			provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, null);
+			provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, null, false);
 
 			String output = FileUtils.readFileToString(file);
 			System.out.println(output);
@@ -987,7 +987,7 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transformationCfg = command.buildTransformationCfg();
 			provider.addTransformationConfig(null, null, transformationCfg, false);
-			provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", "transformation", null, null);
+			provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", "transformation", null, null, false);
 
 			String output = FileUtils.readFileToString(file);
 			System.out.println(output);
@@ -1018,9 +1018,9 @@ public class YAMLConfigurationProviderTest {
 
 			TransformationConfig transformationCfg = command.buildTransformationCfg();
 			provider.addTransformationConfig(null, null, transformationCfg, false);
-			provider.setWriter(null, "eclipse-writer", null);
+			provider.setWriter(null, "eclipse-writer", null, false);
 			
-			provider.addConfigurationParameter("testParam", "hello", "eclipse-writer", null, null, null);
+			provider.addConfigurationParameter("testParam", "hello", "eclipse-writer", null, null, null, false);
 
 			String output = FileUtils.readFileToString(file);
 			System.out.println(output);

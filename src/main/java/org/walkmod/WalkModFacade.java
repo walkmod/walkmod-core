@@ -560,11 +560,13 @@ public class WalkModFacade {
 	 * 
 	 * @param chainCfg
 	 *            chain configuration to add
+	 * @param recursive
+	 *            Adds the new chain into all the submodules
 	 * @throws Exception
 	 *             in case that the walkmod configuration file can't be read or
 	 *             written.
 	 */
-	public void addChainConfig(ChainConfig chainCfg) throws Exception {
+	public void addChainConfig(ChainConfig chainCfg, boolean recursive) throws Exception {
 		if (!cfg.exists()) {
 			init();
 		}
@@ -575,7 +577,7 @@ public class WalkModFacade {
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-			cfgProvider.addChainConfig(chainCfg);
+			cfgProvider.addChainConfig(chainCfg, recursive);
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}
@@ -1063,7 +1065,7 @@ public class WalkModFacade {
 
 				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-				cfgProvider.setWriter(chain, type, path);
+				cfgProvider.setWriter(chain, type, path, false);
 			} finally {
 				System.setProperty("user.dir", userDir);
 			}
@@ -1082,14 +1084,14 @@ public class WalkModFacade {
 
 				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-				cfgProvider.setReader(chain, type, path);
+				cfgProvider.setReader(chain, type, path, false);
 			} finally {
 				System.setProperty("user.dir", userDir);
 			}
 		}
 	}
 
-	public void removePluginConfig(PluginConfig pluginConfig) throws Exception {
+	public void removePluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception {
 		if (!cfg.exists()) {
 			init();
 		}
@@ -1099,7 +1101,7 @@ public class WalkModFacade {
 			ConfigurationManager manager = new ConfigurationManager(cfg, false);
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
-			cfgProvider.removePluginConfig(pluginConfig);
+			cfgProvider.removePluginConfig(pluginConfig, recursive);
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}
@@ -1122,7 +1124,7 @@ public class WalkModFacade {
 		}
 	}
 
-	public void removeProviders(List<String> providers) throws Exception {
+	public void removeProviders(List<String> providers, boolean recursive) throws Exception {
 		if (!cfg.exists()) {
 			init();
 		}
@@ -1132,7 +1134,7 @@ public class WalkModFacade {
 			ConfigurationManager manager = new ConfigurationManager(cfg, false);
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
-			cfgProvider.removeProviders(providers);
+			cfgProvider.removeProviders(providers, recursive);
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}
@@ -1155,7 +1157,7 @@ public class WalkModFacade {
 		return result;
 	}
 
-	public void removeChains(List<String> chains) throws Exception {
+	public void removeChains(List<String> chains, boolean recursive) throws Exception {
 
 		if (cfg.exists()) {
 
@@ -1163,7 +1165,7 @@ public class WalkModFacade {
 			System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
 			try {
 				ConfigurationManager manager = new ConfigurationManager(cfg, false);
-				manager.getProjectConfigurationProvider().removeChains(chains);
+				manager.getProjectConfigurationProvider().removeChains(chains, recursive);
 			} finally {
 				System.setProperty("user.dir", userDir);
 			}
@@ -1182,7 +1184,7 @@ public class WalkModFacade {
 	}
 
 	public void addConfigurationParameter(String param, String value, String type, String category, String name,
-			String chain) throws Exception {
+			String chain, boolean recursive) throws Exception {
 		if (cfg.exists()) {
 
 			userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
@@ -1190,7 +1192,7 @@ public class WalkModFacade {
 			try {
 				ConfigurationManager manager = new ConfigurationManager(cfg, false);
 				manager.getProjectConfigurationProvider().addConfigurationParameter(param, value, type, category, name,
-						chain);
+						chain, recursive);
 			} finally {
 				System.setProperty("user.dir", userDir);
 			}

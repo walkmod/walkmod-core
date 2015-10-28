@@ -18,8 +18,6 @@ package org.walkmod.conf;
 import java.io.IOException;
 import java.util.List;
 
-import javax.xml.transform.TransformerException;
-
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
@@ -27,35 +25,34 @@ import org.walkmod.conf.entities.TransformationConfig;
 
 public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
-	public boolean addPluginConfig(PluginConfig pluginConfig, boolean recursive) throws TransformerException;
+	public void addPluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception;
 
-	public boolean addChainConfig(ChainConfig chainCfg) throws TransformerException;
+	public void addChainConfig(ChainConfig chainCfg, boolean recursive) throws Exception;
 
-	public boolean addTransformationConfig(String chain, String path, TransformationConfig transformationCfg,
-			boolean recursive) throws TransformerException;
+	public void addTransformationConfig(String chain, String path, TransformationConfig transformationCfg,
+			boolean recursive) throws Exception;
 
 	public void createConfig() throws IOException;
 
-	public boolean addProviderConfig(ProviderConfig providerCfg, boolean recursive) throws TransformerException;
+	public void addProviderConfig(ProviderConfig providerCfg, boolean recursive) throws Exception;
 
-	public void addModules(List<String> modules) throws TransformerException;
+	public void addModules(List<String> modules) throws Exception;
 
-	public void removeTransformations(String chain, List<String> transformations, boolean recursive)
-			throws TransformerException;
+	public void removeTransformations(String chain, List<String> transformations, boolean recursive) throws Exception;
 
-	public void setWriter(String chain, String type, String path) throws TransformerException;
+	public void setWriter(String chain, String type, String path, boolean recursive) throws Exception;
 
-	public void setReader(String chain, String type, String path) throws TransformerException;
+	public void setReader(String chain, String type, String path, boolean recursive) throws Exception;
 
-	public void removePluginConfig(PluginConfig pluginConfig) throws TransformerException;
+	public void removePluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception;
 
-	public void removeModules(List<String> modules) throws TransformerException;
+	public void removeModules(List<String> modules) throws Exception;
 
-	public void removeProviders(List<String> providers) throws TransformerException;
+	public void removeProviders(List<String> providers,  boolean recursive) throws Exception;
 
-	public void removeChains(List<String> chains) throws TransformerException;
+	public void removeChains(List<String> chains, boolean recursive) throws Exception;
 
 	public void addConfigurationParameter(String param, String value, String type, String category, String name,
-			String chain) throws TransformerException;
+			String chain, boolean recursive) throws Exception;
 
 }

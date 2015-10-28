@@ -34,6 +34,9 @@ public class RemoveProviderCommand implements Command{
 	private boolean help;
 
 	private JCommander command;
+	
+	@Parameter(names = { "--recursive", "-R" }, description = "Remove the providers to all submodules")
+	private boolean recursive = false;
 
 	public RemoveProviderCommand(JCommander command) {
 		this.command = command;
@@ -47,7 +50,7 @@ public class RemoveProviderCommand implements Command{
 		} else {
 
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-			facade.removeProviders(providers);
+			facade.removeProviders(providers, recursive);
 		}
 	}
 

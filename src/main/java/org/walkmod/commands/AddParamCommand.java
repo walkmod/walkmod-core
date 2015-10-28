@@ -23,42 +23,45 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 @Parameters(separators = "=", commandDescription = "Sets an specific parameter value in an specific bean (transformation, reader, writer or walker)")
-public class AddParamCommand implements Command{
+public class AddParamCommand implements Command {
 
 	@Parameter(names = "--help", help = true, hidden = true)
 	private boolean help;
-	
-	@Parameter(names = {"--param", "-p"}, description = "The parameter name to set", required = true)
+
+	@Parameter(names = { "--param", "-p" }, description = "The parameter name to set", required = true)
 	private String param;
-	
-	@Parameter(names = {"--value", "-v"}, description = "The parameter value to set", required = true)
+
+	@Parameter(names = { "--value", "-v" }, description = "The parameter value to set", required = true)
 	private String value;
-	
-	@Parameter(names = {"--type", "-t"}, description = "The bean type to set the parameter. If there are multiple beans with this type, all will contain the parameter", required = true)
+
+	@Parameter(names = { "--type", "-t" }, description = "The bean type to set the parameter. If there are multiple beans with this type, all will contain the parameter", required = true)
 	private String type;
-	
-	@Parameter(names = {"--category", "-c"}, description = "The bean category to set the parameter. If there are multiple beans with this category, all will contain the parameter ")
+
+	@Parameter(names = { "--category", "-c" }, description = "The bean category to set the parameter. If there are multiple beans with this category, all will contain the parameter ")
 	private String category;
-	
-	@Parameter(names = {"--name", "-n"}, description = "The bean identifier for a transformation to set the parameter")
+
+	@Parameter(names = { "--name", "-n" }, description = "The bean identifier for a transformation to set the parameter")
 	private String name;
-	
-	@Parameter(names = {"--chain"}, description ="The chain to select the bean type")
+
+	@Parameter(names = { "--chain" }, description = "The chain to select the bean type")
 	private String chain;
-	
+
 	private JCommander command;
-	
-	public AddParamCommand(JCommander command){
+
+	@Parameter(names = { "--recursive", "-R" }, description = "Apply the param to all submodules")
+	private boolean recursive = false;
+
+	public AddParamCommand(JCommander command) {
 		this.command = command;
 	}
-	
+
 	@Override
 	public void execute() throws Exception {
 		if (help) {
 			command.usage("add-param");
 		} else {
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-			facade.addConfigurationParameter(param, value, type, category, name, chain);
+			facade.addConfigurationParameter(param, value, type, category, name, chain, recursive);
 		}
 	}
 

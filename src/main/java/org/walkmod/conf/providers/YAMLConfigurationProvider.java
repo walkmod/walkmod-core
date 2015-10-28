@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.transform.TransformerException;
 
@@ -37,22 +36,30 @@ import org.walkmod.conf.entities.JSONConfigParser;
 import org.walkmod.conf.entities.MergePolicyConfig;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
-import org.walkmod.conf.entities.ReaderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
-import org.walkmod.conf.entities.WriterConfig;
 import org.walkmod.conf.entities.impl.ChainConfigImpl;
 import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.ProviderConfigImpl;
-import org.walkmod.conf.entities.impl.WalkerConfigImpl;
+import org.walkmod.conf.providers.yml.AddChainYMLAction;
+import org.walkmod.conf.providers.yml.AddConfigurationParameterYMLAction;
+import org.walkmod.conf.providers.yml.AddModulesYMLAction;
+import org.walkmod.conf.providers.yml.AddProviderConfigYMLAction;
+import org.walkmod.conf.providers.yml.AddTransformationYMLAction;
+import org.walkmod.conf.providers.yml.RemoveChainsYMLAction;
+import org.walkmod.conf.providers.yml.RemoveModulesYMLAction;
+import org.walkmod.conf.providers.yml.RemovePluginYMLAction;
+import org.walkmod.conf.providers.yml.RemoveProvidersYMLAction;
+import org.walkmod.conf.providers.yml.RemoveTransformationYMLAction;
+import org.walkmod.conf.providers.yml.SetReaderYMLAction;
+import org.walkmod.conf.providers.yml.SetWriterYMLAction;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -247,7 +254,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 	}
 
 	@Override
-	public boolean addPluginConfig(final PluginConfig pluginConfig, boolean recursive) throws TransformerException {
+	public void addPluginConfig(final PluginConfig pluginConfig, boolean recursive) throws TransformerException {
 
 		File cfg = new File(fileName);
 
@@ -305,10 +312,9 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 					+ pluginConfig.getVersion()));
 			write(node);
 		}
-		return true;
 	}
 
-	private void write(JsonNode node) throws TransformerException {
+	public void write(JsonNode node) throws TransformerException {
 		if (node != null) {
 			File cfg = new File(fileName);
 
@@ -333,402 +339,25 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 		}
 	}
 
-	@Override
-	public boolean addChainConfig(ChainConfig chainCfg) throws TransformerException {
-		File cfg = new File(fileName);
-
-		ArrayNode chainsList = null;
-		JsonNode chainsNode = null;
-		try {
-
-			chainsNode = mapper.readTree(cfg);
-		} catch (Exception e) {
-
-		}
-		if (chainsNode != null) {
-			if (!chainsNode.has("chains")) {
-				chainsList = new ArrayNode(mapper.getNodeFactory());
-				if (chainsNode.isObject()) {
-					ObjectNode aux = (ObjectNode) chainsNode;
-					aux.set("chains", chainsList);
-				} else {
-					throw new TransformerException("The root element is not a JSON node");
-				}
-			} else {
-				JsonNode aux = chainsNode.get("chains");
-				if (aux.isArray()) {
-					chainsList = (ArrayNode) chainsNode.get("chains");
-				} else {
-					throw new TransformerException("The plugins element is not a valid array");
-				}
-			}
-		}
-		ObjectNode chainNode = new ObjectNode(mapper.getNodeFactory());
-		ReaderConfig readerCfg = chainCfg.getReaderConfig();
-		if (readerCfg != null) {
-			if (chainsNode == null) {
-				chainsNode = new ObjectNode(mapper.getNodeFactory());
-				ObjectNode aux = (ObjectNode) chainsNode;
-				chainsList = new ArrayNode(mapper.getNodeFactory());
-				aux.set("chains", chainsList);
-			}
-			ObjectNode readerNode = new ObjectNode(mapper.getNodeFactory());
-			chainNode.set("reader", readerNode);
-			populateWriterReader(readerNode, readerCfg.getPath(), readerCfg.getType(), readerCfg.getIncludes(),
-					readerCfg.getExcludes(), readerCfg.getParameters());
-
-		} else {
-			addDefaultReaderConfig(chainCfg);
-		}
-
-		WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
-		if (walkerCfg != null) {
-
-			ObjectNode walkerNode = null;
-
-			String type = walkerCfg.getType();
-			if (type != null) {
-				if (chainsNode == null) {
-					chainsNode = new ObjectNode(mapper.getNodeFactory());
-					ObjectNode aux = (ObjectNode) chainsNode;
-					chainsList = new ArrayNode(mapper.getNodeFactory());
-					aux.set("chains", chainsList);
-				}
-				walkerNode = new ObjectNode(mapper.getNodeFactory());
-				chainNode.set("walker", walkerNode);
-				walkerNode.set("type", new TextNode(type));
-			}
-
-			Map<String, Object> wparams = walkerCfg.getParams();
-			if (wparams != null && !wparams.isEmpty()) {
-				if (walkerNode == null) {
-					if (chainsNode == null) {
-						chainsNode = new ObjectNode(mapper.getNodeFactory());
-						ObjectNode aux = (ObjectNode) chainsNode;
-						chainsList = new ArrayNode(mapper.getNodeFactory());
-						aux.set("chains", chainsList);
-					}
-					walkerNode = new ObjectNode(mapper.getNodeFactory());
-					chainNode.set("walker", walkerNode);
-				}
-				populateParams(walkerNode, wparams);
-			}
-
-			String rootNamespace = walkerCfg.getRootNamespace();
-			if (rootNamespace != null) {
-				if (walkerNode == null) {
-					if (chainsNode == null) {
-						chainsNode = new ObjectNode(mapper.getNodeFactory());
-						ObjectNode aux = (ObjectNode) chainsNode;
-						chainsList = new ArrayNode(mapper.getNodeFactory());
-						aux.set("chains", chainsList);
-					}
-					walkerNode = new ObjectNode(mapper.getNodeFactory());
-					chainNode.set("walker", walkerNode);
-				}
-				walkerNode.set("root-namespace", new TextNode(rootNamespace));
-			}
-
-			List<TransformationConfig> transformationList = walkerCfg.getTransformations();
-			if (transformationList != null && !transformationList.isEmpty()) {
-				ArrayNode transformationListNode = new ArrayNode(mapper.getNodeFactory());
-				if (walkerNode == null) {
-					if (chainsNode == null) {
-						ObjectNode aux = new ObjectNode(mapper.getNodeFactory());
-						aux.set("transformations", transformationListNode);
-						chainsNode = aux;
-					} else {
-						chainNode.set("transformations", transformationListNode);
-					}
-				} else {
-					walkerNode.set("transformations", transformationListNode);
-				}
-				for (TransformationConfig transCfg : transformationList) {
-					ObjectNode transformationNode = new ObjectNode(mapper.getNodeFactory());
-					transformationListNode.add(transformationNode);
-					createTransformation(transformationNode, transCfg);
-				}
-
-			}
-
-		}
-
-		WriterConfig writerCfg = chainCfg.getWriterConfig();
-		if (writerCfg != null) {
-			if (chainsNode == null) {
-				chainsNode = new ObjectNode(mapper.getNodeFactory());
-				ObjectNode aux = (ObjectNode) chainsNode;
-				chainsList = new ArrayNode(mapper.getNodeFactory());
-				aux.set("chains", chainsList);
-			}
-			ObjectNode writerNode = new ObjectNode(mapper.getNodeFactory());
-			chainNode.set("writer", writerNode);
-			populateWriterReader(writerNode, writerCfg.getPath(), writerCfg.getType(), writerCfg.getIncludes(),
-					writerCfg.getExcludes(), writerCfg.getParams());
-
-		} else {
-			addDefaultWriterConfig(chainCfg);
-		}
-		if (chainsList != null) {
-			chainsList.add(chainNode);
-		}
-		write(chainsNode);
-		return true;
-	}
-
-	private void createTransformation(ObjectNode transformationNode, TransformationConfig transCfg) {
-
-		String name = transCfg.getName();
-		if (name != null) {
-			transformationNode.set("name", new TextNode(name));
-		}
-		String typeName = transCfg.getType();
-		if (typeName != null) {
-			transformationNode.set("type", new TextNode(typeName));
-		}
-		String mergePolicy = transCfg.getMergePolicy();
-		if (mergePolicy != null) {
-			transformationNode.set("merge-policy", new TextNode(mergePolicy));
-		}
-		if (transCfg.isMergeable()) {
-			transformationNode.set("isMergeable", BooleanNode.TRUE);
-		}
-		Map<String, Object> params = transCfg.getParameters();
-		if (params != null && !params.isEmpty()) {
-			populateParams(transformationNode, params);
-		}
-	}
-
-	private void populateParams(ObjectNode root, Map<String, Object> params) {
-		ObjectNode paramsNode = new ObjectNode(mapper.getNodeFactory());
-		root.set("params", paramsNode);
-
-		Set<String> keys = params.keySet();
-		for (String key : keys) {
-			paramsNode.set(key, new TextNode(params.get(key).toString()));
-		}
-	}
-
-	private void populateWriterReader(ObjectNode root, String path, String type, String[] includes, String[] excludes,
-			Map<String, Object> params) {
-		if (path != null && !"".equals(path)) {
-			root.set("path", new TextNode(path));
-		}
-
-		if (type != null) {
-			root.set("type", new TextNode(type));
-		}
-
-		if (includes != null && includes.length > 0) {
-			ArrayNode includesNode = new ArrayNode(mapper.getNodeFactory());
-			for (int i = 0; i < includes.length; i++) {
-				includesNode.add(new TextNode(includes[i]));
-			}
-			root.set("includes", includesNode);
-		}
-
-		if (excludes != null && excludes.length > 0) {
-			ArrayNode excludesNode = new ArrayNode(mapper.getNodeFactory());
-			for (int i = 0; i < excludes.length; i++) {
-				excludesNode.add(new TextNode(excludes[i]));
-			}
-			root.set("excludes", excludesNode);
-		}
-		if (params != null && !params.isEmpty()) {
-			populateParams(root, params);
-		}
-
+	public ObjectMapper getObjectMapper() {
+		return mapper;
 	}
 
 	@Override
-	public boolean addTransformationConfig(String chain, String path, TransformationConfig transformationCfg,
-			boolean recursive) throws TransformerException {
+	public void addChainConfig(ChainConfig chainCfg, boolean recursive) throws Exception {
+		AddChainYMLAction action = new AddChainYMLAction(chainCfg, this, recursive);
+		action.execute();
+	}
+
+	@Override
+	public void addTransformationConfig(String chain, String path, TransformationConfig transformationCfg,
+			boolean recursive) throws Exception {
 		if (transformationCfg != null) {
-			File cfg = new File(fileName);
-			ArrayNode transformationsNode = null;
-			JsonNode chainsNode = null;
-			try {
-				chainsNode = mapper.readTree(cfg);
-			} catch (Exception e) {
-
-			}
-			if (chainsNode == null) {
-				chainsNode = new ObjectNode(mapper.getNodeFactory());
-			}
-			boolean isMultiModule = chainsNode.has("modules");
-			if (recursive && isMultiModule) {
-
-				JsonNode aux = chainsNode.get("modules");
-				if (aux.isArray()) {
-					ArrayNode modules = (ArrayNode) aux;
-					int max = modules.size();
-					for (int i = 0; i < max; i++) {
-						JsonNode module = modules.get(i);
-						if (module.isTextual()) {
-							String moduleDir = module.asText();
-
-							try {
-								File auxFile = new File(fileName).getCanonicalFile().getParentFile();
-								YAMLConfigurationProvider child = new YAMLConfigurationProvider(
-										auxFile.getAbsolutePath() + File.separator + moduleDir + File.separator
-												+ "walkmod.yml");
-								child.createConfig();
-								child.addTransformationConfig(chain, path, transformationCfg, recursive);
-							} catch (IOException e) {
-								throw new TransformerException(e);
-							}
-
-						}
-					}
-				}
-
-			}
-			if (!isMultiModule) {
-				boolean validChainName = chain != null && !"".equals(chain) && !"default".equals(chain);
-				if (!chainsNode.has("chains")) {
-					if (chainsNode.has("transformations")) {
-						JsonNode aux = chainsNode.get("transformations");
-						if (aux.isArray()) {
-							transformationsNode = (ArrayNode) aux;
-						}
-
-						if (!validChainName) {
-							ObjectNode auxRoot = (ObjectNode) chainsNode;
-							if (transformationsNode == null) {
-								transformationsNode = new ArrayNode(mapper.getNodeFactory());
-							}
-							auxRoot.set("transformations", transformationsNode);
-						} else {
-							// reset the root
-							chainsNode = new ObjectNode(mapper.getNodeFactory());
-							ObjectNode auxRoot = (ObjectNode) chainsNode;
-
-							// the default chain list added
-							ObjectNode chainObject = new ObjectNode(mapper.getNodeFactory());
-							chainObject.set("name", new TextNode("default"));
-							chainObject.set("transformations", transformationsNode);
-							ArrayNode chainsListNode = new ArrayNode(mapper.getNodeFactory());
-							chainsListNode.add(chainObject);
-
-							// the requested chain added
-							ObjectNode newChain = new ObjectNode(mapper.getNodeFactory());
-							newChain.set("name", new TextNode(chain));
-							if (path != null && !"".equals(path.trim())) {
-
-								ObjectNode readerNode = new ObjectNode(mapper.getNodeFactory());
-								newChain.set("reader", readerNode);
-
-								populateWriterReader(readerNode, path, null, null, null, null);
-
-								ObjectNode writerNode = new ObjectNode(mapper.getNodeFactory());
-								newChain.set("writer", writerNode);
-								populateWriterReader(writerNode, path, null, null, null, null);
-							}
-
-							transformationsNode = new ArrayNode(mapper.getNodeFactory());
-							newChain.set("transformations", transformationsNode);
-							chainsListNode.add(newChain);
-
-							auxRoot.set("chains", chainsListNode);
-
-						}
-					} else {
-						ObjectNode auxRoot = (ObjectNode) chainsNode;
-						transformationsNode = new ArrayNode(mapper.getNodeFactory());
-						boolean writeChainInfo = validChainName;
-						if (!writeChainInfo) {
-							writeChainInfo = path != null && !"".equals(path.trim());
-							chain = "default";
-						}
-						if (writeChainInfo) {
-							ArrayNode auxChainsList = new ArrayNode(mapper.getNodeFactory());
-							ObjectNode aux = new ObjectNode(mapper.getNodeFactory());
-							auxChainsList.add(aux);
-							aux.set("name", new TextNode(chain));
-							if (path != null && !"".equals(path.trim())) {
-
-								ObjectNode readerNode = new ObjectNode(mapper.getNodeFactory());
-								aux.set("reader", readerNode);
-								populateWriterReader(readerNode, path, null, null, null, null);
-
-							}
-							auxRoot.set("chains", auxChainsList);
-							if (path != null && !"".equals(path.trim())) {
-
-								ObjectNode writerNode = new ObjectNode(mapper.getNodeFactory());
-								aux.set("writer", writerNode);
-								populateWriterReader(writerNode, path, null, null, null, null);
-							}
-
-							auxRoot = aux;
-						}
-						auxRoot.set("transformations", transformationsNode);
-					}
-
-				} else {
-					if (validChainName) {
-						JsonNode aux = chainsNode.get("chains");
-						boolean found = false;
-						if (aux.isArray()) {
-							Iterator<JsonNode> it = aux.elements();
-							while (it.hasNext()) {
-								JsonNode next = it.next();
-								if (next.has("name")) {
-									String id = next.get("name").asText();
-									if (chain.equals(id)) {
-										found = true;
-										if (next.has("transformations")) {
-											JsonNode auxTrans = next.get("transformations");
-											if (auxTrans.isArray()) {
-												transformationsNode = (ArrayNode) auxTrans;
-											} else {
-												throw new TransformerException("The chain [" + chain
-														+ "] does not have a valid transformations node");
-											}
-										} else if (next.isObject()) {
-											ObjectNode auxNext = (ObjectNode) next;
-											transformationsNode = new ArrayNode(mapper.getNodeFactory());
-											auxNext.set("transformations", transformationsNode);
-										} else {
-											throw new TransformerException("The chain [" + chain
-													+ "] does not have a valid structure");
-										}
-									}
-								}
-
-							}
-							if (!found) {
-								ChainConfig chainCfg = new ChainConfigImpl();
-								chainCfg.setName(chain);
-								WalkerConfig walkerCfg = new WalkerConfigImpl();
-								List<TransformationConfig> transfs = new LinkedList<TransformationConfig>();
-								transfs.add(transformationCfg);
-								walkerCfg.setTransformations(transfs);
-								chainCfg.setWalkerConfig(walkerCfg);
-								addChainConfig(chainCfg);
-								return true;
-							}
-						}
-					} else {
-						throw new TransformerException(
-								"The user must specify a chain name (new or existing) where to add the transformation: ["
-										+ transformationCfg.getType() + "]");
-
-					}
-				}
-				if (transformationsNode != null) {
-					ObjectNode transformationNode = new ObjectNode(mapper.getNodeFactory());
-					transformationsNode.add(transformationNode);
-
-					createTransformation(transformationNode, transformationCfg);
-					write(chainsNode);
-					return true;
-				} else if (chain != null) {
-					throw new TransformerException("The chain [" + chain + "] does not exists");
-				}
-			}
+			AddTransformationYMLAction action = new AddTransformationYMLAction(chain, path, transformationCfg, this,
+					recursive);
+			action.execute();
 		}
-		return false;
+		return;
 	}
 
 	@Override
@@ -739,8 +368,7 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 		}
 	}
 
-	@Override
-	public boolean addProviderConfig(ProviderConfig providerCfg, boolean recursive) throws TransformerException {
+	public JsonNode getRootNode() {
 		File cfg = new File(fileName);
 		JsonNode node = null;
 		try {
@@ -751,709 +379,91 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 		if (node == null) {
 			node = new ObjectNode(mapper.getNodeFactory());
 		}
+		return node;
+	}
 
-		boolean isMultiModule = node.has("modules");
-		if (recursive && isMultiModule) {
-
-			JsonNode aux = node.get("modules");
-			if (aux.isArray()) {
-				ArrayNode modules = (ArrayNode) aux;
-				int max = modules.size();
-				for (int i = 0; i < max; i++) {
-					JsonNode module = modules.get(i);
-					if (module.isTextual()) {
-						String moduleDir = module.asText();
-
-						try {
-							File auxFile = new File(fileName).getCanonicalFile().getParentFile();
-							YAMLConfigurationProvider child = new YAMLConfigurationProvider(auxFile.getAbsolutePath()
-									+ File.separator + moduleDir + File.separator + "walkmod.yml");
-							child.createConfig();
-							child.addProviderConfig(providerCfg, recursive);
-						} catch (IOException e) {
-							throw new TransformerException(e);
-						}
-
-					}
-				}
-			}
-
-		}
-		if (!isMultiModule) {
-			if (node.has("conf-providers")) {
-				JsonNode list = node.get("conf-providers");
-				Iterator<JsonNode> it = list.iterator();
-				boolean found = false;
-				while (it.hasNext() && !found) {
-					JsonNode next = it.next();
-					found = providerCfg.getType().equals(next.get("type").asText());
-				}
-				if (!found) {
-					if (list.isArray()) {
-						ArrayNode aux = (ArrayNode) list;
-						ObjectNode prov = new ObjectNode(mapper.getNodeFactory());
-						prov.set("type", new TextNode(providerCfg.getType()));
-						Map<String, Object> params = providerCfg.getParameters();
-						if (params != null && !params.isEmpty()) {
-							populateParams(prov, params);
-						}
-						aux.add(prov);
-						write(node);
-						return true;
-					}
-				}
-			} else {
-				ArrayNode aux = new ArrayNode(mapper.getNodeFactory());
-				ObjectNode prov = new ObjectNode(mapper.getNodeFactory());
-				prov.set("type", new TextNode(providerCfg.getType()));
-				Map<String, Object> params = providerCfg.getParameters();
-				if (params != null && !params.isEmpty()) {
-					populateParams(prov, params);
-				}
-				aux.add(prov);
-				ObjectNode auxNode = (ObjectNode) node;
-				auxNode.set("conf-providers", aux);
-				write(node);
-				return true;
-			}
-		}
-		return false;
+	public String getFileName() {
+		return fileName;
 	}
 
 	@Override
-	public void addModules(List<String> modules) throws TransformerException {
-		File cfg = new File(fileName);
-		JsonNode node = null;
-		try {
-			node = mapper.readTree(cfg);
-		} catch (Exception e) {
-
-		}
-		if (node == null) {
-			node = new ObjectNode(mapper.getNodeFactory());
-		}
-		ArrayNode aux = null;
-		HashSet<String> modulesToAdd = new HashSet<String>(modules);
-		if (node.has("modules")) {
-			JsonNode list = node.get("modules");
-			Iterator<JsonNode> it = list.iterator();
-
-			while (it.hasNext()) {
-				JsonNode next = it.next();
-				modulesToAdd.remove(next.asText().trim());
-
-			}
-			if (!modulesToAdd.isEmpty()) {
-				if (list.isArray()) {
-					aux = (ArrayNode) list;
-				}
-			}
-		} else {
-			aux = new ArrayNode(mapper.getNodeFactory());
-		}
-		if (!modulesToAdd.isEmpty()) {
-			for (String moduleToAdd : modulesToAdd) {
-				TextNode prov = new TextNode(moduleToAdd);
-				aux.add(prov);
-			}
-			ObjectNode auxNode = (ObjectNode) node;
-			auxNode.set("modules", aux);
-			write(node);
-		}
-
+	public void addProviderConfig(ProviderConfig providerCfg, boolean recursive) throws Exception {
+		AddProviderConfigYMLAction action = new AddProviderConfigYMLAction(providerCfg, this, recursive);
+		action.execute();
 	}
 
 	@Override
-	public void removeTransformations(String chain, List<String> transformations, boolean recursive)
-			throws TransformerException {
+	public void addModules(List<String> modules) throws Exception {
+		AddModulesYMLAction action = new AddModulesYMLAction(modules, this);
+		action.execute();
+	}
+
+	@Override
+	public void removeTransformations(String chain, List<String> transformations, boolean recursive) throws Exception {
 		if (transformations != null && !transformations.isEmpty()) {
-			File cfg = new File(fileName);
-			JsonNode node = null;
-			try {
-				node = mapper.readTree(cfg);
-			} catch (Exception e) {
-
-			}
-			if (node == null) {
-				node = new ObjectNode(mapper.getNodeFactory());
-			}
-			HashSet<String> transList = new HashSet<String>(transformations);
-			JsonNode transfListNode = null;
-			if (chain == null || "".equals(chain)) {
-				if (node.has("transformations")) {
-					transfListNode = node.get("transformations");
-
-				}
-			} else {
-				if (node.has("chains")) {
-					JsonNode chainsListNode = node.get("chains");
-					if (chainsListNode.isArray()) {
-						Iterator<JsonNode> it = chainsListNode.iterator();
-						boolean found = false;
-						while (it.hasNext() && !found) {
-							JsonNode current = it.next();
-							if (current.has("name")) {
-								String name = current.get("name").asText();
-								found = name.equals(chain);
-
-								if (current.has("transformations")) {
-									transfListNode = current.get("transformations");
-								}
-							}
-						}
-					}
-				}
-			}
-			if (recursive && node.has("modules")) {
-				JsonNode aux = node.get("modules");
-				if (aux.isArray()) {
-					ArrayNode modules = (ArrayNode) aux;
-					int max = modules.size();
-					for (int i = 0; i < max; i++) {
-						JsonNode module = modules.get(i);
-						if (module.isTextual()) {
-							String moduleDir = module.asText();
-
-							try {
-								File auxFile = new File(fileName).getCanonicalFile().getParentFile();
-								YAMLConfigurationProvider child = new YAMLConfigurationProvider(
-										auxFile.getAbsolutePath() + File.separator + moduleDir + File.separator
-												+ "walkmod.yml");
-								child.createConfig();
-								child.removeTransformations(chain, transformations, recursive);
-							} catch (IOException e) {
-								throw new TransformerException(e);
-							}
-
-						}
-					}
-				}
-			}
-
-			if (transfListNode != null) {
-				if (transfListNode.isArray()) {
-					ArrayNode transArray = (ArrayNode) transfListNode;
-					Iterator<JsonNode> it = transArray.iterator();
-					List<Integer> removeIndex = new LinkedList<Integer>();
-					int i = 0;
-					while (it.hasNext()) {
-						JsonNode transfNode = it.next();
-						if (transfNode.has("type")) {
-							String type = transfNode.get("type").asText();
-							if (transList.contains(type)) {
-								removeIndex.add(i);
-							}
-						}
-						i++;
-					}
-					for (Integer pos : removeIndex) {
-						transArray.remove(pos);
-					}
-				}
-				write(node);
-			}
+			RemoveTransformationYMLAction action = new RemoveTransformationYMLAction(chain, transformations, this,
+					recursive);
+			action.execute();
 		}
 	}
 
 	@Override
-	public void setWriter(String chain, String type, String path) throws TransformerException {
+	public void setWriter(String chain, String type, String path, boolean recursive) throws Exception {
 		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
-			File cfg = new File(fileName);
-			JsonNode node = null;
-			try {
-				node = mapper.readTree(cfg);
-			} catch (Exception e) {
-
-			}
-			if (node == null) {
-				node = new ObjectNode(mapper.getNodeFactory());
-			}
-			ObjectNode writer = null;
-
-			if (node.has("chains") && (chain == null || "".equals(chain.trim()))) {
-				chain = "default";
-			}
-
-			if (chain != null && !"".equals(chain.trim())) {
-
-				if (node.has("chains")) {
-					JsonNode chainsListNode = node.get("chains");
-					if (chainsListNode.isArray()) {
-						Iterator<JsonNode> it = chainsListNode.iterator();
-						boolean found = false;
-						while (it.hasNext() && !found) {
-							JsonNode current = it.next();
-							if (current.has("name")) {
-								String name = current.get("name").asText();
-								found = name.equals(chain);
-								if (found) {
-									if (current.has("writer")) {
-										writer = (ObjectNode) current.get("writer");
-									} else {
-										writer = new ObjectNode(mapper.getNodeFactory());
-									}
-
-									if (type != null && !"".equals(type.trim())) {
-										writer.set("type", new TextNode(type));
-									}
-									if (path != null && !"".equals(path.trim())) {
-										writer.set("path", new TextNode(path));
-									}
-
-								}
-							}
-						}
-					}
-				}
-				if (writer != null) {
-					write(node);
-				}
-			} else {
-				if (!node.has("chains")) {
-					ArrayNode chains = new ArrayNode(mapper.getNodeFactory());
-					ObjectNode defaultChain = new ObjectNode(mapper.getNodeFactory());
-					defaultChain.set("name", new TextNode("default"));
-					ObjectNode readerNode = new ObjectNode(mapper.getNodeFactory());
-
-					if (type != null && !"".equals(type.trim())) {
-						readerNode.set("type", new TextNode(type));
-					}
-					if (path != null && !"".equals(path.trim())) {
-						readerNode.set("path", new TextNode(path));
-					}
-
-					if (node.has("transformations")) {
-						defaultChain.set("transformations", node.get("transformations"));
-					}
-					defaultChain.set("writer", readerNode);
-					chains.add(defaultChain);
-					ObjectNode root = new ObjectNode(mapper.getNodeFactory());
-
-					root.set("chains", chains);
-					write(root);
-				}
-			}
-
+			SetWriterYMLAction action = new SetWriterYMLAction(chain, type, path, this, recursive);
+			action.execute();
 		}
 
 	}
 
 	@Override
-	public void setReader(String chain, String type, String path) throws TransformerException {
+	public void setReader(String chain, String type, String path, boolean recursive) throws Exception {
 		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
-			File cfg = new File(fileName);
-			JsonNode node = null;
-			try {
-				node = mapper.readTree(cfg);
-			} catch (Exception e) {
-
-			}
-			if (node == null) {
-				node = new ObjectNode(mapper.getNodeFactory());
-			}
-			ObjectNode reader = null;
-
-			if (node.has("chains") && (chain == null || "".equals(chain.trim()))) {
-				chain = "default";
-			}
-
-			if (chain != null && !"".equals(chain.trim())) {
-
-				if (node.has("chains")) {
-					JsonNode chainsListNode = node.get("chains");
-					if (chainsListNode.isArray()) {
-						Iterator<JsonNode> it = chainsListNode.iterator();
-						boolean found = false;
-						while (it.hasNext() && !found) {
-							JsonNode current = it.next();
-							if (current.has("name")) {
-								String name = current.get("name").asText();
-								found = name.equals(chain);
-								if (found) {
-									if (current.has("reader")) {
-										reader = (ObjectNode) current.get("reader");
-									} else {
-										reader = new ObjectNode(mapper.getNodeFactory());
-									}
-									if (type != null && !"".equals(type.trim())) {
-										reader.set("type", new TextNode(type));
-									}
-									if (path != null && !"".equals(path.trim())) {
-										reader.set("path", new TextNode(path));
-									}
-								}
-							}
-						}
-					}
-				}
-				if (reader != null) {
-					write(node);
-				}
-			} else {
-				if (!node.has("chains")) {
-					ArrayNode chains = new ArrayNode(mapper.getNodeFactory());
-					ObjectNode defaultChain = new ObjectNode(mapper.getNodeFactory());
-					defaultChain.set("name", new TextNode("default"));
-					ObjectNode readerNode = new ObjectNode(mapper.getNodeFactory());
-
-					if (type != null && !"".equals(type.trim())) {
-						readerNode.set("type", new TextNode(type));
-					}
-					if (path != null && !"".equals(path.trim())) {
-						readerNode.set("path", new TextNode(path));
-					}
-
-					defaultChain.set("reader", readerNode);
-					if (node.has("transformations")) {
-						defaultChain.set("transformations", node.get("transformations"));
-					}
-					chains.add(defaultChain);
-					write(chains);
-				}
-
-			}
-
+			SetReaderYMLAction action = new SetReaderYMLAction(chain, type, path, this, recursive);
+			action.execute();
 		}
 
 	}
 
 	@Override
-	public void removePluginConfig(PluginConfig pluginConfig) throws TransformerException {
-		File cfg = new File(fileName);
-
-		ArrayNode pluginList = null;
-		JsonNode node = null;
-		try {
-			node = mapper.readTree(cfg);
-		} catch (Exception e) {
-
-		}
-		if (node == null) {
-			node = new ObjectNode(mapper.getNodeFactory());
-		}
-		if (node.has("plugins")) {
-
-			JsonNode aux = node.get("plugins");
-			if (aux.isArray()) {
-				pluginList = (ArrayNode) node.get("plugins");
-				Iterator<JsonNode> it = pluginList.iterator();
-
-				int index = -1;
-				int i = 0;
-				while (it.hasNext() && index == -1) {
-					JsonNode next = it.next();
-					if (next.isTextual()) {
-						String text = next.asText();
-						String[] parts = text.split(":");
-						if (parts.length >= 2) {
-							if (parts[0].equals(pluginConfig.getGroupId())
-									&& parts[1].equals(pluginConfig.getArtifactId())) {
-								index = i;
-							}
-						}
-					}
-					i++;
-				}
-				if (index > -1) {
-					pluginList.remove(index);
-				}
-
-			} else {
-				throw new TransformerException("The plugins element is not a valid array");
-			}
-		}
-
-		write(node);
+	public void removePluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception {
+		RemovePluginYMLAction action = new RemovePluginYMLAction(pluginConfig, this, recursive);
+		action.execute();
 	}
 
 	@Override
-	public void removeModules(List<String> modules) throws TransformerException {
+	public void removeModules(List<String> modules) throws Exception {
 		if (modules != null) {
-			File cfg = new File(fileName);
-
-			ArrayNode modulesList = null;
-			JsonNode node = null;
-			try {
-				node = mapper.readTree(cfg);
-			} catch (Exception e) {
-
-			}
-			if (node == null) {
-				node = new ObjectNode(mapper.getNodeFactory());
-			}
-			if (node.has("modules")) {
-				JsonNode aux = node.get("modules");
-				if (aux.isArray()) {
-					modulesList = (ArrayNode) node.get("modules");
-					Iterator<JsonNode> it = modulesList.iterator();
-					ArrayNode newModulesList = new ArrayNode(mapper.getNodeFactory());
-					while (it.hasNext()) {
-						JsonNode next = it.next();
-						if (next.isTextual()) {
-							String text = next.asText();
-							if (!modules.contains(text)) {
-								newModulesList.add(text);
-							}
-						}
-					}
-					ObjectNode oNode = (ObjectNode) node;
-					if (newModulesList.size() > 0) {
-						oNode.set("modules", newModulesList);
-					} else {
-						oNode.remove("modules");
-					}
-					write(node);
-				}
-			}
-
+			RemoveModulesYMLAction action = new RemoveModulesYMLAction(modules, this);
+			action.execute();
 		}
 
 	}
 
 	@Override
-	public void removeProviders(List<String> providers) throws TransformerException {
+	public void removeProviders(List<String> providers, boolean recursive) throws Exception {
 		if (providers != null) {
-			File cfg = new File(fileName);
-
-			ArrayNode providersList = null;
-			JsonNode node = null;
-			try {
-				node = mapper.readTree(cfg);
-			} catch (Exception e) {
-
-			}
-			if (node == null) {
-				node = new ObjectNode(mapper.getNodeFactory());
-			}
-			HashSet<String> providerSet = new HashSet<String>();
-			for (String elem : providers) {
-				String[] partsType = elem.split(":");
-				if (partsType.length == 1) {
-					elem = "org.walkmod:walkmod-" + elem + "-plugin:" + elem;
-				}
-				if (partsType.length != 3 && partsType.length != 1) {
-					throw new TransformerException("Invalid conf-provider");
-				}
-				providerSet.add(elem);
-			}
-			if (node.has("conf-providers")) {
-				JsonNode aux = node.get("conf-providers");
-				if (aux.isArray()) {
-					providersList = (ArrayNode) node.get("conf-providers");
-					Iterator<JsonNode> it = providersList.iterator();
-					ArrayNode newProvidersList = new ArrayNode(mapper.getNodeFactory());
-					while (it.hasNext()) {
-						JsonNode next = it.next();
-						if (next.isObject()) {
-							String type = next.get("type").asText();
-							String[] parts = type.split(":");
-							if (parts.length == 1) {
-								type = "org.walkmod:walkmod-" + type + "-plugin:" + type;
-							} else if (parts.length != 3) {
-								throw new TransformerException("Invalid conf-provider");
-							}
-							if (!providerSet.contains(type)) {
-								newProvidersList.add(next);
-							}
-						}
-					}
-					ObjectNode oNode = (ObjectNode) node;
-					if (newProvidersList.size() > 0) {
-						oNode.set("conf-providers", newProvidersList);
-					} else {
-						oNode.remove("conf-providers");
-					}
-					write(node);
-				}
-			}
+			RemoveProvidersYMLAction action = new RemoveProvidersYMLAction(providers, this, recursive);
+			action.execute();
 		}
 	}
 
 	@Override
-	public void removeChains(List<String> chains) throws TransformerException {
+	public void removeChains(List<String> chains, boolean recursive) throws Exception {
 		if (chains != null) {
-			File cfg = new File(fileName);
-
-			ArrayNode chainsList = null;
-			JsonNode node = null;
-			try {
-				node = mapper.readTree(cfg);
-			} catch (Exception e) {
-
-			}
-			if (node == null) {
-				node = new ObjectNode(mapper.getNodeFactory());
-			}
-			HashSet<String> chainsSet = new HashSet<String>(chains);
-
-			if (node.has("chains")) {
-				JsonNode aux = node.get("chains");
-				if (aux.isArray()) {
-					chainsList = (ArrayNode) node.get("chains");
-					Iterator<JsonNode> it = chainsList.iterator();
-					ArrayNode newChainsList = new ArrayNode(mapper.getNodeFactory());
-					while (it.hasNext()) {
-						JsonNode next = it.next();
-						if (next.isObject()) {
-							String type = next.get("name").asText();
-							if (!chainsSet.contains(type)) {
-								newChainsList.add(next);
-							}
-						}
-					}
-					ObjectNode oNode = (ObjectNode) node;
-					if (newChainsList.size() > 0) {
-						oNode.set("chains", newChainsList);
-					} else {
-						oNode.remove("chains");
-					}
-					write(node);
-				}
-			} else if (node.has("transformations") && chainsSet.contains("default")) {
-				ObjectNode oNode = (ObjectNode) node;
-				oNode.remove("transformations");
-				write(node);
-			}
+			RemoveChainsYMLAction action = new RemoveChainsYMLAction(chains, this, recursive);
+			action.execute();
 		}
 
-	}
-
-	private void analyzeNode(JsonNode node, String type, String name, List<JsonNode> elementsToModify) {
-		if (type != null && node.has("type")) {
-			if (node.get("type").textValue().equals(type)) {
-				if (name != null && node.has("name")) {
-					if (node.get("name").textValue().equals(name)) {
-						elementsToModify.add(node);
-					}
-				} else {
-					elementsToModify.add(node);
-				}
-			}
-
-		}
 	}
 
 	@Override
 	public void addConfigurationParameter(String param, String value, String type, String category, String name,
-			String chain) throws TransformerException {
-		if (param == null || value == null) {
-			throw new TransformerException("The param and value arguments cannot be null");
-		}
-
-		File cfg = new File(fileName);
-		List<JsonNode> elementsToModify = new LinkedList<JsonNode>();
-
-		JsonNode node = null;
-		try {
-			node = mapper.readTree(cfg);
-		} catch (Exception e) {
-
-		}
-		if (node == null) {
-			node = new ObjectNode(mapper.getNodeFactory());
-		}
-
-		if (node.has("chains")) {
-			JsonNode aux = node.get("chains");
-			if (aux.isArray()) {
-				ArrayNode chainsList = (ArrayNode) node.get("chains");
-				Iterator<JsonNode> it = chainsList.iterator();
-
-				while (it.hasNext()) {
-					JsonNode next = it.next();
-					JsonNode walkerNode = null;
-					JsonNode transformationsNode = null;
-					if (chain == null || chain.equals(next.get("name").asText())) {
-						if (category != null) {
-							if (node.has(category)) { // reader, walker,
-														// writer
-								JsonNode categoryNode = node.get(category);
-								analyzeNode(categoryNode, type, name, elementsToModify);
-							} else {
-								if (category.equals("transformation")) {
-									if (node.has("transformations")) {
-										transformationsNode = node.get("transformations");
-									}
-								}
-								if (node.has("walker")) {
-									walkerNode = node.get("walker");
-								}
-							}
-						} else {
-							Iterator<JsonNode> it2 = next.iterator();
-							while (it2.hasNext()) {
-								analyzeNode(it2.next(), type, name, elementsToModify);
-							}
-							if (next.has("walker")) {
-								walkerNode = next.get("walker");
-
-							} else if (next.has("transformations")) {
-								transformationsNode = next.get("transformations");
-							}
-						}
-					}
-					if (walkerNode != null) {
-						if (category != null) {
-
-							if (walkerNode.has(category)) {
-								JsonNode categoryNode = node.get(category);
-								analyzeNode(categoryNode, type, name, elementsToModify);
-							}
-						} else if (walkerNode.has("transformations")) {
-							transformationsNode = walkerNode.get("transformations");
-
-						}
-
-					}
-					if (transformationsNode != null) {
-						if (transformationsNode.isArray()) {
-							ArrayNode transformationsArray = (ArrayNode) transformationsNode;
-							Iterator<JsonNode> it2 = transformationsArray.iterator();
-
-							while (it2.hasNext()) {
-								JsonNode current = it2.next();
-
-								analyzeNode(current, type, name, elementsToModify);
-							}
-						}
-					}
-				}
-			}
-		} else if (node.has("transformations") && (category == null || "transformation".equals(category))) {
-
-			JsonNode transformationsNode = node.get("transformations");
-			if (transformationsNode.isArray()) {
-				ArrayNode transformationsArray = (ArrayNode) transformationsNode;
-				Iterator<JsonNode> it = transformationsArray.iterator();
-
-				while (it.hasNext()) {
-					JsonNode current = it.next();
-					analyzeNode(current, type, name, elementsToModify);
-				}
-			}
-
-		}
-
-		Iterator<JsonNode> it = elementsToModify.iterator();
-		while (it.hasNext()) {
-			JsonNode current = it.next();
-			if (current.isObject()) {
-				JsonNode params = null;
-				if (current.has("params")) {
-					params = current.get("params");
-					if (params.isObject()) {
-						((ObjectNode) params).set(param, new TextNode(value));
-					}
-				} else {
-					Map<String, Object> paramToAdd = new HashMap<String, Object>();
-					paramToAdd.put(param, value);
-					populateParams((ObjectNode) current, paramToAdd);
-				}
-			}
-		}
-
-		if (!elementsToModify.isEmpty()) {
-			write(node);
+			String chain, boolean recursive) throws Exception {
+		if (param != null && value != null) {
+			AddConfigurationParameterYMLAction action = new AddConfigurationParameterYMLAction(param, value, type,
+					category, name, chain, this, recursive);
+			action.execute();
 		}
 
 	}
