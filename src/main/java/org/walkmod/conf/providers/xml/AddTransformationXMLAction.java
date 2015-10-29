@@ -65,7 +65,37 @@ public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
 					if ("chain".equals(nodeName)) {
 						String name = child.getAttribute("name");
 						if (name.equals(chain)) {
-							child.appendChild(createTransformationElement(transformationCfg));
+							Element transfElement = createTransformationElement(transformationCfg);
+
+							NodeList innerChainNodes = child.getChildNodes();
+
+							int maxK = innerChainNodes.getLength();
+							boolean added = false;
+							boolean hasWalker = false;
+							for (int k = 0; k < maxK &&!added; k++) {
+								Element chainInnerElem = (Element) innerChainNodes.item(k);
+								hasWalker = hasWalker || chainInnerElem.getNodeName().equals("walker");
+								if (hasWalker) {
+									NodeList transfList = chainInnerElem.getChildNodes();
+									int maxj = transfList.getLength();
+
+									for (int j = 0; j < maxj && !added; j++) {
+										if (transfList.item(j).getNodeName().equals("transformations")) {
+											transfList.item(j).appendChild(transfElement);
+											added = true;
+										}
+									}
+
+								} else if (chainInnerElem.getNodeName().equals("writer")) {
+									child.insertBefore(transfElement, chainInnerElem);
+									added = true;
+								}
+
+							}
+							if (!added) {
+								child.appendChild(transfElement);
+							}
+
 							appended = true;
 
 						}
