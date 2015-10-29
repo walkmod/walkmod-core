@@ -41,6 +41,8 @@ public class RemoveTransformationCommand implements Command {
 	@Parameter(names = {"--recursive", "-R"}, description = "Removes the transformation to all submodules")
 	private boolean recursive = false;
 
+	@Parameter(names = { "-e", "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
+	private Boolean printErrors = false;
 
 	public RemoveTransformationCommand(JCommander jcommander) {
 		this.jcommander = jcommander;
@@ -51,7 +53,7 @@ public class RemoveTransformationCommand implements Command {
 		if (help) {
 			jcommander.usage("rm");
 		} else {
-			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
 			facade.removeTransformations(chain, types, recursive);
 		}
 	}

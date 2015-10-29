@@ -41,6 +41,9 @@ public class RemovePluginCommand implements Command {
 	@Parameter(names = { "--recursive", "-R" }, description = "Remove the plugin to all submodules")
 	private boolean recursive = false;
 	
+	@Parameter(names = { "-e", "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
+	private Boolean printErrors = false;
+	
 
 	public RemovePluginCommand(JCommander command) {
 		this.command = command;
@@ -93,7 +96,7 @@ public class RemovePluginCommand implements Command {
 		} else {
 			List<PluginConfig> list = build();
 			for (PluginConfig pc : list) {
-				WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+				WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
 				facade.removePluginConfig(pc, recursive);
 			}
 		}

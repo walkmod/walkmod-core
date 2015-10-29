@@ -50,6 +50,9 @@ public class AddParamCommand implements Command {
 
 	@Parameter(names = { "--recursive", "-R" }, description = "Apply the param to all submodules")
 	private boolean recursive = false;
+	
+	@Parameter(names = { "-e", "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
+	private Boolean printErrors = false;
 
 	public AddParamCommand(JCommander command) {
 		this.command = command;
@@ -60,7 +63,7 @@ public class AddParamCommand implements Command {
 		if (help) {
 			command.usage("add-param");
 		} else {
-			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
 			facade.addConfigurationParameter(param, value, type, category, name, chain, recursive);
 		}
 	}

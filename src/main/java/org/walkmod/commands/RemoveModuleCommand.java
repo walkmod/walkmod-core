@@ -34,6 +34,9 @@ public class RemoveModuleCommand implements Command{
 	private boolean help;
 
 	private JCommander jcommander;
+	
+	@Parameter(names = { "-e", "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
+	private Boolean printErrors = false;
 
 	public RemoveModuleCommand(JCommander jcommander){
 		this.jcommander = jcommander;
@@ -45,7 +48,7 @@ public class RemoveModuleCommand implements Command{
 			jcommander.usage("rm-module");
 		} else {
 
-			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
 			facade.removeModules(modules);
 		}
 	}

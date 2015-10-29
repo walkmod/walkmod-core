@@ -1,3 +1,18 @@
+/* 
+  Copyright (C) 2013 Raquel Pau and Albert Coroleu.
+ 
+  Walkmod is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+ 
+  Walkmod is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+ 
+  You should have received a copy of the GNU Lesser General Public License
+  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.commands;
 
 import java.util.Collection;
@@ -16,19 +31,19 @@ import com.beust.jcommander.Parameters;
 import de.vandermeer.asciitable.v2.V2_AsciiTable;
 
 @Parameters(separators = "=", commandDescription = "Shows the list of added providers with its parameters.")
-public class PrintProvidersCommand implements Command, AsciiTableAware{
+public class PrintProvidersCommand implements Command, AsciiTableAware {
 
 	@Parameter(names = "--help", help = true, hidden = true)
 	private boolean help;
 
 	private JCommander jcommander;
-	
+
 	private V2_AsciiTable at;
-	
-	public PrintProvidersCommand(JCommander jcommander){
+
+	public PrintProvidersCommand(JCommander jcommander) {
 		this.jcommander = jcommander;
 	}
-	
+
 	@Override
 	public void execute() throws Exception {
 		if (help) {
@@ -46,17 +61,15 @@ public class PrintProvidersCommand implements Command, AsciiTableAware{
 				if (providers != null) {
 					for (ProviderConfig provider : providers) {
 						Map<String, Object> params = provider.getParameters();
-						if(params == null){
+						if (params == null) {
 							at.addRow(provider.getType(), "");
-						}
-						else{
+						} else {
 							Set<String> keys = params.keySet();
 							int i = 0;
-							for(String key: keys){
-								if(i == 0){
+							for (String key : keys) {
+								if (i == 0) {
 									at.addRow(provider.getType(), params.get(key).toString());
-								}
-								else{
+								} else {
 									at.addRow("", params.get(key).toString());
 								}
 								i++;

@@ -34,6 +34,9 @@ public class AddModuleCommand implements Command {
 	private boolean help;
 
 	private JCommander jcommander;
+	
+	@Parameter(names = { "-e", "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
+	private Boolean printErrors = false;
 
 	public AddModuleCommand(JCommander jcommander) {
 		this.jcommander = jcommander;
@@ -49,7 +52,7 @@ public class AddModuleCommand implements Command {
 			jcommander.usage("add-module");
 		} else {
 
-			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
 			facade.addModules(modules);
 		}
 

@@ -38,6 +38,9 @@ public class RemoveChainCommand implements Command{
 	@Parameter(names = { "--recursive", "-R" }, description = "Remove the chains to all submodules")
 	private boolean recursive = false;
 	
+	@Parameter(names = { "-e", "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
+	private Boolean printErrors = false;
+	
 	public RemoveChainCommand(JCommander jcommander){
 		this.jcommander = jcommander;
 	}
@@ -48,7 +51,7 @@ public class RemoveChainCommand implements Command{
 			jcommander.usage("rm-chain");
 		} else {
 
-			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
 			facade.removeChains(chains, recursive);
 		}
 	}

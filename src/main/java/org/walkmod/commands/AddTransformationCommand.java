@@ -62,6 +62,9 @@ public class AddTransformationCommand implements Command {
 	
 	@Parameter(names = {"--recursive", "-R"}, description = "Adds the transformation to all submodules")
 	private boolean recursive = false;
+	
+	@Parameter(names = { "-e", "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
+	private Boolean printErrors = false;
 
 	private JCommander jcommander;
 
@@ -110,7 +113,7 @@ public class AddTransformationCommand implements Command {
 			jcommander.usage("add");
 		} else {
 
-			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
 			facade.addTransformationConfig(chain, path, recursive, buildTransformationCfg());
 		}
 	}
