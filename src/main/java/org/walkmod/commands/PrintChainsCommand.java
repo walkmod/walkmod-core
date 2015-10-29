@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.walkmod.OptionsBuilder;
 import org.walkmod.WalkModFacade;
 import org.walkmod.conf.entities.ChainConfig;
@@ -30,20 +29,17 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-import de.vandermeer.asciitable.v2.RenderedTable;
 import de.vandermeer.asciitable.v2.V2_AsciiTable;
-import de.vandermeer.asciitable.v2.render.V2_AsciiTableRenderer;
-import de.vandermeer.asciitable.v2.render.WidthAbsoluteEven;
-import de.vandermeer.asciitable.v2.render.WidthLongestLine;
-import de.vandermeer.asciitable.v2.themes.V2_E_TableThemes;
 
 @Parameters(separators = "=", commandDescription = "Shows the list of chains with its code transformations.")
-public class PrintChainsCommand implements Command {
+public class PrintChainsCommand implements Command, AsciiTableAware{
 
 	@Parameter(names = "--help", help = true, hidden = true)
 	private boolean help;
 
 	private JCommander command;
+	
+	private V2_AsciiTable at = null;
 
 	public PrintChainsCommand(JCommander jcommander) {
 		this.command = jcommander;
@@ -59,7 +55,7 @@ public class PrintChainsCommand implements Command {
 			if (cfg != null) {
 				Collection<ChainConfig> chains = cfg.getChainConfigs();
 				if (chains != null) {
-					V2_AsciiTable at = new V2_AsciiTable();
+					at = new V2_AsciiTable();
 					at.addRule();
 					at.addRow("CHAIN", "READER PATH", "WRITER PATH", "TRANSFORMATIONS");
 					at.addStrongRule();
@@ -85,15 +81,16 @@ public class PrintChainsCommand implements Command {
 						at.addRule();
 						
 					}
-
-					V2_AsciiTableRenderer rend = new V2_AsciiTableRenderer();
-					rend.setTheme(V2_E_TableThemes.UTF_LIGHT.get());
-					rend.setWidth(new WidthLongestLine());
-					RenderedTable rt = rend.render(at);
-					System.out.println(rt);
+					
 				}
 			}
 		}
+	}
+
+	@Override
+	public V2_AsciiTable getTable() {
+		
+		return at;
 	}
 
 }

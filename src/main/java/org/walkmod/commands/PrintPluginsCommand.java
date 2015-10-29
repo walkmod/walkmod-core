@@ -41,14 +41,10 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-import de.vandermeer.asciitable.v2.RenderedTable;
 import de.vandermeer.asciitable.v2.V2_AsciiTable;
-import de.vandermeer.asciitable.v2.render.V2_AsciiTableRenderer;
-import de.vandermeer.asciitable.v2.render.WidthLongestLine;
-import de.vandermeer.asciitable.v2.themes.V2_E_TableThemes;
 
 @Parameters(separators = "=", commandDescription = "Shows the available walkmod plugins created by the community.")
-public class PrintPluginsCommand implements Command {
+public class PrintPluginsCommand implements Command, AsciiTableAware {
 
 	public final static String MVN_SEARCH_URL = "https://search.maven.org/solrsearch/select?q=walkmod&&rows=50&&wt=json";
 
@@ -58,6 +54,8 @@ public class PrintPluginsCommand implements Command {
 	private boolean help;
 
 	private JCommander command;
+	
+	private V2_AsciiTable at =null;
 
 	public PrintPluginsCommand(JCommander command) {
 		this.command = command;
@@ -147,7 +145,7 @@ public class PrintPluginsCommand implements Command {
 				List<String> sortedKeys = new LinkedList<String>(keys);
 				Collections.sort(sortedKeys);
 
-				V2_AsciiTable at = new V2_AsciiTable();
+				at = new V2_AsciiTable();
 				at.addRule();
 				at.addRow("PLUGIN NAME (ID)", "URL", "DESCRIPTION");
 				at.addStrongRule();
@@ -155,11 +153,7 @@ public class PrintPluginsCommand implements Command {
 					at.addRow(key, pluginsURLs.get(key), pluginsList.get(key));
 				}
 				at.addRule();
-				V2_AsciiTableRenderer rend = new V2_AsciiTableRenderer();
-				rend.setTheme(V2_E_TableThemes.UTF_LIGHT.get());
-				rend.setWidth(new WidthLongestLine());
-				RenderedTable rt = rend.render(at);
-				System.out.println(rt);
+				
 
 			} catch (Exception e) {
 				throw new WalkModException("Invalid plugins URL", e);
@@ -177,6 +171,11 @@ public class PrintPluginsCommand implements Command {
 			line = br.readLine();
 		}
 		return response;
+	}
+
+	@Override
+	public V2_AsciiTable getTable() {
+		return at;
 	}
 
 }

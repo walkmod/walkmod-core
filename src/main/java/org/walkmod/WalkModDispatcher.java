@@ -27,6 +27,7 @@ import org.walkmod.commands.AddParamCommand;
 import org.walkmod.commands.AddPluginCommand;
 import org.walkmod.commands.AddTransformationCommand;
 import org.walkmod.commands.ApplyCommand;
+import org.walkmod.commands.AsciiTableAware;
 import org.walkmod.commands.CheckCommand;
 import org.walkmod.commands.Command;
 import org.walkmod.commands.HelpCommand;
@@ -47,6 +48,12 @@ import org.walkmod.commands.VersionCommand;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+
+import de.vandermeer.asciitable.v2.RenderedTable;
+import de.vandermeer.asciitable.v2.V2_AsciiTable;
+import de.vandermeer.asciitable.v2.render.V2_AsciiTableRenderer;
+import de.vandermeer.asciitable.v2.render.WidthLongestLine;
+import de.vandermeer.asciitable.v2.themes.V2_E_TableThemes;
 
 /**
  * Walkmod shell
@@ -149,7 +156,20 @@ public class WalkModDispatcher {
 			}
 			String command = jcommander.getParsedCommand();
 			printHeader();
-			commands.get(command.substring("walkmod ".length(), command.length())).execute();
+			Command commandObject = commands.get(command.substring("walkmod ".length(), command.length()));
+			commandObject.execute();
+
+			if (commandObject instanceof AsciiTableAware) {
+				AsciiTableAware aux = (AsciiTableAware) commandObject;
+				V2_AsciiTable table = aux.getTable();
+				if (table != null) {
+					V2_AsciiTableRenderer rend = new V2_AsciiTableRenderer();
+					rend.setTheme(V2_E_TableThemes.UTF_LIGHT.get());
+					rend.setWidth(new WidthLongestLine());
+					RenderedTable rt = rend.render(table);
+					System.out.println(rt);
+				}
+			}
 
 		}
 	}
