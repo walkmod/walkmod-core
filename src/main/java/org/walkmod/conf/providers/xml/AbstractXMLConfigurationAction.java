@@ -16,6 +16,7 @@
 package org.walkmod.conf.providers.xml;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,8 @@ import java.util.Set;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
@@ -55,26 +58,41 @@ public abstract class AbstractXMLConfigurationAction implements ConfigurationAct
 			provider.init(new ConfigurationImpl());
 		} else {
 			provider.init(new ConfigurationImpl());
-			provider.load();
 		}
 		if (recursive) {
+			
+			Document document = provider.getDocument();
+			Element rootElement = document.getDocumentElement();
+			NodeList children = rootElement.getChildNodes();
+			int childSize = children.getLength();
+			boolean containsModules = false;
+			
+			for (int i = 0; i < childSize; i++) {
+				Node childNode = children.item(i);
+				if (childNode instanceof Element) {
+					Element child  = (Element) childNode;
+					final String nodeName = child.getNodeName();
 
-			Configuration conf = provider.getConfiguration();
-			List<String> modules = conf.getModules();
-			if (modules != null && !modules.isEmpty()) {
-				for (String module : modules) {
-					String cfg = provider.getConfigFileName();
-					if (cfg != null) {
-						File auxFile = new File(cfg).getCanonicalFile().getParentFile();
-						File moduleFileDir = new File(auxFile, module);
-						XMLConfigurationProvider aux = new XMLConfigurationProvider(moduleFileDir.getAbsolutePath()
-								+ File.separator + "walkmod.xml", false);
+					if ("modules".equals(nodeName)) {
+						containsModules = true;
+						NodeList moduleNodeList = child.getChildNodes();
+						int max = moduleNodeList.getLength();
+						for (int j = 0; j < max; j++) {
+							String cfg = provider.getConfigFileName();
+							if (cfg != null) {
+								File auxFile = new File(cfg).getCanonicalFile().getParentFile();
+								File moduleFileDir = new File(auxFile, moduleNodeList.item(j).getTextContent());
+								XMLConfigurationProvider aux = new XMLConfigurationProvider(moduleFileDir.getAbsolutePath()
+										+ File.separator + "walkmod.xml", false);
 
-						AbstractXMLConfigurationAction ct = clone(aux, recursive);
-						ct.execute();
+								AbstractXMLConfigurationAction ct = clone(aux, recursive);
+								ct.execute();
+							}
+						}
 					}
 				}
-			} else {
+			}
+			if(!containsModules){
 				doAction();
 			}
 		} else {
