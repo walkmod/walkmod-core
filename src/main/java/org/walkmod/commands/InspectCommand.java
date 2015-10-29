@@ -17,7 +17,6 @@ package org.walkmod.commands;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.walkmod.OptionsBuilder;
 import org.walkmod.WalkModFacade;
 import org.walkmod.conf.entities.BeanDefinition;
@@ -27,8 +26,10 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
+import de.vandermeer.asciitable.v2.V2_AsciiTable;
+
 @Parameters(separators = "=", commandDescription = "Prints the components of a walkmod plugin")
-public class InspectCommand implements Command {
+public class InspectCommand implements Command, AsciiTableAware {
 
 	@Parameter(names = "--help", help = true, hidden = true)
 	private boolean help;
@@ -37,9 +38,11 @@ public class InspectCommand implements Command {
 
 	@Parameter(description = "The plugin id to inspect (e.g imports-cleaner)")
 	private List<String> pluginId;
-	
+
 	@Parameter(names = "--offline", description = "Resolves the walkmod plugins and their dependencies in offline mode")
 	private boolean offline = false;
+
+	private V2_AsciiTable at = null;
 
 	public InspectCommand(JCommander command) {
 		this.command = command;
@@ -53,27 +56,25 @@ public class InspectCommand implements Command {
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().offline(offline));
 			List<BeanDefinition> beans = facade.inspectPlugin(new PluginConfigImpl(pluginId.get(0)));
 			if (beans != null) {
-				String line = "";
 
-				for (int i = 0; i < 2 + 53 + 33 + 52; i++) {
-					line = line + "-";
-				}
-				System.out.println(line);
-				System.out.printf("| %50s | %30s | %50s |%n", StringUtils.center("TYPE NAME (ID)", 50),
-						StringUtils.center("CATEGORY", 30), StringUtils.center("DESCRIPTION", 50));
-				System.out.println(line);
+				at = new V2_AsciiTable();
+				at.addRule();
+				at.addRow("TYPE NAME (ID)", "CATEGORY", "DESCRIPTION");
+				at.addStrongRule();
 
 				for (BeanDefinition bean : beans) {
-					System.out.printf("| %50s | %30s | %50s |%n", "", "", "");
 
-					System.out.printf("| %50s | %30s | %50s |%n", StringUtils.center(bean.getType(), 50),
-							StringUtils.center(bean.getCategory(), 30), StringUtils.center(bean.getDescription(), 50));
+					at.addRow(bean.getType(), bean.getCategory(), bean.getDescription());
 
 				}
-				System.out.printf("| %50s | %30s | %50s |%n", "", "", "");
-				System.out.println(line);
+				at.addRule();
 			}
 		}
+	}
+
+	@Override
+	public V2_AsciiTable getTable() {
+		return at;
 	}
 
 }
