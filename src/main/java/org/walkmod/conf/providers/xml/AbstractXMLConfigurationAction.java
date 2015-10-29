@@ -16,7 +16,6 @@
 package org.walkmod.conf.providers.xml;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
-import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.ReaderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
