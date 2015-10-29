@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -32,6 +33,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import org.walkmod.OptionsBuilder;
+import org.walkmod.WalkModFacade;
+import org.walkmod.conf.entities.Configuration;
+import org.walkmod.conf.entities.PluginConfig;
+import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.exceptions.WalkModException;
 
 import com.alibaba.fastjson.JSONArray;
@@ -54,8 +60,8 @@ public class PrintPluginsCommand implements Command, AsciiTableAware {
 	private boolean help;
 
 	private JCommander command;
-	
-	private V2_AsciiTable at =null;
+
+	private V2_AsciiTable at = null;
 
 	public PrintPluginsCommand(JCommander command) {
 		this.command = command;
@@ -66,8 +72,12 @@ public class PrintPluginsCommand implements Command, AsciiTableAware {
 			command.usage("init");
 		} else {
 			try {
+				WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+				Configuration cfg = facade.getConfiguration();
+				Collection<PluginConfig> installedPlugins = cfg.getPlugins();
 				URL searchURL = new URL(MVN_SEARCH_URL);
 				InputStream is = null;
+				Map<String, Boolean> installedList = new LinkedHashMap<String, Boolean>();
 				Map<String, String> pluginsList = new LinkedHashMap<String, String>();
 				Map<String, String> pluginsURLs = new LinkedHashMap<String, String>();
 				try {
@@ -133,6 +143,15 @@ public class PrintPluginsCommand implements Command, AsciiTableAware {
 
 								pluginsURLs.put(id, url);
 
+								PluginConfig equivalentPluginCfg = new PluginConfigImpl();
+								equivalentPluginCfg.setGroupId(groupId);
+								equivalentPluginCfg.setArtifactId(artifactId);
+
+								boolean isInstalled = (installedPlugins != null && installedPlugins
+										.contains(equivalentPluginCfg));
+
+								installedList.put(id, isInstalled);
+
 							} finally {
 								projectIs.close();
 							}
@@ -147,13 +166,16 @@ public class PrintPluginsCommand implements Command, AsciiTableAware {
 
 				at = new V2_AsciiTable();
 				at.addRule();
-				at.addRow("PLUGIN NAME (ID)", "URL", "DESCRIPTION");
+				at.addRow("PLUGIN NAME (ID)", "INSTALLED", "URL (DOCUMENTATION)", "DESCRIPTION");
 				at.addStrongRule();
 				for (String key : sortedKeys) {
-					at.addRow(key, pluginsURLs.get(key), pluginsList.get(key));
+					String installed = "";
+					if (installedList.get(key)) {
+						installed = "*";
+					}
+					at.addRow(key, installed, pluginsURLs.get(key), pluginsList.get(key));
 				}
 				at.addRule();
-				
 
 			} catch (Exception e) {
 				throw new WalkModException("Invalid plugins URL", e);
