@@ -38,6 +38,7 @@ import org.walkmod.commands.PrintChainsCommand;
 import org.walkmod.commands.PrintModulesCommand;
 import org.walkmod.commands.PrintPluginsCommand;
 import org.walkmod.commands.PrintProvidersCommand;
+import org.walkmod.commands.PrintTransformationsCommand;
 import org.walkmod.commands.RemoveChainCommand;
 import org.walkmod.commands.RemoveModuleCommand;
 import org.walkmod.commands.RemovePluginCommand;
@@ -125,6 +126,7 @@ public class WalkModDispatcher {
 		commands.put("rm-provider", new RemoveProviderCommand(jcommander));
 		commands.put("set-reader", new SetReaderCommand(jcommander));
 		commands.put("set-writer", new SetWriterCommand(jcommander));
+		commands.put("transformations", new PrintTransformationsCommand(jcommander));
 		commands.put("plugins", new PrintPluginsCommand(jcommander));
 		commands.put("--version", new VersionCommand());
 		commands.put("--help", new HelpCommand(jcommander));
