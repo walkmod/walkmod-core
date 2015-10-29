@@ -49,6 +49,9 @@ public class AddTransformationCommand implements Command {
 	
 	@Parameter(names= {"--path", "-d"}, description = "Source directory when the specified chain does not exists")
 	private String path = null;
+	
+	@Parameter(names= {"--name", "--alias"}, description = "Alias to identify the transformation")
+	private String name = null;
 
 	@Parameter(arity = 1, description = "The transformation type identifier", required = true)
 	private List<String> type = null;
@@ -56,13 +59,12 @@ public class AddTransformationCommand implements Command {
 	@Parameter(names = "--help", help = true, hidden = true)
 	private boolean help;
 	
-	
 	@Parameter(names = {"--recursive", "-R"}, description = "Adds the transformation to all submodules")
 	private boolean recursive = false;
 
 	private JCommander jcommander;
 
-	public AddTransformationCommand(String type, String chain, boolean isMergeable, String mergePolicy, String path, JsonNode params, boolean recursive) {
+	public AddTransformationCommand(String type, String chain, boolean isMergeable, String mergePolicy, String path, String name, JsonNode params, boolean recursive) {
 		this.type = new LinkedList<String>();
 		this.type.add(type);
 		this.chain = chain;
@@ -71,6 +73,7 @@ public class AddTransformationCommand implements Command {
 		this.params = params;
 		this.path = path;
 		this.recursive = recursive;
+		this.name = name;
 	}
 
 	public AddTransformationCommand(JCommander jcommander) {
@@ -82,6 +85,7 @@ public class AddTransformationCommand implements Command {
 		tconfig.setType(type.get(0));
 		tconfig.isMergeable(isMergeable);
 		tconfig.setMergePolicy(mergePolicy);
+		tconfig.setName(name);
 
 		if (params != null) {
 			JSONConfigParser parser = new JSONConfigParser();
