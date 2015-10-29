@@ -567,6 +567,7 @@ public class WalkModFacade {
 	 *             written.
 	 */
 	public void addChainConfig(ChainConfig chainCfg, boolean recursive) throws Exception {
+		long startTime = System.currentTimeMillis();
 		if (!cfg.exists()) {
 			init();
 		}
@@ -581,6 +582,7 @@ public class WalkModFacade {
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}
+		updateMsg(startTime);
 	}
 
 	/**
@@ -597,6 +599,7 @@ public class WalkModFacade {
 	 */
 	public void addTransformationConfig(String chain, String path, boolean recursive,
 			TransformationConfig transformationCfg) throws Exception {
+		long startTime = System.currentTimeMillis();
 		if (!cfg.exists()) {
 			init();
 		}
@@ -611,6 +614,7 @@ public class WalkModFacade {
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}
+		updateMsg(startTime);
 	}
 
 	/**
@@ -618,12 +622,13 @@ public class WalkModFacade {
 	 * 
 	 * @param providerCfg
 	 *            provider configuration to add.
-	 * @param recursive 
+	 * @param recursive
 	 * @throws Exception
 	 *             in case that the walkmod configuration file can't be read or
 	 *             written.
 	 */
 	public void addProviderConfig(ProviderConfig providerCfg, boolean recursive) throws Exception {
+		long startTime = System.currentTimeMillis();
 		if (!cfg.exists()) {
 			init();
 		}
@@ -638,6 +643,7 @@ public class WalkModFacade {
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}
+		updateMsg(startTime);
 	}
 
 	/**
@@ -651,6 +657,7 @@ public class WalkModFacade {
 	 *             written.
 	 */
 	public void addPluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception {
+		long startTime = System.currentTimeMillis();
 		if (!cfg.exists()) {
 			init();
 		}
@@ -663,6 +670,32 @@ public class WalkModFacade {
 			cfgProvider.addPluginConfig(pluginConfig, recursive);
 		} finally {
 			System.setProperty("user.dir", userDir);
+		}
+		updateMsg(startTime);
+	}
+
+	private void updateMsg(long startTime) {
+		if (options.isVerbose()) {
+			DecimalFormat myFormatter = new DecimalFormat("###.###");
+			DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss", Locale.US);
+			long endTime = System.currentTimeMillis();
+			double time = 0;
+			if (endTime > startTime) {
+				time = (double) (endTime - startTime) / (double) 1000;
+			}
+			String timeMsg = myFormatter.format(time);
+			System.out.print("----------------------------------------");
+			System.out.println("----------------------------------------");
+			log.info("CONFIGURATION UPDATE SUCCESS");
+			System.out.println();
+			System.out.print("----------------------------------------");
+			System.out.println("----------------------------------------");
+			log.info("Total time: " + timeMsg + " seconds");
+			log.info("Finished at: " + df.format(new Date()));
+			log.info("Final memory: " + (Runtime.getRuntime().freeMemory()) / 1048576 + " M/ "
+					+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
+			System.out.print("----------------------------------------");
+			System.out.println("----------------------------------------");
 		}
 	}
 
@@ -1014,6 +1047,7 @@ public class WalkModFacade {
 	}
 
 	public void addModules(List<String> modules) throws Exception {
+		long startTime = System.currentTimeMillis();
 		if (modules != null) {
 			if (!cfg.exists()) {
 				init();
@@ -1030,10 +1064,12 @@ public class WalkModFacade {
 				System.setProperty("user.dir", userDir);
 			}
 		}
+		updateMsg(startTime);
 
 	}
 
 	public void removeTransformations(String chain, List<String> transformations, boolean recursive) throws Exception {
+		long startTime = System.currentTimeMillis();
 		if (transformations != null) {
 			if (!cfg.exists()) {
 				init();
@@ -1050,10 +1086,12 @@ public class WalkModFacade {
 				System.setProperty("user.dir", userDir);
 			}
 		}
+		updateMsg(startTime);
 
 	}
 
 	public void setWriter(String chain, String type, String path) throws Exception {
+		long startTime = System.currentTimeMillis();
 		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
 			if (!cfg.exists()) {
 				init();
@@ -1069,11 +1107,13 @@ public class WalkModFacade {
 			} finally {
 				System.setProperty("user.dir", userDir);
 			}
+			updateMsg(startTime);
 		}
 	}
 
 	public void setReader(String chain, String type, String path) throws Exception {
 		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
+			long startTime = System.currentTimeMillis();
 			if (!cfg.exists()) {
 				init();
 			}
@@ -1088,10 +1128,12 @@ public class WalkModFacade {
 			} finally {
 				System.setProperty("user.dir", userDir);
 			}
+			updateMsg(startTime);
 		}
 	}
 
 	public void removePluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception {
+		long startTime = System.currentTimeMillis();
 		if (!cfg.exists()) {
 			init();
 		}
@@ -1105,10 +1147,11 @@ public class WalkModFacade {
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}
-
+		updateMsg(startTime);
 	}
 
 	public void removeModules(List<String> modules) throws Exception {
+		long startTime = System.currentTimeMillis();
 		if (!cfg.exists()) {
 			init();
 		}
@@ -1122,9 +1165,11 @@ public class WalkModFacade {
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}
+		updateMsg(startTime);
 	}
 
 	public void removeProviders(List<String> providers, boolean recursive) throws Exception {
+		long startTime = System.currentTimeMillis();
 		if (!cfg.exists()) {
 			init();
 		}
@@ -1138,6 +1183,7 @@ public class WalkModFacade {
 		} finally {
 			System.setProperty("user.dir", userDir);
 		}
+		updateMsg(startTime);
 	}
 
 	public Configuration getConfiguration() throws Exception {
@@ -1158,7 +1204,7 @@ public class WalkModFacade {
 	}
 
 	public void removeChains(List<String> chains, boolean recursive) throws Exception {
-
+		long startTime = System.currentTimeMillis();
 		if (cfg.exists()) {
 
 			userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
@@ -1170,6 +1216,7 @@ public class WalkModFacade {
 				System.setProperty("user.dir", userDir);
 			}
 		}
+		updateMsg(startTime);
 
 	}
 
@@ -1185,6 +1232,7 @@ public class WalkModFacade {
 
 	public void addConfigurationParameter(String param, String value, String type, String category, String name,
 			String chain, boolean recursive) throws Exception {
+		long startTime = System.currentTimeMillis();
 		if (cfg.exists()) {
 
 			userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
@@ -1196,6 +1244,7 @@ public class WalkModFacade {
 			} finally {
 				System.setProperty("user.dir", userDir);
 			}
+			updateMsg(startTime);
 		}
 
 	}

@@ -26,7 +26,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 @Parameters(separators = "=", commandDescription = "Sets an specific reader for an specific chain.")
-public class SetReaderCommand implements Command {
+public class SetReaderCommand implements Command{
 
 	@Parameter(arity = 1, description = "The reader type identifier", required = false)
 	public List<String> readerType;

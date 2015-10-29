@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+
 @Parameters(separators = "=", commandDescription = "Adds a code transformation/convention into a chain.")
 public class AddTransformationCommand implements Command {
 

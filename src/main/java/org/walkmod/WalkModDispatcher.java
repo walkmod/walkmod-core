@@ -161,6 +161,7 @@ public class WalkModDispatcher {
 			String command = jcommander.getParsedCommand();
 			printHeader();
 			Command commandObject = commands.get(command.substring("walkmod ".length(), command.length()));
+
 			commandObject.execute();
 
 			if (commandObject instanceof AsciiTableAware) {
