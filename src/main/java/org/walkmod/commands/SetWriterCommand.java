@@ -41,6 +41,10 @@ public class SetWriterCommand implements Command {
 	
 	@Parameter(names = { "--path", "-d"}, description = "The reader path", required = false)
 	private String path = "src/main/java";
+	
+	@Parameter(names = {"--recursive", "-R"}, description = "Removes the transformation to all submodules")
+	private boolean recursive = false;
+
 
 	public SetWriterCommand(JCommander jcommander) {
 		this.jcommander = jcommander;
@@ -58,7 +62,7 @@ public class SetWriterCommand implements Command {
 			jcommander.usage("set-writer");
 		} else {
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-			facade.setWriter(chain, writerType.get(0), path);
+			facade.setWriter(chain, writerType.get(0), path, recursive);
 		}
 	}
 

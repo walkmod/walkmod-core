@@ -41,6 +41,10 @@ public class SetReaderCommand implements Command{
 	
 	@Parameter(names = { "--path", "-d"}, description = "The reader path", required = false)
 	private String path = "src/main/java";
+	
+	@Parameter(names = {"--recursive", "-R"}, description = "Removes the transformation to all submodules")
+	private boolean recursive = false;
+
 
 	public SetReaderCommand(JCommander jcommander) {
 		this.jcommander = jcommander;
@@ -58,7 +62,7 @@ public class SetReaderCommand implements Command{
 			jcommander.usage("set-reader");
 		} else {
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-			facade.setReader(chain, readerType.get(0), path);
+			facade.setReader(chain, readerType.get(0), path, recursive);
 		}
 	}
 

@@ -563,11 +563,11 @@ public class WalkModFacade {
 	 * @param recursive
 	 *            Adds the new chain into all the submodules
 	 * @throws Exception
-	 *             in case that the walkmod configuration file can't be read or
-	 *             written.
+	 *             in case that the walkmod configuration file can't be read.
 	 */
 	public void addChainConfig(ChainConfig chainCfg, boolean recursive) throws Exception {
 		long startTime = System.currentTimeMillis();
+		Exception exception = null;
 		if (!cfg.exists()) {
 			init();
 		}
@@ -579,10 +579,12 @@ public class WalkModFacade {
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
 			cfgProvider.addChainConfig(chainCfg, recursive);
+		} catch (Exception e) {
+			exception = e;
 		} finally {
 			System.setProperty("user.dir", userDir);
+			updateMsg(startTime, exception);
 		}
-		updateMsg(startTime);
 	}
 
 	/**
@@ -594,12 +596,12 @@ public class WalkModFacade {
 	 * @param transformationCfg
 	 *            transformation configuration to add
 	 * @throws Exception
-	 *             in case that the walkmod configuration file can't be read or
-	 *             written.
+	 *             in case that the walkmod configuration file can't be read.
 	 */
 	public void addTransformationConfig(String chain, String path, boolean recursive,
 			TransformationConfig transformationCfg) throws Exception {
 		long startTime = System.currentTimeMillis();
+		Exception exception = null;
 		if (!cfg.exists()) {
 			init();
 		}
@@ -611,10 +613,12 @@ public class WalkModFacade {
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
 			cfgProvider.addTransformationConfig(chain, path, transformationCfg, false);
+		} catch (Exception e) {
+			exception = e;
 		} finally {
 			System.setProperty("user.dir", userDir);
+			updateMsg(startTime, exception);
 		}
-		updateMsg(startTime);
 	}
 
 	/**
@@ -624,11 +628,11 @@ public class WalkModFacade {
 	 *            provider configuration to add.
 	 * @param recursive
 	 * @throws Exception
-	 *             in case that the walkmod configuration file can't be read or
-	 *             written.
+	 *             in case that the walkmod configuration file can't be read.
 	 */
 	public void addProviderConfig(ProviderConfig providerCfg, boolean recursive) throws Exception {
 		long startTime = System.currentTimeMillis();
+		Exception exception = null;
 		if (!cfg.exists()) {
 			init();
 		}
@@ -640,10 +644,12 @@ public class WalkModFacade {
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
 			cfgProvider.addProviderConfig(providerCfg, recursive);
+		} catch (Exception e) {
+			exception = e;
 		} finally {
 			System.setProperty("user.dir", userDir);
+			updateMsg(startTime, exception);
 		}
-		updateMsg(startTime);
 	}
 
 	/**
@@ -653,11 +659,11 @@ public class WalkModFacade {
 	 *            the plugin to add
 	 * @param recursive
 	 * @throws Exception
-	 *             in case that the walkmod configuration file can't be read or
-	 *             written.
+	 *             in case that the walkmod configuration file can't be read.
 	 */
 	public void addPluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception {
 		long startTime = System.currentTimeMillis();
+		Exception exception = null;
 		if (!cfg.exists()) {
 			init();
 		}
@@ -668,13 +674,16 @@ public class WalkModFacade {
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 			cfgProvider.addPluginConfig(pluginConfig, recursive);
+		} catch (Exception e) {
+			exception = e;
 		} finally {
 			System.setProperty("user.dir", userDir);
+			updateMsg(startTime, exception);
 		}
-		updateMsg(startTime);
+
 	}
 
-	private void updateMsg(long startTime) {
+	private void updateMsg(long startTime, Exception e) {
 		if (options.isVerbose()) {
 			DecimalFormat myFormatter = new DecimalFormat("###.###");
 			DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss", Locale.US);
@@ -686,7 +695,11 @@ public class WalkModFacade {
 			String timeMsg = myFormatter.format(time);
 			System.out.print("----------------------------------------");
 			System.out.println("----------------------------------------");
-			log.info("CONFIGURATION UPDATE SUCCESS");
+			if (e == null) {
+				log.info("CONFIGURATION UPDATE SUCCESS");
+			} else {
+				log.info("CONFIGURATION UPDATE FAILS");
+			}
 			System.out.println();
 			System.out.print("----------------------------------------");
 			System.out.println("----------------------------------------");
@@ -696,6 +709,19 @@ public class WalkModFacade {
 					+ (Runtime.getRuntime().totalMemory() / 1048576) + " M");
 			System.out.print("----------------------------------------");
 			System.out.println("----------------------------------------");
+
+			if (e != null) {
+				if (options.isPrintErrors()) {
+					log.error("Plugin installations fails", e);
+				} else {
+					log.info("Plugin installations fails. Please, execute walkmod with -e to see the details");
+				}
+				if (options.isThrowException()) {
+					RuntimeException re = new RuntimeException();
+					re.setStackTrace(e.getStackTrace());
+					throw re;
+				}
+			}
 		}
 	}
 
@@ -1046,8 +1072,17 @@ public class WalkModFacade {
 		}
 	}
 
+	/**
+	 * Adds a module into the configuration file
+	 * 
+	 * @param modules
+	 *            Modules to add
+	 * @throws Exception
+	 *             if the walkmod configuration file can't be read.
+	 */
 	public void addModules(List<String> modules) throws Exception {
 		long startTime = System.currentTimeMillis();
+		Exception exception = null;
 		if (modules != null) {
 			if (!cfg.exists()) {
 				init();
@@ -1060,16 +1095,33 @@ public class WalkModFacade {
 				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
 				cfgProvider.addModules(modules);
+			} catch (Exception e) {
+				exception = e;
 			} finally {
 				System.setProperty("user.dir", userDir);
+				updateMsg(startTime, exception);
 			}
 		}
-		updateMsg(startTime);
 
 	}
 
+	/**
+	 * Remove a list of transformations for an specific chain. If it is
+	 * recursive, this removal action is applied into all the submodules.
+	 * 
+	 * @param chain
+	 *            To remove the transformations. By default, it is the "default"
+	 *            chain.
+	 * @param transformations
+	 *            List of transformation names (type ids) to be removed.
+	 * @param recursive
+	 *            If the action is applied to all the submodules.
+	 * @throws Exception
+	 *             if the walkmod configuration file can't be read.
+	 */
 	public void removeTransformations(String chain, List<String> transformations, boolean recursive) throws Exception {
 		long startTime = System.currentTimeMillis();
+		Exception exception = null;
 		if (transformations != null) {
 			if (!cfg.exists()) {
 				init();
@@ -1082,16 +1134,32 @@ public class WalkModFacade {
 				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
 				cfgProvider.removeTransformations(chain, transformations, recursive);
+			} catch (Exception e) {
+				exception = e;
 			} finally {
 				System.setProperty("user.dir", userDir);
+				updateMsg(startTime, exception);
 			}
 		}
-		updateMsg(startTime);
 
 	}
 
-	public void setWriter(String chain, String type, String path) throws Exception {
+	/**
+	 * Sets an specific writer for an specific chain. 
+	 * @param chain
+	 * 		Chain to apply the writer
+	 * @param type
+	 * 		Writer type to set
+	 * @param path
+	 * 		Writer path to set
+	 * @param recursive
+	 * 		If to set the writer to all the submodules.
+	 * @throws Exception
+	 * 		 if the walkmod configuration file can't be read.
+	 */
+	public void setWriter(String chain, String type, String path, boolean recursive) throws Exception {
 		long startTime = System.currentTimeMillis();
+		Exception exception = null;
 		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
 			if (!cfg.exists()) {
 				init();
@@ -1103,17 +1171,33 @@ public class WalkModFacade {
 
 				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-				cfgProvider.setWriter(chain, type, path, false);
+				cfgProvider.setWriter(chain, type, path, recursive);
+			} catch (Exception e) {
+				exception = e;
 			} finally {
 				System.setProperty("user.dir", userDir);
+				updateMsg(startTime, exception);
 			}
-			updateMsg(startTime);
 		}
 	}
 
-	public void setReader(String chain, String type, String path) throws Exception {
+	/**
+	 * Sets an specific reader for an specific chain. 
+	 * @param chain
+	 * 		Chain to apply the writer
+	 * @param type
+	 * 		Reader type to set
+	 * @param path
+	 * 		Reader path to set
+	 * @param recursive
+	 * 		If to set the reader to all the submodules.
+	 * @throws Exception
+	 * 		 if the walkmod configuration file can't be read.
+	 */
+	public void setReader(String chain, String type, String path, boolean recursive) throws Exception {
 		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
 			long startTime = System.currentTimeMillis();
+			Exception exception = null;
 			if (!cfg.exists()) {
 				init();
 			}
@@ -1124,16 +1208,28 @@ public class WalkModFacade {
 
 				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-				cfgProvider.setReader(chain, type, path, false);
+				cfgProvider.setReader(chain, type, path, recursive);
+			} catch (Exception e) {
+				exception = e;
 			} finally {
 				System.setProperty("user.dir", userDir);
+				updateMsg(startTime, exception);
 			}
-			updateMsg(startTime);
 		}
 	}
 
+	/**
+	 * Removes a plugin from the configuration file.
+	 * @param pluginConfig
+	 * 		Plugin configuration to remove.
+	 * @param recursive
+	 * 		If it necessary to remove the plugin from all the submodules.
+	 * @throws Exception
+	 * 		  if the walkmod configuration file can't be read.
+	 */
 	public void removePluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception {
 		long startTime = System.currentTimeMillis();
+		Exception exception = null;
 		if (!cfg.exists()) {
 			init();
 		}
@@ -1144,14 +1240,24 @@ public class WalkModFacade {
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 			cfgProvider.removePluginConfig(pluginConfig, recursive);
+		} catch (Exception e) {
+			exception = e;
 		} finally {
 			System.setProperty("user.dir", userDir);
+			updateMsg(startTime, exception);
 		}
-		updateMsg(startTime);
 	}
 
+	/**
+	 * Removes the module list from the configuration file
+	 * @param modules
+	 * 		Module names to remove
+	 * @throws Exception
+	 * 		if the walkmod configuration file can't be read.
+	 */
 	public void removeModules(List<String> modules) throws Exception {
 		long startTime = System.currentTimeMillis();
+		Exception exception = null;
 		if (!cfg.exists()) {
 			init();
 		}
@@ -1162,14 +1268,26 @@ public class WalkModFacade {
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 			cfgProvider.removeModules(modules);
+		} catch (Exception e) {
+			exception = e;
 		} finally {
 			System.setProperty("user.dir", userDir);
+			updateMsg(startTime, exception);
 		}
-		updateMsg(startTime);
 	}
 
+	/**
+	 * Removes the list of configuration providers from the config file.
+	 * @param providers
+	 * 		Name of the configuration providers to remove.
+	 * @param recursive
+	 * 		If it necessary to remove the plugin from all the submodules.
+	 * @throws Exception
+	 * 		If the walkmod configuration file can't be read.
+	 */
 	public void removeProviders(List<String> providers, boolean recursive) throws Exception {
 		long startTime = System.currentTimeMillis();
+		Exception exception = null;
 		if (!cfg.exists()) {
 			init();
 		}
@@ -1180,12 +1298,19 @@ public class WalkModFacade {
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 			cfgProvider.removeProviders(providers, recursive);
+		} catch (Exception e) {
+			exception = e;
 		} finally {
 			System.setProperty("user.dir", userDir);
+			updateMsg(startTime, exception);
 		}
-		updateMsg(startTime);
 	}
 
+	/**
+	 * Returns the equivalent configuration representation of the Walkmod config file.
+	 * @return Configuration object representation of the config file.
+	 * @throws Exception
+	 */
 	public Configuration getConfiguration() throws Exception {
 		Configuration result = null;
 		if (cfg.exists()) {
@@ -1203,8 +1328,18 @@ public class WalkModFacade {
 		return result;
 	}
 
+	/**
+	 * Removes the chains from the Walkmod config file.
+	 * @param chains
+	 * 		Chain names to remove
+	 * @param recursive
+	 * 		If it necessary to remove the chains from all the submodules.
+	 * @throws Exception
+	 * 		If the walkmod configuration file can't be read.
+	 */
 	public void removeChains(List<String> chains, boolean recursive) throws Exception {
 		long startTime = System.currentTimeMillis();
+		Exception exception = null;
 		if (cfg.exists()) {
 
 			userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
@@ -1212,14 +1347,23 @@ public class WalkModFacade {
 			try {
 				ConfigurationManager manager = new ConfigurationManager(cfg, false);
 				manager.getProjectConfigurationProvider().removeChains(chains, recursive);
+			} catch (Exception e) {
+				exception = e;
 			} finally {
 				System.setProperty("user.dir", userDir);
+				updateMsg(startTime, exception);
 			}
 		}
-		updateMsg(startTime);
 
 	}
 
+	/**
+	 * Retrieves the bean definitions that contains an specific plugin.
+	 * @param plugin 
+	 * 		Plugin container of bean definitions.
+	 * @return
+	 * 		List of bean definitions.
+	 */
 	public List<BeanDefinition> inspectPlugin(PluginConfig plugin) {
 		Configuration conf = new ConfigurationImpl();
 		Collection<PluginConfig> plugins = new LinkedList<PluginConfig>();
@@ -1230,9 +1374,28 @@ public class WalkModFacade {
 		return conf.getAvailableBeans(plugin);
 	}
 
+	/**
+	 * Sets an specific parameter value into a bean.
+	 * @param param
+	 * 		Parameter name
+	 * @param value
+	 * 		Parameter value
+	 * @param type
+	 * 		Bean type to set the parameter
+	 * @param category
+	 * 		Bean category to set the parameter (walker, reader, transformation, writer)
+	 * @param name
+	 * 		Bean name/alias to set the parameter
+	 * @param chain
+	 * 		Bean chain to filter the beans to take into account
+	 * @param recursive
+	 * 		If it necessary to set the parameter to all the submodules.
+	 * @throws Exception
+	 */
 	public void addConfigurationParameter(String param, String value, String type, String category, String name,
 			String chain, boolean recursive) throws Exception {
 		long startTime = System.currentTimeMillis();
+		Exception exception = null;
 		if (cfg.exists()) {
 
 			userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
@@ -1241,10 +1404,12 @@ public class WalkModFacade {
 				ConfigurationManager manager = new ConfigurationManager(cfg, false);
 				manager.getProjectConfigurationProvider().addConfigurationParameter(param, value, type, category, name,
 						chain, recursive);
+			} catch (Exception e) {
+				exception = e;
 			} finally {
 				System.setProperty("user.dir", userDir);
+				updateMsg(startTime, exception);
 			}
-			updateMsg(startTime);
 		}
 
 	}
