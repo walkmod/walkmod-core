@@ -30,7 +30,6 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.walkmod.exceptions.WalkModException;
@@ -41,6 +40,12 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+
+import de.vandermeer.asciitable.v2.RenderedTable;
+import de.vandermeer.asciitable.v2.V2_AsciiTable;
+import de.vandermeer.asciitable.v2.render.V2_AsciiTableRenderer;
+import de.vandermeer.asciitable.v2.render.WidthLongestLine;
+import de.vandermeer.asciitable.v2.themes.V2_E_TableThemes;
 
 @Parameters(separators = "=", commandDescription = "Shows the available walkmod plugins created by the community.")
 public class PrintPluginsCommand implements Command {
@@ -90,7 +95,7 @@ public class PrintPluginsCommand implements Command {
 									+ latestVersion + "/" + pom);
 
 							InputStream projectIs = artifactDetailsURL.openStream();
-							
+
 							try {
 								DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 								DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -101,33 +106,35 @@ public class PrintPluginsCommand implements Command {
 								if (nList.getLength() == 1) {
 									description = nList.item(0).getTextContent();
 								}
-								String id ="";
-								if(!groupId.equals("org.walkmod")){
-									id = groupId+":";
+								String id = "";
+								if (!groupId.equals("org.walkmod")) {
+									id = groupId + ":";
 								}
-								id+= artifactId.substring("walkmod-".length(), artifactId.length()-"-plugin".length());
-								
-								if (Character.isLowerCase(description.charAt(0))){
-									description = Character.toUpperCase(description.charAt(0))+ description.substring(1, description.length());
+								id += artifactId.substring("walkmod-".length(),
+										artifactId.length() - "-plugin".length());
+
+								if (Character.isLowerCase(description.charAt(0))) {
+									description = Character.toUpperCase(description.charAt(0))
+											+ description.substring(1, description.length());
 								}
-								if(!description.endsWith(".")){
-									description = description +".";
+								if (!description.endsWith(".")) {
+									description = description + ".";
 								}
 								pluginsList.put(id, description);
 								nList = doc.getChildNodes().item(0).getChildNodes();
 								int max = nList.getLength();
 								String url = "unavailable url";
-								
-								for(int j = 0; j < max; j++){
+
+								for (int j = 0; j < max; j++) {
 									String name = nList.item(j).getNodeName();
-									if(name.equals("url")){
+									if (name.equals("url")) {
 										url = nList.item(j).getTextContent();
 										j = max;
 									}
 								}
-								
+
 								pluginsURLs.put(id, url);
-									
+
 							} finally {
 								projectIs.close();
 							}
@@ -139,34 +146,25 @@ public class PrintPluginsCommand implements Command {
 				Set<String> keys = pluginsList.keySet();
 				List<String> sortedKeys = new LinkedList<String>(keys);
 				Collections.sort(sortedKeys);
-				String line = "";
 
-				for (int i = 0; i < 2 + 23 +63 + 103; i++) {
-					line = line + "-";
+				V2_AsciiTable at = new V2_AsciiTable();
+				at.addRule();
+				at.addRow("PLUGIN NAME (ID)", "URL", "DESCRIPTION");
+				at.addStrongRule();
+				for (String key : sortedKeys) {
+					at.addRow(key, pluginsURLs.get(key), pluginsList.get(key));
 				}
-				System.out.println(line);
-				System.out.printf("| %-20s | %-60s | %-100s |%n", StringUtils.center("PLUGIN NAME (ID)", 20),
-						StringUtils.center("URL", 60), StringUtils.center("DESCRIPTION", 100));
-				System.out.println(line);
-				
-				for(String key: sortedKeys){
-					System.out.printf("| %-20s | %-60s | %-100s |%n", fill(key, 20), fill(pluginsURLs.get(key), 60), pluginsList.get(key));
+				at.addRule();
+				V2_AsciiTableRenderer rend = new V2_AsciiTableRenderer();
+				rend.setTheme(V2_E_TableThemes.UTF_LIGHT.get());
+				rend.setWidth(new WidthLongestLine());
+				RenderedTable rt = rend.render(at);
+				System.out.println(rt);
 
-				}
-				System.out.println(line);
-				
 			} catch (Exception e) {
 				throw new WalkModException("Invalid plugins URL", e);
 			}
 		}
-	}
-	
-	private String fill(String aux, int limit){
-		String result = aux;
-		for(int i = aux.length(); i < limit; i++){
-			result = result + " ";
-		}
-		return result;
 	}
 
 	private String readInputStreamAsString(InputStream is) throws IOException {

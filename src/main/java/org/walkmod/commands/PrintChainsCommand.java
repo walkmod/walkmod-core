@@ -30,6 +30,13 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
+import de.vandermeer.asciitable.v2.RenderedTable;
+import de.vandermeer.asciitable.v2.V2_AsciiTable;
+import de.vandermeer.asciitable.v2.render.V2_AsciiTableRenderer;
+import de.vandermeer.asciitable.v2.render.WidthAbsoluteEven;
+import de.vandermeer.asciitable.v2.render.WidthLongestLine;
+import de.vandermeer.asciitable.v2.themes.V2_E_TableThemes;
+
 @Parameters(separators = "=", commandDescription = "Shows the list of chains with its code transformations.")
 public class PrintChainsCommand implements Command {
 
@@ -52,41 +59,38 @@ public class PrintChainsCommand implements Command {
 			if (cfg != null) {
 				Collection<ChainConfig> chains = cfg.getChainConfigs();
 				if (chains != null) {
-					String line = "";
-
-					for (int i = 0; i < 2 + 33 + 33 + 33 + 52; i++) {
-						line = line + "-";
-					}
-					System.out.println(line);
-					System.out.printf("| %30s | %30s | %30s | %50s |%n", StringUtils.center("CHAIN", 30),
-							StringUtils.center("READER PATH", 30), StringUtils.center("WRITER PATH", 30),
-							StringUtils.center("TRANSFORMATIONS", 50));
-					System.out.println(line);
+					V2_AsciiTable at = new V2_AsciiTable();
+					at.addRule();
+					at.addRow("CHAIN", "READER PATH", "WRITER PATH", "TRANSFORMATIONS");
+					at.addStrongRule();
+					
+					
 					for (ChainConfig cc : chains) {
-						System.out.printf("| %30s | %30s | %30s | %50s |%n", "", "", "", "");
+					
 						List<TransformationConfig> transformations = cc.getWalkerConfig().getTransformations();
 						Iterator<TransformationConfig> it = transformations.iterator();
 						int i = 0;
 						while (it.hasNext()) {
 							TransformationConfig next = it.next();
 							if (i == 0) {
-								System.out.printf("| %30s | %30s | %30s | %50s |%n",
-										StringUtils.center(cc.getName(), 30),
-										StringUtils.center(cc.getReaderConfig().getPath(), 30),
-										StringUtils.center(cc.getWriterConfig().getPath(), 30),
-										StringUtils.center("- " + next.getType(), 50));
+								at.addRow(cc.getName(), cc.getReaderConfig().getPath(),cc.getWriterConfig().getPath(),  "- " + next.getType());
+								
 							} else {
-								System.out.printf("| %30s | %30s | %30s | %50s |%n", "", "", "",
-										StringUtils.center("- " + next.getType(), 50));
+								at.addRow("", "", "", "- " + next.getType());
+								
 							}
 							i++;
 
 						}
-
-						System.out.printf("| %30s | %30s | %30s | %50s |%n", "", "", "", "");
-						System.out.println(line);
+						at.addRule();
+						
 					}
 
+					V2_AsciiTableRenderer rend = new V2_AsciiTableRenderer();
+					rend.setTheme(V2_E_TableThemes.UTF_LIGHT.get());
+					rend.setWidth(new WidthLongestLine());
+					RenderedTable rt = rend.render(at);
+					System.out.println(rt);
 				}
 			}
 		}
