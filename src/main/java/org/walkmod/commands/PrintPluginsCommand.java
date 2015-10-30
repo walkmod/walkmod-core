@@ -74,7 +74,11 @@ public class PrintPluginsCommand implements Command, AsciiTableAware {
 			try {
 				WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
 				Configuration cfg = facade.getConfiguration();
-				Collection<PluginConfig> installedPlugins = cfg.getPlugins();
+				
+				Collection<PluginConfig> installedPlugins = null;
+				if(cfg != null){
+					installedPlugins = cfg.getPlugins();
+				}
 				URL searchURL = new URL(MVN_SEARCH_URL);
 				InputStream is = null;
 				Map<String, Boolean> installedList = new LinkedHashMap<String, Boolean>();
