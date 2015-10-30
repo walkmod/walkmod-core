@@ -44,11 +44,12 @@ public class AddProviderConfigXMLAction extends AbstractXMLConfigurationAction {
 		int childSize = children.getLength();
 		boolean exists = false;
 		Element child = null;
-
-		for (int i = 0; i < childSize && !exists; i++) {
+		Node nextNode = null;
+		boolean finish = false;
+		for (int i = 0; i < childSize && !exists && !finish; i++) {
 			Node childNode = children.item(i);
 			if (childNode instanceof Element) {
-				
+
 				final String nodeName = childNode.getNodeName();
 
 				if ("conf-providers".equals(nodeName)) {
@@ -65,6 +66,10 @@ public class AddProviderConfigXMLAction extends AbstractXMLConfigurationAction {
 						exists = otype.equals(providerCfg.getType());
 					}
 
+				} else if ("merge-policies".equals(nodeName) || "chain".equals(nodeName)
+						|| "transformation".equals(nodeName)) {
+					nextNode = childNode;
+					finish = true;
 				}
 			}
 		}
@@ -86,9 +91,16 @@ public class AddProviderConfigXMLAction extends AbstractXMLConfigurationAction {
 			}
 			if (child == null) {
 				child = document.createElement("conf-providers");
-				rootElement.appendChild(child);
+				if (nextNode == null) {
+					rootElement.appendChild(child);
+				} else {
+					rootElement.insertBefore(child, nextNode);
+				}
+
 			}
+
 			child.appendChild(element);
+
 			provider.persist();
 		}
 
