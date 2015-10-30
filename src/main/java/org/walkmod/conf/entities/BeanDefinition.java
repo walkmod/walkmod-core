@@ -15,11 +15,15 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.entities;
 
+import java.util.List;
+
 public interface BeanDefinition {
 
 	public String getCategory();
 	
 	public String getType();
+	
+	public List<PropertyDefinition> getProperties();
 	
 	public String getDescription();
 }

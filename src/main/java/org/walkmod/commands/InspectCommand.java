@@ -20,6 +20,7 @@ import java.util.List;
 import org.walkmod.OptionsBuilder;
 import org.walkmod.WalkModFacade;
 import org.walkmod.conf.entities.BeanDefinition;
+import org.walkmod.conf.entities.PropertyDefinition;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
 
 import com.beust.jcommander.JCommander;
@@ -59,15 +60,34 @@ public class InspectCommand implements Command, AsciiTableAware {
 
 				at = new V2_AsciiTable();
 				at.addRule();
-				at.addRow("TYPE NAME (ID)", "CATEGORY", "DESCRIPTION");
+				at.addRow("TYPE NAME (ID)", "CATEGORY","PROPERTIES", "DESCRIPTION");
 				at.addStrongRule();
 
 				for (BeanDefinition bean : beans) {
-
-					at.addRow(bean.getType(), bean.getCategory(), bean.getDescription());
+					List<PropertyDefinition> properties = bean.getProperties();
+					if(properties == null || properties.isEmpty()){
+						at.addRow(bean.getType(), bean.getCategory(), "", bean.getDescription());
+					}
+					else{
+						int i = 0;
+						for(PropertyDefinition pd : properties){
+							String label = pd.getName()+":"+pd.getType();
+							if(pd.getDefaultValue() != null && pd.getDefaultValue().length() != 0){
+								label = label +" ("+pd.getDefaultValue()+")";
+							}
+							if(i == 0){
+								at.addRow(bean.getType(), bean.getCategory(), label, bean.getDescription());
+							}
+							else{
+								at.addRow("", "", label, "");
+							}
+							i++;
+						}
+					}
+					at.addRule();
 
 				}
-				at.addRule();
+				
 			}
 		}
 	}

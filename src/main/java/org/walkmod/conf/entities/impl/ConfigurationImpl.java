@@ -15,6 +15,8 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.entities.impl;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -22,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.MutablePropertyValues;
@@ -38,6 +41,7 @@ import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.InitializerConfig;
 import org.walkmod.conf.entities.MergePolicyConfig;
 import org.walkmod.conf.entities.PluginConfig;
+import org.walkmod.conf.entities.PropertyDefinition;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.merger.MergeEngine;
@@ -302,8 +306,7 @@ public class ConfigurationImpl implements Configuration {
 						classification = "initializer";
 					} else if (o instanceof ConfigurationProvider) {
 						classification = "conf-provider";
-					}
-					else if(o instanceof MergePolicy){
+					} else if (o instanceof MergePolicy) {
 						classification = "policy-entry";
 					}
 
@@ -311,7 +314,7 @@ public class ConfigurationImpl implements Configuration {
 					int index0 = "walkmod-".length();
 					int index1 = pc.getArtifactId().indexOf("-plugin");
 					if (index1 != -1) {
-						id =  pc.getArtifactId().substring(index0, index1);
+						id = pc.getArtifactId().substring(index0, index1);
 						String uniqueFullName = pc.getGroupId() + ":" + pc.getArtifactId() + ":" + id;
 						if (!name.equals(uniqueFullName)) {
 							if (!beanDefinitionRegistry.isAlias(name)) {
@@ -324,19 +327,60 @@ public class ConfigurationImpl implements Configuration {
 								}
 								if (add) {
 									result.add(new BeanDefinitionImpl(classification, name, beanDefinitionRegistry
-											.getBeanDefinition(name).getDescription()));
-								}
-								else{
+											.getBeanDefinition(name).getDescription(), getProperties(o)));
+								} else {
 									result.add(new BeanDefinitionImpl(classification, id, beanDefinitionRegistry
-											.getBeanDefinition(name).getDescription()));
+											.getBeanDefinition(name).getDescription(), getProperties(o)));
 								}
 							}
 						} else {
 							result.add(new BeanDefinitionImpl(classification, id, beanDefinitionRegistry
-									.getBeanDefinition(name).getDescription()));
+									.getBeanDefinition(name).getDescription(), getProperties(o)));
 						}
 					}
 
+				}
+			}
+		}
+		return result;
+	}
+
+	private List<PropertyDefinition> getProperties(Object o) {
+		List<PropertyDefinition> result = new LinkedList<PropertyDefinition>();
+		PropertyDescriptor[] properties = BeanUtils.getPropertyDescriptors(o.getClass());
+		if (properties != null) {
+			for (PropertyDescriptor pd : properties) {
+				if (pd.getWriteMethod() != null) {
+					String name = pd.getDisplayName();
+					Class<?> clazz = pd.getPropertyType();
+					String type = clazz.getSimpleName();
+					String value = "";
+					if (String.class.isAssignableFrom(clazz) || Number.class.isAssignableFrom(clazz)
+							|| clazz.isPrimitive()) {
+						if (pd.getReadMethod() != null) {
+							try {
+								value = pd.getReadMethod().invoke(o).toString();
+							} catch (Exception e) {
+							}
+						} else {
+							Field[] fields = o.getClass().getDeclaredFields();
+							boolean found = false;
+							for (int i = 0; i < fields.length && !found; i++) {
+								if (fields[i].getName().equals(name)) {
+									found = true;
+									fields[i].setAccessible(true);
+									try {
+										value = fields[i].get(o).toString();
+									} catch (Exception e) {
+									}
+								}
+							}
+						}
+					}
+
+					PropertyDefinition item = new PropertyDefinitionImpl(type, name, value);
+
+					result.add(item);
 				}
 			}
 		}

@@ -15,7 +15,10 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.entities.impl;
 
+import java.util.List;
+
 import org.walkmod.conf.entities.BeanDefinition;
+import org.walkmod.conf.entities.PropertyDefinition;
 
 public class BeanDefinitionImpl implements BeanDefinition{
 	
@@ -25,12 +28,15 @@ public class BeanDefinitionImpl implements BeanDefinition{
 	
 	private String description ="unavailable";
 	
-	public BeanDefinitionImpl(String category, String type, String description){
+	private  List<PropertyDefinition> properties;
+	
+	public BeanDefinitionImpl(String category, String type, String description, List<PropertyDefinition> properties){
 		this.category = category;
 		this.type = type;
 		if(description != null){
 			this.description = description;
 		}
+		this.properties = properties;
 	}
 
 	@Override
@@ -46,6 +52,11 @@ public class BeanDefinitionImpl implements BeanDefinition{
 	@Override
 	public String getDescription() {
 		return description;
+	}
+
+	@Override
+	public List<PropertyDefinition> getProperties() {
+		return properties;
 	}
 
 }
