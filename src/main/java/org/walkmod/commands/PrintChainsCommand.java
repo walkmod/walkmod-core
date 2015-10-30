@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.walkmod.OptionsBuilder;
 import org.walkmod.WalkModFacade;
 import org.walkmod.conf.entities.ChainConfig;
@@ -40,6 +41,9 @@ public class PrintChainsCommand implements Command, AsciiTableAware{
 	private JCommander command;
 	
 	private V2_AsciiTable at = null;
+	
+	private static Logger log = Logger.getLogger(PrintChainsCommand.class);
+
 
 	public PrintChainsCommand(JCommander jcommander) {
 		this.command = jcommander;
@@ -52,14 +56,19 @@ public class PrintChainsCommand implements Command, AsciiTableAware{
 		} else {
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
 			Configuration cfg = facade.getConfiguration();
+			at = new V2_AsciiTable();
+			at.addRule();
+			at.addRow("CHAIN", "READER PATH", "WRITER PATH", "TRANSFORMATIONS");
+			at.addStrongRule();
+			
+			if(cfg == null){
+				at.addRule();
+				log.error("Sorry, the current directory does not contain a walkmod configuration file or it is invalid.");
+				
+			}
 			if (cfg != null) {
 				Collection<ChainConfig> chains = cfg.getChainConfigs();
 				if (chains != null) {
-					at = new V2_AsciiTable();
-					at.addRule();
-					at.addRow("CHAIN", "READER PATH", "WRITER PATH", "TRANSFORMATIONS");
-					at.addStrongRule();
-					
 					
 					for (ChainConfig cc : chains) {
 					

@@ -20,7 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -466,5 +465,25 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 			action.execute();
 		}
 
+	}
+
+	@Override
+	public String getFileExtension() {
+		return "yml";
+	}
+
+	@Override
+	public Configuration getConfiguration() {
+		return configuration;
+	}
+
+	@Override
+	public File getConfigurationFile() {
+		return new File(fileName);
+	}
+
+	@Override
+	public ProjectConfigurationProvider clone(File cfgFile) {
+		return new YAMLConfigurationProvider(cfgFile.getAbsolutePath());
 	}
 }

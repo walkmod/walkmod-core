@@ -17,10 +17,12 @@ package org.walkmod.commands;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.walkmod.OptionsBuilder;
 import org.walkmod.WalkModFacade;
 import org.walkmod.conf.entities.ChainConfig;
@@ -45,6 +47,8 @@ public class PrintTransformationsCommand implements Command, AsciiTableAware {
 
 	@Parameter(description = "The chain name (identifier)", required = false)
 	private List<String> chain;
+	
+	private static Logger log = Logger.getLogger(PrintTransformationsCommand.class);
 
 	public PrintTransformationsCommand(JCommander command) {
 		this.command = command;
@@ -55,7 +59,11 @@ public class PrintTransformationsCommand implements Command, AsciiTableAware {
 		if (help) {
 			command.usage("transformations");
 		} else {
-			if (chain == null || chain.isEmpty()) {
+			if (chain == null) {
+				chain = new LinkedList<String>();
+			}
+			if (chain.isEmpty()) {
+
 				chain.add("default");
 			}
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
@@ -104,6 +112,14 @@ public class PrintTransformationsCommand implements Command, AsciiTableAware {
 						}
 					}
 				}
+			}
+			else{
+				log.error("Sorry, the current directory does not contain a walkmod configuration file or it is invalid.");
+				at = new V2_AsciiTable();
+				at.addRule();
+				at.addRow("TRANSFORMATION TYPE", "PARAMETERS", "NAME/ALIAS");
+				at.addStrongRule();
+				at.addRule();
 			}
 		}
 	}

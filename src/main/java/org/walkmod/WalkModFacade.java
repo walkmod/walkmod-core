@@ -520,7 +520,7 @@ public class WalkModFacade {
 
 				if (initializers != null) {
 					for (InitializerConfig initCfg : initializers) {
-						String beanId = initCfg.getPluginGroupId() + ":" + initCfg.getPluginArtifactId() + ":"
+						String beanId = initCfg.getPluginGroupId() + ":walkmod-" + initCfg.getPluginArtifactId() + "-plugin:"
 								+ initCfg.getType();
 
 						if (conf.containsBean(beanId)) {
@@ -612,7 +612,7 @@ public class WalkModFacade {
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-			cfgProvider.addTransformationConfig(chain, path, transformationCfg, false);
+			cfgProvider.addTransformationConfig(chain, path, transformationCfg, recursive);
 		} catch (Exception e) {
 			exception = e;
 		} finally {

@@ -910,4 +910,19 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	public String getConfigFileName() {
 		return configFileName;
 	}
+
+	@Override
+	public String getFileExtension() {
+		return "xml";
+	}
+
+	@Override
+	public File getConfigurationFile() {
+		return new File(configFileName);
+	}
+
+	@Override
+	public ProjectConfigurationProvider clone(File cfgFile) {
+		return new XMLConfigurationProvider(cfgFile.getAbsolutePath(), errorIfMissing);
+	}
 }

@@ -124,7 +124,7 @@ public class AbstractChainConfigurationProvider {
 		}
 		
 		Collection<InitializerConfig> initializers = config.getInitializers();
-		if (providers != null) {
+		if (initializers != null) {
 			for (InitializerConfig initializer : initializers) {
 				plugins.add(initializer.getPluginGroupId()+":walkmod-"+initializer.getPluginArtifactId()+"-plugin");
 			}

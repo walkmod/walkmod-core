@@ -15,10 +15,12 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import org.walkmod.conf.entities.ChainConfig;
+import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
@@ -48,11 +50,19 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
 	public void removeModules(List<String> modules) throws Exception;
 
-	public void removeProviders(List<String> providers,  boolean recursive) throws Exception;
+	public void removeProviders(List<String> providers, boolean recursive) throws Exception;
 
 	public void removeChains(List<String> chains, boolean recursive) throws Exception;
 
 	public void addConfigurationParameter(String param, String value, String type, String category, String name,
 			String chain, boolean recursive) throws Exception;
+
+	public String getFileExtension();
+
+	public Configuration getConfiguration();
+
+	public File getConfigurationFile();
+
+	public ProjectConfigurationProvider clone(File cfgFile);
 
 }

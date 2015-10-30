@@ -74,9 +74,9 @@ public class PrintPluginsCommand implements Command, AsciiTableAware {
 			try {
 				WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
 				Configuration cfg = facade.getConfiguration();
-				
+
 				Collection<PluginConfig> installedPlugins = null;
-				if(cfg != null){
+				if (cfg != null) {
 					installedPlugins = cfg.getPlugins();
 				}
 				URL searchURL = new URL(MVN_SEARCH_URL);
@@ -170,16 +170,17 @@ public class PrintPluginsCommand implements Command, AsciiTableAware {
 
 				at = new V2_AsciiTable();
 				at.addRule();
-				at.addRow("PLUGIN NAME (ID)", "INSTALLED", "URL (DOCUMENTATION)", "DESCRIPTION");
+				at.addRow("PLUGIN NAME (ID)", "RDY", "DESCRIPTION");
 				at.addStrongRule();
 				for (String key : sortedKeys) {
 					String installed = "";
 					if (installedList.get(key)) {
 						installed = "*";
 					}
-					at.addRow(key, installed, pluginsURLs.get(key), pluginsList.get(key));
+					at.addRow(key, installed, pluginsList.get(key)+"\n\nURL:"+pluginsURLs.get(key));
+					at.addRule();
 				}
-				at.addRule();
+				
 
 			} catch (Exception e) {
 				throw new WalkModException("Invalid plugins URL", e);

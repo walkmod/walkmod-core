@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.walkmod.OptionsBuilder;
 import org.walkmod.WalkModFacade;
 import org.walkmod.conf.entities.Configuration;
@@ -39,6 +40,8 @@ public class PrintProvidersCommand implements Command, AsciiTableAware {
 	private JCommander jcommander;
 
 	private V2_AsciiTable at;
+	
+	private static Logger log = Logger.getLogger(PrintProvidersCommand.class);
 
 	public PrintProvidersCommand(JCommander jcommander) {
 		this.jcommander = jcommander;
@@ -51,6 +54,9 @@ public class PrintProvidersCommand implements Command, AsciiTableAware {
 		} else {
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
 			Configuration cfg = facade.getConfiguration();
+			if(cfg == null){
+				log.error("Sorry, the current directory does not contain a walkmod configuration file or it is invalid.");
+			}
 			at = new V2_AsciiTable();
 			at.addRule();
 			at.addRow("CONFIGURATION PROVIDERS", "PARAMETERS");
