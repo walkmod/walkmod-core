@@ -48,11 +48,11 @@ public class AddProviderConfigXMLAction extends AbstractXMLConfigurationAction {
 		for (int i = 0; i < childSize && !exists; i++) {
 			Node childNode = children.item(i);
 			if (childNode instanceof Element) {
-				child = (Element) childNode;
-				final String nodeName = child.getNodeName();
+				
+				final String nodeName = childNode.getNodeName();
 
 				if ("conf-providers".equals(nodeName)) {
-
+					child = (Element) childNode;
 					Node aux = (Node) child;
 					NodeList cfgchildren = aux.getChildNodes();
 
