@@ -15,6 +15,7 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.providers;
 
+import java.net.URL;
 import java.util.Collection;
 
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -64,14 +65,21 @@ public class SpringConfigurationProvider implements ConfigurationProvider, BeanF
 					if (!descriptorName.endsWith("-plugin")) {
 						descriptorName = descriptorName + "-plugin";
 					}
+
 					reader.loadBeanDefinitions(new ClassPathResource("META-INF/walkmod/" + descriptorName + ".xml",
 							configuration.getClassLoader()));
+
+					URL url = currentClassLoader.getResource("META-INF/walkmod2/" + descriptorName + ".xml");
+					if (url != null) {
+						reader.loadBeanDefinitions(new ClassPathResource("META-INF/walkmod2/" + descriptorName + ".xml",
+								configuration.getClassLoader()));
+					}
 				}
 			}
 			configuration.setBeanDefinitionRegistry(reader.getRegistry());
 			ctx.refresh();
 		}
-		
+
 		configuration.setBeanFactory(ctx);
 	}
 

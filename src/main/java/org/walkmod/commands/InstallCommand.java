@@ -27,6 +27,9 @@ public class InstallCommand implements Command {
 
 	@Parameter(names = "--help", help = true, hidden = true)
 	private boolean help;
+	
+	@Parameter(names = { "-e", "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
+	private Boolean showException = false;
 
 	private JCommander command;
 
@@ -39,7 +42,7 @@ public class InstallCommand implements Command {
 		if (help) {
 			command.usage("install");
 		} else {
-			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(showException));
 			facade.install();
 		}
 	}
