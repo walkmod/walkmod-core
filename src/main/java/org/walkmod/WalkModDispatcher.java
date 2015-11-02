@@ -99,7 +99,7 @@ public class WalkModDispatcher {
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
 		System.out.println("An open source tool to apply code conventions");
-		System.out.println("version 1.4 - October 2015 -");
+		System.out.println("version 2.0 - November 2015 -");
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
 	}
