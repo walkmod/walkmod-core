@@ -56,13 +56,11 @@ public class ScriptProcessor implements QueryEngineAware {
 
 	public void initialize(VisitorContext context, Object node) {
 		if (engine == null) {
-			ScriptEngineManager factory = new ScriptEngineManager(
-					context.getClassLoader());
+			ScriptEngineManager factory = new ScriptEngineManager(context.getClassLoader());
 			engine = factory.getEngineByName(language);
 			if (engine instanceof GroovyScriptEngineImpl) {
-				((GroovyScriptEngineImpl) engine)
-						.setClassLoader(new GroovyClassLoader(context
-								.getClassLoader(), new CompilerConfiguration()));
+				((GroovyScriptEngineImpl) engine).setClassLoader(new GroovyClassLoader(context.getClassLoader(),
+						new CompilerConfiguration()));
 			}
 		}
 
@@ -73,8 +71,7 @@ public class ScriptProcessor implements QueryEngineAware {
 			includes.add("query.alias.groovy");
 			parameters.put("includes", includes);
 
-			Object bean = context.getBean(
-					"org.walkmod.query.ScriptingQueryEngine", parameters);
+			Object bean = context.getBean("org.walkmod.query.ScriptingQueryEngine", parameters);
 			if (bean != null) {
 				if (bean instanceof QueryEngine) {
 					queryEngine = (QueryEngine) bean;
@@ -101,9 +98,8 @@ public class ScriptProcessor implements QueryEngineAware {
 			try {
 				engine.eval(content, bindings);
 			} catch (ScriptException e) {
-				log.error("The file " + e.getFileName()
-						+ " has an error at line: " + e.getLineNumber()
-						+ ", column: " + e.getColumnNumber());
+				log.error("The file " + e.getFileName() + " has an error at line: " + e.getLineNumber() + ", column: "
+						+ e.getColumnNumber());
 				throw new WalkModException(e);
 			}
 		} else {

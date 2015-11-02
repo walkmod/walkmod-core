@@ -19,6 +19,5 @@ import org.walkmod.conf.entities.Configuration;
 
 public interface ChainAdapterFactory {
 
-	public ChainAdapter createChainProxy(Configuration configuration,
-			String chain);
+	public ChainAdapter createChainProxy(Configuration configuration, String chain);
 }

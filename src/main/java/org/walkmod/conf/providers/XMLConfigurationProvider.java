@@ -16,7 +16,9 @@
 
 package org.walkmod.conf.providers;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -29,15 +31,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.walkmod.conf.ChainProvider;
 import org.walkmod.conf.ConfigurationException;
-import org.walkmod.conf.ConfigurationProvider;
+import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.MergePolicyConfig;
@@ -48,14 +56,27 @@ import org.walkmod.conf.entities.ReaderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.conf.entities.WriterConfig;
-import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
 import org.walkmod.conf.entities.impl.ChainConfigImpl;
+import org.walkmod.conf.entities.impl.MergePolicyConfigImpl;
 import org.walkmod.conf.entities.impl.ParserConfigImpl;
+import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.ProviderConfigImpl;
 import org.walkmod.conf.entities.impl.TransformationConfigImpl;
-import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.WalkerConfigImpl;
 import org.walkmod.conf.entities.impl.WriterConfigImpl;
+import org.walkmod.conf.providers.xml.AddChainXMLAction;
+import org.walkmod.conf.providers.xml.AddConfigurationParameterXMLAction;
+import org.walkmod.conf.providers.xml.AddModulesXMLAction;
+import org.walkmod.conf.providers.xml.AddPluginXMLAction;
+import org.walkmod.conf.providers.xml.AddProviderConfigXMLAction;
+import org.walkmod.conf.providers.xml.AddTransformationXMLAction;
+import org.walkmod.conf.providers.xml.RemoveChainsXMLAction;
+import org.walkmod.conf.providers.xml.RemoveModulesXMLAction;
+import org.walkmod.conf.providers.xml.RemovePluginXMLAction;
+import org.walkmod.conf.providers.xml.RemoveProvidersXMLAction;
+import org.walkmod.conf.providers.xml.RemoveTransformationXMLAction;
+import org.walkmod.conf.providers.xml.SetReaderXMLAction;
+import org.walkmod.conf.providers.xml.SetWriterXMLAction;
 import org.walkmod.util.DomHelper;
 import org.xml.sax.InputSource;
 
@@ -64,8 +85,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 
-public class XMLConfigurationProvider implements ConfigurationProvider,
-		ChainProvider {
+public class XMLConfigurationProvider extends AbstractChainConfigurationProvider implements
+		ProjectConfigurationProvider {
 
 	/**
 	 * Configuration file.
@@ -92,19 +113,18 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 	 */
 	private Document document;
 
-	private static final Log LOG = LogFactory
-			.getLog(XMLConfigurationProvider.class);
+	private static final Log LOG = LogFactory.getLog(XMLConfigurationProvider.class);
 
 	public XMLConfigurationProvider() {
 		this("walkmod.xml", true);
 	}
 
-	public XMLConfigurationProvider(String configFileName,
-			boolean errorIfMissing) {
+	public XMLConfigurationProvider(String configFileName, boolean errorIfMissing) {
 		this.configFileName = configFileName;
 		this.errorIfMissing = errorIfMissing;
 		Map<String, String> mappings = new HashMap<String, String>();
-		mappings.put("-//UML Dreams Group//WalkMod 1.0//EN", "walkmod-1.0.dtd");
+		mappings.put("-//WALKMOD//DTD//1.0", "walkmod-1.0.dtd");
+		mappings.put("-//WALKMOD//DTD//1.1", "walkmod-1.1.dtd");
 		setDtdMappings(mappings);
 	}
 
@@ -119,6 +139,38 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 	public void init(Configuration configuration) {
 		this.configuration = configuration;
 		this.document = loadDocument(configFileName);
+	}
+
+	public void init() {
+		init(null);
+	}
+
+	@Override
+	public void addChainConfig(ChainConfig chainCfg, boolean recursive) throws Exception {
+		AddChainXMLAction action = new AddChainXMLAction(chainCfg, this, recursive);
+		action.execute();
+	}
+
+	@Override
+	public void addPluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception {
+
+		AddPluginXMLAction action = new AddPluginXMLAction(pluginConfig, this, recursive);
+		action.execute();
+	}
+
+	public void persist() throws TransformerException {
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+
+		transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "-//WALKMOD//DTD");
+		transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "http://www.walkmod.com/dtd/walkmod-1.1.dtd");
+		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+		DOMSource source = new DOMSource(document);
+
+		StreamResult result = new StreamResult(new File(configFileName));
+		transformer.transform(source, result);
 	}
 
 	/**
@@ -147,11 +199,9 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		InputStream is = null;
 		if (url == null) {
 			if (errorIfMissing) {
-				throw new ConfigurationException(
-						"Could not open files of the name " + file);
+				throw new ConfigurationException("Could not open files of the name " + file);
 			} else {
-				LOG.info("Unable to locate configuration files of the name "
-						+ file + ", skipping");
+				LOG.info("Unable to locate configuration files of the name " + file + ", skipping");
 				return doc;
 			}
 		}
@@ -206,8 +256,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		NodeList childNodes = paramsElement.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node childNode = childNodes.item(i);
-			if ((childNode.getNodeType() == Node.ELEMENT_NODE)
-					&& "param".equals(childNode.getNodeName())) {
+			if ((childNode.getNodeType() == Node.ELEMENT_NODE) && "param".equals(childNode.getNodeName())) {
 				Element paramElement = (Element) childNode;
 				String paramName = paramElement.getAttribute("name");
 				String val = getContent(paramElement);
@@ -257,8 +306,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		NodeList childNodes = element.getChildNodes();
 		for (int j = 0; j < childNodes.getLength(); j++) {
 			Node currentNode = childNodes.item(j);
-			if (currentNode != null
-					&& currentNode.getNodeType() == Node.TEXT_NODE) {
+			if (currentNode != null && currentNode.getNodeType() == Node.TEXT_NODE) {
 				String val = currentNode.getNodeValue();
 				if (val != null) {
 					paramValue.append(val.trim());
@@ -268,7 +316,6 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		return paramValue.toString().trim();
 	}
 
-	@Override
 	public void loadChains() throws ConfigurationException {
 		Element rootElement = document.getDocumentElement();
 		NodeList children = rootElement.getChildNodes();
@@ -292,40 +339,32 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 					NodeList childrenModel = child.getChildNodes();
 					ac.setParameters(getParams(child));
 					int index = 0;
-					if ("reader"
-							.equals(childrenModel.item(index).getNodeName())) {
-						loadReaderConfig((Element) childrenModel.item(index),
-								ac);
+					if ("reader".equals(childrenModel.item(index).getNodeName())) {
+						loadReaderConfig((Element) childrenModel.item(index), ac);
 						index++;
 					} else {
 						addDefaultReaderConfig(ac);
 					}
 					if (index >= childrenModel.getLength()) {
-						throw new ConfigurationException(
-								"Invalid architecture definition for the "
-										+ "element" + ac.getName());
+						throw new ConfigurationException("Invalid architecture definition for the " + "element"
+								+ ac.getName());
 					}
-					if ("walker"
-							.equals(childrenModel.item(index).getNodeName())) {
-						loadWalkerConfig((Element) childrenModel.item(index),
-								ac);
+					if ("walker".equals(childrenModel.item(index).getNodeName())) {
+						loadWalkerConfig((Element) childrenModel.item(index), ac);
 						index++;
-					} else if ("transformation".equals(childrenModel
-							.item(index).getNodeName())) {
+					} else if ("transformation".equals(childrenModel.item(index).getNodeName())) {
 						addDefaultWalker(ac, child);
 					} else {
 						throw new ConfigurationException(
 								"Invalid transformation chain. A walker or at least one transformation must be specified");
 					}
 					if (index > childrenModel.getLength()) {
-						throw new ConfigurationException(
-								"Invalid architecture definition for the "
-										+ "element" + ac.getName());
+						throw new ConfigurationException("Invalid architecture definition for the " + "element"
+								+ ac.getName());
 					}
 					boolean found = false;
 					while (index < childrenModel.getLength() && !found) {
-						if ("writer".equals(childrenModel.item(index)
-								.getNodeName())) {
+						if ("writer".equals(childrenModel.item(index).getNodeName())) {
 							found = true;
 							loadWriter((Element) childrenModel.item(index), ac);
 						}
@@ -336,11 +375,10 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 					}
 					configuration.addChainConfig(ac);
 				} else if ("transformation".equals(nodeName)) {
-					
+
 					ChainConfig ac = new ChainConfigImpl();
-					ac.setName("chain_1");
-					List<TransformationConfig> transformationConfigs = getTransformationItems(
-							rootElement, true);
+					ac.setName("default");
+					List<TransformationConfig> transformationConfigs = getTransformationItems(rootElement, true);
 					WalkerConfig wc = new WalkerConfigImpl();
 					wc.setType(null);
 					wc.setParserConfig(new ParserConfigImpl());
@@ -356,20 +394,11 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		LOG.debug("Transformation chains loaded");
 	}
 
-	public void addDefaultReaderConfig(ChainConfig ac) {
-		ReaderConfig readerConfig = new ReaderConfig();
-		readerConfig.setPath(null);
-		readerConfig.setType(null);
-		ac.setReaderConfig(readerConfig);
-	}
-
-	public void loadReaderConfig(Element element, ChainConfig ac)
-			throws ConfigurationException {
+	public void loadReaderConfig(Element element, ChainConfig ac) throws ConfigurationException {
 		ReaderConfig readerConfig = new ReaderConfig();
 		if ("reader".equals(element.getNodeName())) {
 			if ("".equals(element.getAttribute("path"))) {
-				throw new ConfigurationException("Invalid reader definition: "
-						+ "A path attribute must be specified");
+				throw new ConfigurationException("Invalid reader definition: " + "A path attribute must be specified");
 			}
 			readerConfig.setPath(element.getAttribute("path"));
 			if ("".equals(element.getAttribute("type"))) {
@@ -417,20 +446,17 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 				}
 			}
 		} else {
-			throw new ConfigurationException(
-					"Invalid architecture definition. "
-							+ "A reader element must be defined in the architecture element "
-							+ ac.getName());
+			throw new ConfigurationException("Invalid architecture definition. "
+					+ "A reader element must be defined in the architecture element " + ac.getName());
 		}
 		ac.setReaderConfig(readerConfig);
 	}
 
 	public void addDefaultWalker(ChainConfig ac, Element parentWalkerNode) {
-		WalkerConfig wc = new WalkerConfigImpl();
-		wc.setType(null);
-		wc.setParserConfig(new ParserConfigImpl());
-		wc.setTransformations(getTransformationItems(parentWalkerNode, false));
-		ac.setWalkerConfig(wc);
+
+		super.addDefaultWalker(ac);
+		ac.getWalkerConfig().setTransformations(getTransformationItems(parentWalkerNode, false));
+
 	}
 
 	public void loadWalkerConfig(Element element, ChainConfig ac) {
@@ -445,32 +471,25 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 				wc.setType(type);
 			}
 			wc.setParams(getParams((Element) walkerNode));
-			wc.setRootNamespace(((Element) walkerNode)
-					.getAttribute("root-namespace"));
+			wc.setRootNamespace(((Element) walkerNode).getAttribute("root-namespace"));
 			children = walkerNode.getChildNodes();
 			if (children.getLength() > 3) {
-				throw new ConfigurationException(
-						"Invalid walker definition in the " + "architecture"
-								+ ac.getName() + ". Please, verify the dtd");
+				throw new ConfigurationException("Invalid walker definition in the " + "architecture" + ac.getName()
+						+ ". Please, verify the dtd");
 			}
 			int transformationIndex = wc.getParams().size();
-			final String nodeName = children
-					.item(transformationIndex).getNodeName();
+			final String nodeName = children.item(transformationIndex).getNodeName();
 			if (("parser").equals(nodeName)) {
-				loadParserConfig((Element) children.item(transformationIndex),
-						wc);
+				loadParserConfig((Element) children.item(transformationIndex), wc);
 				transformationIndex = 1;
 			} else {
 				wc.setParserConfig(new ParserConfigImpl());
 			}
-			loadTransformationConfigs(
-					(Element) children.item(transformationIndex), wc);
+			loadTransformationConfigs((Element) children.item(transformationIndex), wc);
 			ac.setWalkerConfig(wc);
 		} else {
-			throw new ConfigurationException(
-					"Invalid architecture definition. "
-							+ "A walker element must be defined in the architecture element "
-							+ ac.getName());
+			throw new ConfigurationException("Invalid architecture definition. "
+					+ "A walker element must be defined in the architecture element " + ac.getName());
 		}
 	}
 
@@ -487,8 +506,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		}
 	}
 
-	public List<TransformationConfig> getTransformationItems(Element element,
-			boolean exceptionsEnabled) {
+	public List<TransformationConfig> getTransformationItems(Element element, boolean exceptionsEnabled) {
 		List<TransformationConfig> transformationConfigs = new LinkedList<TransformationConfig>();
 		NodeList transfNodes = element.getChildNodes();
 		for (int j = 0; j < transfNodes.getLength(); j++) {
@@ -500,12 +518,11 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 				String isMergeable = element.getAttribute("isMergeable");
 				String mergePolicy = element.getAttribute("merge-policy");
 				if ("".equals(visitor)) {
-					throw new ConfigurationException(
-							"Invalid transformation definition: A "
-									+ "type attribute must be specified");
+					throw new ConfigurationException("Invalid transformation definition: A "
+							+ "type attribute must be specified");
 				}
 				if ("".equals(name)) {
-					name = visitor;
+					name = null;
 				}
 				tc.setName(name);
 				tc.setType(visitor);
@@ -529,18 +546,10 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 		if ("transformations".equals(nodeName)) {
 			transformationConfigs = getTransformationItems(element, true);
 		} else {
-			throw new ConfigurationException(
-					"Invalid walker definition. "
-							+ "A walker element must contain a \"transformations\" element ");
+			throw new ConfigurationException("Invalid walker definition. "
+					+ "A walker element must contain a \"transformations\" element ");
 		}
 		wc.setTransformations(transformationConfigs);
-	}
-
-	public void addDefaultWriterConfig(ChainConfig ac) {
-		WriterConfig wc = new WriterConfigImpl();
-		wc.setPath(ac.getReaderConfig().getPath());
-		wc.setType(null);
-		ac.setWriterConfig(wc);
 	}
 
 	public void loadWriter(Element child, ChainConfig ac) {
@@ -548,8 +557,7 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 			WriterConfig wc = new WriterConfigImpl();
 			String path = child.getAttribute("path");
 			if ("".equals(path)) {
-				throw new ConfigurationException("Invalid writer definition: "
-						+ "A path attribute must be specified");
+				throw new ConfigurationException("Invalid writer definition: " + "A path attribute must be specified");
 			}
 			wc.setPath(path);
 			String type = child.getAttribute("type");
@@ -605,10 +613,41 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 	public void load() throws ConfigurationException {
 		Map<String, Object> params = getParams(document.getDocumentElement());
 		configuration.setParameters(params);
+		inferInitializers(configuration);
+		loadModules();
 		loadPlugins();
 		loadProviders();
 		loadMergePolicies();
 		loadChains();
+		inferPlugins(configuration);
+	}
+
+	private void loadModules() {
+		Element rootElement = document.getDocumentElement();
+		NodeList children = rootElement.getChildNodes();
+		int childSize = children.getLength();
+		boolean found = false;
+		for (int i = 0; i < childSize && !found; i++) {
+			Node childNode = children.item(i);
+			if ("modules".equals(childNode.getNodeName())) {
+				found = true;
+				Element child = (Element) childNode;
+				List<String> modules = new LinkedList<String>();
+				configuration.setModules(modules);
+				NodeList modulesNodes = child.getChildNodes();
+				int modulesSize = modulesNodes.getLength();
+				for (int j = 0; j < modulesSize; j++) {
+					Node moduleNode = modulesNodes.item(j);
+					if ("module".equals(moduleNode.getNodeName())) {
+						Element pluginElement = (Element) moduleNode;
+						String value = pluginElement.getTextContent();
+						if (value != null) {
+							modules.add(value);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	private void loadProviders() {
@@ -657,15 +696,13 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 						Element policyElem = (Element) policyNode;
 						MergePolicyConfig policy = new MergePolicyConfigImpl();
 						policy.setName(policyElem.getAttribute("name"));
-						String defaultOP = policyElem
-								.getAttribute("default-object-policy");
+						String defaultOP = policyElem.getAttribute("default-object-policy");
 						if (!"".equals(defaultOP.trim())) {
 							policy.setDefaultObjectPolicy(defaultOP);
 						} else {
 							policy.setDefaultObjectPolicy(null);
 						}
-						String defaultTP = policyElem
-								.getAttribute("default-type-policy");
+						String defaultTP = policyElem.getAttribute("default-type-policy");
 						if (!"".equals(defaultTP)) {
 							policy.setDefaultTypePolicy(defaultTP);
 						} else {
@@ -680,12 +717,9 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 							Node entry = entriesNodes.item(k);
 							if ("policy-entry".equals(entry.getNodeName())) {
 								Element entryElem = (Element) entry;
-								String otype = entryElem
-										.getAttribute("object-type");
-								String ptype = entryElem
-										.getAttribute("policy-type");
-								if (!("".equals(otype.trim()))
-										&& !("".equals(ptype.trim()))) {
+								String otype = entryElem.getAttribute("object-type");
+								String ptype = entryElem.getAttribute("policy-type");
+								if (!("".equals(otype.trim())) && !("".equals(ptype.trim()))) {
 									policyEntries.put(otype, ptype);
 								}
 							}
@@ -717,22 +751,18 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 						Element pluginElement = (Element) pluginNode;
 						PluginConfig pc = new PluginConfigImpl();
 						String groupId = pluginElement.getAttribute("groupId");
-						String artifactId = pluginElement
-								.getAttribute("artifactId");
+						String artifactId = pluginElement.getAttribute("artifactId");
 						String version = pluginElement.getAttribute("version");
 
 						if (groupId == null) {
-							throw new ConfigurationException(
-									"Invalid plugin definition. A groupId is necessary.");
+							throw new ConfigurationException("Invalid plugin definition. A groupId is necessary.");
 						}
 
 						if (artifactId == null) {
-							throw new ConfigurationException(
-									"Invalid plugin definition. A artifactId is necessary.");
+							throw new ConfigurationException("Invalid plugin definition. A artifactId is necessary.");
 						}
 						if (version == null) {
-							throw new ConfigurationException(
-									"Invalid plugin definition. A version is necessary.");
+							throw new ConfigurationException("Invalid plugin definition. A version is necessary.");
 						}
 						pc.setGroupId(groupId);
 						pc.setArtifactId(artifactId);
@@ -742,5 +772,157 @@ public class XMLConfigurationProvider implements ConfigurationProvider,
 				}
 			}
 		}
+	}
+
+	@Override
+	public void addTransformationConfig(String chain, String path, TransformationConfig transformationCfg,
+			boolean recursive) throws Exception {
+		AddTransformationXMLAction action = new AddTransformationXMLAction(chain, path, transformationCfg, this,
+				recursive);
+		action.execute();
+
+	}
+
+	@Override
+	public void createConfig() throws IOException {
+		File cfg = new File(configFileName);
+		if (!cfg.exists()) {
+			if (cfg.createNewFile()) {
+				FileWriter fos = new FileWriter(cfg);
+				BufferedWriter bos = new BufferedWriter(fos);
+				try {
+					bos.write("<!DOCTYPE walkmod PUBLIC \"-//WALKMOD//DTD\"  \"http://www.walkmod.com/dtd/walkmod-1.1.dtd\" >");
+					bos.newLine();
+					bos.write("<walkmod>");
+					bos.newLine();
+					bos.write("</walkmod>");
+
+				} finally {
+					bos.close();
+				}
+			} else {
+				throw new IOException("The system can't create the [" + configFileName + "] file");
+			}
+		}
+	}
+
+	@Override
+	public void addProviderConfig(ProviderConfig providerCfg, boolean recursive) throws Exception {
+
+		if (providerCfg != null) {
+			AddProviderConfigXMLAction action = new AddProviderConfigXMLAction(providerCfg, this, recursive);
+			action.execute();
+		}
+
+	}
+
+	@Override
+	public void addModules(List<String> modules) throws Exception {
+		if (modules != null && !modules.isEmpty()) {
+			AddModulesXMLAction action = new AddModulesXMLAction(modules, this);
+			action.execute();
+		}
+
+	}
+
+	@Override
+	public void removeTransformations(String chain, List<String> transformations, boolean recursive) throws Exception {
+
+		if (transformations != null && !transformations.isEmpty()) {
+			RemoveTransformationXMLAction action = new RemoveTransformationXMLAction(chain, transformations, this,
+					recursive);
+			action.execute();
+		}
+	}
+
+	@Override
+	public void setWriter(String chain, String type, String path, boolean recursive) throws Exception {
+		if ((type != null && !type.trim().equals("")) || (path != null && !path.trim().equals(""))) {
+			SetWriterXMLAction action = new SetWriterXMLAction(chain, type, path, this, recursive);
+			action.execute();
+		}
+	}
+
+	@Override
+	public void setReader(String chain, String type, String path, boolean recursive) throws Exception {
+		if ((type != null && !type.trim().equals("")) || (path != null && !path.trim().equals(""))) {
+			SetReaderXMLAction action = new SetReaderXMLAction(chain, type, path, this, recursive);
+			action.execute();
+		}
+	}
+
+	@Override
+	public void removePluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception {
+		RemovePluginXMLAction action = new RemovePluginXMLAction(pluginConfig, this, recursive);
+		action.execute();
+	}
+
+	@Override
+	public void removeModules(List<String> modules) throws Exception {
+		if (modules != null && !modules.isEmpty()) {
+
+			RemoveModulesXMLAction action = new RemoveModulesXMLAction(modules, this);
+			action.execute();
+		}
+	}
+
+	@Override
+	public void removeProviders(List<String> providers, boolean recursive) throws Exception {
+		if (providers != null && !providers.isEmpty()) {
+			RemoveProvidersXMLAction action = new RemoveProvidersXMLAction(providers, this, recursive);
+			action.execute();
+		}
+
+	}
+
+	@Override
+	public void removeChains(List<String> chains, boolean recursive) throws Exception {
+		if (chains != null && !chains.isEmpty()) {
+			RemoveChainsXMLAction action = new RemoveChainsXMLAction(chains, this, recursive);
+			action.execute();
+		}
+	}
+
+	@Override
+	public void addConfigurationParameter(String param, String value, String type, String category, String name,
+			String chain, boolean recursive) throws Exception {
+		if (param == null || value == null) {
+			throw new TransformerException("The param and value arguments cannot be null");
+		}
+		AddConfigurationParameterXMLAction action = new AddConfigurationParameterXMLAction(param, value, type,
+				category, name, chain, this, recursive);
+		action.execute();
+
+	}
+
+	public Configuration getConfiguration() {
+		return configuration;
+	}
+
+	public Document getDocument() {
+		return document;
+	}
+
+	public void setConfiguration(Configuration configuration2) {
+		this.configuration = configuration2;
+	}
+
+	public String getConfigFileName() {
+		return configFileName;
+	}
+
+	@Override
+	public String getFileExtension() {
+		return "xml";
+	}
+
+	@Override
+	public File getConfigurationFile() {
+		return new File(configFileName);
+	}
+
+	@Override
+	public ProjectConfigurationProvider clone(File cfgFile) {
+		return new XMLConfigurationProvider(cfgFile.getAbsolutePath(), errorIfMissing);
 	}
 }

@@ -58,8 +58,7 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 		setTemplateEngine(engine);
 	}
 
-	public synchronized void visit(Object node, VisitorContext context)
-			throws Exception {
+	public synchronized void visit(Object node, VisitorContext context) throws Exception {
 		if (rootLabel == null) {
 			setRootLabel("cu");
 		}
@@ -68,8 +67,7 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 		}
 		context.put(getRootLabel(), node);
 		if (templateEngine == null) {
-			Object bean = context.getBean(
-					"org.walkmod.templates.groovy.GroovyTemplateEngine", null);
+			Object bean = context.getBean("org.walkmod.templates.groovy.GroovyTemplateEngine", null);
 			if (bean != null && bean instanceof TemplateEngine) {
 				templateEngine = (TemplateEngine) bean;
 				log.info("Applying [groovy] as a default template engine");
@@ -80,13 +78,11 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 
 		templateEngine.initialize(context, node);
 
-		if (templateFiles != null && templates != null
-				&& templateFiles.size() == templates.size()) {
+		if (templateFiles != null && templates != null && templateFiles.size() == templates.size()) {
 
 			for (File template : templateFiles) {
 
-				String templateResult = templateEngine.applyTemplate(template,
-						propertiesFile);
+				String templateResult = templateEngine.applyTemplate(template, propertiesFile);
 				Object producedNode = null;
 				currentTemplate = template;
 
@@ -94,9 +90,7 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 					try {
 						producedNode = parser.parse(templateResult, true);
 					} catch (ParseException e) {
-						log.warn("Error parsing the template "
-								+ template.getAbsolutePath()
-								+ ". Dumping contents..");
+						log.warn("Error parsing the template " + template.getAbsolutePath() + ". Dumping contents..");
 
 						doPlainOutput(templateResult, context);
 					}
@@ -115,8 +109,7 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 					log.error("The template " + missing + " is missing");
 				}
 			}
-			throw new WalkModException(
-					"There are missing or unexitent templates.");
+			throw new WalkModException("There are missing or unexitent templates.");
 		}
 
 	}
@@ -128,31 +121,25 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 				if (suffix.length() > 1) {
 					suffix = suffix.substring(1);
 				} else {
-					throw new IllegalArgumentException(
-							"The suffix must have at least one letter");
+					throw new IllegalArgumentException("The suffix must have at least one letter");
 				}
 			} else if ("".equals(suffix)) {
-				throw new IllegalArgumentException(
-						"The suffix must have at least one letter");
+				throw new IllegalArgumentException("The suffix must have at least one letter");
 			}
 			this.suffix = suffix;
 		}
 	}
 
-	public void doPlainOutput(String templateResult, VisitorContext context)
-			throws Exception {
-		WriterConfig writerConfig = context.getArchitectureConfig()
-				.getWriterConfig();
+	public void doPlainOutput(String templateResult, VisitorContext context) throws Exception {
+		WriterConfig writerConfig = context.getArchitectureConfig().getWriterConfig();
 		ChainWriter chainWriter = writerConfig.getModelWriter();
 		if (output == null) {
 			String fileName = currentTemplate.getName();
 			if (context.containsKey(AbstractWalker.ORIGINAL_FILE_KEY)) {
 				log.debug("Original file path found");
-				File originalFile = (File) context
-						.get(AbstractWalker.ORIGINAL_FILE_KEY);
+				File originalFile = (File) context.get(AbstractWalker.ORIGINAL_FILE_KEY);
 				String fullPath = originalFile.getPath();
-				String readerPath = context.getArchitectureConfig()
-						.getReaderConfig().getPath();
+				String readerPath = context.getArchitectureConfig().getReaderConfig().getPath();
 				fileName = fullPath.substring(readerPath.length());
 				if (fileName.startsWith(File.separator)) {
 					fileName = fileName.substring(1);
@@ -170,8 +157,7 @@ public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 
 			log.warn("Setting a default output file! [" + fileName + ".result]");
 			VisitorContext auxCtxt = new VisitorContext();
-			File defaultOutputFile = new File(writerConfig.getPath(), fileName
-					+ "." + suffix);
+			File defaultOutputFile = new File(writerConfig.getPath(), fileName + "." + suffix);
 			if (!defaultOutputFile.exists()) {
 				log.info("++" + defaultOutputFile.getAbsolutePath());
 				defaultOutputFile.getParentFile().mkdirs();

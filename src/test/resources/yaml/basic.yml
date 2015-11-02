@@ -1,0 +1,14 @@
+transformations: [
+  {
+    type: "walkmod:commons:method-refactor",
+    params: {
+      refactoringConfigFile: "src/conf/refactoring-methods.json"
+    }
+  },
+  {
+    type: "walkmod:commons:class-refactor",
+    params: {
+      refactoringConfigFile: "src/conf/refactoring-classes.json"
+    }
+  }
+]

@@ -17,30 +17,30 @@ package org.walkmod.conf;
 
 public class ConfigurationException extends RuntimeException {
 
-   /**
-    * Constructs a <code>ConfigurationException</code> with the specified
-    * detail message.
-    * 
-    * @param message
-    *            the detail message.
-    */
-   public ConfigurationException(String message) {
-      super(message);
-   }
+	/**
+	 * Constructs a <code>ConfigurationException</code> with the specified
+	 * detail message.
+	 * 
+	 * @param message
+	 *            the detail message.
+	 */
+	public ConfigurationException(String message) {
+		super(message);
+	}
 
-   /**
-    * Constructs a <code>ConfigurationException</code> with the specified
-    * detail message and exception cause.
-    * 
-    * @param message
-    *            the detail message.
-    * @param cause
-    *            the wrapped exception
-    */
-   public ConfigurationException(String message, Throwable cause) {
-      super(message, cause);
-      if (cause != null) {
-         this.setStackTrace(cause.getStackTrace());
-      }
-   }
+	/**
+	 * Constructs a <code>ConfigurationException</code> with the specified
+	 * detail message and exception cause.
+	 * 
+	 * @param message
+	 *            the detail message.
+	 * @param cause
+	 *            the wrapped exception
+	 */
+	public ConfigurationException(String message, Throwable cause) {
+		super(message, cause);
+		if (cause != null) {
+			this.setStackTrace(cause.getStackTrace());
+		}
+	}
 }

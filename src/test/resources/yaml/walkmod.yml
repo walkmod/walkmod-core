@@ -1,0 +1,17 @@
+plugins: 
+- org.walkmod:walkmod-maven-plugin:[1.0, 2.0)
+- org.walkmod:walkmod-refactor-plugin:[2.0, 3.0)
+
+conf-providers:
+- type: walkmod:commons:maven
+  
+chains: 
+- name: main-chain
+  transformations: 
+  - type: walkmod:commons:method-refactor
+    params: 
+      refactoringConfigFile: src/conf/refactoring-methods.json
+    
+  - type: walkmod:commons:class-refactor
+    params: 
+      refactoringConfigFile: src/conf/refactoring-classes.json    

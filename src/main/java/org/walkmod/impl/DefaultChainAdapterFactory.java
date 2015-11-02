@@ -27,28 +27,28 @@ import org.walkmod.conf.entities.Configuration;
 
 public class DefaultChainAdapterFactory implements ChainAdapterFactory {
 
-	private static final Log LOG = LogFactory
-			.getLog(DefaultChainAdapterFactory.class);
+	private static final Log LOG = LogFactory.getLog(DefaultChainAdapterFactory.class);
 
 	@Override
-	public ChainAdapter createChainProxy(Configuration configuration,
-			String chain) {
+	public ChainAdapter createChainProxy(Configuration configuration, String chain) {
 
 		Collection<ChainConfig> acs = configuration.getChainConfigs();
-		Iterator<ChainConfig> it = acs.iterator();
-		boolean end = false;
-		ChainConfig acfg = null;
-		while (it.hasNext() && !end) {
-			acfg = it.next();
-			end = chain.equals(acfg.getName());
-		}
-		if (end) {
-			LOG.debug("Chain " + chain + " found");
-			ChainAdapter ap = new DefaultChainAdapter();
-			ap.setChainConfig(acfg);
-			ap.setChainInvocation(new DefaultChainInvocation());
-			ap.prepare();
-			return ap;
+		if (acs != null) {
+			Iterator<ChainConfig> it = acs.iterator();
+			boolean end = false;
+			ChainConfig acfg = null;
+			while (it.hasNext() && !end) {
+				acfg = it.next();
+				end = chain.equals(acfg.getName());
+			}
+			if (end) {
+				LOG.debug("Chain " + chain + " found");
+				ChainAdapter ap = new DefaultChainAdapter();
+				ap.setChainConfig(acfg);
+				ap.setChainInvocation(new DefaultChainInvocation());
+				ap.prepare();
+				return ap;
+			}
 		}
 		return null;
 	}

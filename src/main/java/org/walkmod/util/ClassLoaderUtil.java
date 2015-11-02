@@ -75,26 +75,16 @@ public class ClassLoaderUtil {
 		wrapperClasses.put("java.lang.Float", "float");
 		wrapperClasses.put("java.lang.Double", "double");
 		wrapperClasses.put("java.lang.Boolean", "boolean");
-		compatibilityMatrix = new boolean[][] {
-				{ true, true, true, true, true, true, true, false, false, true },
-				{ false, true, false, true, true, true, true, false, false,
-						true },
-				{ false, false, true, true, true, true, true, false, false,
-						true },
-				{ false, false, false, true, true, true, true, false, false,
-						true },
-				{ false, false, false, false, true, true, true, false, false,
-						true },
-				{ false, false, false, false, false, true, true, false, false,
-						true },
-				{ false, false, false, false, false, false, true, false, false,
-						true },
-				{ false, false, false, false, false, false, false, true, false,
-						true },
-				{ false, false, false, false, false, false, false, false, true,
-						true },
-				{ false, false, false, false, false, false, false, false,
-						false, true } };
+		compatibilityMatrix = new boolean[][] { { true, true, true, true, true, true, true, false, false, true },
+				{ false, true, false, true, true, true, true, false, false, true },
+				{ false, false, true, true, true, true, true, false, false, true },
+				{ false, false, false, true, true, true, true, false, false, true },
+				{ false, false, false, false, true, true, true, false, false, true },
+				{ false, false, false, false, false, true, true, false, false, true },
+				{ false, false, false, false, false, false, true, false, false, true },
+				{ false, false, false, false, false, false, false, true, false, true },
+				{ false, false, false, false, false, false, false, false, true, true },
+				{ false, false, false, false, false, false, false, false, false, true } };
 		langPackageContent = new HashSet<String>();
 		langPackageContent.add("Appendable");
 		langPackageContent.add("CharSequence");
@@ -201,10 +191,9 @@ public class ClassLoaderUtil {
 		if (fromClass == null || toClass == null) {
 			return true;
 		}
-		if (matrixTypePosition.containsKey(fromClass.getName())
-				&& matrixTypePosition.containsKey(toClass.getName())) {
-			return compatibilityMatrix[matrixTypePosition.get(fromClass
-					.getName())][matrixTypePosition.get(toClass.getName())];
+		if (matrixTypePosition.containsKey(fromClass.getName()) && matrixTypePosition.containsKey(toClass.getName())) {
+			return compatibilityMatrix[matrixTypePosition.get(fromClass.getName())][matrixTypePosition.get(toClass
+					.getName())];
 		} else {
 			return toClass.isAssignableFrom(fromClass);
 		}
@@ -225,8 +214,7 @@ public class ClassLoaderUtil {
 		return primitiveClasses.get(name);
 	}
 
-	public static boolean isCompatible(Class<?>[] fromClasses,
-			Class<?>[] toClasses) {
+	public static boolean isCompatible(Class<?>[] fromClasses, Class<?>[] toClasses) {
 		if (fromClasses.length == toClasses.length) {
 			boolean assignable = true;
 			for (int i = 0; i < fromClasses.length && assignable; i++) {
@@ -252,19 +240,16 @@ public class ClassLoaderUtil {
 	 *            Method arguments
 	 * @return Method instance
 	 */
-	public Method getMethod(Class<?> clazz, String methodName,
-			Class<?>... typeArgs) {
+	public Method getMethod(Class<?> clazz, String methodName, Class<?>... typeArgs) {
 		int numParams = typeArgs == null ? 0 : typeArgs.length;
 		Method[] classMethods = clazz.getMethods();
 		for (Method method : classMethods) {
 			if (method.getName().equals(methodName)) {
 				if (method.getParameterTypes().length == numParams) {
 					boolean isCompatible = true;
-					Class<?>[] methodParameterTypes = method
-							.getParameterTypes();
+					Class<?>[] methodParameterTypes = method.getParameterTypes();
 					for (int i = 0; i < methodParameterTypes.length; i++) {
-						isCompatible = isCompatible(typeArgs[i],
-								methodParameterTypes[i]);
+						isCompatible = isCompatible(typeArgs[i], methodParameterTypes[i]);
 						if (!isCompatible)
 							break;
 					}
@@ -279,11 +264,9 @@ public class ClassLoaderUtil {
 			if (method.getName().equals(methodName)) {
 				if (method.getParameterTypes().length == numParams) {
 					boolean isCompatible = true;
-					Class<?>[] methodParameterTypes = method
-							.getParameterTypes();
+					Class<?>[] methodParameterTypes = method.getParameterTypes();
 					for (int i = 0; i < methodParameterTypes.length; i++) {
-						isCompatible = isCompatible(typeArgs[i],
-								methodParameterTypes[i]);
+						isCompatible = isCompatible(typeArgs[i], methodParameterTypes[i]);
 						if (!isCompatible)
 							break;
 					}
@@ -326,14 +309,12 @@ public class ClassLoaderUtil {
 	 * @throws IOException
 	 *             If I/O errors occur
 	 */
-	public static Iterator<URL> getResources(String resourceName,
-			Class<?> callingClass, boolean aggregate) throws IOException {
+	public static Iterator<URL> getResources(String resourceName, Class<?> callingClass, boolean aggregate)
+			throws IOException {
 		AggregateIterator<URL> iterator = new AggregateIterator<URL>();
-		iterator.addEnumeration(Thread.currentThread().getContextClassLoader()
-				.getResources(resourceName));
+		iterator.addEnumeration(Thread.currentThread().getContextClassLoader().getResources(resourceName));
 		if (!iterator.hasNext() || aggregate) {
-			iterator.addEnumeration(ClassLoaderUtil.class.getClassLoader()
-					.getResources(resourceName));
+			iterator.addEnumeration(ClassLoaderUtil.class.getClassLoader().getResources(resourceName));
 		}
 		if (!iterator.hasNext() || aggregate) {
 			ClassLoader cl = callingClass.getClassLoader();
@@ -341,8 +322,7 @@ public class ClassLoaderUtil {
 				iterator.addEnumeration(cl.getResources(resourceName));
 			}
 		}
-		if (!iterator.hasNext()
-				&& (resourceName != null)
+		if (!iterator.hasNext() && (resourceName != null)
 				&& ((resourceName.length() == 0) || (resourceName.charAt(0) != '/'))) {
 			return getResources('/' + resourceName, callingClass, aggregate);
 		}
@@ -368,11 +348,9 @@ public class ClassLoaderUtil {
 	 * @return Matching resouce or null if not found
 	 */
 	public static URL getResource(String resourceName, Class<?> callingClass) {
-		URL url = Thread.currentThread().getContextClassLoader()
-				.getResource(resourceName);
+		URL url = Thread.currentThread().getContextClassLoader().getResource(resourceName);
 		if (url == null) {
-			url = ClassLoaderUtil.class.getClassLoader().getResource(
-					resourceName);
+			url = ClassLoaderUtil.class.getClassLoader().getResource(resourceName);
 		}
 		if (url == null) {
 			ClassLoader cl = callingClass.getClassLoader();
@@ -380,8 +358,7 @@ public class ClassLoaderUtil {
 				url = cl.getResource(resourceName);
 			}
 		}
-		if ((url == null)
-				&& (resourceName != null)
+		if ((url == null) && (resourceName != null)
 				&& ((resourceName.length() == 0) || (resourceName.charAt(0) != '/'))) {
 			return getResource('/' + resourceName, callingClass);
 		}
@@ -399,8 +376,7 @@ public class ClassLoaderUtil {
 	 *            The Class object of the calling object
 	 * @return Matching resouce or null if not found
 	 */
-	public static InputStream getResourceAsStream(String resourceName,
-			Class<?> callingClass) {
+	public static InputStream getResourceAsStream(String resourceName, Class<?> callingClass) {
 		URL url = getResource(resourceName, callingClass);
 		try {
 			return (url != null) ? url.openStream() : null;
@@ -428,18 +404,15 @@ public class ClassLoaderUtil {
 	 * @throws ClassNotFoundException
 	 *             If the class cannot be found anywhere.
 	 */
-	public static Class<?> loadClass(String className, Class<?> callingClass)
-			throws ClassNotFoundException {
+	public static Class<?> loadClass(String className, Class<?> callingClass) throws ClassNotFoundException {
 		try {
-			return Thread.currentThread().getContextClassLoader()
-					.loadClass(className);
+			return Thread.currentThread().getContextClassLoader().loadClass(className);
 		} catch (ClassNotFoundException e) {
 			try {
 				return Class.forName(className);
 			} catch (ClassNotFoundException ex) {
 				try {
-					return ClassLoaderUtil.class.getClassLoader().loadClass(
-							className);
+					return ClassLoaderUtil.class.getClassLoader().loadClass(className);
 				} catch (ClassNotFoundException exc) {
 					return callingClass.getClassLoader().loadClass(className);
 				}

@@ -31,117 +31,117 @@ import org.walkmod.conf.entities.ChainConfig;
 
 public class VisitorContext extends HashMap<String, Object> {
 
-   private static final String KEY_AST_RESULT_NODES = "result";
+	private static final String KEY_AST_RESULT_NODES = "result";
 
-   private Collection<String> visitorMessages = new LinkedList<String>();
+	private Collection<String> visitorMessages = new LinkedList<String>();
 
-   private ChainConfig ac = null;
+	private ChainConfig ac = null;
 
-   public VisitorContext() {
-   }
+	public VisitorContext() {
+	}
 
-   public VisitorContext(ChainConfig ac) {
-      this();
-      this.ac = ac;
-   }
+	public VisitorContext(ChainConfig ac) {
+		this();
+		this.ac = ac;
+	}
 
-   public boolean addResultNode(Object node) {
-      if (!super.containsKey(KEY_AST_RESULT_NODES)) {
-         super.put(KEY_AST_RESULT_NODES, new LinkedList<Object>());
-      }
-      @SuppressWarnings("unchecked")
-      Collection<Object> collection = (Collection<Object>) get(KEY_AST_RESULT_NODES);
-      Iterator<Object> it = collection.iterator();
-      while (it.hasNext()) {
-         if (it.next() == node) {
-            it.remove();
-         }
-      }
-      return collection.add(node);
-   }
+	public boolean addResultNode(Object node) {
+		if (!super.containsKey(KEY_AST_RESULT_NODES)) {
+			super.put(KEY_AST_RESULT_NODES, new LinkedList<Object>());
+		}
+		@SuppressWarnings("unchecked")
+		Collection<Object> collection = (Collection<Object>) get(KEY_AST_RESULT_NODES);
+		Iterator<Object> it = collection.iterator();
+		while (it.hasNext()) {
+			if (it.next() == node) {
+				it.remove();
+			}
+		}
+		return collection.add(node);
+	}
 
-   public boolean addAllResultNodes(Collection<Object> nodes) {
-      if (!super.containsKey(KEY_AST_RESULT_NODES)) {
-         super.put(KEY_AST_RESULT_NODES, new LinkedList<Object>());
-      }
-      Collection<Object> collection = (Collection<Object>) get(KEY_AST_RESULT_NODES);
-      boolean added = false;
-      for (Object o : nodes) {
-         added = addResultNode(o) || added;
-      }
-      return added;
-   }
+	public boolean addAllResultNodes(Collection<Object> nodes) {
+		if (!super.containsKey(KEY_AST_RESULT_NODES)) {
+			super.put(KEY_AST_RESULT_NODES, new LinkedList<Object>());
+		}
+		Collection<Object> collection = (Collection<Object>) get(KEY_AST_RESULT_NODES);
+		boolean added = false;
+		for (Object o : nodes) {
+			added = addResultNode(o) || added;
+		}
+		return added;
+	}
 
-   @Override
-   public Object remove(Object key) {
-      if (!KEY_AST_RESULT_NODES.equals(key)) {
-         return super.remove(key);
-      }
-      return null;
-   }
+	@Override
+	public Object remove(Object key) {
+		if (!KEY_AST_RESULT_NODES.equals(key)) {
+			return super.remove(key);
+		}
+		return null;
+	}
 
-   @Override
-   public Object put(String key, Object value) {
-      if (!KEY_AST_RESULT_NODES.equals(key)) {
-         return super.put(key, value);
-      }
-      return null;
-   }
+	@Override
+	public Object put(String key, Object value) {
+		if (!KEY_AST_RESULT_NODES.equals(key)) {
+			return super.put(key, value);
+		}
+		return null;
+	}
 
-   @SuppressWarnings("unchecked")
-   public Collection<Object> getResultNodes() {
-      Collection<Object> result;
-      if (super.containsKey(KEY_AST_RESULT_NODES)) {
-         result = (Collection<Object>) get(KEY_AST_RESULT_NODES);
-      } else {
-         result = Collections.EMPTY_LIST;
-      }
-      return result;
-   }
+	@SuppressWarnings("unchecked")
+	public Collection<Object> getResultNodes() {
+		Collection<Object> result;
+		if (super.containsKey(KEY_AST_RESULT_NODES)) {
+			result = (Collection<Object>) get(KEY_AST_RESULT_NODES);
+		} else {
+			result = Collections.EMPTY_LIST;
+		}
+		return result;
+	}
 
-   public boolean hasResultNodes() {
-      return !getResultNodes().isEmpty();
-   }
+	public boolean hasResultNodes() {
+		return !getResultNodes().isEmpty();
+	}
 
-   public ChainConfig getArchitectureConfig() {
-      return ac;
-   }
+	public ChainConfig getArchitectureConfig() {
+		return ac;
+	}
 
-   public void addTransformationMessage(String message) {
-      this.visitorMessages.add(message);
-   }
+	public void addTransformationMessage(String message) {
+		this.visitorMessages.add(message);
+	}
 
-   public Collection<String> getVisitorMessages() {
-      return visitorMessages;
-   }
+	public Collection<String> getVisitorMessages() {
+		return visitorMessages;
+	}
 
-   public Object getBean(String name, Map<?, ?> parameters) {
-      return getArchitectureConfig().getConfiguration().getBean(name, parameters);
-   }
+	public Object getBean(String name, Map<?, ?> parameters) {
+		return getArchitectureConfig().getConfiguration().getBean(name, parameters);
+	}
 
-   public ClassLoader getClassLoader() {
-      // for unitary test proposal
-      if (getArchitectureConfig() == null) {
-         return Thread.currentThread().getContextClassLoader();
-      }
-      return getArchitectureConfig().getConfiguration().getClassLoader();
-   }
+	public ClassLoader getClassLoader() {
+		// for unitary test proposal
+		if (getArchitectureConfig() == null) {
+			return Thread.currentThread().getContextClassLoader();
+		}
+		return getArchitectureConfig().getConfiguration().getClassLoader();
+	}
 
-   public URI getResource(String resource) {
-      URL url = getClassLoader().getResource(resource);
-      if (url == null) {
-         File file = new File(resource);
-         if (file.exists()) {
-            return file.toURI();
-         } else {
-            return null;
-         }
-      } else {
-         try {
-            return url.toURI();
-         } catch (URISyntaxException e) {
-            return null;
-         }
-      }
-   }
+	public URI getResource(String resource) {
+		URL url = getClassLoader().getResource(resource);
+		if (url == null) {
+			File file = new File(resource);
+			if (file.exists()) {
+				return file.toURI();
+			} else {
+				return null;
+			}
+		} else {
+			try {
+				return url.toURI();
+			} catch (URISyntaxException e) {
+				return null;
+			}
+		}
+	}
 }

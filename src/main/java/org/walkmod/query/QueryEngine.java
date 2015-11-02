@@ -23,8 +23,7 @@ public interface QueryEngine {
 
 	public void initialize(VisitorContext context);
 
-	public void initialize(VisitorContext context,
-			Map<String, Object> parameters);
+	public void initialize(VisitorContext context, Map<String, Object> parameters);
 
 	public Object resolve(String query);
 

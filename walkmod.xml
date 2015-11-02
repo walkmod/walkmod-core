@@ -1,0 +1,20 @@
+<!DOCTYPE walkmod PUBLIC "-//WALKMOD//DTD" "http://www.walkmod.com/dtd/walkmod-1.0.dtd">
+<walkmod>
+    <plugins>
+        <plugin artifactId="walkmod-license-applier-plugin" groupId="org.walkmod" version="[2.0, 3.0)"/>
+    </plugins>
+    <chain name="main-chain">
+        <reader path="src/main/java"/>
+        <walker>
+            <transformations>
+                <transformation type="walkmod:commons:license-generator">
+                    <param name="licenseFile">src/main/license-header.txt</param>
+                    <param name="update">reformat</param>
+                </transformation>
+            </transformations>
+        </walker>
+        <writer path="src/main/java">
+            <param name="configFile">eclipse-formatter.xml</param>
+        </writer>
+    </chain>
+</walkmod>

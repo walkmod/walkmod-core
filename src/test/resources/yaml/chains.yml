@@ -1,0 +1,42 @@
+chains: [
+  {
+    name: "main-chain",
+    reader: {
+      path: "src"
+    },
+    transformations: [
+      {
+        type: "walkmod:commons:method-refactor",
+        params: {
+          refactoringConfigFile: "src/conf/refactoring-methods.json"
+        }
+      },
+      {
+        type: "walkmod:commons:class-refactor",
+        params: {
+          refactoringConfigFile: "src/conf/refactoring-classes.json"
+        }
+      }
+    ],
+    writer:{
+      path: "src"
+    }
+  },
+  {
+    name: "main-chain-2",
+    transformations: [
+      {
+        type: "walkmod:commons:method-refactor",
+        params: {
+          refactoringConfigFile: "src/conf/refactoring-methods.json"
+        }
+      },
+      {
+        type: "walkmod:commons:class-refactor",
+        params: {
+          refactoringConfigFile: "src/conf/refactoring-classes.json"
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,7 @@
+<!DOCTYPE walkmod SYSTEM "../../../main/resources/walkmod-1.1.dtd">
+<walkmod>
+	<modules>
+		<module>module1</module>
+		<module>module2</module>
+	</modules>
+</walkmod>

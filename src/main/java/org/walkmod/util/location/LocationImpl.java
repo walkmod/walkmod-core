@@ -32,8 +32,7 @@ public class LocationImpl implements Location {
 
 	private final int columnNumber;
 
-	public static final LocationImpl UNKNOWN = new LocationImpl(null, null, -1,
-			-1);
+	public static final LocationImpl UNKNOWN = new LocationImpl(null, null, -1, -1);
 
 	public LocationImpl(String description, String uri) {
 		this(description, uri, -1, -1);
@@ -76,8 +75,7 @@ public class LocationImpl implements Location {
 		if (getLineNumber() > 0) {
 			try {
 				InputStream in = new URL(getURI()).openStream();
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(in));
+				BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 				int lineno = 0;
 				int errno = getLineNumber();
 				String line;

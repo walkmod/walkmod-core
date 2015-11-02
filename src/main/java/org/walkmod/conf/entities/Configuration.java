@@ -16,9 +16,11 @@
 package org.walkmod.conf.entities;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.walkmod.merger.MergeEngine;
 import org.walkmod.walkers.VisitorMessage;
 
@@ -39,6 +41,8 @@ public interface Configuration {
 	public boolean addChainConfig(ChainConfig architecture);
 
 	public void setBeanFactory(BeanFactory beanFactory);
+	
+	public void setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry);
 
 	public Object getBean(String name, Map<?, ?> parameters);
 
@@ -65,4 +69,16 @@ public interface Configuration {
 	public Collection<ProviderConfig> getProviderConfigurations();
 
 	public void setProviderConfigurations(Collection<ProviderConfig> providers);
+	
+	public void setModules(List<String> modules);
+	
+	public List<String> getModules();
+	
+	public void setInitializers(List<InitializerConfig> initializers);
+	
+	public List<InitializerConfig> getInitializers();
+
+	public boolean containsBean(String beanId);
+	
+	public List<BeanDefinition> getAvailableBeans(PluginConfig pc);
 }

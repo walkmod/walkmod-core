@@ -31,8 +31,7 @@ public class ChangeLogPrinter {
 
 	private static Logger log = Logger.getLogger(ChangeLogPrinter.class);
 
-	public ChangeLogPrinter(Map<String, Integer> added,
-			Map<String, Integer> updated, Map<String, Integer> deleted,
+	public ChangeLogPrinter(Map<String, Integer> added, Map<String, Integer> updated, Map<String, Integer> deleted,
 			Map<String, Integer> unmodified) {
 		this.added = added;
 		this.updated = updated;
@@ -43,24 +42,21 @@ public class ChangeLogPrinter {
 	private void printChangesByKey() {
 		Set<String> keys = added.keySet();
 		for (String key : keys) {
-			String aux = String.valueOf(key.charAt(0)).toLowerCase()
-					+ key.substring(1);
+			String aux = String.valueOf(key.charAt(0)).toLowerCase() + key.substring(1);
 			String[] label = aux.split("(?=\\p{Upper})");
 			String printedLabel = "";
 			if (label != null) {
 				for (int i = 0; i < label.length; i++) {
 					if (!"Declaration".equals(label[i])) {
 						if (i > 0) {
-							printedLabel = printedLabel + " "
-									+ label[i].toLowerCase();
+							printedLabel = printedLabel + " " + label[i].toLowerCase();
 						} else {
 							printedLabel = label[i].toLowerCase();
 						}
 					}
 				}
 			}
-			int total = added.get(key) + deleted.get(key) + updated.get(key)
-					+ unmodified.get(key);
+			int total = added.get(key) + deleted.get(key) + updated.get(key) + unmodified.get(key);
 			String resume = "";
 			if (total == unmodified.get(key)) {
 				resume = printedLabel + "s : [changes : 0]";
@@ -80,8 +76,7 @@ public class ChangeLogPrinter {
 				if (updatedItems > 0) {
 					updatedMsg = updatedItems + "/" + total;
 				}
-				resume = printedLabel + "s : [ added: " + addedMsg
-						+ ", deleted: " + deletedMsg + ", updated: "
+				resume = printedLabel + "s : [ added: " + addedMsg + ", deleted: " + deletedMsg + ", updated: "
 						+ updatedMsg + "]";
 			}
 			log.debug(resume);

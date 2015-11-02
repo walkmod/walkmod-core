@@ -16,13 +16,45 @@
 
 package org.walkmod;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.walkmod.commands.AddCfgProviderCommand;
+import org.walkmod.commands.AddModuleCommand;
+import org.walkmod.commands.AddParamCommand;
+import org.walkmod.commands.AddPluginCommand;
+import org.walkmod.commands.AddTransformationCommand;
+import org.walkmod.commands.ApplyCommand;
+import org.walkmod.commands.AsciiTableAware;
+import org.walkmod.commands.CheckCommand;
+import org.walkmod.commands.Command;
+import org.walkmod.commands.HelpCommand;
+import org.walkmod.commands.InitCommand;
+import org.walkmod.commands.InspectCommand;
+import org.walkmod.commands.InstallCommand;
+import org.walkmod.commands.PrintChainsCommand;
+import org.walkmod.commands.PrintModulesCommand;
+import org.walkmod.commands.PrintPluginsCommand;
+import org.walkmod.commands.PrintProvidersCommand;
+import org.walkmod.commands.PrintTransformationsCommand;
+import org.walkmod.commands.RemoveChainCommand;
+import org.walkmod.commands.RemoveModuleCommand;
+import org.walkmod.commands.RemovePluginCommand;
+import org.walkmod.commands.RemoveProviderCommand;
+import org.walkmod.commands.RemoveTransformationCommand;
+import org.walkmod.commands.SetReaderCommand;
+import org.walkmod.commands.SetWriterCommand;
+import org.walkmod.commands.VersionCommand;
+
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
+
+import de.vandermeer.asciitable.v2.RenderedTable;
+import de.vandermeer.asciitable.v2.V2_AsciiTable;
+import de.vandermeer.asciitable.v2.render.V2_AsciiTableRenderer;
+import de.vandermeer.asciitable.v2.themes.V2_E_TableThemes;
 
 /**
  * Walkmod shell
@@ -34,11 +66,16 @@ public class WalkModDispatcher {
 
 	private static Logger log = Logger.getLogger(WalkModDispatcher.class);
 
+	private Map<String, Command> commands = new LinkedHashMap<String, Command>();
+
+	public WalkModDispatcher() {
+
+	}
+
 	public static void printHeader() {
 		log.info("Java version: " + System.getProperty("java.version"));
 		log.info("Java Home: " + System.getProperty("java.home"));
-		log.info("OS: " + System.getProperty("os.name") + ", Vesion: "
-				+ System.getProperty("os.version"));
+		log.info("OS: " + System.getProperty("os.name") + ", Vesion: " + System.getProperty("os.version"));
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
 		System.out.print("                    ");
@@ -62,135 +99,95 @@ public class WalkModDispatcher {
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
 		System.out.println("An open source tool to apply code conventions");
-		System.out.println("version 1.2 - July 2015 -");
+		System.out.println("version 2.0 - November 2015 -");
 		System.out.print("----------------------------------------");
 		System.out.println("----------------------------------------");
 	}
 
-	public static void main(String[] args) throws Exception {
-		if (args == null || args.length == 0 || "--help".equals(args[0])) {
+	public void execute(JCommander jcommander, String[] args) throws Exception {
+		commands.put("add", new AddTransformationCommand(jcommander));
+		commands.put("add-module", new AddModuleCommand(jcommander));
+		commands.put("add-param", new AddParamCommand(jcommander));
+		commands.put("add-plugin", new AddPluginCommand(jcommander));
+		commands.put("add-provider", new AddCfgProviderCommand(jcommander));
+		commands.put("apply", new ApplyCommand(jcommander));
+		commands.put("chains", new PrintChainsCommand(jcommander));
+		commands.put("check", new CheckCommand(jcommander));
+		commands.put("init", new InitCommand(jcommander));
+		commands.put("inspect", new InspectCommand(jcommander));
+		commands.put("install", new InstallCommand(jcommander));
+		commands.put("modules", new PrintModulesCommand(jcommander));
+		commands.put("providers", new PrintProvidersCommand(jcommander));
+		commands.put("rm", new RemoveTransformationCommand(jcommander));
+		commands.put("rm-chain", new RemoveChainCommand(jcommander));
+		commands.put("rm-module", new RemoveModuleCommand(jcommander));
+		commands.put("rm-plugin", new RemovePluginCommand(jcommander));
+		commands.put("rm-provider", new RemoveProviderCommand(jcommander));
+		commands.put("set-reader", new SetReaderCommand(jcommander));
+		commands.put("set-writer", new SetWriterCommand(jcommander));
+		commands.put("transformations", new PrintTransformationsCommand(jcommander));
+		commands.put("plugins", new PrintPluginsCommand(jcommander));
+		commands.put("--version", new VersionCommand());
+		commands.put("--help", new HelpCommand(jcommander));
 
-			if (args == null || args.length == 0) {
-				printHeader();
-				log.error("You must specify at least one goal to apply code transformations.");
+		Set<String> keys = commands.keySet();
+
+		for (String key : keys) {
+			if (!key.startsWith("--")) {
+				jcommander.addCommand(key, commands.get(key));
+			} else {
+				jcommander.addCommand(key, commands.get(key), "-" + key.charAt(2));
 			}
-			System.out
-					.println("The following list ilustrates some commonly used Walkmod commands.");
-			System.out.println("walkmod install");
-			System.out
-					.println("        Downloads and installs a walkmod plugin");
-			System.out.println("walkmod apply [chain] [-i|--includes <path>] [-x|--excludes <path>]");
-			System.out
-					.println("        Upgrades your code to apply your development conventions");
-			System.out.println("walkmod check [chain] [-i|--includes <path>] [-x|--excludes <path>]");
-			System.out
-					.println("        Checks and shows witch classes must be reviewed");
-			System.out
-					.println("Please, see http://www.walkmod.com for more information.");
-			if (args == null || args.length == 0) {
-				System.out
-						.println("Use \"walkmod --help\" to show general usage information about WalkMod command's line");
-			}
-			// TODO: backup, restore, search
-		} else {
+			JCommander aux = jcommander.getCommands().get(key);
 
-			List<String> paramsList = new ArrayList<String>(Arrays.asList(args));
+			aux.setProgramName("walkmod " + key);
+			aux.setAcceptUnknownOptions(false);
 
-			boolean offline = false;
-			boolean showException = false;
-			ArrayList<String> includes = new ArrayList<String>();
-			ArrayList<String> excludes = new ArrayList<String>();
-
-			Iterator<String> it = paramsList.iterator();
-			int pos = 0;
-			while (it.hasNext()) {
-				String elem = it.next();
-				if ("--offline".equals(elem)) {
-					it.remove();
-					offline = true;
-					pos++;
-				} else if ("-e".equals(elem)) {
-					it.remove();
-					showException = true;
-					pos++;
-				} else if ("-i".equals(elem) || "--includes".equals(elem)) {
-					it.remove();
-					boolean finish = pos == paramsList.size()
-							|| paramsList.get(pos).startsWith("-");
-					while (!finish) {
-						String fileName = it.next();
-						File file = new File(fileName);
-						if(file.exists()){
-							fileName = file.getAbsolutePath();
-							includes.add(fileName);
-						}
-						it.remove();
-						finish = pos == paramsList.size()
-								|| paramsList.get(pos).startsWith("-");
-
-					}
-				} else if ("-x".equals(elem) || "--excludes".equals(elem)) {
-					it.remove();
-					boolean finish = pos == paramsList.size()
-							|| paramsList.get(pos).startsWith("-");
-					while (!finish) {
-						String fileName = it.next();
-						File file = new File(fileName);
-						if(file.exists()){
-							fileName = file.getAbsolutePath();
-							excludes.add(fileName);
-						}
-						it.remove();
-						finish = pos == paramsList.size()
-								|| paramsList.get(pos).startsWith("-");
-					}
-				} else {
-					pos++;
-				}
-
-			}
-			String[] includesArray = null;
-			String[] excludesArray = null;
-			
-			if (!includes.isEmpty()) {
-				includesArray = new String[includes.size()];
-				includes.toArray(includesArray);
-			}
-			if(!excludes.isEmpty()){
-				excludesArray = new String[excludes.size()];
-				excludes.toArray(excludesArray);
-			}
-
-			
-
-			WalkModFacade facade = new WalkModFacade(offline, true,
-					showException, includesArray, excludesArray);
-
-			if (paramsList.contains("--version")) {
-				System.out.println("Walkmod version \"1.2\"");
-				System.out.println("Java version: "
-						+ System.getProperty("java.version"));
-				System.out.println("Java Home: "
-						+ System.getProperty("java.home"));
-				System.out.println("OS: " + System.getProperty("os.name")
-						+ ", Vesion: " + System.getProperty("os.version"));
-			} else if (paramsList.contains("apply")) {
-				paramsList.remove("apply");
-				printHeader();
-				String[] params = new String[paramsList.size()];
-				facade.apply(paramsList.toArray(params));
-
-			} else if (paramsList.contains("check")) {
-				paramsList.remove("check");
-				printHeader();
-				String[] params = new String[paramsList.size()];
-				facade.check(paramsList.toArray(params));
-
-			} else if (paramsList.contains("install")) {
-				printHeader();
-				facade.install();
-			}
 		}
+
+		if (args == null || args.length == 0) {
+			printHeader();
+			new HelpCommand(jcommander).execute();
+		} else {
+			try {
+				jcommander.parse(args);
+			} catch (ParameterException e) {
+
+				System.out.println(e.getMessage());
+				System.out.println("Run walkmod --help to see the accepted parameters");
+				return;
+			}
+			String command = jcommander.getParsedCommand();
+			printHeader();
+			Command commandObject = commands.get(command.substring("walkmod ".length(), command.length()));
+
+			commandObject.execute();
+
+			if (commandObject instanceof AsciiTableAware) {
+				AsciiTableAware aux = (AsciiTableAware) commandObject;
+				V2_AsciiTable table = aux.getTable();
+				if (table != null) {
+					V2_AsciiTableRenderer rend = new V2_AsciiTableRenderer();
+					rend.setTheme(V2_E_TableThemes.UTF_LIGHT.get());
+					rend.setWidth(new AsciiTableWidth(50));
+					RenderedTable rt = rend.render(table);
+					System.out.println(rt);
+				}
+			}
+
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+
+		WalkModDispatcher instance = new WalkModDispatcher();
+		JCommander command = new JCommander(instance);
+
+		command.setProgramName("walkmod");
+		command.setAcceptUnknownOptions(false);
+
+		instance.execute(command, args);
+
 	}
 
 }

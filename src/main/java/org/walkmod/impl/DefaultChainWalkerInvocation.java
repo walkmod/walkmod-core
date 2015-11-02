@@ -26,8 +26,7 @@ public class DefaultChainWalkerInvocation implements ChainWalkerInvocation {
 
 	private ChainWalkerAdapter walkerAdapter;
 
-	private static final Log LOG = LogFactory
-			.getLog(DefaultChainWalkerInvocation.class);
+	private static final Log LOG = LogFactory.getLog(DefaultChainWalkerInvocation.class);
 
 	@Override
 	public void init(ChainWalkerAdapter transformation) {
@@ -41,13 +40,10 @@ public class DefaultChainWalkerInvocation implements ChainWalkerInvocation {
 			try {
 				walker.execute();
 			} catch (Exception e) {
-				throw new WalkModException(
-						"An exeception has been produced during the "
-								+ walkerAdapter.getName() + " transformation",
-						e);
+				throw new WalkModException("An exeception has been produced during the " + walkerAdapter.getName()
+						+ " transformation", e);
 			}
 		}
-		LOG.debug("The transformation [" + walkerAdapter.getName()
-				+ "] has been executed");
+		LOG.debug("The transformation [" + walkerAdapter.getName() + "] has been executed");
 	}
 }

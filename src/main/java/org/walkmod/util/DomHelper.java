@@ -40,7 +40,7 @@ public class DomHelper {
 	public static final String XMLNS_URI = "http://www.w3.org/2000/xmlns/";
 
 	public static Location getLocationObject(Element element) {
-		return LocationAttributes.getLocation(element);
+		return null;//LocationAttributes.getLocation(element);
 	}
 
 	/**
@@ -67,8 +67,7 @@ public class DomHelper {
 	 *            a map of DTD names and public ids
 	 * @return Document
 	 */
-	public static Document parse(InputSource inputSource,
-			Map<String, String> dtdMappings) {
+	public static Document parse(InputSource inputSource, Map<String, String> dtdMappings) {
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		factory.setValidating((dtdMappings != null));
 		factory.setNamespaceAware(true);
@@ -81,8 +80,7 @@ public class DomHelper {
 		DOMBuilder builder = new DOMBuilder();
 		ContentHandler locationHandler = new LocationAttributes.Pipe(builder);
 		try {
-			parser.parse(inputSource, new StartHandler(locationHandler,
-					dtdMappings));
+			parser.parse(inputSource, new StartHandler(locationHandler, dtdMappings));
 		} catch (Exception ex) {
 			throw new WalkModException(ex);
 		}
@@ -162,8 +160,7 @@ public class DomHelper {
 		 */
 		private void setup() {
 			try {
-				TransformerHandler handler = this.factory
-						.newTransformerHandler();
+				TransformerHandler handler = this.factory.newTransformerHandler();
 				nextHandler = handler;
 				if (this.parentNode != null) {
 					this.result = new DOMResult(this.parentNode);
@@ -172,8 +169,7 @@ public class DomHelper {
 				}
 				handler.setResult(this.result);
 			} catch (javax.xml.transform.TransformerException local) {
-				throw new WalkModException(
-						"Fatal-Error: Unable to get transformer handler", local);
+				throw new WalkModException("Fatal-Error: Unable to get transformer handler", local);
 			}
 		}
 
@@ -204,18 +200,15 @@ public class DomHelper {
 			nextHandler.endDocument();
 		}
 
-		public void startElement(String uri, String loc, String raw,
-				Attributes attrs) throws SAXException {
+		public void startElement(String uri, String loc, String raw, Attributes attrs) throws SAXException {
 			nextHandler.startElement(uri, loc, raw, attrs);
 		}
 
-		public void endElement(String arg0, String arg1, String arg2)
-				throws SAXException {
+		public void endElement(String arg0, String arg1, String arg2) throws SAXException {
 			nextHandler.endElement(arg0, arg1, arg2);
 		}
 
-		public void startPrefixMapping(String arg0, String arg1)
-				throws SAXException {
+		public void startPrefixMapping(String arg0, String arg1) throws SAXException {
 			nextHandler.startPrefixMapping(arg0, arg1);
 		}
 
@@ -223,18 +216,15 @@ public class DomHelper {
 			nextHandler.endPrefixMapping(arg0);
 		}
 
-		public void characters(char[] arg0, int arg1, int arg2)
-				throws SAXException {
+		public void characters(char[] arg0, int arg1, int arg2) throws SAXException {
 			nextHandler.characters(arg0, arg1, arg2);
 		}
 
-		public void ignorableWhitespace(char[] arg0, int arg1, int arg2)
-				throws SAXException {
+		public void ignorableWhitespace(char[] arg0, int arg1, int arg2) throws SAXException {
 			nextHandler.ignorableWhitespace(arg0, arg1, arg2);
 		}
 
-		public void processingInstruction(String arg0, String arg1)
-				throws SAXException {
+		public void processingInstruction(String arg0, String arg1) throws SAXException {
 			nextHandler.processingInstruction(arg0, arg1);
 		}
 
@@ -278,20 +268,17 @@ public class DomHelper {
 		}
 
 		@Override
-		public void startElement(String uri, String loc, String raw,
-				Attributes attrs) throws SAXException {
+		public void startElement(String uri, String loc, String raw, Attributes attrs) throws SAXException {
 			nextHandler.startElement(uri, loc, raw, attrs);
 		}
 
 		@Override
-		public void endElement(String arg0, String arg1, String arg2)
-				throws SAXException {
+		public void endElement(String arg0, String arg1, String arg2) throws SAXException {
 			nextHandler.endElement(arg0, arg1, arg2);
 		}
 
 		@Override
-		public void startPrefixMapping(String arg0, String arg1)
-				throws SAXException {
+		public void startPrefixMapping(String arg0, String arg1) throws SAXException {
 			nextHandler.startPrefixMapping(arg0, arg1);
 		}
 
@@ -301,20 +288,17 @@ public class DomHelper {
 		}
 
 		@Override
-		public void characters(char[] arg0, int arg1, int arg2)
-				throws SAXException {
+		public void characters(char[] arg0, int arg1, int arg2) throws SAXException {
 			nextHandler.characters(arg0, arg1, arg2);
 		}
 
 		@Override
-		public void ignorableWhitespace(char[] arg0, int arg1, int arg2)
-				throws SAXException {
+		public void ignorableWhitespace(char[] arg0, int arg1, int arg2) throws SAXException {
 			nextHandler.ignorableWhitespace(arg0, arg1, arg2);
 		}
 
 		@Override
-		public void processingInstruction(String arg0, String arg1)
-				throws SAXException {
+		public void processingInstruction(String arg0, String arg1) throws SAXException {
 			nextHandler.processingInstruction(arg0, arg1);
 		}
 
@@ -327,8 +311,7 @@ public class DomHelper {
 		public InputSource resolveEntity(String publicId, String systemId) {
 			if (dtdMappings != null && dtdMappings.containsKey(publicId)) {
 				String val = dtdMappings.get(publicId).toString();
-				return new InputSource(ClassLoaderUtil.getResourceAsStream(val,
-						DomHelper.class));
+				return new InputSource(ClassLoaderUtil.getResourceAsStream(val, DomHelper.class));
 			}
 			return null;
 		}
@@ -339,19 +322,15 @@ public class DomHelper {
 
 		@Override
 		public void error(SAXParseException exception) throws SAXException {
-			LOG.error(
-					exception.getMessage() + " at (" + exception.getPublicId()
-							+ ":" + exception.getLineNumber() + ":"
-							+ exception.getColumnNumber() + ")", exception);
+			LOG.error(exception.getMessage() + " at (" + exception.getPublicId() + ":" + exception.getLineNumber()
+					+ ":" + exception.getColumnNumber() + ")", exception);
 			throw exception;
 		}
 
 		@Override
 		public void fatalError(SAXParseException exception) throws SAXException {
-			LOG.fatal(
-					exception.getMessage() + " at (" + exception.getPublicId()
-							+ ":" + exception.getLineNumber() + ":"
-							+ exception.getColumnNumber() + ")", exception);
+			LOG.fatal(exception.getMessage() + " at (" + exception.getPublicId() + ":" + exception.getLineNumber()
+					+ ":" + exception.getColumnNumber() + ")", exception);
 			throw exception;
 		}
 	}

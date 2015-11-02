@@ -44,8 +44,7 @@ public class DefaultConfigurationAdapter implements ConfigurationAdapter {
 	@Override
 	public void prepare() {
 
-		Collection<ProviderConfig> providers = config
-				.getProviderConfigurations();
+		Collection<ProviderConfig> providers = config.getProviderConfigurations();
 
 		if (providers != null) {
 			for (ProviderConfig pc : providers) {
@@ -87,15 +86,11 @@ public class DefaultConfigurationAdapter implements ConfigurationAdapter {
 				Object pType = null;
 				Map<Class<?>, MergePolicy> resolvedEntries = new HashMap<Class<?>, MergePolicy>();
 				if (policyEntries != null && !policyEntries.isEmpty()) {
-					for (Map.Entry<String, String> entry : policyEntries
-							.entrySet()) {
+					for (Map.Entry<String, String> entry : policyEntries.entrySet()) {
 						try {
-							oType = config.getClassLoader().loadClass(
-									entry.getKey());
+							oType = config.getClassLoader().loadClass(entry.getKey());
 						} catch (ClassNotFoundException e) {
-							throw new WalkModException(
-									"Invalid policy entry for "
-											+ entry.getKey());
+							throw new WalkModException("Invalid policy entry for " + entry.getKey());
 						}
 						pType = config.getBean(entry.getValue(), null);
 						if (pType instanceof MergePolicy) {

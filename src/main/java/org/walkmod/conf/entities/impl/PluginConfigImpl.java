@@ -24,6 +24,44 @@ public class PluginConfigImpl implements PluginConfig {
 	private String artifactId;
 
 	private String version;
+	
+	public PluginConfigImpl(){
+		
+	}
+	
+	public PluginConfigImpl(String plugin){
+		String[] parts = plugin.split(":");
+		boolean valid = parts.length <= 3;
+		for (int i = 0; i < parts.length && valid; i++) {
+			valid = !parts[i].trim().equals("");
+		}
+
+		if (valid) {
+			if (parts.length == 1) {
+				setGroupId("org.walkmod");
+				String artifactId = parts[0].trim();
+				if(!artifactId.startsWith("walkmod-")){
+					artifactId = "walkmod-"+artifactId;
+				}
+				if(!artifactId.endsWith("-plugin")){
+					artifactId = artifactId+"-plugin";
+				}
+				setArtifactId(artifactId);
+				setVersion("latest.integration");
+			} else if (parts.length == 2) {
+				setGroupId(parts[0].trim());
+				setArtifactId(parts[1].trim());
+				setVersion("latest.integration");
+			} else {
+				setGroupId(parts[0].trim());
+				setArtifactId(parts[1].trim());
+				setVersion(parts[2].trim());
+			}
+		} else {
+			throw new IllegalArgumentException(
+					"The plugin identifier is not well defined. The expected format is [groupId:artifactId:version]");
+		}
+	}
 
 	@Override
 	public String getGroupId() {
@@ -60,8 +98,7 @@ public class PluginConfigImpl implements PluginConfig {
 		if (pc instanceof PluginConfig) {
 			if (groupId != null && artifactId != null) {
 				PluginConfig aux = (PluginConfig) pc;
-				return groupId.equals(aux.getGroupId())
-						&& artifactId.equals(aux.getArtifactId());
+				return groupId.equals(aux.getGroupId()) && artifactId.equals(aux.getArtifactId());
 			}
 			return false;
 		}
