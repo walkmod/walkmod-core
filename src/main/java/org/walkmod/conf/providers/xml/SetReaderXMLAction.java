@@ -15,6 +15,10 @@
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.providers.xml;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -48,6 +52,8 @@ public class SetReaderXMLAction extends AbstractXMLConfigurationAction {
 		NodeList children = rootElement.getChildNodes();
 		int childSize = children.getLength();
 
+		List<Node> transformationsToRemove = new LinkedList<Node>();
+
 		Element child = null;
 		for (int i = 0; i < childSize; i++) {
 			Node childNode = children.item(i);
@@ -67,18 +73,28 @@ public class SetReaderXMLAction extends AbstractXMLConfigurationAction {
 				} else if ("transformation".equals(nodeName)) {
 					if (chain == null || "default".equals(chain)) {
 						readerParent = rootElement;
+						transformationsToRemove.add(childNode);
 					}
 				}
 			}
 		}
 		if (readerParent == rootElement) {
-			document.removeChild(rootElement);
-			Element chainElem = document.createElement("chain");
-			document.appendChild(chainElem);
-			chainElem.setAttribute("name", "default");
-			for (int i = 0; i < childSize; i++) {
-				chainElem.appendChild(children.item(i));
+
+			Iterator<Node> it = transformationsToRemove.iterator();
+			while (it.hasNext()) {
+				Node current = it.next();
+				rootElement.removeChild(current);
 			}
+
+			Element chainElem = document.createElement("chain");
+			chainElem.setAttribute("name", "default");
+			rootElement.appendChild(chainElem);
+			it = transformationsToRemove.iterator();
+			while (it.hasNext()) {
+				Node current = it.next();
+				chainElem.appendChild(current.cloneNode(true));
+			}
+
 			readerParent = chainElem;
 		}
 		if (readerParent != null) {

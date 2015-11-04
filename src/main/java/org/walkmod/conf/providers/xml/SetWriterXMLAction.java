@@ -15,6 +15,10 @@
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.providers.xml;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -74,12 +78,30 @@ public class SetWriterXMLAction extends AbstractXMLConfigurationAction {
 			Element chainElem = document.createElement("chain");
 			rootElement.appendChild(chainElem);
 			chainElem.setAttribute("name", "default");
+			
+
+			List<Node> tranformationsToRemove = new LinkedList<Node>();
+
 			for (int i = 0; i < childSize; i++) {
-				chainElem.appendChild(children.item(i).cloneNode(true));
+				Node currentChild = children.item(i);
+				if (currentChild.getNodeName().equals("transformation")) {
+					tranformationsToRemove.add(currentChild);
+				}
 			}
-			for (int i = 0; i < childSize; i++) {
-				rootElement.removeChild(children.item(i));
+			Iterator<Node> it = tranformationsToRemove.iterator();
+			while (it.hasNext()) {
+				Node current = it.next();
+				rootElement.removeChild(current);
+
 			}
+			
+			it = tranformationsToRemove.iterator();
+			while(it.hasNext()){
+				Node trsnfNode = it.next();
+				chainElem.appendChild(trsnfNode);
+			}
+			
+
 			writerParent = chainElem;
 		}
 		if (writerParent != null) {
