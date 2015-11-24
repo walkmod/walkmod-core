@@ -1,18 +1,12 @@
 package org.walkmod;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class WalkmodDispatcherTest {
+public class WalkmodDispatcherTest extends AbstractWalkmodExecutionTest{
 
 	@Test
 	public void testNoArgs() throws Exception {
@@ -292,37 +286,6 @@ public class WalkmodDispatcherTest {
 
 		run(new String[] { "chains" });
 
-	}
-
-	private String run(String[] args) throws Exception {
-
-		ByteArrayOutputStream mem = new ByteArrayOutputStream();
-		BufferedOutputStream stream = new BufferedOutputStream(mem);
-
-		PrintStream ps = new PrintStream(stream);
-		PrintStream old = System.out;
-		System.setOut(ps);
-
-		WalkModFacade.log = Logger.getLogger(WalkModFacade.class.getName());
-		WalkModFacade.log.removeAllAppenders();
-		ConsoleAppender appender = new ConsoleAppender(new PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN));
-		appender.setName("stdout");
-		WalkModFacade.log.addAppender(appender);
-
-		String result = "";
-		try {
-			WalkModDispatcher.main(args);
-			stream.flush();
-			result = mem.toString();
-
-		} finally {
-			System.setOut(old);
-			ps.close();
-			stream.close();
-			mem.close();
-		}
-
-		return result;
 	}
 
 }

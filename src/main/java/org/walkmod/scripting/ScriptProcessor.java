@@ -105,7 +105,7 @@ public class ScriptProcessor implements QueryEngineAware {
 		} else {
 			if (location != null) {
 				Reader reader = null;
-				File file = new File(location);
+				File file = new File(location).getAbsoluteFile();
 				if (file.exists()) {
 					try {
 						reader = new FileReader(file);

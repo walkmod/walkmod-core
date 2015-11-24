@@ -133,15 +133,19 @@ public class ConfigurationImpl implements Configuration {
 		if (beanFactory != null && beanFactory.containsBean(name)) {
 			result = beanFactory.getBean(name);
 		}
-		if (!name.contains(":")) {
-			result = beanFactory.getBean("org.walkmod:walkmod-" + name + "-plugin:" + name);
-		} else {
-			String[] parts = name.split(":");
-			if (parts.length == 2) {
-				String pluginId = parts[0].trim();
-				String beanId = parts[1].trim();
-				if (pluginId.length() > 0 && beanId.length() > 0) {
-					result = beanFactory.getBean("org.walkmod:walkmod-" + pluginId + "-plugin:" + beanId);
+		if (result == null) {
+			String fullName = "org.walkmod:walkmod-" + name + "-plugin:" + name;
+			if (!name.contains(":") && beanFactory.containsBean(fullName)) {
+				result = beanFactory.getBean(fullName);
+			} else {
+				String[] parts = name.split(":");
+				if (parts.length == 2) {
+					String pluginId = parts[0].trim();
+					String beanId = parts[1].trim();
+					String compositeName = "org.walkmod:walkmod-" + pluginId + "-plugin:" + beanId;
+					if (pluginId.length() > 0 && beanId.length() > 0 && beanFactory.containsBean(compositeName)) {
+						result = beanFactory.getBean(compositeName);
+					}
 				}
 			}
 		}
@@ -151,8 +155,7 @@ public class ConfigurationImpl implements Configuration {
 				result = clazz.newInstance();
 			} catch (Exception e) {
 				throw new WalkModException(
-						"Sorry, it is impossible to load the bean "
-								+ name
+						"Sorry, it is impossible to load the bean " + name
 								+ ". Please, assure that it is a valid class name and the library which contains it is in the classpath",
 						e);
 			}
@@ -326,16 +329,18 @@ public class ConfigurationImpl implements Configuration {
 									}
 								}
 								if (add) {
-									result.add(new BeanDefinitionImpl(classification, name, beanDefinitionRegistry
-											.getBeanDefinition(name).getDescription(), getProperties(o)));
+									result.add(new BeanDefinitionImpl(classification, name,
+											beanDefinitionRegistry.getBeanDefinition(name).getDescription(),
+											getProperties(o)));
 								} else {
-									result.add(new BeanDefinitionImpl(classification, id, beanDefinitionRegistry
-											.getBeanDefinition(name).getDescription(), getProperties(o)));
+									result.add(new BeanDefinitionImpl(classification, id,
+											beanDefinitionRegistry.getBeanDefinition(name).getDescription(),
+											getProperties(o)));
 								}
 							}
 						} else {
-							result.add(new BeanDefinitionImpl(classification, id, beanDefinitionRegistry
-									.getBeanDefinition(name).getDescription(), getProperties(o)));
+							result.add(new BeanDefinitionImpl(classification, id,
+									beanDefinitionRegistry.getBeanDefinition(name).getDescription(), getProperties(o)));
 						}
 					}
 
