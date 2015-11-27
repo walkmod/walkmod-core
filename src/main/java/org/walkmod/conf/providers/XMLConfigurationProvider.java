@@ -485,7 +485,10 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 			} else {
 				wc.setParserConfig(new ParserConfigImpl());
 			}
-			loadTransformationConfigs((Element) children.item(transformationIndex), wc);
+			int max = children.getLength();
+			if(transformationIndex < max){
+				loadTransformationConfigs((Element) children.item(transformationIndex), wc);
+			}
 			ac.setWalkerConfig(wc);
 		} else {
 			throw new ConfigurationException("Invalid architecture definition. "

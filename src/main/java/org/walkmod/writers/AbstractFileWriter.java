@@ -44,6 +44,13 @@ public abstract class AbstractFileWriter implements ChainWriter {
 	private String normalizedOutputDirectory;
 
 	private String encoding = "UTF-8";
+	
+	private String platform = null;
+	
+	private static final String UNIX = "unix";
+	private static final String MAC = "mac";
+	private static final String WINDOWS = "windows";
+
 
 	private static Logger log = Logger.getLogger(AbstractFileWriter.class);
 
@@ -154,6 +161,16 @@ public abstract class AbstractFileWriter implements ChainWriter {
 		if (endLineChar == '\r') {
 			endLine = "\r\n";
 		}
+		if(platform != null){
+			if (platform.equals(UNIX)) {
+				endLine = "\n";
+			} else if (platform.equals(WINDOWS)) {
+				endLine = "\r\n";
+			} else if (platform.equals(MAC)) {
+				endLine = "\r";
+			}
+		}
+		
 		while (line != null) {
 			writer.write(line + endLine);
 			line = reader.readLine();
@@ -263,6 +280,10 @@ public abstract class AbstractFileWriter implements ChainWriter {
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
 		log.debug("[encoding]:" + encoding);
+	}
+	
+	public void setPlatform(String platform) {
+		this.platform = platform;
 	}
 
 }

@@ -1,7 +1,7 @@
 <!ELEMENT walkmod (param*, modules?, plugins?, conf-providers?, merge-policies?, (chain*|transformation*))>
 <!ELEMENT chain (param*, (reader?, (walker|transformation+), writer?))>
 <!ELEMENT reader (param*, include*, exclude*)>
-<!ELEMENT walker (param*, parser?, transformations)>
+<!ELEMENT walker (param*, parser?, transformations?)>
 <!ELEMENT writer (param*, include*, exclude*)>
 <!ELEMENT plugins (plugin+)>
 <!ELEMENT conf-providers (conf-provider+)>
