@@ -44,13 +44,12 @@ public abstract class AbstractFileWriter implements ChainWriter {
 	private String normalizedOutputDirectory;
 
 	private String encoding = "UTF-8";
-	
+
 	private String platform = null;
-	
+
 	private static final String UNIX = "unix";
 	private static final String MAC = "mac";
 	private static final String WINDOWS = "windows";
-
 
 	private static Logger log = Logger.getLogger(AbstractFileWriter.class);
 
@@ -133,9 +132,6 @@ public abstract class AbstractFileWriter implements ChainWriter {
 						}
 						Summary.getInstance().addFile(out);
 						log.debug(out.getPath() + " written ");
-					} else {
-						log.error(out.getPath() + " does not have valid content");
-						throw new WalkModException("blank code is returned");
 					}
 				} finally {
 					if (writer != null) {
@@ -155,13 +151,13 @@ public abstract class AbstractFileWriter implements ChainWriter {
 	}
 
 	public void write(String content, Writer writer, char endLineChar) throws IOException {
-		BufferedReader reader = new BufferedReader(new StringReader(content));
-		String line = reader.readLine();
+		char[] buffer = content.toCharArray();
+
 		String endLine = "\n";
 		if (endLineChar == '\r') {
 			endLine = "\r\n";
 		}
-		if(platform != null){
+		if (platform != null) {
 			if (platform.equals(UNIX)) {
 				endLine = "\n";
 			} else if (platform.equals(WINDOWS)) {
@@ -170,11 +166,19 @@ public abstract class AbstractFileWriter implements ChainWriter {
 				endLine = "\r";
 			}
 		}
-		
-		while (line != null) {
-			writer.write(line + endLine);
-			line = reader.readLine();
+		for (int i = 0; i < buffer.length; i++) {
+			if (buffer[i] == '\n') {
+				writer.write(endLine);
+			} else if (buffer[i] == '\r') {
+				writer.write(endLine);
+				if (i + 1 < buffer.length && buffer[i + 1] == '\n') {
+					i++;
+				}
+			} else {
+				writer.write(buffer[i]);
+			}
 		}
+
 	}
 
 	public void append(String content, Writer writer, char endLineChar) throws IOException {
@@ -281,7 +285,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
 		this.encoding = encoding;
 		log.debug("[encoding]:" + encoding);
 	}
-	
+
 	public void setPlatform(String platform) {
 		this.platform = platform;
 	}

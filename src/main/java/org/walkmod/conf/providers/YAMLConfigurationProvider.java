@@ -64,8 +64,8 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 
-public class YAMLConfigurationProvider extends AbstractChainConfigurationProvider implements
-		ProjectConfigurationProvider {
+public class YAMLConfigurationProvider extends AbstractChainConfigurationProvider
+		implements ProjectConfigurationProvider {
 
 	private Configuration configuration;
 
@@ -95,154 +95,157 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 
 	@Override
 	public void load() throws ConfigurationException {
-
+		File file = new File(fileName);
 		try {
-			JsonNode node = mapper.readTree(new File(fileName));
-			inferInitializers(configuration);
-			if (node.has("plugins")) {
+			JsonNode node = null;
+			if (file.exists() && file.length() > 0) {
+				node = mapper.readTree(file);
 
-				Iterator<JsonNode> it = node.get("plugins").iterator();
-				Collection<PluginConfig> pluginList = new LinkedList<PluginConfig>();
+				inferInitializers(configuration);
+				if (node.has("plugins")) {
 
-				while (it.hasNext()) {
-					JsonNode current = it.next();
+					Iterator<JsonNode> it = node.get("plugins").iterator();
+					Collection<PluginConfig> pluginList = new LinkedList<PluginConfig>();
 
-					String pluginId = current.asText();
-					String[] split = pluginId.split(":");
-					if (split.length > 3) {
+					while (it.hasNext()) {
+						JsonNode current = it.next();
 
-					} else {
-						String groupId, artifactId, version;
+						String pluginId = current.asText();
+						String[] split = pluginId.split(":");
+						if (split.length > 3) {
 
-						groupId = split[0];
-						artifactId = split[1];
-						version = split[2];
+						} else {
+							String groupId, artifactId, version;
 
-						PluginConfig plugin = new PluginConfigImpl();
-						plugin.setGroupId(groupId);
-						plugin.setArtifactId(artifactId);
-						plugin.setVersion(version);
+							groupId = split[0];
+							artifactId = split[1];
+							version = split[2];
 
-						pluginList.add(plugin);
+							PluginConfig plugin = new PluginConfigImpl();
+							plugin.setGroupId(groupId);
+							plugin.setArtifactId(artifactId);
+							plugin.setVersion(version);
+
+							pluginList.add(plugin);
+						}
+
 					}
+					configuration.setPlugins(pluginList);
 
 				}
-				configuration.setPlugins(pluginList);
+				if (node.has("modules")) {
 
-			}
-			if (node.has("modules")) {
-
-				Iterator<JsonNode> it = node.get("modules").iterator();
-				List<String> modules = new LinkedList<String>();
-				configuration.setModules(modules);
-				while (it.hasNext()) {
-					JsonNode current = it.next();
-					modules.add(current.asText());
+					Iterator<JsonNode> it = node.get("modules").iterator();
+					List<String> modules = new LinkedList<String>();
+					configuration.setModules(modules);
+					while (it.hasNext()) {
+						JsonNode current = it.next();
+						modules.add(current.asText());
+					}
+					configuration.setModules(modules);
 				}
-				configuration.setModules(modules);
-			}
-			if (node.has("merge-policies")) {
-				Iterator<JsonNode> it = node.get("merge-policies").iterator();
-				Collection<MergePolicyConfig> mergePolicies = new LinkedList<MergePolicyConfig>();
-				while (it.hasNext()) {
-					JsonNode next = it.next();
-					if (next.has("policy")) {
-						MergePolicyConfig mergeCfg = new MergePolicyConfigImpl();
-						mergeCfg.setName(next.get("name").asText());
-						mergeCfg.setDefaultObjectPolicy(next.get("default-object-policy").asText());
-						mergeCfg.setDefaultTypePolicy(next.get("default-type-policy").asText());
+				if (node.has("merge-policies")) {
+					Iterator<JsonNode> it = node.get("merge-policies").iterator();
+					Collection<MergePolicyConfig> mergePolicies = new LinkedList<MergePolicyConfig>();
+					while (it.hasNext()) {
+						JsonNode next = it.next();
 						if (next.has("policy")) {
-							Iterator<JsonNode> it2 = next.get("policy").iterator();
-							Map<String, String> policies = new HashMap<String, String>();
-							while (it2.hasNext()) {
-								JsonNode nextPolicy = it2.next();
-								String objectType = nextPolicy.get("object-type").asText();
-								String policyType = nextPolicy.get("policy-type").asText();
+							MergePolicyConfig mergeCfg = new MergePolicyConfigImpl();
+							mergeCfg.setName(next.get("name").asText());
+							mergeCfg.setDefaultObjectPolicy(next.get("default-object-policy").asText());
+							mergeCfg.setDefaultTypePolicy(next.get("default-type-policy").asText());
+							if (next.has("policy")) {
+								Iterator<JsonNode> it2 = next.get("policy").iterator();
+								Map<String, String> policies = new HashMap<String, String>();
+								while (it2.hasNext()) {
+									JsonNode nextPolicy = it2.next();
+									String objectType = nextPolicy.get("object-type").asText();
+									String policyType = nextPolicy.get("policy-type").asText();
 
-								policies.put(objectType, policyType);
+									policies.put(objectType, policyType);
+								}
+								mergeCfg.setPolicyEntries(policies);
 							}
-							mergeCfg.setPolicyEntries(policies);
+
+							mergePolicies.add(mergeCfg);
 						}
 
-						mergePolicies.add(mergeCfg);
 					}
-
+					configuration.setMergePolicies(mergePolicies);
 				}
-				configuration.setMergePolicies(mergePolicies);
-			}
 
-			if (node.has("conf-providers")) {
-				Iterator<JsonNode> it = node.get("conf-providers").iterator();
-				Collection<ProviderConfig> provConfigs = new LinkedList<ProviderConfig>();
-				while (it.hasNext()) {
-					JsonNode next = it.next();
+				if (node.has("conf-providers")) {
+					Iterator<JsonNode> it = node.get("conf-providers").iterator();
+					Collection<ProviderConfig> provConfigs = new LinkedList<ProviderConfig>();
+					while (it.hasNext()) {
+						JsonNode next = it.next();
 
-					ProviderConfig provCfg = new ProviderConfigImpl();
-					provCfg.setType(next.get("type").asText());
+						ProviderConfig provCfg = new ProviderConfigImpl();
+						provCfg.setType(next.get("type").asText());
 
-					provCfg.setParameters(converter.getParams(next));
-					provConfigs.add(provCfg);
+						provCfg.setParameters(converter.getParams(next));
+						provConfigs.add(provCfg);
+					}
+					configuration.setProviderConfigurations(provConfigs);
 				}
-				configuration.setProviderConfigurations(provConfigs);
-			}
 
-			if (node.has("chains")) {
-				Iterator<JsonNode> it = node.get("chains").iterator();
-				Collection<ChainConfig> chains = new LinkedList<ChainConfig>();
-				int i = 0;
-				while (it.hasNext()) {
+				if (node.has("chains")) {
+					Iterator<JsonNode> it = node.get("chains").iterator();
+					Collection<ChainConfig> chains = new LinkedList<ChainConfig>();
+					int i = 0;
+					while (it.hasNext()) {
+						ChainConfig chainCfg = new ChainConfigImpl();
+
+						JsonNode current = it.next();
+						if (current.has("name")) {
+							chainCfg.setName(current.get("name").asText());
+						} else {
+							chainCfg.setName("chain_" + i);
+						}
+
+						if (current.has("reader")) {
+							JsonNode reader = current.get("reader");
+
+							chainCfg.setReaderConfig(converter.getReader(reader));
+						} else {
+							addDefaultReaderConfig(chainCfg);
+						}
+						if (current.has("writer")) {
+
+							JsonNode writer = current.get("writer");
+
+							chainCfg.setWriterConfig(converter.getWriter(writer));
+						} else {
+							addDefaultWriterConfig(chainCfg);
+						}
+						if (current.has("walker")) {
+
+							chainCfg.setWalkerConfig(converter.getWalker(current));
+						} else {
+							addDefaultWalker(chainCfg);
+							if (current.has("transformations")) {
+								WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
+								walkerCfg.setTransformations(converter.getTransformationCfgs(current));
+							}
+						}
+						chains.add(chainCfg);
+					}
+					configuration.setChainConfigs(chains);
+
+				} else if (node.has("transformations")) {
+
+					Collection<ChainConfig> chains = new LinkedList<ChainConfig>();
 					ChainConfig chainCfg = new ChainConfigImpl();
-
-					JsonNode current = it.next();
-					if (current.has("name")) {
-						chainCfg.setName(current.get("name").asText());
-					} else {
-						chainCfg.setName("chain_" + i);
-					}
-
-					if (current.has("reader")) {
-						JsonNode reader = current.get("reader");
-
-						chainCfg.setReaderConfig(converter.getReader(reader));
-					} else {
-						addDefaultReaderConfig(chainCfg);
-					}
-					if (current.has("writer")) {
-
-						JsonNode writer = current.get("writer");
-
-						chainCfg.setWriterConfig(converter.getWriter(writer));
-					} else {
-						addDefaultWriterConfig(chainCfg);
-					}
-					if (current.has("walker")) {
-
-						chainCfg.setWalkerConfig(converter.getWalker(current));
-					} else {
-						addDefaultWalker(chainCfg);
-						if (current.has("transformations")) {
-							WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
-							walkerCfg.setTransformations(converter.getTransformationCfgs(current));
-						}
-					}
+					chainCfg.setName("");
+					addDefaultReaderConfig(chainCfg);
+					addDefaultWalker(chainCfg);
+					WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
+					walkerCfg.setTransformations(converter.getTransformationCfgs(node));
+					addDefaultWriterConfig(chainCfg);
 					chains.add(chainCfg);
+					configuration.setChainConfigs(chains);
 				}
-				configuration.setChainConfigs(chains);
-
-			} else if (node.has("transformations")) {
-
-				Collection<ChainConfig> chains = new LinkedList<ChainConfig>();
-				ChainConfig chainCfg = new ChainConfigImpl();
-				chainCfg.setName("");
-				addDefaultReaderConfig(chainCfg);
-				addDefaultWalker(chainCfg);
-				WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
-				walkerCfg.setTransformations(converter.getTransformationCfgs(node));
-				addDefaultWriterConfig(chainCfg);
-				chains.add(chainCfg);
-				configuration.setChainConfigs(chains);
 			}
-
 		} catch (JsonProcessingException e) {
 			throw new ConfigurationException("Error parsing the " + fileName + " configuration", e);
 		} catch (IOException e) {
@@ -307,8 +310,8 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 					throw new TransformerException("The plugins element is not a valid array");
 				}
 			}
-			pluginList.add(new TextNode(pluginConfig.getGroupId() + ":" + pluginConfig.getArtifactId() + ":"
-					+ pluginConfig.getVersion()));
+			pluginList.add(new TextNode(
+					pluginConfig.getGroupId() + ":" + pluginConfig.getArtifactId() + ":" + pluginConfig.getVersion()));
 			write(node);
 		}
 	}

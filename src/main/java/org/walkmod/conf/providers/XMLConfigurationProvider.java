@@ -85,8 +85,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 
-public class XMLConfigurationProvider extends AbstractChainConfigurationProvider implements
-		ProjectConfigurationProvider {
+public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
+		implements ProjectConfigurationProvider {
 
 	/**
 	 * Configuration file.
@@ -346,8 +346,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 						addDefaultReaderConfig(ac);
 					}
 					if (index >= childrenModel.getLength()) {
-						throw new ConfigurationException("Invalid architecture definition for the " + "element"
-								+ ac.getName());
+						throw new ConfigurationException(
+								"Invalid architecture definition for the " + "element" + ac.getName());
 					}
 					if ("walker".equals(childrenModel.item(index).getNodeName())) {
 						loadWalkerConfig((Element) childrenModel.item(index), ac);
@@ -359,8 +359,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 								"Invalid transformation chain. A walker or at least one transformation must be specified");
 					}
 					if (index > childrenModel.getLength()) {
-						throw new ConfigurationException("Invalid architecture definition for the " + "element"
-								+ ac.getName());
+						throw new ConfigurationException(
+								"Invalid architecture definition for the " + "element" + ac.getName());
 					}
 					boolean found = false;
 					while (index < childrenModel.getLength() && !found) {
@@ -477,16 +477,22 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 				throw new ConfigurationException("Invalid walker definition in the " + "architecture" + ac.getName()
 						+ ". Please, verify the dtd");
 			}
+			int max = children.getLength();
 			int transformationIndex = wc.getParams().size();
-			final String nodeName = children.item(transformationIndex).getNodeName();
-			if (("parser").equals(nodeName)) {
-				loadParserConfig((Element) children.item(transformationIndex), wc);
-				transformationIndex = 1;
-			} else {
+			if (transformationIndex < max) {
+				final String nodeName = children.item(transformationIndex).getNodeName();
+				if (("parser").equals(nodeName)) {
+					loadParserConfig((Element) children.item(transformationIndex), wc);
+					transformationIndex = 1;
+				} else {
+					wc.setParserConfig(new ParserConfigImpl());
+				}
+			}
+			else{
 				wc.setParserConfig(new ParserConfigImpl());
 			}
-			int max = children.getLength();
-			if(transformationIndex < max){
+
+			if (transformationIndex < max) {
 				loadTransformationConfigs((Element) children.item(transformationIndex), wc);
 			}
 			ac.setWalkerConfig(wc);
@@ -521,8 +527,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 				String isMergeable = element.getAttribute("isMergeable");
 				String mergePolicy = element.getAttribute("merge-policy");
 				if ("".equals(visitor)) {
-					throw new ConfigurationException("Invalid transformation definition: A "
-							+ "type attribute must be specified");
+					throw new ConfigurationException(
+							"Invalid transformation definition: A " + "type attribute must be specified");
 				}
 				if ("".equals(name)) {
 					name = null;
@@ -549,8 +555,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		if ("transformations".equals(nodeName)) {
 			transformationConfigs = getTransformationItems(element, true);
 		} else {
-			throw new ConfigurationException("Invalid walker definition. "
-					+ "A walker element must contain a \"transformations\" element ");
+			throw new ConfigurationException(
+					"Invalid walker definition. " + "A walker element must contain a \"transformations\" element ");
 		}
 		wc.setTransformations(transformationConfigs);
 	}
@@ -794,7 +800,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 				FileWriter fos = new FileWriter(cfg);
 				BufferedWriter bos = new BufferedWriter(fos);
 				try {
-					bos.write("<!DOCTYPE walkmod PUBLIC \"-//WALKMOD//DTD\"  \"http://www.walkmod.com/dtd/walkmod-1.1.dtd\" >");
+					bos.write(
+							"<!DOCTYPE walkmod PUBLIC \"-//WALKMOD//DTD\"  \"http://www.walkmod.com/dtd/walkmod-1.1.dtd\" >");
 					bos.newLine();
 					bos.write("<walkmod>");
 					bos.newLine();
@@ -892,8 +899,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 		if (param == null || value == null) {
 			throw new TransformerException("The param and value arguments cannot be null");
 		}
-		AddConfigurationParameterXMLAction action = new AddConfigurationParameterXMLAction(param, value, type,
-				category, name, chain, this, recursive);
+		AddConfigurationParameterXMLAction action = new AddConfigurationParameterXMLAction(param, value, type, category,
+				name, chain, this, recursive);
 		action.execute();
 
 	}

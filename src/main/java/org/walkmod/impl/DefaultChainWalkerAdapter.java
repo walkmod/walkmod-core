@@ -90,35 +90,38 @@ public class DefaultChainWalkerAdapter implements ChainWalkerAdapter {
 					parser = (Parser) parserInstance;
 					walker.setParser(parser);
 				} else {
-					throw new WalkModException("The parser " + parserType + " must implement " + Parser.class.getName());
+					throw new WalkModException(
+							"The parser " + parserType + " must implement " + Parser.class.getName());
 				}
 			} else {
 				throw new WalkModException("The parser " + parserType + " does not exist.");
 			}
 		}
-
-		for (TransformationConfig config : getTransformationConfig()) {
-			setName(config.getName());
-			visitor = config.getVisitorInstance();
-			if (visitor == null || "".equals(config.getType())) {
-				visitor = c.getBean(config.getType(), config.getParameters());
-			}
-			if (visitor instanceof ResourceModifier) {
-				((ResourceModifier) visitor).setResource(getModel());
-			}
-			if (visitor instanceof ParserAware) {
-				((ParserAware) visitor).setParser(parser);
-			}
-			if (visitor != null) {
-				LOG.debug("setting chain[\"" + ac.getName() + "\"].transformation[\"" + getName() + "\"].walker = "
-						+ walker.getClass().getName());
-				LOG.debug("setting chain[\"" + ac.getName() + "\"].transformation[\"" + getName() + "\"].visitor = "
-						+ visitor.getClass().getName());
-				visitors.add(visitor);
-			} else {
-				walker = null;
-				visitor = null;
-				LOG.debug("Transformation[" + getName() + "] without walker and visitor");
+		Collection<TransformationConfig> cfgs = getTransformationConfig();
+		if (cfgs != null) {
+			for (TransformationConfig config : cfgs) {
+				setName(config.getName());
+				visitor = config.getVisitorInstance();
+				if (visitor == null || "".equals(config.getType())) {
+					visitor = c.getBean(config.getType(), config.getParameters());
+				}
+				if (visitor instanceof ResourceModifier) {
+					((ResourceModifier) visitor).setResource(getModel());
+				}
+				if (visitor instanceof ParserAware) {
+					((ParserAware) visitor).setParser(parser);
+				}
+				if (visitor != null) {
+					LOG.debug("setting chain[\"" + ac.getName() + "\"].transformation[\"" + getName() + "\"].walker = "
+							+ walker.getClass().getName());
+					LOG.debug("setting chain[\"" + ac.getName() + "\"].transformation[\"" + getName() + "\"].visitor = "
+							+ visitor.getClass().getName());
+					visitors.add(visitor);
+				} else {
+					walker = null;
+					visitor = null;
+					LOG.debug("Transformation[" + getName() + "] without walker and visitor");
+				}
 			}
 		}
 		walker.setVisitors(visitors);
