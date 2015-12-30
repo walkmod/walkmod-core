@@ -34,7 +34,7 @@ public class AddParamCommand implements Command {
 	@Parameter(names = { "--value", "-v" }, description = "The parameter value to set", required = true)
 	private String value;
 
-	@Parameter(names = { "--type", "-t" }, description = "The bean type to set the parameter. If there are multiple beans with this type, all will contain the parameter", required = true)
+	@Parameter(names = { "--type", "-t" }, description = "The bean type to set the parameter. If there are multiple beans with this type, all will contain the parameter")
 	private String type;
 
 	@Parameter(names = { "--category", "-c" }, description = "The bean category to set the parameter. If there are multiple beans with this category, all will contain the parameter ")

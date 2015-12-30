@@ -130,6 +130,12 @@ public class ConfigurationImpl implements Configuration {
 		if (name == null || "".equals(name)) {
 			return result;
 		}
+		if(name.equals("script")){
+		   name = "walkmod:commons:scripting";
+		}
+		else if(name.equals("template")){
+		   name = "walkmod:commons:template";
+		}
 		if (beanFactory != null && beanFactory.containsBean(name)) {
 			result = beanFactory.getBean(name);
 		}

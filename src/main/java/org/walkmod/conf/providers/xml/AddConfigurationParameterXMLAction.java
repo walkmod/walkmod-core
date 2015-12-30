@@ -154,6 +154,7 @@ public class AddConfigurationParameterXMLAction extends AbstractXMLConfiguration
 		if (chainElement.hasAttribute("type")) {
 
 			String typeAttribute = chainElement.getAttribute("type");
+			
 			if (type != null && !"".equals(type) && type.equals(typeAttribute)) {
 				if (name != null && !name.equals("")) {
 					if (chainElement.hasAttribute("name")) {
@@ -164,6 +165,11 @@ public class AddConfigurationParameterXMLAction extends AbstractXMLConfiguration
 				} else {
 					elementsToModify.add(chainElement);
 				}
+			}
+			else if(name != null && !"".equals(name) && chainElement.hasAttribute("name")){
+			   if (name.equals(chainElement.getAttribute("name"))) {
+               elementsToModify.add(chainElement);
+            }
 			}
 		}
 

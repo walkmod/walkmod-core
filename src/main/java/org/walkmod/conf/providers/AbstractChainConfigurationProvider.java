@@ -108,7 +108,9 @@ public class AbstractChainConfigurationProvider {
 				if (trans != null) {
 					for (TransformationConfig transformation : trans) {
 						String type = transformation.getType();
-						composeName(type, plugins);
+						if(!type.equals("script") && !type.equals("template")){
+						   composeName(type, plugins);
+						}
 					}
 				}
 				composeName(cc.getWriterConfig().getType(), plugins);

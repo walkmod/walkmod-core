@@ -45,7 +45,7 @@ public class AddTransformationCommand implements Command {
 	@Parameter(names = { "--chain" }, description = "The chain name")
 	private String chain = "default";
 
-	@Parameter(names = { "--isMergeabe" }, description = "Sets if the changes made by the transformation requires to be merged")
+	@Parameter(names = { "--isMergeable" }, description = "Sets if the changes made by the transformation requires to be merged")
 	private boolean isMergeable = false;
 	
 	@Parameter(names= {"--path", "-d"}, description = "Source directory when the specified chain does not exists")
