@@ -121,6 +121,9 @@ public abstract class AbstractXMLConfigurationAction implements ConfigurationAct
 	public void createReaderOrWriterContent(Element root, String path, String type, Map<String, Object> params,
 			String[] includes, String[] excludes) {
 
+	   if(path == null || "".equals(path)){
+	      path = "src/main/java";
+	   }
 		root.setAttribute("path", path);
 
 		if (type != null && !"".equals(type)) {
@@ -159,7 +162,7 @@ public abstract class AbstractXMLConfigurationAction implements ConfigurationAct
 			Document document = provider.getDocument();
 			for (String include : includes) {
 				Element includeElem = document.createElement("include");
-				includeElem.setNodeValue(include);
+				includeElem.setAttribute("wildcard", include);
 				result.add(includeElem);
 			}
 		}
@@ -174,7 +177,7 @@ public abstract class AbstractXMLConfigurationAction implements ConfigurationAct
 			Document document = provider.getDocument();
 			for (String exclude : excludes) {
 				Element excludeElem = document.createElement("exclude");
-				excludeElem.setNodeValue(exclude);
+				excludeElem.setAttribute("wildcard", exclude);
 				result.add(excludeElem);
 			}
 		}
@@ -267,8 +270,8 @@ public abstract class AbstractXMLConfigurationAction implements ConfigurationAct
 		ReaderConfig rConfig = chainCfg.getReaderConfig();
 		if (rConfig != null) {
 
-			if (rConfig.getType() != null || rConfig.getPath() != null) {
-
+			if (rConfig.getType() != null || rConfig.getPath() != null || rConfig.getIncludes() != null || rConfig.getExcludes() != null) {
+			   
 				Element reader = document.createElement("reader");
 				createReaderOrWriterContent(reader, rConfig.getPath(), rConfig.getType(), rConfig.getParameters(),
 						rConfig.getIncludes(), rConfig.getExcludes());
@@ -320,7 +323,7 @@ public abstract class AbstractXMLConfigurationAction implements ConfigurationAct
 		WriterConfig writerConfig = chainCfg.getWriterConfig();
 		if (writerConfig != null) {
 
-			if (writerConfig.getType() != null || writerConfig.getPath() != null) {
+			if (writerConfig.getType() != null || writerConfig.getPath() != null || writerConfig.getExcludes() != null || writerConfig.getIncludes() != null) {
 				Element writer = document.createElement("writer");
 				createReaderOrWriterContent(writer, rConfig.getPath(), rConfig.getType(), rConfig.getParameters(),
 						rConfig.getIncludes(), rConfig.getExcludes());

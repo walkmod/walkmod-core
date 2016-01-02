@@ -1437,4 +1437,137 @@ public class WalkModFacade {
 
 	}
 
+	/**
+	 * Adds a list of includes rules into a chain
+	 * @param chain
+	 *   Chain to apply the includes list
+	 * @param includes
+	 *   List of includes
+	 * @param recursive
+	 *   If it necessary to set the parameter to all the submodules.
+	 * @param setToReader
+	 *   If it is added into the reader includes list
+	 * @param setToWriter
+	 *   If it is added into the writer includes list
+	 */
+   public void addIncludesToChain(String chain, List<String> includes, boolean recursive, boolean setToReader,
+         boolean setToWriter) {
+      long startTime = System.currentTimeMillis();
+      Exception exception = null;
+      if (cfg.exists()) {
+
+         userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+         System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+         try {
+            ConfigurationManager manager = new ConfigurationManager(cfg, false);
+            manager.getProjectConfigurationProvider().addIncludesToChain(chain, includes, recursive, setToReader, setToWriter);
+         } catch (Exception e) {
+            exception = e;
+         } finally {
+            System.setProperty("user.dir", userDir);
+            updateMsg(startTime, exception);
+         }
+      }
+   }
+
+   /**
+    * Adds a list of excludes rules into a chain
+    * @param chain
+    *   Chain to apply the excludes list
+    * @param excludes
+    *   List of excludes
+    * @param recursive
+    *   If it necessary to set the parameter to all the submodules.
+    * @param setToReader
+    *   If it is added into the reader includes list
+    * @param setToWriter
+    *   If it is added into the writer includes list
+    */
+   public void addExcludesToChain(String chain, List<String> excludes, boolean recursive, boolean setToReader,
+         boolean setToWriter) {
+      long startTime = System.currentTimeMillis();
+      Exception exception = null;
+      if (cfg.exists()) {
+
+         userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+         System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+         try {
+            ConfigurationManager manager = new ConfigurationManager(cfg, false);
+            manager.getProjectConfigurationProvider().addExcludesToChain(chain, excludes, recursive, setToReader, setToWriter);
+         } catch (Exception e) {
+            exception = e;
+         } finally {
+            System.setProperty("user.dir", userDir);
+            updateMsg(startTime, exception);
+         }
+      }
+   }
+
+   /**
+    * Removes a list of excludes rules into a chain
+    * @param chain
+    *   Chain to apply the excludes list
+    * @param excludes
+    *   List of excludes
+    * @param recursive
+    *   If it necessary to set the parameter to all the submodules.
+    * @param setToReader
+    *   If it is added into the reader includes list
+    * @param setToWriter
+    *   If it is added into the writer includes list
+    */
+   public void removeExcludesToChain(String chain, List<String> excludes, boolean recursive, boolean setToReader,
+         boolean setToWriter) {
+      long startTime = System.currentTimeMillis();
+      Exception exception = null;
+      if (cfg.exists()) {
+
+         userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+         System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+         try {
+            ConfigurationManager manager = new ConfigurationManager(cfg, false);
+            manager.getProjectConfigurationProvider().removeExcludesFromChain(chain, excludes, recursive, setToReader, setToWriter);
+         } catch (Exception e) {
+            exception = e;
+         } finally {
+            System.setProperty("user.dir", userDir);
+            updateMsg(startTime, exception);
+         }
+      }
+   }
+
+   /**
+    * Removes a list of excludes rules into a chain
+    * @param chain
+    *   Chain to apply the excludes list
+    * @param includes
+    *   List of includes
+    * @param recursive
+    *   If it necessary to set the parameter to all the submodules.
+    * @param setToReader
+    *   If it is added into the reader includes list
+    * @param setToWriter
+    *   If it is added into the writer includes list
+    */
+   public void removeIncludesToChain(String chain, List<String> includes, boolean recursive, boolean setToReader,
+         boolean setToWriter) {
+      long startTime = System.currentTimeMillis();
+      Exception exception = null;
+      if (cfg.exists()) {
+
+         userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+         System.setProperty("user.dir", options.getExecutionDirectory().getAbsolutePath());
+         try {
+            ConfigurationManager manager = new ConfigurationManager(cfg, false);
+            manager.getProjectConfigurationProvider().removeIncludesFromChain(chain, includes, recursive, setToReader, setToWriter);
+         } catch (Exception e) {
+            exception = e;
+         } finally {
+            System.setProperty("user.dir", userDir);
+            updateMsg(startTime, exception);
+         }
+      }
+   }
+
+
 }

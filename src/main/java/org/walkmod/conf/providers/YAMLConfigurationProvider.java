@@ -43,10 +43,12 @@ import org.walkmod.conf.entities.impl.PluginConfigImpl;
 import org.walkmod.conf.entities.impl.ProviderConfigImpl;
 import org.walkmod.conf.providers.yml.AddChainYMLAction;
 import org.walkmod.conf.providers.yml.AddConfigurationParameterYMLAction;
+import org.walkmod.conf.providers.yml.AddIncludesOrExcludesYMLAction;
 import org.walkmod.conf.providers.yml.AddModulesYMLAction;
 import org.walkmod.conf.providers.yml.AddProviderConfigYMLAction;
 import org.walkmod.conf.providers.yml.AddTransformationYMLAction;
 import org.walkmod.conf.providers.yml.RemoveChainsYMLAction;
+import org.walkmod.conf.providers.yml.RemoveIncludesOrExcludesYMLAction;
 import org.walkmod.conf.providers.yml.RemoveModulesYMLAction;
 import org.walkmod.conf.providers.yml.RemovePluginYMLAction;
 import org.walkmod.conf.providers.yml.RemoveProvidersYMLAction;
@@ -489,4 +491,32 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 	public ProjectConfigurationProvider clone(File cfgFile) {
 		return new YAMLConfigurationProvider(cfgFile.getAbsolutePath());
 	}
+
+   @Override
+   public void addIncludesToChain(String chain, List<String> includes, boolean recursive, boolean setToReader,
+         boolean setToWriter) throws Exception {
+      AddIncludesOrExcludesYMLAction action = new AddIncludesOrExcludesYMLAction(includes, chain, recursive, setToReader, setToWriter,false, this);
+      action.execute();
+   }
+
+   @Override
+   public void addExcludesToChain(String chain, List<String> excludes, boolean recursive, boolean setToReader,
+         boolean setToWriter) throws Exception {
+      AddIncludesOrExcludesYMLAction action = new AddIncludesOrExcludesYMLAction(excludes, chain, recursive, setToReader, setToWriter,true, this);
+      action.execute();
+   }
+
+   @Override
+   public void removeExcludesFromChain(String chain, List<String> excludes, boolean recursive, boolean setToReader,
+         boolean setToWriter) throws Exception {
+      RemoveIncludesOrExcludesYMLAction action = new RemoveIncludesOrExcludesYMLAction(excludes, chain, recursive, setToReader, setToWriter,true, this);
+      action.execute();
+   }
+
+   @Override
+   public void removeIncludesFromChain(String chain, List<String> includes, boolean recursive, boolean setToReader,
+         boolean setToWriter) throws Exception {
+      RemoveIncludesOrExcludesYMLAction action = new RemoveIncludesOrExcludesYMLAction(includes, chain, recursive, setToReader, setToWriter,false, this);
+      action.execute();
+   }
 }

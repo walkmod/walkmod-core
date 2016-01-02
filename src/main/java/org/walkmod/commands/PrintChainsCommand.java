@@ -73,15 +73,80 @@ public class PrintChainsCommand implements Command, AsciiTableAware{
 					for (ChainConfig cc : chains) {
 					
 						List<TransformationConfig> transformations = cc.getWalkerConfig().getTransformations();
-						Iterator<TransformationConfig> it = transformations.iterator();
-						int i = 0;
-						while (it.hasNext()) {
-							TransformationConfig next = it.next();
+						
+						int numTransformations = transformations.size();
+						
+						int numReaderIncludesExcludes = 0;
+						
+						int includesLength = 0;
+						String[] excludes = cc.getReaderConfig().getExcludes();
+						if(excludes != null){
+						   
+						   numReaderIncludesExcludes = excludes.length;
+						}
+						String[] includes = cc.getReaderConfig().getIncludes();
+						if(includes != null){
+						   includesLength = includes.length;
+						   numReaderIncludesExcludes += includes.length;
+						}
+						
+						
+						int limit = numReaderIncludesExcludes+1;
+						if(numTransformations > numReaderIncludesExcludes){
+						   limit = numTransformations;
+						}
+						int includesExcludesWriterLength = 0;
+						int includesWriterLength = 0;
+						String[] excludesWriter = cc.getWriterConfig().getExcludes();
+						if(excludesWriter != null){
+						   includesExcludesWriterLength += excludesWriter.length;
+						   if(excludesWriter.length +1 > limit){
+						      limit = excludesWriter.length+1;
+						   }
+						}
+						
+						String[] includesWriter = cc.getWriterConfig().getIncludes();
+						
+						if(includesWriter != null){
+						   includesExcludesWriterLength += includesWriter.length;
+						   includesWriterLength = includesWriter.length;
+						   if(includesWriter.length +1 > limit){
+						      limit = includesWriter.length +1;
+						   }
+						}
+						
+						for(int i = 0; i < limit; i++) {
+							TransformationConfig next = null;
+							String type = "";
+							if(i < numTransformations){
+							   next = transformations.get(i);
+							   type = "- "+next.getType();
+							}
+							
 							if (i == 0) {
-								at.addRow(cc.getName(), cc.getReaderConfig().getPath(),cc.getWriterConfig().getPath(),  "- " + next.getType());
+								at.addRow(cc.getName(), cc.getReaderConfig().getPath(),cc.getWriterConfig().getPath(),  type);
 								
 							} else {
-								at.addRow("", "", "", "- " + next.getType());
+							   String readerWildcard = "";
+							  
+							   if(i-1 < includesLength){
+							      readerWildcard = "> "+includes[i-1];
+							   }
+							   else{
+							      if(i -1 < numReaderIncludesExcludes){
+							         readerWildcard = "< "+excludes[i-1+includesLength];
+							      }
+							   }
+							   
+							   String writerWildcard = "";
+							   if(includesWriter != null && i - 1 < includesWriter.length){
+							      writerWildcard = "> "+includesWriter[i-1];
+							   }
+							   else if(i -1 < includesExcludesWriterLength){
+							      writerWildcard = "< "+excludesWriter[i-1+includesWriterLength];
+							   }
+							   
+								at.addRow("", readerWildcard , writerWildcard, type);
 								
 							}
 							i++;

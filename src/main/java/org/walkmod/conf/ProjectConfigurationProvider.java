@@ -65,4 +65,16 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
 	public ProjectConfigurationProvider clone(File cfgFile);
 
+   public void addIncludesToChain(String chain, List<String> includes, boolean recursive, boolean setToReader,
+         boolean setToWriter) throws Exception;
+
+   public void addExcludesToChain(String chain, List<String> excludes, boolean recursive, boolean setToReader,
+         boolean setToWriter) throws Exception;
+
+   public void removeExcludesFromChain(String chain, List<String> excludes, boolean recursive, boolean setToReader,
+         boolean setToWriter) throws Exception;
+
+   public void removeIncludesFromChain(String chain, List<String> includes, boolean recursive, boolean setToReader,
+         boolean setToWriter) throws Exception;
+
 }

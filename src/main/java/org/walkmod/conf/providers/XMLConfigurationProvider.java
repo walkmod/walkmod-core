@@ -66,11 +66,13 @@ import org.walkmod.conf.entities.impl.WalkerConfigImpl;
 import org.walkmod.conf.entities.impl.WriterConfigImpl;
 import org.walkmod.conf.providers.xml.AddChainXMLAction;
 import org.walkmod.conf.providers.xml.AddConfigurationParameterXMLAction;
+import org.walkmod.conf.providers.xml.AddIncludesOrExcludesXMLAction;
 import org.walkmod.conf.providers.xml.AddModulesXMLAction;
 import org.walkmod.conf.providers.xml.AddPluginXMLAction;
 import org.walkmod.conf.providers.xml.AddProviderConfigXMLAction;
 import org.walkmod.conf.providers.xml.AddTransformationXMLAction;
 import org.walkmod.conf.providers.xml.RemoveChainsXMLAction;
+import org.walkmod.conf.providers.xml.RemoveIncludesOrExcludesXMLAction;
 import org.walkmod.conf.providers.xml.RemoveModulesXMLAction;
 import org.walkmod.conf.providers.xml.RemovePluginXMLAction;
 import org.walkmod.conf.providers.xml.RemoveProvidersXMLAction;
@@ -935,4 +937,34 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	public ProjectConfigurationProvider clone(File cfgFile) {
 		return new XMLConfigurationProvider(cfgFile.getAbsolutePath(), errorIfMissing);
 	}
+
+   @Override
+   public void addIncludesToChain(String chain, List<String> includes, boolean recursive, boolean setToReader,
+         boolean setToWriter) throws Exception {
+      AddIncludesOrExcludesXMLAction action = new AddIncludesOrExcludesXMLAction(includes, chain, recursive, setToReader, setToWriter,false, this);
+      action.execute();
+      
+   }
+
+   @Override
+   public void addExcludesToChain(String chain, List<String> excludes, boolean recursive, boolean setToReader,
+         boolean setToWriter) throws Exception{
+      AddIncludesOrExcludesXMLAction action = new AddIncludesOrExcludesXMLAction(excludes, chain, recursive, setToReader, setToWriter,true, this);
+      action.execute();
+   }
+
+   @Override
+   public void removeExcludesFromChain(String chain, List<String> excludes, boolean recursive, boolean setToReader,
+         boolean setToWriter) throws Exception {
+      RemoveIncludesOrExcludesXMLAction action = new RemoveIncludesOrExcludesXMLAction(excludes, chain, recursive, setToReader, setToWriter,true, this);
+      action.execute();
+   }
+
+   @Override
+   public void removeIncludesFromChain(String chain, List<String> includes, boolean recursive, boolean setToReader,
+         boolean setToWriter) throws Exception {
+      RemoveIncludesOrExcludesXMLAction action = new RemoveIncludesOrExcludesXMLAction(includes, chain, recursive, setToReader, setToWriter,false, this);
+      action.execute();
+      
+   }
 }

@@ -54,7 +54,10 @@ public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
 		Element rootElement = document.getDocumentElement();
 		NodeList children = rootElement.getChildNodes();
 		int childSize = children.getLength();
-		if (chain != null && !"".equals(chain) && !"default".equals(chain)) {
+		if(chain == null || "".equals(chain)){
+		   chain = "default";
+		}
+		if (!"default".equals(chain)) {
 			boolean appended = false;
 			boolean isTransformationList = false;
 			for (int i = 0; i < childSize && !isTransformationList && !appended; i++) {
@@ -113,6 +116,18 @@ public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
 				provider.loadChains();
 				Collection<ChainConfig> chainCfgs = configuration.getChainConfigs();
 				ChainConfig chainCfg = chainCfgs.iterator().next();
+				NodeList child = rootElement.getChildNodes();
+				int limit = child.getLength();
+				for(int i = 0; i < limit; i++){
+				   Node item = child.item(i);
+				   if(item instanceof Element){
+				      Element auxElem = (Element) item;
+				      if(auxElem.getNodeName().equals("transformation")){
+				         rootElement.removeChild(auxElem);
+				      }
+				   }
+				}
+				
 				rootElement.appendChild(createChainElement(chainCfg));
 			}
 			if (!appended) {
@@ -164,9 +179,19 @@ public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
 						}
 					}
 				} else {
-					throw new TransformerException(
-							"The user must specify a chain name (new or existing) where to add the transformation: ["
-									+ transformationCfg.getType() + "]");
+				   ChainConfig chainCfg = new ChainConfigImpl();
+	            chainCfg.setName("default");
+	            provider.addDefaultReaderConfig(chainCfg);
+	            provider.addDefaultWriterConfig(chainCfg);
+	            provider.addDefaultWalker(chainCfg);
+	            WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
+	            List<TransformationConfig> transfs = new LinkedList<TransformationConfig>();
+	            transfs.add(transformationCfg);
+	            walkerCfg.setTransformations(transfs);
+	            chainCfg.setWalkerConfig(walkerCfg);
+	            rootElement.appendChild(createChainElement(chainCfg));
+	            provider.persist();
+	            return;
 				}
 
 			}

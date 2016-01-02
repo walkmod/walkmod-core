@@ -22,6 +22,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.walkmod.commands.AddCfgProviderCommand;
+import org.walkmod.commands.AddExcludesCommand;
+import org.walkmod.commands.AddIncludesCommand;
 import org.walkmod.commands.AddModuleCommand;
 import org.walkmod.commands.AddParamCommand;
 import org.walkmod.commands.AddPluginCommand;
@@ -40,6 +42,8 @@ import org.walkmod.commands.PrintPluginsCommand;
 import org.walkmod.commands.PrintProvidersCommand;
 import org.walkmod.commands.PrintTransformationsCommand;
 import org.walkmod.commands.RemoveChainCommand;
+import org.walkmod.commands.RemoveExcludesCommand;
+import org.walkmod.commands.RemoveIncludesCommand;
 import org.walkmod.commands.RemoveModuleCommand;
 import org.walkmod.commands.RemovePluginCommand;
 import org.walkmod.commands.RemoveProviderCommand;
@@ -106,6 +110,8 @@ public class WalkModDispatcher {
 
 	public void execute(JCommander jcommander, String[] args) throws Exception {
 		commands.put("add", new AddTransformationCommand(jcommander));
+		commands.put("add-excludes", new AddExcludesCommand(jcommander));
+		commands.put("add-includes", new AddIncludesCommand(jcommander));
 		commands.put("add-module", new AddModuleCommand(jcommander));
 		commands.put("add-param", new AddParamCommand(jcommander));
 		commands.put("add-plugin", new AddPluginCommand(jcommander));
@@ -119,6 +125,8 @@ public class WalkModDispatcher {
 		commands.put("modules", new PrintModulesCommand(jcommander));
 		commands.put("providers", new PrintProvidersCommand(jcommander));
 		commands.put("rm", new RemoveTransformationCommand(jcommander));
+		commands.put("rm-excludes", new RemoveExcludesCommand(jcommander));
+      commands.put("rm-includes", new RemoveIncludesCommand(jcommander));
 		commands.put("rm-chain", new RemoveChainCommand(jcommander));
 		commands.put("rm-module", new RemoveModuleCommand(jcommander));
 		commands.put("rm-plugin", new RemovePluginCommand(jcommander));
