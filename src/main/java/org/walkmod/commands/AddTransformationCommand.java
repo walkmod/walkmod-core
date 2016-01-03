@@ -60,6 +60,12 @@ public class AddTransformationCommand implements Command {
 	@Parameter(names = "--help", help = true, hidden = true)
 	private boolean help;
 	
+	@Parameter(names = {"--order", "-o"}, description="The execution order >= 0 of the the transformation. Zero (0) is the most prioritary.")
+	private Integer order = null;
+	
+	@Parameter(names = {"--before", "-b"}, description="Selects the execution order of the chain. The selected value determines which is the chain to execute.")
+	private String before = null;
+	
 	@Parameter(names = {"--recursive", "-R"}, description = "Adds the transformation to all submodules")
 	private boolean recursive = false;
 	
@@ -69,6 +75,10 @@ public class AddTransformationCommand implements Command {
 	private JCommander jcommander;
 
 	public AddTransformationCommand(String type, String chain, boolean isMergeable, String mergePolicy, String path, String name, JsonNode params, boolean recursive) {
+      this(type, chain, isMergeable, mergePolicy, path, name, params, recursive, null, null);
+   }
+	
+	public AddTransformationCommand(String type, String chain, boolean isMergeable, String mergePolicy, String path, String name, JsonNode params, boolean recursive, Integer order, String before) {
 		this.type = new LinkedList<String>();
 		this.type.add(type);
 		this.chain = chain;
@@ -78,6 +88,8 @@ public class AddTransformationCommand implements Command {
 		this.path = path;
 		this.recursive = recursive;
 		this.name = name;
+		this.order = order;
+		this.before = before;
 	}
 
 	public AddTransformationCommand(JCommander jcommander) {
@@ -114,7 +126,7 @@ public class AddTransformationCommand implements Command {
 		} else {
 
 			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
-			facade.addTransformationConfig(chain, path, recursive, buildTransformationCfg());
+			facade.addTransformationConfig(chain, path, recursive, buildTransformationCfg(), order, before);
 		}
 	}
 

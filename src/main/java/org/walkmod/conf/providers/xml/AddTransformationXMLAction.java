@@ -36,223 +36,244 @@ import org.walkmod.conf.providers.XMLConfigurationProvider;
 
 public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
 
-	private String chain;
-	private String path;
-	private TransformationConfig transformationCfg;
+   private String chain;
+   private String path;
+   private TransformationConfig transformationCfg;
+   private Integer order;
+   private String before;
 
-	public AddTransformationXMLAction(String chain, String path, TransformationConfig transformationCfg,
-			XMLConfigurationProvider provider, boolean recursive) {
-		super(provider, recursive);
-		this.chain = chain;
-		this.path = path;
-		this.transformationCfg = transformationCfg;
-	}
+   public AddTransformationXMLAction(String chain, String path, TransformationConfig transformationCfg,
+         XMLConfigurationProvider provider, boolean recursive, Integer order, String before) {
+      super(provider, recursive);
+      this.chain = chain;
+      this.path = path;
+      this.transformationCfg = transformationCfg;
+      this.order = order;
+      this.before = before;
+   }
 
-	public void doAction() throws Exception {
-		Document document = provider.getDocument();
+   public void doAction() throws Exception {
+      Document document = provider.getDocument();
 
-		Element rootElement = document.getDocumentElement();
-		NodeList children = rootElement.getChildNodes();
-		int childSize = children.getLength();
-		if(chain == null || "".equals(chain)){
-		   chain = "default";
-		}
-		if (!"default".equals(chain)) {
-			boolean appended = false;
-			boolean isTransformationList = false;
-			for (int i = 0; i < childSize && !isTransformationList && !appended; i++) {
-				Node childNode = children.item(i);
-				if (childNode instanceof Element) {
-					Element child = (Element) childNode;
-					final String nodeName = child.getNodeName();
-					if ("chain".equals(nodeName)) {
-						String name = child.getAttribute("name");
-						if (name.equals(chain)) {
-							Element transfElement = createTransformationElement(transformationCfg);
+      Element rootElement = document.getDocumentElement();
+      NodeList children = rootElement.getChildNodes();
+      int childSize = children.getLength();
+      if (chain == null || "".equals(chain)) {
+         chain = "default";
+      }
+      Element beforeChain = null;
+      if (!"default".equals(chain)) {
+         boolean appended = false;
+         boolean isTransformationList = false;
+         for (int i = 0; i < childSize && !isTransformationList && !appended; i++) {
+            Node childNode = children.item(i);
+            if (childNode instanceof Element) {
+               Element child = (Element) childNode;
+               final String nodeName = child.getNodeName();
+               if ("chain".equals(nodeName)) {
+                  String name = child.getAttribute("name");
+                  if(before != null && name.equals(before)){
+                     beforeChain = child;
+                  }
+                  if (name.equals(chain)) {
+                     Element transfElement = createTransformationElement(transformationCfg);
 
-							NodeList innerChainNodes = child.getChildNodes();
+                     NodeList innerChainNodes = child.getChildNodes();
 
-							int maxK = innerChainNodes.getLength();
-							boolean added = false;
-							boolean hasWalker = false;
-							for (int k = 0; k < maxK &&!added; k++) {
-								Element chainInnerElem = (Element) innerChainNodes.item(k);
-								hasWalker = hasWalker || chainInnerElem.getNodeName().equals("walker");
-								if (hasWalker) {
-									NodeList transfList = chainInnerElem.getChildNodes();
-									int maxj = transfList.getLength();
+                     int maxK = innerChainNodes.getLength();
+                     boolean added = false;
+                     boolean hasWalker = false;
+                     for (int k = 0; k < maxK && !added; k++) {
+                        Element chainInnerElem = (Element) innerChainNodes.item(k);
+                        hasWalker = hasWalker || chainInnerElem.getNodeName().equals("walker");
+                        if (hasWalker) {
+                           NodeList transfList = chainInnerElem.getChildNodes();
+                           int maxj = transfList.getLength();
 
-									for (int j = 0; j < maxj && !added; j++) {
-										if (transfList.item(j).getNodeName().equals("transformations")) {
-											transfList.item(j).appendChild(transfElement);
-											added = true;
-										}
-									}
+                           for (int j = maxj; j >= 0 && !added; j--) {
+                              if (transfList.item(j).getNodeName().equals("transformations")) {
+                                 if (order == null || order == j) {
+                                    transfList.item(j).appendChild(transfElement);
+                                    added = true;
+                                 }
+                              }
+                           }
 
-								} else if (chainInnerElem.getNodeName().equals("writer")) {
-									child.insertBefore(transfElement, chainInnerElem);
-									added = true;
-								}
+                        } else if (chainInnerElem.getNodeName().equals("writer")) {
+                           child.insertBefore(transfElement, chainInnerElem);
+                           added = true;
+                        }
 
-							}
-							if (!added) {
-								child.appendChild(transfElement);
-							}
+                     }
+                     if (!added) {
+                        child.appendChild(transfElement);
+                     }
 
-							appended = true;
+                     appended = true;
 
-						}
-					} else if ("transformation".equals(nodeName)) {
-						isTransformationList = true;
-					}
-				}
-			}
-			if (isTransformationList) {
-				Configuration configuration = new ConfigurationImpl();
-				provider.setConfiguration(configuration);
-				// we write specifically a default chain, and
-				// afterwards, we
-				// add the requested one.
-				provider.loadChains();
-				Collection<ChainConfig> chainCfgs = configuration.getChainConfigs();
-				ChainConfig chainCfg = chainCfgs.iterator().next();
-				NodeList child = rootElement.getChildNodes();
-				int limit = child.getLength();
-				for(int i = 0; i < limit; i++){
-				   Node item = child.item(i);
-				   if(item instanceof Element){
-				      Element auxElem = (Element) item;
-				      if(auxElem.getNodeName().equals("transformation")){
-				         rootElement.removeChild(auxElem);
-				      }
-				   }
-				}
-				
-				rootElement.appendChild(createChainElement(chainCfg));
-			}
-			if (!appended) {
-				ChainConfig chainCfg = new ChainConfigImpl();
-				chainCfg.setName(chain);
-				provider.addDefaultReaderConfig(chainCfg);
-				provider.addDefaultWriterConfig(chainCfg);
-				if (path != null && !"".equals(path.trim())) {
+                  }
+               } else if ("transformation".equals(nodeName)) {
+                  isTransformationList = true;
+               }
+            }
+         }
+         if (isTransformationList) {
+            Configuration configuration = new ConfigurationImpl();
+            provider.setConfiguration(configuration);
+            // we write specifically a default chain, and
+            // afterwards, we
+            // add the requested one.
+            provider.loadChains();
+            Collection<ChainConfig> chainCfgs = configuration.getChainConfigs();
+            ChainConfig chainCfg = chainCfgs.iterator().next();
+            NodeList child = rootElement.getChildNodes();
+            int limit = child.getLength();
+            for (int i = 0; i < limit; i++) {
+               Node item = child.item(i);
+               if (item instanceof Element) {
+                  Element auxElem = (Element) item;
+                  if (auxElem.getNodeName().equals("transformation")) {
+                     rootElement.removeChild(auxElem);
+                  }
+               }
+            }
 
-					chainCfg.getReaderConfig().setPath(path);
-					chainCfg.getWriterConfig().setPath(path);
-				}
-				provider.addDefaultWalker(chainCfg);
-				WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
-				List<TransformationConfig> transfs = new LinkedList<TransformationConfig>();
-				transfs.add(transformationCfg);
-				walkerCfg.setTransformations(transfs);
-				chainCfg.setWalkerConfig(walkerCfg);
-				rootElement.appendChild(createChainElement(chainCfg));
-			}
-			provider.persist();
-		} else {
-			Element chainNode = null;
-			boolean containsChains = false;
-			for (int i = 0; i < childSize && !containsChains; i++) {
-				Node childNode = children.item(i);
-				if (childNode instanceof Element) {
-					chainNode = (Element) childNode;
-					final String nodeName = chainNode.getNodeName();
-					containsChains = "chain".equals(nodeName);
-				}
-			}
-			if (containsChains) {
-				String attrName = chainNode.getAttribute("name");
-				if (attrName == null || attrName.equals("") || attrName.equals("default")) {
-					if (path != null && !"".equals(path.trim())) {
-						NodeList chainChildren = chainNode.getChildNodes();
-						for (int i = 0; i < chainChildren.getLength(); i++) {
-							Node childNode = chainChildren.item(i);
-							if (childNode.getNodeName().equals("reader")) {
-								Element aux = (Element) childNode;
-								if (!aux.getAttribute("path").equals(path.trim())) {
-									throw new TransformerException(
-											"The user must specify a chain name (new or existing) where to add the transformation: ["
-													+ transformationCfg.getType() + "]");
-								}
+            rootElement.appendChild(createChainElement(chainCfg));
+         }
+         if (!appended) {
+            ChainConfig chainCfg = new ChainConfigImpl();
+            chainCfg.setName(chain);
+            provider.addDefaultReaderConfig(chainCfg);
+            provider.addDefaultWriterConfig(chainCfg);
+            if (path != null && !"".equals(path.trim())) {
 
-							}
-						}
-					}
-				} else {
-				   ChainConfig chainCfg = new ChainConfigImpl();
-	            chainCfg.setName("default");
-	            provider.addDefaultReaderConfig(chainCfg);
-	            provider.addDefaultWriterConfig(chainCfg);
-	            provider.addDefaultWalker(chainCfg);
-	            WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
-	            List<TransformationConfig> transfs = new LinkedList<TransformationConfig>();
-	            transfs.add(transformationCfg);
-	            walkerCfg.setTransformations(transfs);
-	            chainCfg.setWalkerConfig(walkerCfg);
-	            rootElement.appendChild(createChainElement(chainCfg));
-	            provider.persist();
-	            return;
-				}
+               chainCfg.getReaderConfig().setPath(path);
+               chainCfg.getWriterConfig().setPath(path);
+            }
+            provider.addDefaultWalker(chainCfg);
+            WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
+            List<TransformationConfig> transfs = new LinkedList<TransformationConfig>();
+            transfs.add(transformationCfg);
+            walkerCfg.setTransformations(transfs);
+            chainCfg.setWalkerConfig(walkerCfg);
+            if(beforeChain != null){
+               rootElement.insertBefore(createChainElement(chainCfg), beforeChain);
+            }
+            else{
+               rootElement.appendChild(createChainElement(chainCfg));
+            }
+         }
+         provider.persist();
+      } else {
+         Element chainNode = null;
+         boolean containsChains = false;
+         for (int i = 0; i < childSize && !containsChains; i++) {
+            Node childNode = children.item(i);
+            if (childNode instanceof Element) {
+               chainNode = (Element) childNode;
+               final String nodeName = chainNode.getNodeName();
+               containsChains = "chain".equals(nodeName);
+            }
+         }
+         if (containsChains) {
+            String attrName = chainNode.getAttribute("name");
+            if (attrName == null || attrName.equals("") || attrName.equals("default")) {
+               if (path != null && !"".equals(path.trim())) {
+                  NodeList chainChildren = chainNode.getChildNodes();
+                  for (int i = 0; i < chainChildren.getLength(); i++) {
+                     Node childNode = chainChildren.item(i);
+                     if (childNode.getNodeName().equals("reader")) {
+                        Element aux = (Element) childNode;
+                        if (!aux.getAttribute("path").equals(path.trim())) {
+                           throw new TransformerException(
+                                 "The user must specify a chain name (new or existing) where to add the transformation: ["
+                                       + transformationCfg.getType() + "]");
+                        }
 
-			}
+                     }
+                  }
+               }
+            } else {
+               ChainConfig chainCfg = new ChainConfigImpl();
+               chainCfg.setName("default");
+               provider.addDefaultReaderConfig(chainCfg);
+               provider.addDefaultWriterConfig(chainCfg);
+               provider.addDefaultWalker(chainCfg);
+               WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
+               List<TransformationConfig> transfs = new LinkedList<TransformationConfig>();
+               transfs.add(transformationCfg);
+               walkerCfg.setTransformations(transfs);
+               chainCfg.setWalkerConfig(walkerCfg);
+               rootElement.appendChild(createChainElement(chainCfg));
+               provider.persist();
+               return;
+            }
 
-			if (path != null && !"".equals(path.trim())) {
-				Configuration configuration = new ConfigurationImpl();
+         }
 
-				provider.setConfiguration(configuration);
+         if (path != null && !"".equals(path.trim())) {
+            Configuration configuration = new ConfigurationImpl();
 
-				provider.loadChains();
-				Collection<ChainConfig> chainCfgs = configuration.getChainConfigs();
-				if (chainCfgs.isEmpty()) {
-					ChainConfig chainCfg = new ChainConfigImpl();
-					chainCfg.setName("default");
-					provider.addDefaultReaderConfig(chainCfg);
+            provider.setConfiguration(configuration);
 
-					provider.addDefaultWriterConfig(chainCfg);
-					if (path != null && !"".equals(path.trim())) {
-						chainCfg.getReaderConfig().setPath(path);
-						chainCfg.getWriterConfig().setPath(path);
-					}
-					provider.addDefaultWalker(chainCfg);
-					WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
-					List<TransformationConfig> transfs = new LinkedList<TransformationConfig>();
-					transfs.add(transformationCfg);
-					walkerCfg.setTransformations(transfs);
-					chainCfg.setWalkerConfig(walkerCfg);
+            provider.loadChains();
+            Collection<ChainConfig> chainCfgs = configuration.getChainConfigs();
+            if (chainCfgs.isEmpty()) {
+               ChainConfig chainCfg = new ChainConfigImpl();
+               chainCfg.setName("default");
+               provider.addDefaultReaderConfig(chainCfg);
 
-					NodeList childrenNodes = rootElement.getChildNodes();
-					int limitChildren = childrenNodes.getLength();
+               provider.addDefaultWriterConfig(chainCfg);
+               if (path != null && !"".equals(path.trim())) {
+                  chainCfg.getReaderConfig().setPath(path);
+                  chainCfg.getWriterConfig().setPath(path);
+               }
+               provider.addDefaultWalker(chainCfg);
+               WalkerConfig walkerCfg = chainCfg.getWalkerConfig();
+               List<TransformationConfig> transfs = new LinkedList<TransformationConfig>();
+               transfs.add(transformationCfg);
+               walkerCfg.setTransformations(transfs);
+               chainCfg.setWalkerConfig(walkerCfg);
 
-					for (int i = 0; i < limitChildren; i++) {
-						rootElement.removeChild(childrenNodes.item(i));
-					}
+               NodeList childrenNodes = rootElement.getChildNodes();
+               int limitChildren = childrenNodes.getLength();
 
-					rootElement.appendChild(createChainElement(chainCfg));
-					provider.persist();
-					return;
+               for (int i = 0; i < limitChildren; i++) {
+                  rootElement.removeChild(childrenNodes.item(i));
+               }
 
-				} else {
-					ChainConfig chainCfg = chainCfgs.iterator().next();
-					chainCfg.getReaderConfig().setPath(path);
-					chainCfg.getWriterConfig().setPath(path);
-					chainCfg.getWalkerConfig().getTransformations().add(transformationCfg);
-					document.removeChild(rootElement);
-					document.appendChild(createChainElement(chainCfg));
-				}
-				provider.persist();
-				return;
-			}
+               rootElement.appendChild(createChainElement(chainCfg));
+               provider.persist();
+               return;
 
-			rootElement.appendChild(createTransformationElement(transformationCfg));
-			provider.persist();
-		}
-	}
+            } else {
+               ChainConfig chainCfg = chainCfgs.iterator().next();
+               chainCfg.getReaderConfig().setPath(path);
+               chainCfg.getWriterConfig().setPath(path);
+               List<TransformationConfig> transfs = chainCfg.getWalkerConfig().getTransformations();
+               if(order != null && order < transfs.size()){
+                  transfs.add(order, transformationCfg);
+               }
+               else{
+                  transfs.add(transformationCfg);
+               }
+               document.removeChild(rootElement);
+               document.appendChild(createChainElement(chainCfg));
+            }
+            provider.persist();
+            return;
+         }
 
-	@Override
-	public AddTransformationXMLAction clone(ConfigurationProvider provider, boolean recursive) {
+         rootElement.appendChild(createTransformationElement(transformationCfg));
+         provider.persist();
+      }
+   }
 
-		return new AddTransformationXMLAction(chain, path, transformationCfg, (XMLConfigurationProvider) provider,
-				recursive);
-	}
+   @Override
+   public AddTransformationXMLAction clone(ConfigurationProvider provider, boolean recursive) {
+
+      return new AddTransformationXMLAction(chain, path, transformationCfg, (XMLConfigurationProvider) provider,
+            recursive, order, before);
+   }
 
 }

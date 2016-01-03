@@ -15,6 +15,7 @@
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.providers.yml;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -37,10 +38,12 @@ import com.fasterxml.jackson.databind.node.TextNode;
 public class AddChainYMLAction extends AbstractYMLConfigurationAction {
 
 	private ChainConfig chainCfg;
+	private String before;
 
-	public AddChainYMLAction(ChainConfig chainCfg, YAMLConfigurationProvider provider, boolean recursive) {
+	public AddChainYMLAction(ChainConfig chainCfg, YAMLConfigurationProvider provider, boolean recursive, String before) {
 		super(provider, recursive);
 		this.chainCfg = chainCfg;
+		this.before = before;
 	}
 
 	@Override
@@ -173,7 +176,24 @@ public class AddChainYMLAction extends AbstractYMLConfigurationAction {
 			provider.addDefaultWriterConfig(chainCfg);
 		}
 		if (chainsList != null) {
-			chainsList.add(chainNode);
+		   int beforePos = -1;
+		   if(before != null){
+		      Iterator<JsonNode> it = chainsList.iterator();
+		      int i = 0;
+		      while(it.hasNext() && beforePos == -1){
+		         JsonNode next = it.next();
+		         if(next.get("name").equals(before)){
+		            beforePos = i;
+		         }
+		         i++;
+		      }
+		   }
+		   if(beforePos == -1){
+		      chainsList.add(chainNode);
+		   }
+		   else{
+		      chainsList.insert(beforePos, chainNode);
+		   }
 		}
 		if (readerCfg != null || walkerCfg != null || writerCfg != null) {
 			provider.write(chainsNode);
@@ -184,7 +204,7 @@ public class AddChainYMLAction extends AbstractYMLConfigurationAction {
 	@Override
 	public AbstractYMLConfigurationAction clone(ConfigurationProvider provider, boolean recursive) {
 
-		return new AddChainYMLAction(chainCfg, (YAMLConfigurationProvider) provider, recursive);
+		return new AddChainYMLAction(chainCfg, (YAMLConfigurationProvider) provider, recursive, before);
 	}
 
 }

@@ -26,10 +26,12 @@ import org.walkmod.conf.providers.XMLConfigurationProvider;
 public class AddChainXMLAction extends AbstractXMLConfigurationAction {
 
 	private ChainConfig chainCfg;
+	private String before;
 
-	public AddChainXMLAction(ChainConfig chainCfg, XMLConfigurationProvider provider, boolean recursive) {
+	public AddChainXMLAction(ChainConfig chainCfg, XMLConfigurationProvider provider, boolean recursive, String before) {
 		super(provider, recursive);
 		this.chainCfg = chainCfg;
+		this.before = before;
 	}
 
 	@Override
@@ -38,6 +40,7 @@ public class AddChainXMLAction extends AbstractXMLConfigurationAction {
 		Element rootElement = document.getDocumentElement();
 		NodeList children = rootElement.getChildNodes();
 		int childSize = children.getLength();
+		Element beforeElement = null;
 		if (chainCfg.getName() != null && !"".equals(chainCfg.getName())) {
 			for (int i = 0; i < childSize; i++) {
 				Node childNode = children.item(i);
@@ -49,11 +52,20 @@ public class AddChainXMLAction extends AbstractXMLConfigurationAction {
 						if (name.equals(chainCfg.getName())) {
 							return;
 						}
+						else if(before != null && name.equals(before)){
+						   beforeElement = child;
+						}
 					}
+					
 				}
 			}
 		}
-		rootElement.appendChild(createChainElement(chainCfg));
+		if(beforeElement == null){
+		   rootElement.appendChild(createChainElement(chainCfg));
+		}
+		else{
+		   rootElement.insertBefore(createChainElement(chainCfg), beforeElement);
+		}
 
 		provider.persist();
 
@@ -61,7 +73,7 @@ public class AddChainXMLAction extends AbstractXMLConfigurationAction {
 
 	@Override
 	public AbstractXMLConfigurationAction clone(ConfigurationProvider provider, boolean recursive) {
-		return new AddChainXMLAction(chainCfg, (XMLConfigurationProvider) provider, recursive);
+		return new AddChainXMLAction(chainCfg, (XMLConfigurationProvider) provider, recursive, before);
 	}
 
 }

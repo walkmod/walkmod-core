@@ -148,8 +148,8 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	}
 
 	@Override
-	public void addChainConfig(ChainConfig chainCfg, boolean recursive) throws Exception {
-		AddChainXMLAction action = new AddChainXMLAction(chainCfg, this, recursive);
+	public void addChainConfig(ChainConfig chainCfg, boolean recursive, String before) throws Exception {
+		AddChainXMLAction action = new AddChainXMLAction(chainCfg, this, recursive, before);
 		action.execute();
 	}
 
@@ -787,9 +787,9 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 
 	@Override
 	public void addTransformationConfig(String chain, String path, TransformationConfig transformationCfg,
-			boolean recursive) throws Exception {
+			boolean recursive, Integer order, String before) throws Exception {
 		AddTransformationXMLAction action = new AddTransformationXMLAction(chain, path, transformationCfg, this,
-				recursive);
+				recursive, order, before);
 		action.execute();
 
 	}

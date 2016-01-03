@@ -207,7 +207,7 @@ public class YAMLConfigurationProviderTest {
       ChainConfig chainCfg = new ChainConfigImpl();
 
       try {
-         provider.addChainConfig(chainCfg, false);
+         provider.addChainConfig(chainCfg, false, null);
 
          String output = FileUtils.readFileToString(file);
 
@@ -240,7 +240,7 @@ public class YAMLConfigurationProviderTest {
 
          TransformationConfig transformationCfg = command.buildTransformationCfg();
 
-         provider.addTransformationConfig(null, null, transformationCfg, false);
+         provider.addTransformationConfig(null, null, transformationCfg, false, null, null);
          String output = FileUtils.readFileToString(file);
 
          String desiredOutput = "transformations:\n";
@@ -298,7 +298,7 @@ public class YAMLConfigurationProviderTest {
 
          TransformationConfig transformationCfg = command.buildTransformationCfg();
 
-         provider.addTransformationConfig(null, null, transformationCfg, true);
+         provider.addTransformationConfig(null, null, transformationCfg, true, null, null);
 
          String output = FileUtils.readFileToString(file);
          Assert.assertTrue(!output.contains("method-refactor"));
@@ -335,11 +335,11 @@ public class YAMLConfigurationProviderTest {
 
          TransformationConfig transformationCfg = command.buildTransformationCfg();
 
-         provider.addTransformationConfig(null, null, transformationCfg, false);
+         provider.addTransformationConfig(null, null, transformationCfg, false, null, null);
          command = new AddTransformationCommand("walkmod:commons:class-refactor", "mychain", false, null, null, null,
                walker, false);
          transformationCfg = command.buildTransformationCfg();
-         provider.addTransformationConfig("mychain", null, transformationCfg, false);
+         provider.addTransformationConfig("mychain", null, transformationCfg, false, null, null);
 
          String output = FileUtils.readFileToString(file);
 
@@ -372,7 +372,7 @@ public class YAMLConfigurationProviderTest {
 
          TransformationConfig transformationCfg = command.buildTransformationCfg();
 
-         provider.addTransformationConfig("mychain", null, transformationCfg, false);
+         provider.addTransformationConfig("mychain", null, transformationCfg, false, null, null);
 
          String output = FileUtils.readFileToString(file);
 
@@ -405,11 +405,11 @@ public class YAMLConfigurationProviderTest {
 
          TransformationConfig transformationCfg = command.buildTransformationCfg();
 
-         provider.addTransformationConfig("mychain", null, transformationCfg, false);
+         provider.addTransformationConfig("mychain", null, transformationCfg, false, null, null);
          command = new AddTransformationCommand("walkmod:commons:class-refactor", "mychain", false, null, null, null,
                walker, false);
          transformationCfg = command.buildTransformationCfg();
-         provider.addTransformationConfig("mychain", null, transformationCfg, false);
+         provider.addTransformationConfig("mychain", null, transformationCfg, false, null, null);
 
          String output = FileUtils.readFileToString(file);
 
@@ -438,7 +438,7 @@ public class YAMLConfigurationProviderTest {
 
          TransformationConfig transCfg = command.buildTransformationCfg();
 
-         provider.addTransformationConfig("mychain", "src", transCfg, false);
+         provider.addTransformationConfig("mychain", "src", transCfg, false, null, null);
          String output = FileUtils.readFileToString(file);
 
          Assert.assertTrue(output.contains("src"));
@@ -466,7 +466,7 @@ public class YAMLConfigurationProviderTest {
 
          TransformationConfig transCfg = command.buildTransformationCfg();
 
-         provider.addTransformationConfig(null, "src", transCfg, false);
+         provider.addTransformationConfig(null, "src", transCfg, false, null, null);
          String output = FileUtils.readFileToString(file);
 
          Assert.assertTrue(output.contains("src"));
@@ -495,7 +495,7 @@ public class YAMLConfigurationProviderTest {
 
          TransformationConfig transCfg = command.buildTransformationCfg();
 
-         provider.addTransformationConfig(null, null, transCfg, false);
+         provider.addTransformationConfig(null, null, transCfg, false, null, null);
          String output = FileUtils.readFileToString(file);
 
          String desiredOutput = "transformations:\n";
@@ -680,7 +680,7 @@ public class YAMLConfigurationProviderTest {
          provider.createConfig();
          provider.addModules(Arrays.asList("module0", "module1"));
 
-         provider.addTransformationConfig(null, null, command.buildTransformationCfg(), true);
+         provider.addTransformationConfig(null, null, command.buildTransformationCfg(), true, null, null);
 
          String output = FileUtils.readFileToString(cfg0);
 
@@ -843,7 +843,7 @@ public class YAMLConfigurationProviderTest {
          provider.init(conf);
 
          TransformationConfig transformationCfg = command.buildTransformationCfg();
-         provider.addTransformationConfig("mychain", null, transformationCfg, false);
+         provider.addTransformationConfig("mychain", null, transformationCfg, false, null, null);
          List<String> chains = new LinkedList<String>();
          chains.add("mychain");
          provider.removeChains(chains, false);
@@ -876,7 +876,7 @@ public class YAMLConfigurationProviderTest {
          provider.init(conf);
 
          TransformationConfig transformationCfg = command.buildTransformationCfg();
-         provider.addTransformationConfig("mychain", null, transformationCfg, false);
+         provider.addTransformationConfig("mychain", null, transformationCfg, false, null, null);
          provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, null, false);
 
          String output = FileUtils.readFileToString(file);
@@ -907,7 +907,7 @@ public class YAMLConfigurationProviderTest {
          provider.init(conf);
 
          TransformationConfig transformationCfg = command.buildTransformationCfg();
-         provider.addTransformationConfig("mychain", null, transformationCfg, false);
+         provider.addTransformationConfig("mychain", null, transformationCfg, false, null, null);
          provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, "mychain", false);
 
          String output = FileUtils.readFileToString(file);
@@ -949,7 +949,7 @@ public class YAMLConfigurationProviderTest {
          provider.init(conf);
 
          TransformationConfig transformationCfg = command.buildTransformationCfg();
-         provider.addTransformationConfig(null, null, transformationCfg, false);
+         provider.addTransformationConfig(null, null, transformationCfg, false, null, null);
          provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, null, false);
 
          String output = FileUtils.readFileToString(file);
@@ -980,7 +980,7 @@ public class YAMLConfigurationProviderTest {
          provider.init(conf);
 
          TransformationConfig transformationCfg = command.buildTransformationCfg();
-         provider.addTransformationConfig(null, null, transformationCfg, false);
+         provider.addTransformationConfig(null, null, transformationCfg, false, null, null);
          provider.addConfigurationParameter("testParam", "hello", "imports-cleaner", "transformation", null, null,
                false);
 
@@ -1012,7 +1012,7 @@ public class YAMLConfigurationProviderTest {
          provider.init(conf);
 
          TransformationConfig transformationCfg = command.buildTransformationCfg();
-         provider.addTransformationConfig(null, null, transformationCfg, false);
+         provider.addTransformationConfig(null, null, transformationCfg, false, null, null);
          provider.setWriter(null, "eclipse-writer", null, false);
 
          provider.addConfigurationParameter("testParam", "hello", "eclipse-writer", null, null, null, false);
@@ -1044,7 +1044,7 @@ public class YAMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig("mychain", null, transfCfg, false);
+         prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
          prov.setWriter("mychain", "eclipse-writer", null, false);
          prov.addIncludesToChain("mychain", Arrays.asList("foo"), false, true, false);
 
@@ -1076,7 +1076,7 @@ public class YAMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig("mychain", null, transfCfg, false);
+         prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
          prov.setWriter("mychain", "eclipse-writer", null, false);
          prov.addIncludesToChain("mychain", Arrays.asList("foo"), false, false, true);
 
@@ -1107,7 +1107,7 @@ public class YAMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig("mychain", null, transfCfg, false);
+         prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
          prov.setWriter("mychain", "eclipse-writer", null, false);
          prov.addIncludesToChain("mychain", Arrays.asList("foo"), false, true, true);
 
@@ -1137,7 +1137,7 @@ public class YAMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig("mychain", null, transfCfg, false);
+         prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
          prov.setWriter("mychain", "eclipse-writer", null, false);
          prov.addExcludesToChain("mychain", Arrays.asList("foo"), false, true, false);
 
@@ -1167,7 +1167,7 @@ public class YAMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig(null, null, transfCfg, false);
+         prov.addTransformationConfig(null, null, transfCfg, false, null, null);
 
          prov.addIncludesToChain(null, Arrays.asList("foo"), false, true, false);
 
@@ -1197,11 +1197,11 @@ public class YAMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig("mychain", null, transfCfg, false);
+         prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
 
          command = new AddTransformationCommand("imports-cleaner", null, false, null, null, null, null, false);
          transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig(null, null, transfCfg, false);
+         prov.addTransformationConfig(null, null, transfCfg, false, null, null);
 
          prov.addIncludesToChain(null, Arrays.asList("foo"), false, true, false);
 
@@ -1231,11 +1231,11 @@ public class YAMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig("mychain", null, transfCfg, false);
+         prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
 
          command = new AddTransformationCommand("imports-cleaner", null, false, null, null, null, null, false);
          transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig(null, null, transfCfg, false);
+         prov.addTransformationConfig(null, null, transfCfg, false, null, null);
 
          prov.addIncludesToChain(null, Arrays.asList("foo"), false, true, false);
          prov.removeIncludesFromChain("default", Arrays.asList("foo"), false, true, false);

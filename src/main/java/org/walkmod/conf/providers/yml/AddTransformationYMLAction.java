@@ -38,13 +38,17 @@ public class AddTransformationYMLAction extends AbstractYMLConfigurationAction {
    private String chain;
    private String path;
    private TransformationConfig transformationCfg;
+   private Integer order;
+   private String before;
 
    public AddTransformationYMLAction(String chain, String path, TransformationConfig transformationCfg,
-         YAMLConfigurationProvider provider, boolean recursive) {
+         YAMLConfigurationProvider provider, boolean recursive, Integer order, String before) {
       super(provider, recursive);
       this.chain = chain;
       this.path = path;
       this.transformationCfg = transformationCfg;
+      this.order = order;
+      this.before = before;
    }
 
    @Override
@@ -175,7 +179,7 @@ public class AddTransformationYMLAction extends AbstractYMLConfigurationAction {
                      transfs.add(transformationCfg);
                      walkerCfg.setTransformations(transfs);
                      chainCfg.setWalkerConfig(walkerCfg);
-                     provider.addChainConfig(chainCfg, false);
+                     provider.addChainConfig(chainCfg, false, before);
                      return;
                   }
                }
@@ -199,7 +203,13 @@ public class AddTransformationYMLAction extends AbstractYMLConfigurationAction {
          }
          if (transformationsNode != null) {
             ObjectNode transformationNode = new ObjectNode(mapper.getNodeFactory());
-            transformationsNode.add(transformationNode);
+            
+            if(order != null && order < transformationsNode.size()){
+               transformationsNode.insert(order, transformationNode);
+            }
+            else{
+               transformationsNode.add(transformationNode);
+            }
 
             createTransformation(transformationNode, transformationCfg);
             provider.write(chainsNode);
@@ -215,7 +225,7 @@ public class AddTransformationYMLAction extends AbstractYMLConfigurationAction {
    public AbstractYMLConfigurationAction clone(ConfigurationProvider provider, boolean recursive) {
 
       return new AddTransformationYMLAction(chain, path, transformationCfg, (YAMLConfigurationProvider) provider,
-            recursive);
+            recursive, order, before);
    }
 
 }

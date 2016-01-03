@@ -348,17 +348,17 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 	}
 
 	@Override
-	public void addChainConfig(ChainConfig chainCfg, boolean recursive) throws Exception {
-		AddChainYMLAction action = new AddChainYMLAction(chainCfg, this, recursive);
+	public void addChainConfig(ChainConfig chainCfg, boolean recursive, String before) throws Exception {
+		AddChainYMLAction action = new AddChainYMLAction(chainCfg, this, recursive, before);
 		action.execute();
 	}
 
 	@Override
 	public void addTransformationConfig(String chain, String path, TransformationConfig transformationCfg,
-			boolean recursive) throws Exception {
+			boolean recursive, Integer order, String before) throws Exception {
 		if (transformationCfg != null) {
 			AddTransformationYMLAction action = new AddTransformationYMLAction(chain, path, transformationCfg, this,
-					recursive);
+					recursive, order, before);
 			action.execute();
 		}
 		return;

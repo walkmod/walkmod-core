@@ -50,7 +50,7 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
 					null,null, false);
-			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false);
+			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false, null, null);
 
 			String content = FileUtils.readFileToString(xml);
 
@@ -88,7 +88,7 @@ public class XMLConfigurationProviderTest {
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
 					null, null, true);
 
-			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), true);
+			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), true, null, null);
 
 			String content = FileUtils.readFileToString(xml);
 
@@ -117,7 +117,7 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
 					"src", null,null, false);
-			prov.addTransformationConfig("mychain", "src", command.buildTransformationCfg(), false);
+			prov.addTransformationConfig("mychain", "src", command.buildTransformationCfg(), false, null, null);
 
 			String content = FileUtils.readFileToString(xml);
 
@@ -139,7 +139,7 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null,
 					"src", null, null, false);
-			prov.addTransformationConfig(null, "src", command.buildTransformationCfg(), false);
+			prov.addTransformationConfig(null, "src", command.buildTransformationCfg(), false, null, null);
 
 			String content = FileUtils.readFileToString(xml);
 
@@ -161,14 +161,14 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null,
 					"src", null, null, false);
-			prov.addTransformationConfig(null, "src", command.buildTransformationCfg(), false);
+			prov.addTransformationConfig(null, "src", command.buildTransformationCfg(), false, null, null);
 
 			String content = FileUtils.readFileToString(xml);
 			
 			System.out.println(content);
 			
 			command = new AddTransformationCommand("license-header", null, false, null, "src", null,null, false);
-			prov.addTransformationConfig(null, "src", command.buildTransformationCfg(), false);
+			prov.addTransformationConfig(null, "src", command.buildTransformationCfg(), false, null, null);
 
 			content = FileUtils.readFileToString(xml);
 
@@ -285,7 +285,7 @@ public class XMLConfigurationProviderTest {
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
 					null, null, false);
 
-			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false);
+			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false, null, null);
 
 			prov.removeTransformations(null, list, false);
 
@@ -318,12 +318,12 @@ public class XMLConfigurationProviderTest {
 			AddTransformationCommand command0 = new AddTransformationCommand("license-applier", "mychain", false, null,
 					null, null, null, false);
 
-			prov.addTransformationConfig("mychain", null, command0.buildTransformationCfg(), false);
+			prov.addTransformationConfig("mychain", null, command0.buildTransformationCfg(), false, null, null);
 
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
 					null, null,null, false);
 
-			prov.addTransformationConfig("mychain", null, command.buildTransformationCfg(), false);
+			prov.addTransformationConfig("mychain", null, command.buildTransformationCfg(), false, null, null);
 
 			prov.removeTransformations("mychain", list, false);
 
@@ -376,7 +376,7 @@ public class XMLConfigurationProviderTest {
 			AddTransformationCommand command0 = new AddTransformationCommand("license-applier", "mychain", false, null,
 					null, null,null,true);
 
-			prov.addTransformationConfig("mychain", null, command0.buildTransformationCfg(), true);
+			prov.addTransformationConfig("mychain", null, command0.buildTransformationCfg(), true, null, null);
 
 			String output = FileUtils.readFileToString(cfg0);
 
@@ -385,7 +385,7 @@ public class XMLConfigurationProviderTest {
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", "mychain", false, null,
 					null, null, null, true);
 
-			prov.addTransformationConfig("mychain", null, command.buildTransformationCfg(), true);
+			prov.addTransformationConfig("mychain", null, command.buildTransformationCfg(), true, null, null);
 
 			output = FileUtils.readFileToString(cfg0);
 
@@ -429,7 +429,7 @@ public class XMLConfigurationProviderTest {
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
 					null, null, false);
 
-			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false);
+			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false, null, null);
 
 			prov.setWriter(null, "javalang:string-writer", null, false);
 
@@ -463,7 +463,7 @@ public class XMLConfigurationProviderTest {
 			AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
 					null, null, false);
 
-			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false);
+			prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false, null, null);
 
 			prov.setReader(null, "walkmod:commons:file-reader", null, false);
 
@@ -653,7 +653,7 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 
 			TransformationConfig transfCfg = command.buildTransformationCfg();
-			prov.addTransformationConfig("mychain", null, transfCfg, false);
+			prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
 
 			String output = FileUtils.readFileToString(xml);
 
@@ -688,7 +688,7 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 
 			TransformationConfig transfCfg = command.buildTransformationCfg();
-			prov.addTransformationConfig("mychain", null, transfCfg, false);
+			prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
 
 			prov.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, null, false);
 
@@ -714,7 +714,7 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 
 			TransformationConfig transfCfg = command.buildTransformationCfg();
-			prov.addTransformationConfig(null, null, transfCfg, false);
+			prov.addTransformationConfig(null, null, transfCfg, false, null, null);
 
 			prov.addConfigurationParameter("testParam", "hello", "imports-cleaner", null, null, null, false);
 
@@ -740,7 +740,7 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 
 			TransformationConfig transfCfg = command.buildTransformationCfg();
-			prov.addTransformationConfig("mychain", null, transfCfg, false);
+			prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
 			prov.setWriter("mychain", "eclipse-writer", null, false);
 			prov.addConfigurationParameter("testParam", "hello", "eclipse-writer", null, null, null, false);
 
@@ -766,7 +766,7 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 
 			TransformationConfig transfCfg = command.buildTransformationCfg();
-			prov.addTransformationConfig(null, null, transfCfg, false);
+			prov.addTransformationConfig(null, null, transfCfg, false, null, null);
 			prov.setWriter(null, "eclipse-writer", null, false);
 			prov.addConfigurationParameter("testParam", "hello", "eclipse-writer", null, null, null, false);
 
@@ -792,7 +792,7 @@ public class XMLConfigurationProviderTest {
 			prov.createConfig();
 
 			TransformationConfig transfCfg = command.buildTransformationCfg();
-			prov.addTransformationConfig("mychain", null, transfCfg, false);
+			prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
 			prov.setWriter("mychain", "eclipse-writer", null, false);
 			prov.addConfigurationParameter("testParam", "hello", "eclipse-writer", null, null, "mychain", false);
 
@@ -817,7 +817,7 @@ public class XMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig("mychain", null, transfCfg, false);
+         prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
          prov.setWriter("mychain", "eclipse-writer", null, false);
          prov.addIncludesToChain("mychain", Arrays.asList("foo"), false, true, false);
 
@@ -842,7 +842,7 @@ public class XMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig("mychain", null, transfCfg, false);
+         prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
          prov.setWriter("mychain", "eclipse-writer", null, false);
          prov.addIncludesToChain("mychain", Arrays.asList("foo"), false, false, true);
 
@@ -867,7 +867,7 @@ public class XMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig("mychain", null, transfCfg, false);
+         prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
          prov.setWriter("mychain", "eclipse-writer", null, false);
          prov.addIncludesToChain("mychain", Arrays.asList("foo"), false, true, true);
 
@@ -892,7 +892,7 @@ public class XMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig("mychain", null, transfCfg, false);
+         prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
          prov.setWriter("mychain", "eclipse-writer", null, false);
          prov.addExcludesToChain("mychain", Arrays.asList("foo"), false, true, false);
 
@@ -917,7 +917,7 @@ public class XMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig(null, null, transfCfg, false);
+         prov.addTransformationConfig(null, null, transfCfg, false, null, null);
          
          
          prov.addIncludesToChain(null, Arrays.asList("foo"), false, true, false);
@@ -943,12 +943,12 @@ public class XMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig("mychain", null, transfCfg, false);
+         prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
          
          command = new AddTransformationCommand("imports-cleaner", null, false, null,
                null, null, null, false);
          transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig(null, null, transfCfg, false);
+         prov.addTransformationConfig(null, null, transfCfg, false, null, null);
          
          prov.addIncludesToChain(null, Arrays.asList("foo"), false, true, false);
 
@@ -976,7 +976,7 @@ public class XMLConfigurationProviderTest {
          prov.createConfig();
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
-         prov.addTransformationConfig("mychain", null, transfCfg, false);
+         prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
          prov.setWriter("mychain", "eclipse-writer", null, false);
          prov.addIncludesToChain("mychain", Arrays.asList("foo"), false, true, false);
          prov.removeIncludesFromChain("mychain", Arrays.asList("foo"), false, true, false);

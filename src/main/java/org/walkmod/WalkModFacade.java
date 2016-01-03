@@ -563,10 +563,12 @@ public class WalkModFacade {
 	 *            chain configuration to add
 	 * @param recursive
 	 *            Adds the new chain into all the submodules
+	 * @param before
+	 *            Decides which is the next chain to execute.
 	 * @throws Exception
 	 *             in case that the walkmod configuration file can't be read.
 	 */
-	public void addChainConfig(ChainConfig chainCfg, boolean recursive) throws Exception {
+	public void addChainConfig(ChainConfig chainCfg, boolean recursive, String before) throws Exception {
 		long startTime = System.currentTimeMillis();
 		Exception exception = null;
 		if (!cfg.exists()) {
@@ -579,7 +581,7 @@ public class WalkModFacade {
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-			cfgProvider.addChainConfig(chainCfg, recursive);
+			cfgProvider.addChainConfig(chainCfg, recursive, before);
 		} catch (Exception e) {
 			exception = e;
 		} finally {
@@ -602,11 +604,15 @@ public class WalkModFacade {
 	 *            submodules.
 	 * @param transformationCfg
 	 *            transformation configuration to add
+	 * @param order
+	 *            priority order
+	 * @param before
+	 *            defines which is the next chain to execute
 	 * @throws Exception
 	 *             in case that the walkmod configuration file can't be read.
 	 */
 	public void addTransformationConfig(String chain, String path, boolean recursive,
-			TransformationConfig transformationCfg) throws Exception {
+			TransformationConfig transformationCfg, Integer order, String before) throws Exception {
 		long startTime = System.currentTimeMillis();
 		Exception exception = null;
 		if (!cfg.exists()) {
@@ -619,7 +625,7 @@ public class WalkModFacade {
 
 			ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-			cfgProvider.addTransformationConfig(chain, path, transformationCfg, recursive);
+			cfgProvider.addTransformationConfig(chain, path, transformationCfg, recursive, order, before);
 		} catch (Exception e) {
 			exception = e;
 		} finally {

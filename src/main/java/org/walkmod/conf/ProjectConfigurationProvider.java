@@ -29,10 +29,10 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
 	public void addPluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception;
 
-	public void addChainConfig(ChainConfig chainCfg, boolean recursive) throws Exception;
+	public void addChainConfig(ChainConfig chainCfg, boolean recursive, String before) throws Exception;
 
 	public void addTransformationConfig(String chain, String path, TransformationConfig transformationCfg,
-			boolean recursive) throws Exception;
+			boolean recursive, Integer order, String before) throws Exception;
 
 	public void createConfig() throws IOException;
 
@@ -76,5 +76,6 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
    public void removeIncludesFromChain(String chain, List<String> includes, boolean recursive, boolean setToReader,
          boolean setToWriter) throws Exception;
+
 
 }
