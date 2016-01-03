@@ -149,7 +149,6 @@ public class PrintChainsCommand implements Command, AsciiTableAware{
 								at.addRow("", readerWildcard , writerWildcard, type);
 								
 							}
-							i++;
 
 						}
 						at.addRule();
