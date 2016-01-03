@@ -83,7 +83,7 @@ public class AddTransformationYMLAction extends AbstractYMLConfigurationAction {
                   chainObject.set("name", new TextNode("default"));
                   chainObject.set("transformations", transformationsNode);
                   ArrayNode chainsListNode = new ArrayNode(mapper.getNodeFactory());
-                  chainsListNode.add(chainObject);
+                  
 
                   // the requested chain added
                   ObjectNode newChain = new ObjectNode(mapper.getNodeFactory());
@@ -102,8 +102,14 @@ public class AddTransformationYMLAction extends AbstractYMLConfigurationAction {
 
                   transformationsNode = new ArrayNode(mapper.getNodeFactory());
                   newChain.set("transformations", transformationsNode);
+                  
+                  if(before == null || !"default".equals(before)){
+                     chainsListNode.add(chainObject);
+                  }
                   chainsListNode.add(newChain);
-
+                  if(before != null  && "default".equals(before)){
+                     chainsListNode.add(chainObject);
+                  }
                   auxRoot.set("chains", chainsListNode);
 
                }

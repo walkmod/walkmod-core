@@ -383,6 +383,42 @@ public class YAMLConfigurationProviderTest {
          }
       }
    }
+   @Test
+   public void testAddTransformationWithBefore() throws Exception {
+      AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null,
+            false, null, null, null, null, false);
+
+      File file = new File("src/test/resources/yaml/addchain.yml");
+      if (file.exists()) {
+         file.delete();
+      }
+      file.createNewFile();
+      FileUtils.write(file, "");
+      try {
+         YAMLConfigurationProvider provider = new YAMLConfigurationProvider(file.getPath());
+         Configuration conf = new ConfigurationImpl();
+         provider.init(conf);
+
+         TransformationConfig transformationCfg = command.buildTransformationCfg();
+
+         provider.addTransformationConfig("default", null, transformationCfg, false, null, null);
+         
+         command = new AddTransformationCommand("setter-getter", "mychain", false, null, null, null,
+               null, false, null, "default");
+         transformationCfg = command.buildTransformationCfg();
+         provider.addTransformationConfig("mychain", null, transformationCfg, false, null, "default");
+
+         String output = FileUtils.readFileToString(file);
+
+         Assert.assertTrue(output.contains("mychain"));
+         Assert.assertTrue(output.contains("default"));
+         Assert.assertTrue(output.indexOf("default") > output.indexOf("mychain"));
+      } finally {
+         if (file.exists()) {
+            file.delete();
+         }
+      }
+   }
 
    @Test
    public void testAddChainTransformationWithExistingChain() throws Exception {

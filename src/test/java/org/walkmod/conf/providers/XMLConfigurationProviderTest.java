@@ -61,6 +61,36 @@ public class XMLConfigurationProviderTest {
 		}
 
 	}
+	
+	@Test
+   public void testAddTransformationWithBefore() throws Exception {
+      File aux = new File("src/test/resources/xml");
+      aux.mkdirs();
+      File xml = new File(aux, "walkmod.xml");
+      XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+      try {
+         prov.createConfig();
+         AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
+               null,null, false);
+         prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false, null, null);
+
+         command = new AddTransformationCommand("setter-getter", "common", false, null, null,
+               null,null, false, null, "default");
+         
+         prov.addTransformationConfig("common", null, command.buildTransformationCfg(), false, null, "default");
+         
+         String content = FileUtils.readFileToString(xml);
+       
+         Assert.assertTrue(content.contains("imports-cleaner"));
+         Assert.assertTrue(content.contains("common"));
+         Assert.assertTrue(content.contains("setter-getter"));
+         Assert.assertTrue(content.indexOf("common") < content.indexOf("default"));
+
+      } finally {
+         xml.delete();
+      }
+
+   }
 
 	@Test
 	public void testAddTransformationRecursively() throws Exception {

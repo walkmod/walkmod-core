@@ -117,6 +117,7 @@ public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
                }
             }
          }
+         Element defaultChainElement = null;
          if (isTransformationList) {
             Configuration configuration = new ConfigurationImpl();
             provider.setConfiguration(configuration);
@@ -137,8 +138,8 @@ public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
                   }
                }
             }
-
-            rootElement.appendChild(createChainElement(chainCfg));
+            defaultChainElement = createChainElement(chainCfg);
+            
          }
          if (!appended) {
             ChainConfig chainCfg = new ChainConfigImpl();
@@ -160,7 +161,13 @@ public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
                rootElement.insertBefore(createChainElement(chainCfg), beforeChain);
             }
             else{
+               if (before == null && defaultChainElement != null){
+                  rootElement.appendChild(defaultChainElement);
+               }
                rootElement.appendChild(createChainElement(chainCfg));
+               if("default".equals(before) && defaultChainElement != null){
+                  rootElement.appendChild(defaultChainElement);
+               }
             }
          }
          provider.persist();
