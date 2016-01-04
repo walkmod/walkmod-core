@@ -72,7 +72,7 @@ public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
                final String nodeName = child.getNodeName();
                if ("chain".equals(nodeName)) {
                   String name = child.getAttribute("name");
-                  if(before != null && name.equals(before)){
+                  if (before != null && name.equals(before)) {
                      beforeChain = child;
                   }
                   if (name.equals(chain)) {
@@ -135,11 +135,12 @@ public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
                   Element auxElem = (Element) item;
                   if (auxElem.getNodeName().equals("transformation")) {
                      rootElement.removeChild(auxElem);
+                     i--;
                   }
                }
             }
             defaultChainElement = createChainElement(chainCfg);
-            
+
          }
          if (!appended) {
             ChainConfig chainCfg = new ChainConfigImpl();
@@ -157,15 +158,14 @@ public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
             transfs.add(transformationCfg);
             walkerCfg.setTransformations(transfs);
             chainCfg.setWalkerConfig(walkerCfg);
-            if(beforeChain != null){
+            if (beforeChain != null) {
                rootElement.insertBefore(createChainElement(chainCfg), beforeChain);
-            }
-            else{
-               if (before == null && defaultChainElement != null){
+            } else {
+               if (before == null && defaultChainElement != null) {
                   rootElement.appendChild(defaultChainElement);
                }
                rootElement.appendChild(createChainElement(chainCfg));
-               if("default".equals(before) && defaultChainElement != null){
+               if ("default".equals(before) && defaultChainElement != null) {
                   rootElement.appendChild(defaultChainElement);
                }
             }
@@ -174,30 +174,53 @@ public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
       } else {
          Element chainNode = null;
          boolean containsChains = false;
-         for (int i = 0; i < childSize && !containsChains; i++) {
+
+         for (int i = 0; i < childSize && chainNode == null; i++) {
             Node childNode = children.item(i);
             if (childNode instanceof Element) {
-               chainNode = (Element) childNode;
-               final String nodeName = chainNode.getNodeName();
+               Element auxNode = (Element) childNode;
+               final String nodeName = auxNode.getNodeName();
                containsChains = "chain".equals(nodeName);
+               if (auxNode.getAttribute("name").equals(chain)) {
+                  chainNode = auxNode;
+               }
             }
          }
          if (containsChains) {
-            String attrName = chainNode.getAttribute("name");
-            if (attrName == null || attrName.equals("") || attrName.equals("default")) {
-               if (path != null && !"".equals(path.trim())) {
+            if (chainNode != null) {
+               String attrName = chainNode.getAttribute("name");
+               if (attrName == null || attrName.equals("") || attrName.equals("default")) {
                   NodeList chainChildren = chainNode.getChildNodes();
-                  for (int i = 0; i < chainChildren.getLength(); i++) {
-                     Node childNode = chainChildren.item(i);
-                     if (childNode.getNodeName().equals("reader")) {
-                        Element aux = (Element) childNode;
-                        if (!aux.getAttribute("path").equals(path.trim())) {
-                           throw new TransformerException(
-                                 "The user must specify a chain name (new or existing) where to add the transformation: ["
-                                       + transformationCfg.getType() + "]");
-                        }
+                  if (path != null && !"".equals(path.trim())) {
 
+                     for (int i = 0; i < chainChildren.getLength(); i++) {
+                        Node childNode = chainChildren.item(i);
+                        String nodeType = childNode.getNodeName();
+                        if (nodeType.equals("reader")) {
+                           Element aux = (Element) childNode;
+                           if (!aux.getAttribute("path").equals(path.trim())) {
+                              throw new TransformerException(
+                                    "The user must specify a chain name (new or existing) where to add the transformation: ["
+                                          + transformationCfg.getType() + "]");
+                           }
+
+                        }
                      }
+                     
+                  }
+                  if (chainChildren.getLength() > 0) {
+                     Node lastElem = chainChildren.item(chainChildren.getLength() - 1);
+                     if (lastElem.getNodeName().equals("writer")) {
+                        chainNode.insertBefore(createTransformationElement(transformationCfg), lastElem);
+                     }
+                     if (lastElem.getNodeName().equals("transformation")) {
+                        chainNode.appendChild(createTransformationElement(transformationCfg));
+                     }
+                     if (lastElem.getNodeName().equals("walker")) {
+                        lastElem.appendChild(createTransformationElement(transformationCfg));
+                     }
+                     provider.persist();
+                     return;
                   }
                }
             } else {
@@ -247,6 +270,7 @@ public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
 
                for (int i = 0; i < limitChildren; i++) {
                   rootElement.removeChild(childrenNodes.item(i));
+                  i--;
                }
 
                rootElement.appendChild(createChainElement(chainCfg));
@@ -258,10 +282,9 @@ public class AddTransformationXMLAction extends AbstractXMLConfigurationAction {
                chainCfg.getReaderConfig().setPath(path);
                chainCfg.getWriterConfig().setPath(path);
                List<TransformationConfig> transfs = chainCfg.getWalkerConfig().getTransformations();
-               if(order != null && order < transfs.size()){
+               if (order != null && order < transfs.size()) {
                   transfs.add(order, transformationCfg);
-               }
-               else{
+               } else {
                   transfs.add(transformationCfg);
                }
                document.removeChild(rootElement);
