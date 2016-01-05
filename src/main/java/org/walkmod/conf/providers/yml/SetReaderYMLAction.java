@@ -16,6 +16,8 @@
 package org.walkmod.conf.providers.yml;
 
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.providers.YAMLConfigurationProvider;
@@ -31,13 +33,15 @@ public class SetReaderYMLAction extends AbstractYMLConfigurationAction {
 	private String chain;
 	private String type;
 	private String path;
+	private Map<String, String> params;
 
 	public SetReaderYMLAction(String chain, String type, String path, YAMLConfigurationProvider provider,
-			boolean recursive) {
+			boolean recursive, Map<String, String> params) {
 		super(provider, recursive);
 		this.chain = chain;
 		this.type = type;
 		this.path = path;
+		this.params = params;
 	}
 
 	@Override
@@ -71,6 +75,21 @@ public class SetReaderYMLAction extends AbstractYMLConfigurationAction {
 								if (path != null && !"".equals(path.trim())) {
 									reader.set("path", new TextNode(path));
 								}
+								if (params != null && !params.isEmpty()) {
+                           ObjectNode paramsObject = null;
+                           if (reader.has("params")) {
+                              paramsObject = (ObjectNode) reader.get("params");
+                           } else {
+                              paramsObject = new ObjectNode(mapper.getNodeFactory());
+                              reader.set("params", paramsObject);
+                           }
+
+                           Set<String> keys = params.keySet();
+                           for (String key : keys) {
+                              paramsObject.put(key, params.get(key).toString());
+                           }
+
+                        }
 							}
 						}
 					}
@@ -92,7 +111,14 @@ public class SetReaderYMLAction extends AbstractYMLConfigurationAction {
 				if (path != null && !"".equals(path.trim())) {
 					readerNode.set("path", new TextNode(path));
 				}
-
+				if (params != null && !params.isEmpty()) {
+               ObjectNode paramsObject = new ObjectNode(mapper.getNodeFactory());
+               Set<String> keys = params.keySet();
+               for (String key : keys) {
+                  paramsObject.put(key, params.get(key).toString());
+               }
+               readerNode.set("params", paramsObject);
+            }
 				defaultChain.set("reader", readerNode);
 				if (node.has("transformations")) {
 					defaultChain.set("transformations", node.get("transformations"));
@@ -107,7 +133,7 @@ public class SetReaderYMLAction extends AbstractYMLConfigurationAction {
 
 	@Override
 	public AbstractYMLConfigurationAction clone(ConfigurationProvider provider, boolean recursive) {
-		return new SetReaderYMLAction(chain, type, path, (YAMLConfigurationProvider) provider, recursive);
+		return new SetReaderYMLAction(chain, type, path, (YAMLConfigurationProvider) provider, recursive, params);
 	}
 
 }

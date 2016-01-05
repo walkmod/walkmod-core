@@ -15,57 +15,64 @@
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.commands;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.walkmod.OptionsBuilder;
 import org.walkmod.WalkModFacade;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 @Parameters(separators = "=", commandDescription = "Sets an specific reader for an specific chain.")
-public class SetReaderCommand implements Command{
+public class SetReaderCommand implements Command {
 
-	@Parameter(arity = 1, description = "The reader type identifier", required = false)
-	public List<String> readerType;
+   @Parameter(arity = 1, description = "The reader type identifier", required = false)
+   public List<String> readerType;
 
-	@Parameter(names = "--help", help = true, hidden = true)
-	private boolean help;
+   @Parameter(names = "--help", help = true, hidden = true)
+   private boolean help;
 
-	private JCommander jcommander;
+   private JCommander jcommander;
 
-	@Parameter(names = { "--chain" }, description = "The chain identifier", required = false)
-	private String chain = "default";
-	
-	@Parameter(names = { "--path", "-d"}, description = "The reader path", required = false)
-	private String path = "src/main/java";
-	
-	@Parameter(names = {"--recursive", "-R"}, description = "Removes the transformation to all submodules")
-	private boolean recursive = false;
+   @Parameter(names = { "--chain" }, description = "The chain identifier", required = false)
+   private String chain = "default";
 
-	@Parameter(names = { "-e", "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
-	private Boolean printErrors = false;
+   @Parameter(names = { "--path", "-d" }, description = "The reader path", required = false)
+   private String path = "src/main/java";
 
-	public SetReaderCommand(JCommander jcommander) {
-		this.jcommander = jcommander;
-	}
+   @Parameter(names = { "--recursive", "-R" }, description = "Removes the transformation to all submodules")
+   private boolean recursive = false;
 
-	public SetReaderCommand(String readerType, String chain) {
-		this.chain = chain;
-		this.readerType = new LinkedList<String>();
-		this.readerType.add(readerType);
-	}
+   @Parameter(names = { "-e",
+         "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
+   private Boolean printErrors = false;
 
-	@Override
-	public void execute() throws Exception {
-		if (help) {
-			jcommander.usage("set-reader");
-		} else {
-			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
-			facade.setReader(chain, readerType.get(0), path, recursive);
-		}
-	}
+   @DynamicParameter(names = "-D", description = "Dynamic reader parameters go here")
+   private Map<String, String> params = new HashMap<String, String>();
+
+   public SetReaderCommand(JCommander jcommander) {
+      this.jcommander = jcommander;
+   }
+
+   public SetReaderCommand(String readerType, String chain) {
+      this.chain = chain;
+      this.readerType = new LinkedList<String>();
+      this.readerType.add(readerType);
+   }
+
+   @Override
+   public void execute() throws Exception {
+      if (help) {
+         jcommander.usage("set-reader");
+      } else {
+         WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
+         facade.setReader(chain, readerType.get(0), path, recursive, params);
+      }
+   }
 
 }

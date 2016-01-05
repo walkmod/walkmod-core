@@ -18,6 +18,8 @@ package org.walkmod.conf.providers.xml;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -31,13 +33,15 @@ public class SetWriterXMLAction extends AbstractXMLConfigurationAction {
 	private String chain;
 	private String type;
 	private String path;
+	private Map<String, String> params;
 
 	public SetWriterXMLAction(String chain, String type, String path, XMLConfigurationProvider provider,
-			boolean recursive) {
+			boolean recursive, Map<String, String> params) {
 		super(provider, recursive);
 		this.chain = chain;
 		this.type = type;
 		this.path = path;
+		this.params = params;
 	}
 
 	@Override
@@ -48,7 +52,7 @@ public class SetWriterXMLAction extends AbstractXMLConfigurationAction {
 
 		NodeList children = rootElement.getChildNodes();
 		int childSize = children.getLength();
-
+		Element writerElem = null;
 		Element child = null;
 
 		for (int i = 0; i < childSize; i++) {
@@ -119,13 +123,13 @@ public class SetWriterXMLAction extends AbstractXMLConfigurationAction {
 						if (path != null && !"".equals(path.trim())) {
 							aux.setAttribute("path", path);
 						}
-
+						writerElem = aux;
 						updated = true;
 					}
 				}
 			}
 			if (!updated) {
-				Element writerElem = document.createElement("writer");
+				writerElem = document.createElement("writer");
 				if (type != null && !"".equals(type.trim())) {
 					writerElem.setAttribute("type", type);
 				}
@@ -136,6 +140,39 @@ public class SetWriterXMLAction extends AbstractXMLConfigurationAction {
 				}
 				writerParent.appendChild(writerElem);
 			}
+			if(params != null && !params.isEmpty() && writerElem != null){
+			   NodeList childrenWriter = writerElem.getChildNodes();
+			   int limitChildren = childrenWriter.getLength();
+			   Element previousElem = null;
+			   for(int i = 0; i < limitChildren; i++){
+			      Node childWriter = childrenWriter.item(i);
+			      if(childWriter.getNodeName().equals("param")){
+			         Element param = (Element) childWriter;
+			        
+			         if(params.containsKey(param.getAttribute("name"))){
+			            param.setTextContent(params.get(param.getAttribute("name")).toString());
+			            params.remove(param.getAttribute("name"));
+			         }
+			      }
+			      else if(previousElem == null){
+			         previousElem = (Element) childWriter;
+			      }
+			   }
+			   Set<String> keys = params.keySet();
+			   for(String key:keys){
+			      Element elem = document.createElement("param");
+			      elem.setAttribute("name", key);
+			      elem.setTextContent(params.get(key).toString());
+			      if(previousElem == null){
+			         writerElem.appendChild(elem);
+			      }
+			      else{
+			         writerElem.insertBefore(elem, previousElem);
+			         previousElem = elem;
+			      }
+			     
+			   }
+			}
 			provider.persist();
 		}
 
@@ -143,7 +180,7 @@ public class SetWriterXMLAction extends AbstractXMLConfigurationAction {
 
 	@Override
 	public AbstractXMLConfigurationAction clone(ConfigurationProvider provider, boolean recursive) {
-		return new SetWriterXMLAction(chain, type, path, (XMLConfigurationProvider) provider, recursive);
+		return new SetWriterXMLAction(chain, type, path, (XMLConfigurationProvider) provider, recursive, params);
 	}
 
 }

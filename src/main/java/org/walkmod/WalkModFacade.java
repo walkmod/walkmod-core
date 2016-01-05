@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.walkmod.conf.ConfigurationManager;
@@ -1172,10 +1173,11 @@ public class WalkModFacade {
 	 *            Writer path to set
 	 * @param recursive
 	 *            If to set the writer to all the submodules.
+	 * @param params 
 	 * @throws Exception
 	 *             if the walkmod configuration file can't be read.
 	 */
-	public void setWriter(String chain, String type, String path, boolean recursive) throws Exception {
+	public void setWriter(String chain, String type, String path, boolean recursive, Map<String, String> params) throws Exception {
 		long startTime = System.currentTimeMillis();
 		Exception exception = null;
 		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
@@ -1189,7 +1191,7 @@ public class WalkModFacade {
 
 				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-				cfgProvider.setWriter(chain, type, path, recursive);
+				cfgProvider.setWriter(chain, type, path, recursive, params);
 			} catch (Exception e) {
 				exception = e;
 			} finally {
@@ -1210,10 +1212,11 @@ public class WalkModFacade {
 	 *            Reader path to set
 	 * @param recursive
 	 *            If to set the reader to all the submodules.
+	 * @param params 
 	 * @throws Exception
 	 *             if the walkmod configuration file can't be read.
 	 */
-	public void setReader(String chain, String type, String path, boolean recursive) throws Exception {
+	public void setReader(String chain, String type, String path, boolean recursive, Map<String, String> params) throws Exception {
 		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
 			long startTime = System.currentTimeMillis();
 			Exception exception = null;
@@ -1227,7 +1230,7 @@ public class WalkModFacade {
 
 				ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
 
-				cfgProvider.setReader(chain, type, path, recursive);
+				cfgProvider.setReader(chain, type, path, recursive, params);
 			} catch (Exception e) {
 				exception = e;
 			} finally {

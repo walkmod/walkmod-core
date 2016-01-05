@@ -2,16 +2,17 @@ package org.walkmod.conf.providers;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.walkmod.commands.AddCfgProviderCommand;
 import org.walkmod.commands.AddTransformationCommand;
-import org.walkmod.commands.JSONConverter;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.PluginConfig;
@@ -20,8 +21,6 @@ import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.impl.ChainConfigImpl;
 import org.walkmod.conf.entities.impl.ConfigurationImpl;
 import org.walkmod.conf.entities.impl.PluginConfigImpl;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 public class YAMLConfigurationProviderTest {
 
@@ -222,10 +221,11 @@ public class YAMLConfigurationProviderTest {
    @Test
    public void testAddChainTransformation() throws Exception {
 
-      JSONConverter converter = new JSONConverter();
-      JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+      Map<String, String> params = new HashMap<String, String>();
+      params.put("refactoringConfigFile", "src/conf/refactoring-methods.json");
+
       AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", null, false,
-            null, null, null, walker, false);
+            null, null, null, params, false);
 
       File file = new File("src/test/resources/yaml/addchain.yml");
       if (file.exists()) {
@@ -259,10 +259,11 @@ public class YAMLConfigurationProviderTest {
    @Test
    public void testAddChainTransformationRecursively() throws Exception {
 
-      JSONConverter converter = new JSONConverter();
-      JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+      Map<String, String> params = new HashMap<String, String>();
+      params.put("refactoringConfigFile", "src/conf/refactoring-methods.json");
+
       AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", null, false,
-            null, null, null, walker, false);
+            null, null, null, params, false);
 
       File dir = new File("src/test/resources/multimoduleyaml");
 
@@ -317,10 +318,12 @@ public class YAMLConfigurationProviderTest {
    @Test
    public void testAddChainTransformationToChainAfterTranfList() throws Exception {
 
-      JSONConverter converter = new JSONConverter();
-      JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+      Map<String, String> params = new HashMap<String, String>();
+      params.put("refactoringConfigFile", "src/conf/refactoring-methods.json");
+      
+      
       AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", null, false,
-            null, null, null, walker, false);
+            null, null, null, params, false);
 
       File file = new File("src/test/resources/yaml/addchain.yml");
       if (file.exists()) {
@@ -337,7 +340,7 @@ public class YAMLConfigurationProviderTest {
 
          provider.addTransformationConfig(null, null, transformationCfg, false, null, null);
          command = new AddTransformationCommand("walkmod:commons:class-refactor", "mychain", false, null, null, null,
-               walker, false);
+               params, false);
          transformationCfg = command.buildTransformationCfg();
          provider.addTransformationConfig("mychain", null, transformationCfg, false, null, null);
 
@@ -354,10 +357,11 @@ public class YAMLConfigurationProviderTest {
    @Test
    public void testAddChainTransformationWithNewChain() throws Exception {
 
-      JSONConverter converter = new JSONConverter();
-      JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+      Map<String, String> params = new HashMap<String, String>();
+      params.put("refactoringConfigFile", "src/conf/refactoring-methods.json");
+      
       AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", "mychain",
-            false, null, null, null, walker, false);
+            false, null, null, null, params, false);
 
       File file = new File("src/test/resources/yaml/addchain.yml");
       if (file.exists()) {
@@ -383,10 +387,11 @@ public class YAMLConfigurationProviderTest {
          }
       }
    }
+
    @Test
    public void testAddTransformationWithBefore() throws Exception {
-      AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null,
-            false, null, null, null, null, false);
+      AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null, null,
+            null, false);
 
       File file = new File("src/test/resources/yaml/addchain.yml");
       if (file.exists()) {
@@ -402,9 +407,9 @@ public class YAMLConfigurationProviderTest {
          TransformationConfig transformationCfg = command.buildTransformationCfg();
 
          provider.addTransformationConfig("default", null, transformationCfg, false, null, null);
-         
-         command = new AddTransformationCommand("setter-getter", "mychain", false, null, null, null,
-               null, false, null, "default");
+
+         command = new AddTransformationCommand("setter-getter", "mychain", false, null, null, null, null, false, null,
+               "default");
          transformationCfg = command.buildTransformationCfg();
          provider.addTransformationConfig("mychain", null, transformationCfg, false, null, "default");
 
@@ -423,10 +428,11 @@ public class YAMLConfigurationProviderTest {
    @Test
    public void testAddChainTransformationWithExistingChain() throws Exception {
 
-      JSONConverter converter = new JSONConverter();
-      JsonNode walker = converter.convert("{ refactoringConfigFile: \"src/conf/refactoring-methods.json\"}");
+      Map<String, String> params = new HashMap<String, String>();
+      params.put("refactoringConfigFile", "src/conf/refactoring-methods.json");
+      
       AddTransformationCommand command = new AddTransformationCommand("walkmod:commons:method-refactor", "mychain",
-            false, null, null, null, walker, false);
+            false, null, null, null, params, false);
 
       File file = new File("src/test/resources/yaml/addchain.yml");
       if (file.exists()) {
@@ -443,7 +449,7 @@ public class YAMLConfigurationProviderTest {
 
          provider.addTransformationConfig("mychain", null, transformationCfg, false, null, null);
          command = new AddTransformationCommand("walkmod:commons:class-refactor", "mychain", false, null, null, null,
-               walker, false);
+               params, false);
          transformationCfg = command.buildTransformationCfg();
          provider.addTransformationConfig("mychain", null, transformationCfg, false, null, null);
 
@@ -754,7 +760,7 @@ public class YAMLConfigurationProviderTest {
          Configuration conf = new ConfigurationImpl();
          provider.init(conf);
 
-         provider.setWriter(null, list.get(0), null, false);
+         provider.setWriter(null, list.get(0), null, false, null);
 
          String output = FileUtils.readFileToString(file);
          System.out.println(output);
@@ -1049,7 +1055,7 @@ public class YAMLConfigurationProviderTest {
 
          TransformationConfig transformationCfg = command.buildTransformationCfg();
          provider.addTransformationConfig(null, null, transformationCfg, false, null, null);
-         provider.setWriter(null, "eclipse-writer", null, false);
+         provider.setWriter(null, "eclipse-writer", null, false, null);
 
          provider.addConfigurationParameter("testParam", "hello", "eclipse-writer", null, null, null, false);
 
@@ -1081,7 +1087,7 @@ public class YAMLConfigurationProviderTest {
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
          prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
-         prov.setWriter("mychain", "eclipse-writer", null, false);
+         prov.setWriter("mychain", "eclipse-writer", null, false, null);
          prov.addIncludesToChain("mychain", Arrays.asList("foo"), false, true, false);
 
          String output = FileUtils.readFileToString(file);
@@ -1113,7 +1119,7 @@ public class YAMLConfigurationProviderTest {
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
          prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
-         prov.setWriter("mychain", "eclipse-writer", null, false);
+         prov.setWriter("mychain", "eclipse-writer", null, false, null);
          prov.addIncludesToChain("mychain", Arrays.asList("foo"), false, false, true);
 
          String output = FileUtils.readFileToString(file);
@@ -1144,7 +1150,7 @@ public class YAMLConfigurationProviderTest {
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
          prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
-         prov.setWriter("mychain", "eclipse-writer", null, false);
+         prov.setWriter("mychain", "eclipse-writer", null, false, null);
          prov.addIncludesToChain("mychain", Arrays.asList("foo"), false, true, true);
 
          String output = FileUtils.readFileToString(file);
@@ -1174,7 +1180,7 @@ public class YAMLConfigurationProviderTest {
 
          TransformationConfig transfCfg = command.buildTransformationCfg();
          prov.addTransformationConfig("mychain", null, transfCfg, false, null, null);
-         prov.setWriter("mychain", "eclipse-writer", null, false);
+         prov.setWriter("mychain", "eclipse-writer", null, false, null);
          prov.addExcludesToChain("mychain", Arrays.asList("foo"), false, true, false);
 
          String output = FileUtils.readFileToString(file);

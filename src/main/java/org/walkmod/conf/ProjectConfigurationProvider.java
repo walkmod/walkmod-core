@@ -18,6 +18,7 @@ package org.walkmod.conf;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
@@ -42,9 +43,9 @@ public interface ProjectConfigurationProvider extends ConfigurationProvider {
 
 	public void removeTransformations(String chain, List<String> transformations, boolean recursive) throws Exception;
 
-	public void setWriter(String chain, String type, String path, boolean recursive) throws Exception;
+	public void setWriter(String chain, String type, String path, boolean recursive, Map<String, String> params) throws Exception;
 
-	public void setReader(String chain, String type, String path, boolean recursive) throws Exception;
+	public void setReader(String chain, String type, String path, boolean recursive, Map<String, String> params) throws Exception;
 
 	public void removePluginConfig(PluginConfig pluginConfig, boolean recursive) throws Exception;
 

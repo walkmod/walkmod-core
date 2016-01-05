@@ -848,17 +848,17 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	}
 
 	@Override
-	public void setWriter(String chain, String type, String path, boolean recursive) throws Exception {
+	public void setWriter(String chain, String type, String path, boolean recursive, Map<String, String> params) throws Exception {
 		if ((type != null && !type.trim().equals("")) || (path != null && !path.trim().equals(""))) {
-			SetWriterXMLAction action = new SetWriterXMLAction(chain, type, path, this, recursive);
+			SetWriterXMLAction action = new SetWriterXMLAction(chain, type, path, this, recursive, params);
 			action.execute();
 		}
 	}
 
 	@Override
-	public void setReader(String chain, String type, String path, boolean recursive) throws Exception {
+	public void setReader(String chain, String type, String path, boolean recursive, Map<String, String> params) throws Exception {
 		if ((type != null && !type.trim().equals("")) || (path != null && !path.trim().equals(""))) {
-			SetReaderXMLAction action = new SetReaderXMLAction(chain, type, path, this, recursive);
+			SetReaderXMLAction action = new SetReaderXMLAction(chain, type, path, this, recursive, params);
 			action.execute();
 		}
 	}

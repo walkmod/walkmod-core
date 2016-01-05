@@ -18,6 +18,8 @@ package org.walkmod.conf.providers.xml;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -33,13 +35,16 @@ public class SetReaderXMLAction extends AbstractXMLConfigurationAction {
 	private String type;
 
 	private String path;
+	
+	private Map<String, String> params;
 
 	public SetReaderXMLAction(String chain, String type, String path, XMLConfigurationProvider provider,
-			boolean recursive) {
+			boolean recursive, Map<String, String> params) {
 		super(provider, recursive);
 		this.chain = chain;
 		this.type = type;
 		this.path = path;
+		this.params = params;
 	}
 
 	@Override
@@ -55,6 +60,7 @@ public class SetReaderXMLAction extends AbstractXMLConfigurationAction {
 		List<Node> transformationsToRemove = new LinkedList<Node>();
 
 		Element child = null;
+		Element readerElement = null;
 		for (int i = 0; i < childSize; i++) {
 			Node childNode = children.item(i);
 			if (childNode instanceof Element) {
@@ -106,6 +112,7 @@ public class SetReaderXMLAction extends AbstractXMLConfigurationAction {
 				if (childNode instanceof Element) {
 					Element aux = (Element) childNode;
 					if ("reader".equals(aux.getNodeName())) {
+					   readerElement = aux;
 						if (type != null && !"".equals(type.trim())) {
 							aux.setAttribute("type", type);
 						}
@@ -117,7 +124,7 @@ public class SetReaderXMLAction extends AbstractXMLConfigurationAction {
 				}
 			}
 			if (!updated) {
-				Element readerElement = document.createElement("reader");
+				readerElement = document.createElement("reader");
 				if (type != null && !"".equals(type.trim())) {
 					readerElement.setAttribute("type", type);
 				}
@@ -128,6 +135,39 @@ public class SetReaderXMLAction extends AbstractXMLConfigurationAction {
 				}
 				readerParent.insertBefore(readerElement, readerParent.getFirstChild());
 			}
+			if(params != null && !params.isEmpty() && readerElement != null){
+            NodeList childrenWriter = readerElement.getChildNodes();
+            int limitChildren = childrenWriter.getLength();
+            Element previousElem = null;
+            for(int i = 0; i < limitChildren; i++){
+               Node childWriter = childrenWriter.item(i);
+               if(childWriter.getNodeName().equals("param")){
+                  Element param = (Element) childWriter;
+                 
+                  if(params.containsKey(param.getAttribute("name"))){
+                     param.setTextContent(params.get(param.getAttribute("name")).toString());
+                     params.remove(param.getAttribute("name"));
+                  }
+               }
+               else if(previousElem == null){
+                  previousElem = (Element) childWriter;
+               }
+            }
+            Set<String> keys = params.keySet();
+            for(String key:keys){
+               Element elem = document.createElement("param");
+               elem.setAttribute("name", key);
+               elem.setTextContent(params.get(key).toString());
+               if(previousElem == null){
+                  readerElement.appendChild(elem);
+               }
+               else{
+                  readerElement.insertBefore(elem, previousElem);
+                  previousElem = elem;
+               }
+              
+            }
+         }
 			provider.persist();
 		}
 
@@ -136,7 +176,7 @@ public class SetReaderXMLAction extends AbstractXMLConfigurationAction {
 	@Override
 	public AbstractXMLConfigurationAction clone(ConfigurationProvider provider, boolean recursive) {
 
-		return new SetReaderXMLAction(chain, type, path, (XMLConfigurationProvider) provider, recursive);
+		return new SetReaderXMLAction(chain, type, path, (XMLConfigurationProvider) provider, recursive, params);
 	}
 
 }

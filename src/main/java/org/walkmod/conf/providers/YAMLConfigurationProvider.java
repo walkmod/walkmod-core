@@ -412,18 +412,18 @@ public class YAMLConfigurationProvider extends AbstractChainConfigurationProvide
 	}
 
 	@Override
-	public void setWriter(String chain, String type, String path, boolean recursive) throws Exception {
+	public void setWriter(String chain, String type, String path, boolean recursive, Map<String, String> params) throws Exception {
 		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
-			SetWriterYMLAction action = new SetWriterYMLAction(chain, type, path, this, recursive);
+			SetWriterYMLAction action = new SetWriterYMLAction(chain, type, path, this, recursive, params);
 			action.execute();
 		}
 
 	}
 
 	@Override
-	public void setReader(String chain, String type, String path, boolean recursive) throws Exception {
+	public void setReader(String chain, String type, String path, boolean recursive, Map<String, String> params) throws Exception {
 		if ((type != null && !"".equals(type.trim())) || (path != null && !"".equals(path.trim()))) {
-			SetReaderYMLAction action = new SetReaderYMLAction(chain, type, path, this, recursive);
+			SetReaderYMLAction action = new SetReaderYMLAction(chain, type, path, this, recursive, params);
 			action.execute();
 		}
 

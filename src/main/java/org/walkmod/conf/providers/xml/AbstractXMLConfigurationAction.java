@@ -37,304 +37,306 @@ import org.walkmod.conf.providers.XMLConfigurationProvider;
 
 public abstract class AbstractXMLConfigurationAction implements ConfigurationAction {
 
-	protected XMLConfigurationProvider provider;
+   protected XMLConfigurationProvider provider;
 
-	private boolean recursive = false;
+   private boolean recursive = false;
 
-	public AbstractXMLConfigurationAction(XMLConfigurationProvider provider, boolean recursive) {
+   public AbstractXMLConfigurationAction(XMLConfigurationProvider provider, boolean recursive) {
 
-		this.provider = provider;
-		this.recursive = recursive;
-	}
+      this.provider = provider;
+      this.recursive = recursive;
+   }
 
-	@Override
-	public void execute() throws Exception {
-		File file = new File(provider.getConfigFileName());
+   @Override
+   public void execute() throws Exception {
+      File file = new File(provider.getConfigFileName());
 
-		if (!file.exists()) {
-			provider.createConfig();
-			provider.init(new ConfigurationImpl());
-		} else {
-			provider.init(new ConfigurationImpl());
-		}
-		if (recursive) {
-			
-			Document document = provider.getDocument();
-			Element rootElement = document.getDocumentElement();
-			NodeList children = rootElement.getChildNodes();
-			int childSize = children.getLength();
-			boolean containsModules = false;
-			
-			for (int i = 0; i < childSize; i++) {
-				Node childNode = children.item(i);
-				if (childNode instanceof Element) {
-					Element child  = (Element) childNode;
-					final String nodeName = child.getNodeName();
+      if (!file.exists()) {
+         provider.createConfig();
+         provider.init(new ConfigurationImpl());
+      } else {
+         provider.init(new ConfigurationImpl());
+      }
+      if (recursive) {
 
-					if ("modules".equals(nodeName)) {
-						containsModules = true;
-						NodeList moduleNodeList = child.getChildNodes();
-						int max = moduleNodeList.getLength();
-						for (int j = 0; j < max; j++) {
-							String cfg = provider.getConfigFileName();
-							if (cfg != null) {
-								File auxFile = new File(cfg).getCanonicalFile().getParentFile();
-								File moduleFileDir = new File(auxFile, moduleNodeList.item(j).getTextContent());
-								XMLConfigurationProvider aux = new XMLConfigurationProvider(moduleFileDir.getAbsolutePath()
-										+ File.separator + "walkmod.xml", false);
+         Document document = provider.getDocument();
+         Element rootElement = document.getDocumentElement();
+         NodeList children = rootElement.getChildNodes();
+         int childSize = children.getLength();
+         boolean containsModules = false;
 
-								AbstractXMLConfigurationAction ct = clone(aux, recursive);
-								ct.execute();
-							}
-						}
-					}
-				}
-			}
-			if(!containsModules){
-				doAction();
-			}
-		} else {
-			doAction();
-		}
+         for (int i = 0; i < childSize; i++) {
+            Node childNode = children.item(i);
+            if (childNode instanceof Element) {
+               Element child = (Element) childNode;
+               final String nodeName = child.getNodeName();
 
-	}
+               if ("modules".equals(nodeName)) {
+                  containsModules = true;
+                  NodeList moduleNodeList = child.getChildNodes();
+                  int max = moduleNodeList.getLength();
+                  for (int j = 0; j < max; j++) {
+                     String cfg = provider.getConfigFileName();
+                     if (cfg != null) {
+                        File auxFile = new File(cfg).getCanonicalFile().getParentFile();
+                        File moduleFileDir = new File(auxFile, moduleNodeList.item(j).getTextContent());
+                        XMLConfigurationProvider aux = new XMLConfigurationProvider(
+                              moduleFileDir.getAbsolutePath() + File.separator + "walkmod.xml", false);
 
-	public abstract void doAction() throws Exception;
+                        AbstractXMLConfigurationAction ct = clone(aux, recursive);
+                        ct.execute();
+                     }
+                  }
+               }
+            }
+         }
+         if (!containsModules) {
+            doAction();
+         }
+      } else {
+         doAction();
+      }
 
-	public List<Element> createParamsElement(Map<String, Object> params) {
-		List<Element> result = null;
-		if (params != null && !params.isEmpty()) {
-			Document document = provider.getDocument();
-			result = new LinkedList<Element>();
-			Set<String> paramLabels = params.keySet();
-			for (String label : paramLabels) {
-				Element param = document.createElement("param");
-				param.setAttribute("name", label);
-				param.setNodeValue(params.get(label).toString());
-				result.add(param);
-			}
+   }
 
-		}
-		return result;
-	}
+   public abstract void doAction() throws Exception;
 
-	public void createReaderOrWriterContent(Element root, String path, String type, Map<String, Object> params,
-			String[] includes, String[] excludes) {
+   public List<Element> createParamsElement(Map<String, Object> params) {
+      List<Element> result = null;
+      if (params != null && !params.isEmpty()) {
+         Document document = provider.getDocument();
+         result = new LinkedList<Element>();
+         Set<String> paramLabels = params.keySet();
+         for (String label : paramLabels) {
+            Element param = document.createElement("param");
+            param.setAttribute("name", label);
+            param.setTextContent(params.get(label).toString());
+            result.add(param);
+         }
 
-	   if(path == null || "".equals(path)){
-	      path = "src/main/java";
-	   }
-		root.setAttribute("path", path);
+      }
+      return result;
+   }
 
-		if (type != null && !"".equals(type)) {
-			root.setAttribute("type", type);
-		}
+   public void createReaderOrWriterContent(Element root, String path, String type, Map<String, Object> params,
+         String[] includes, String[] excludes) {
 
-		List<Element> paramListEment = createParamsElement(params);
-		if (paramListEment != null) {
+      if (path == null || "".equals(path)) {
+         path = "src/main/java";
+      }
+      root.setAttribute("path", path);
 
-			for (Element param : paramListEment) {
-				root.appendChild(param);
-			}
-		}
+      if (type != null && !"".equals(type)) {
+         root.setAttribute("type", type);
+      }
 
-		List<Element> includeElementList = createIncludeList(includes);
-		if (includeElementList != null) {
-			for (Element includeElement : includeElementList) {
-				root.appendChild(includeElement);
-			}
-		}
+      List<Element> paramListEment = createParamsElement(params);
+      if (paramListEment != null) {
 
-		List<Element> excludeElementList = createExcludeList(excludes);
+         for (Element param : paramListEment) {
+            root.appendChild(param);
+         }
+      }
 
-		if (excludeElementList != null) {
-			for (Element excludeElement : excludeElementList) {
-				root.appendChild(excludeElement);
-			}
-		}
+      List<Element> includeElementList = createIncludeList(includes);
+      if (includeElementList != null) {
+         for (Element includeElement : includeElementList) {
+            root.appendChild(includeElement);
+         }
+      }
 
-	}
+      List<Element> excludeElementList = createExcludeList(excludes);
 
-	public List<Element> createIncludeList(String[] includes) {
-		List<Element> result = null;
-		if (includes != null) {
-			result = new LinkedList<Element>();
-			Document document = provider.getDocument();
-			for (String include : includes) {
-				Element includeElem = document.createElement("include");
-				includeElem.setAttribute("wildcard", include);
-				result.add(includeElem);
-			}
-		}
+      if (excludeElementList != null) {
+         for (Element excludeElement : excludeElementList) {
+            root.appendChild(excludeElement);
+         }
+      }
 
-		return result;
-	}
+   }
 
-	public List<Element> createExcludeList(String[] excludes) {
-		List<Element> result = null;
-		if (excludes != null) {
-			result = new LinkedList<Element>();
-			Document document = provider.getDocument();
-			for (String exclude : excludes) {
-				Element excludeElem = document.createElement("exclude");
-				excludeElem.setAttribute("wildcard", exclude);
-				result.add(excludeElem);
-			}
-		}
+   public List<Element> createIncludeList(String[] includes) {
+      List<Element> result = null;
+      if (includes != null) {
+         result = new LinkedList<Element>();
+         Document document = provider.getDocument();
+         for (String include : includes) {
+            Element includeElem = document.createElement("include");
+            includeElem.setAttribute("wildcard", include);
+            result.add(includeElem);
+         }
+      }
 
-		return result;
-	}
+      return result;
+   }
 
-	private List<Element> createTransformationList(List<TransformationConfig> transformations) {
-		List<Element> result = null;
+   public List<Element> createExcludeList(String[] excludes) {
+      List<Element> result = null;
+      if (excludes != null) {
+         result = new LinkedList<Element>();
+         Document document = provider.getDocument();
+         for (String exclude : excludes) {
+            Element excludeElem = document.createElement("exclude");
+            excludeElem.setAttribute("wildcard", exclude);
+            result.add(excludeElem);
+         }
+      }
 
-		if (transformations != null) {
-			result = new LinkedList<Element>();
-			Document document = provider.getDocument();
-			for (TransformationConfig tcfg : transformations) {
-				Element trans = document.createElement("transformation");
-				String name = tcfg.getName();
+      return result;
+   }
 
-				if (name != null) {
-					trans.setAttribute("name", name);
-				}
+   private List<Element> createTransformationList(List<TransformationConfig> transformations) {
+      List<Element> result = null;
 
-				trans.setAttribute("type", tcfg.getType());
+      if (transformations != null) {
+         result = new LinkedList<Element>();
+         Document document = provider.getDocument();
+         for (TransformationConfig tcfg : transformations) {
+            Element trans = document.createElement("transformation");
+            String name = tcfg.getName();
 
-				String mergePolicy = tcfg.getMergePolicy();
-				if (mergePolicy != null) {
-					trans.setAttribute("merge-policy", mergePolicy);
-				}
-				if (tcfg.isMergeable()) {
-					trans.setAttribute("isMergeable", "true");
-				}
+            if (name != null) {
+               trans.setAttribute("name", name);
+            }
 
-				Map<String, Object> params = tcfg.getParameters();
-				List<Element> paramListEment = createParamsElement(params);
-				if (paramListEment != null) {
+            trans.setAttribute("type", tcfg.getType());
 
-					for (Element param : paramListEment) {
-						trans.appendChild(param);
-					}
-				}
-				result.add(trans);
-			}
-		}
+            String mergePolicy = tcfg.getMergePolicy();
+            if (mergePolicy != null) {
+               trans.setAttribute("merge-policy", mergePolicy);
+            }
+            if (tcfg.isMergeable()) {
+               trans.setAttribute("isMergeable", "true");
+            }
 
-		return result;
-	}
+            Map<String, Object> params = tcfg.getParameters();
+            List<Element> paramListEment = createParamsElement(params);
+            if (paramListEment != null) {
 
-	public Element createTransformationElement(TransformationConfig transformationCfg) {
-		Document document = provider.getDocument();
-		Element element = document.createElement("transformation");
+               for (Element param : paramListEment) {
+                  trans.appendChild(param);
+               }
+            }
+            result.add(trans);
+         }
+      }
 
-		String name = transformationCfg.getName();
-		if (name != null && !"".equals(name)) {
-			element.setAttribute("name", transformationCfg.getName());
-		}
+      return result;
+   }
 
-		String type = transformationCfg.getType();
-		if (type != null && !"".equals(type)) {
-			element.setAttribute("type", type);
-		}
+   public Element createTransformationElement(TransformationConfig transformationCfg) {
+      Document document = provider.getDocument();
+      Element element = document.createElement("transformation");
 
-		String mergePolicy = transformationCfg.getMergePolicy();
-		if (mergePolicy != null && !"".equals(mergePolicy)) {
-			element.setAttribute("merge-policy", mergePolicy);
-		}
+      String name = transformationCfg.getName();
+      if (name != null && !"".equals(name)) {
+         element.setAttribute("name", transformationCfg.getName());
+      }
 
-		if (transformationCfg.isMergeable()) {
-			element.setAttribute("isMergeable", "true");
-		}
-		Map<String, Object> params = transformationCfg.getParameters();
-		List<Element> paramListEment = createParamsElement(params);
-		if (paramListEment != null) {
+      String type = transformationCfg.getType();
+      if (type != null && !"".equals(type)) {
+         element.setAttribute("type", type);
+      }
 
-			for (Element param : paramListEment) {
-				element.appendChild(param);
-			}
-		}
+      String mergePolicy = transformationCfg.getMergePolicy();
+      if (mergePolicy != null && !"".equals(mergePolicy)) {
+         element.setAttribute("merge-policy", mergePolicy);
+      }
 
-		return element;
-	}
+      if (transformationCfg.isMergeable()) {
+         element.setAttribute("isMergeable", "true");
+      }
+      Map<String, Object> params = transformationCfg.getParameters();
+      List<Element> paramListEment = createParamsElement(params);
+      if (paramListEment != null) {
 
-	public Element createChainElement(ChainConfig chainCfg) {
-		Document document = provider.getDocument();
+         for (Element param : paramListEment) {
+            element.appendChild(param);
+         }
+      }
 
-		Element element = document.createElement("chain");
-		String name = chainCfg.getName();
-		if (name != null && !"".equals(name)) {
-			element.setAttribute("name", chainCfg.getName());
-		}
+      return element;
+   }
 
-		ReaderConfig rConfig = chainCfg.getReaderConfig();
-		if (rConfig != null) {
+   public Element createChainElement(ChainConfig chainCfg) {
+      Document document = provider.getDocument();
 
-			if (rConfig.getType() != null || rConfig.getPath() != null || rConfig.getIncludes() != null || rConfig.getExcludes() != null) {
-			   
-				Element reader = document.createElement("reader");
-				createReaderOrWriterContent(reader, rConfig.getPath(), rConfig.getType(), rConfig.getParameters(),
-						rConfig.getIncludes(), rConfig.getExcludes());
+      Element element = document.createElement("chain");
+      String name = chainCfg.getName();
+      if (name != null && !"".equals(name)) {
+         element.setAttribute("name", chainCfg.getName());
+      }
 
-				element.appendChild(reader);
-			}
+      ReaderConfig rConfig = chainCfg.getReaderConfig();
+      if (rConfig != null) {
 
-		}
-		WalkerConfig wConfig = chainCfg.getWalkerConfig();
-		if (wConfig != null) {
-			// (param*, parser?, transformations)
-			Map<String, Object> params = wConfig.getParams();
-			List<Element> result = createTransformationList(wConfig.getTransformations());
+         if (rConfig.getType() != null || rConfig.getPath() != null || rConfig.getIncludes() != null
+               || rConfig.getExcludes() != null || rConfig.getParameters() != null) {
 
-			if (params == null && (wConfig.getType() == null || "".equals(wConfig.getType()))) {
+            Element reader = document.createElement("reader");
+            createReaderOrWriterContent(reader, rConfig.getPath(), rConfig.getType(), rConfig.getParameters(),
+                  rConfig.getIncludes(), rConfig.getExcludes());
 
-				if (result != null) {
-					for (Element transformationElement : result) {
-						element.appendChild(transformationElement);
-					}
-				}
-			} else {
-				Element walker = document.createElement("walker");
-				String type = wConfig.getType();
+            element.appendChild(reader);
+         }
 
-				if (type != null && !"".equals(type)) {
-					walker.setAttribute("type", type);
-				}
+      }
+      WalkerConfig wConfig = chainCfg.getWalkerConfig();
+      if (wConfig != null) {
+         // (param*, parser?, transformations)
+         Map<String, Object> params = wConfig.getParams();
+         List<Element> result = createTransformationList(wConfig.getTransformations());
 
-				List<Element> paramListEment = createParamsElement(params);
-				if (paramListEment != null) {
+         if (params == null && (wConfig.getType() == null || "".equals(wConfig.getType()))) {
 
-					for (Element param : paramListEment) {
-						walker.appendChild(param);
-					}
-				}
+            if (result != null) {
+               for (Element transformationElement : result) {
+                  element.appendChild(transformationElement);
+               }
+            }
+         } else {
+            Element walker = document.createElement("walker");
+            String type = wConfig.getType();
 
-				Element transformationList = document.createElement("transformations");
-				if (result != null) {
-					for (Element transformationElement : result) {
-						transformationList.appendChild(transformationElement);
-					}
-				}
-				walker.appendChild(transformationList);
-				element.appendChild(walker);
+            if (type != null && !"".equals(type)) {
+               walker.setAttribute("type", type);
+            }
 
-			}
-		}
-		WriterConfig writerConfig = chainCfg.getWriterConfig();
-		if (writerConfig != null) {
+            List<Element> paramListEment = createParamsElement(params);
+            if (paramListEment != null) {
 
-			if (writerConfig.getType() != null || writerConfig.getPath() != null || writerConfig.getExcludes() != null || writerConfig.getIncludes() != null) {
-				Element writer = document.createElement("writer");
-				createReaderOrWriterContent(writer, rConfig.getPath(), rConfig.getType(), rConfig.getParameters(),
-						rConfig.getIncludes(), rConfig.getExcludes());
+               for (Element param : paramListEment) {
+                  walker.appendChild(param);
+               }
+            }
 
-				element.appendChild(writer);
-			}
+            Element transformationList = document.createElement("transformations");
+            if (result != null) {
+               for (Element transformationElement : result) {
+                  transformationList.appendChild(transformationElement);
+               }
+            }
+            walker.appendChild(transformationList);
+            element.appendChild(walker);
 
-		}
+         }
+      }
+      WriterConfig writerConfig = chainCfg.getWriterConfig();
+      if (writerConfig != null) {
 
-		return element;
-	}
+         if (writerConfig.getType() != null || writerConfig.getPath() != null || writerConfig.getExcludes() != null
+               || writerConfig.getIncludes() != null || writerConfig.getParams() != null) {
+            Element writer = document.createElement("writer");
+            createReaderOrWriterContent(writer, writerConfig.getPath(), writerConfig.getType(),
+                  writerConfig.getParams(), writerConfig.getIncludes(), writerConfig.getExcludes());
 
-	public abstract AbstractXMLConfigurationAction clone(ConfigurationProvider provider, boolean recursive);
+            element.appendChild(writer);
+         }
+
+      }
+
+      return element;
+   }
+
+   public abstract AbstractXMLConfigurationAction clone(ConfigurationProvider provider, boolean recursive);
 }
