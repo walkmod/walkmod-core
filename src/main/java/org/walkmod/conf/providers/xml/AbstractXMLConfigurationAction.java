@@ -138,14 +138,14 @@ public abstract class AbstractXMLConfigurationAction implements ConfigurationAct
          }
       }
 
-      List<Element> includeElementList = createIncludeList(includes);
+      List<Element> includeElementList = createIncludeList(includes, path);
       if (includeElementList != null) {
          for (Element includeElement : includeElementList) {
             root.appendChild(includeElement);
          }
       }
 
-      List<Element> excludeElementList = createExcludeList(excludes);
+      List<Element> excludeElementList = createExcludeList(excludes, path);
 
       if (excludeElementList != null) {
          for (Element excludeElement : excludeElementList) {
@@ -155,13 +155,20 @@ public abstract class AbstractXMLConfigurationAction implements ConfigurationAct
 
    }
 
-   public List<Element> createIncludeList(String[] includes) {
+   public List<Element> createIncludeList(String[] includes, String path) {
       List<Element> result = null;
       if (includes != null) {
          result = new LinkedList<Element>();
          Document document = provider.getDocument();
+         int limit = path.length();
+         if (!path.endsWith("/")) {
+            limit++;
+         }
          for (String include : includes) {
             Element includeElem = document.createElement("include");
+            if(include.startsWith(path)){
+               include = include.substring(limit);
+            }
             includeElem.setAttribute("wildcard", include);
             result.add(includeElem);
          }
@@ -170,13 +177,20 @@ public abstract class AbstractXMLConfigurationAction implements ConfigurationAct
       return result;
    }
 
-   public List<Element> createExcludeList(String[] excludes) {
+   public List<Element> createExcludeList(String[] excludes, String path) {
       List<Element> result = null;
       if (excludes != null) {
          result = new LinkedList<Element>();
          Document document = provider.getDocument();
+         int limit = path.length();
+         if (!path.endsWith("/")) {
+            limit++;
+         }
          for (String exclude : excludes) {
             Element excludeElem = document.createElement("exclude");
+            if(exclude.startsWith(path)){
+               exclude = exclude.substring(limit);
+            }
             excludeElem.setAttribute("wildcard", exclude);
             result.add(excludeElem);
          }
