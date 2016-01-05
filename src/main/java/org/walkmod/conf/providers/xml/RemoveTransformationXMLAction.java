@@ -59,6 +59,7 @@ public class RemoveTransformationXMLAction extends AbstractXMLConfigurationActio
 							if (transformations.contains(type)) {
 								child.removeChild(aux);
 								modified = true;
+								i--;
 							}
 						}
 					}
@@ -71,6 +72,7 @@ public class RemoveTransformationXMLAction extends AbstractXMLConfigurationActio
 						String type = child.getAttribute("type");
 						if (transformations.contains(type)) {
 							rootNode.removeChild(child);
+							i--;
 							modified = true;
 						}
 					}
