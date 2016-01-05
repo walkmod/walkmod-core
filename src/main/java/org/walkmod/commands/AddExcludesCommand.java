@@ -22,7 +22,9 @@ import org.walkmod.WalkModFacade;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 
+@Parameters(separators = "=", commandDescription = "Adds exclude rules to the configuration.")
 public class AddExcludesCommand implements Command {
 
 	@Parameter(description = "List of excludes to add", required = true)

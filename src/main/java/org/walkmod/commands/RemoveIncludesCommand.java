@@ -22,7 +22,9 @@ import org.walkmod.WalkModFacade;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 
+@Parameters(separators = "=", commandDescription = "Removes include rules from the configuration.")
 public class RemoveIncludesCommand implements Command {
 
 	@Parameter(description = "List of excludes to remove", required = true)
