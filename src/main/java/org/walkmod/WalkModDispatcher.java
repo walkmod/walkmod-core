@@ -113,7 +113,6 @@ public class WalkModDispatcher {
 		commands.put("add-excludes", new AddExcludesCommand(jcommander));
 		commands.put("add-includes", new AddIncludesCommand(jcommander));
 		commands.put("add-module", new AddModuleCommand(jcommander));
-		commands.put("add-param", new AddParamCommand(jcommander));
 		commands.put("add-plugin", new AddPluginCommand(jcommander));
 		commands.put("add-provider", new AddCfgProviderCommand(jcommander));
 		commands.put("apply", new ApplyCommand(jcommander));
