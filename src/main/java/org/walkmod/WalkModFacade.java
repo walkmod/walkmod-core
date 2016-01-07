@@ -1174,6 +1174,7 @@ public class WalkModFacade {
 	 * @param recursive
 	 *            If to set the writer to all the submodules.
 	 * @param params 
+	 *            Writer parameters
 	 * @throws Exception
 	 *             if the walkmod configuration file can't be read.
 	 */
@@ -1212,7 +1213,8 @@ public class WalkModFacade {
 	 *            Reader path to set
 	 * @param recursive
 	 *            If to set the reader to all the submodules.
-	 * @param params 
+	 * @param params
+	 *            Reader parameters 
 	 * @throws Exception
 	 *             if the walkmod configuration file can't be read.
 	 */
