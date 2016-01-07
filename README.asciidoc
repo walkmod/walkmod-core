@@ -30,7 +30,7 @@ You just need the following dependency:
 <dependency>
     <groupId>org.walkmod</groupId>
     <artifactId>walkmod-core</artifactId>
-    <version>2.0</version>
+    <version>2.2.0</version>
 </dependency>
 ----
 
