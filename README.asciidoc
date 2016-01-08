@@ -7,6 +7,7 @@ Raquel Pau <raquelpau@gmail.com>
 image:https://travis-ci.org/rpau/walkmod-core.svg?branch=master["Build Status", link="https://travis-ci.org/rpau/walkmod-core"]
 image:https://badges.gitter.im/Join Chat.svg["Chat",link="https://gitter.im/{project-full-path}?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
 image:https://ci.appveyor.com/api/projects/status/2q35s9gt9bqaw558/branch/dev?svg=true["Windows Build Status", link="https://ci.appveyor.com/project/rpau/walkmod-core"]
+image:http://walkmod.com/pulls/rpau/walkmod-core/master/status.svg["Code Status", link="http://walkmod.com/rpau/"]
 
 This project, called http://www.walkmod.com[walkmod], is an open source tool to apply coding conventions. Walkmod can support with 
 any programming language if a set of interfaces are implemented as a third party plugin. The first (and current)
