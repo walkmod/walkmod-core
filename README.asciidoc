@@ -12,7 +12,7 @@ image:http://walkmod.com/pulls/rpau/walkmod-core/master/status.svg["Code Status"
 This project, called http://www.walkmod.com[walkmod], is an open source tool to apply coding conventions. Walkmod can support with 
 any programming language if a set of interfaces are implemented as a third party plugin. The first (and current)
 supported language is Java. So, walkmod is completely modularized and you can extend their features (like Maven), 
-by plugins (see http://walkmod.com/plugins.html[plugins] ). 
+by plugins (see http://walkmod.com/pluginslist[plugins] ). 
 
 This respository contains the core library to load the configuration files and apply a chain of code transformations ( file by file ) 
 and required to build plugins. Anyway, you can use this library to help us to create a Walkmod ecosystem where other development tools
