@@ -147,7 +147,7 @@ public class WalkModException extends RuntimeException {
 	public String toString() {
 		String msg = getMessage();
 		if (msg == null && getCause() != null) {
-			msg = getCause().getMessage();
+			msg = getCause().toString();
 		}
 		if (location != null) {
 			if (msg != null) {
