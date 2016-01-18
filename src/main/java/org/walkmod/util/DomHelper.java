@@ -15,6 +15,7 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.util;
 
+import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -41,6 +42,17 @@ public class DomHelper {
 
 	public static Location getLocationObject(Element element) {
 		return null;//LocationAttributes.getLocation(element);
+	}
+
+	private static final Map<String, String> urlMappings = createUrlMappings();
+
+	private static Map<String, String> createUrlMappings() {
+		Map<String, String> mappings = new HashMap<String, String>();
+		mappings.put("http://www.walkmod.com/dtd/walkmod-1.1.dtd", "walkmod-1.1.dtd");
+		mappings.put("http://www.walkmod.com/dtd/walkmod-1.0.dtd", "walkmod-1.0.dtd");
+		mappings.put("http://www.walkmod.com/dtd/walkmod-lang-1.0.dtd", "walkmod-lang-1.0.dtd");
+		mappings.put("http://www.walkmod.com/dtd/walkmod-plugins-1.0.dtd", "walkmod-plugins-1.0.dtd");
+		return mappings;
 	}
 
 	/**
@@ -310,9 +322,16 @@ public class DomHelper {
 		@Override
 		public InputSource resolveEntity(String publicId, String systemId) {
 			if (dtdMappings != null && dtdMappings.containsKey(publicId)) {
-				String val = dtdMappings.get(publicId).toString();
+				String val = dtdMappings.get(publicId);
+				LOG.debug("Found " + publicId + " in dtdMappings, using " +  val);
 				return new InputSource(ClassLoaderUtil.getResourceAsStream(val, DomHelper.class));
 			}
+			if (urlMappings.containsKey(systemId)) {
+				String val = urlMappings.get(systemId);
+				LOG.debug("Found " + systemId + " in urlMappings, using " +  val);
+				return new InputSource(ClassLoaderUtil.getResourceAsStream(val, DomHelper.class));
+			}
+			LOG.debug("Cannot find entity with publicId:" + publicId + " and systemId: " + systemId);
 			return null;
 		}
 

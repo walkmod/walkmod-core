@@ -162,7 +162,9 @@ public class PrintPluginsCommand implements Command, AsciiTableAware {
 						}
 					}
 				} finally {
-					is.close();
+					if (is != null) {
+						is.close();
+					}
 				}
 				Set<String> keys = pluginsList.keySet();
 				List<String> sortedKeys = new LinkedList<String>(keys);
