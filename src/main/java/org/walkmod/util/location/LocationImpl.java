@@ -90,4 +90,14 @@ public class LocationImpl implements Location {
 		}
 		return snippet;
 	}
+
+	@Override
+	public String toString() {
+		return "LocationImpl{" +
+				"description='" + description + '\'' +
+				", URI='" + URI + '\'' +
+				", lineNumber=" + lineNumber +
+				", columnNumber=" + columnNumber +
+				'}';
+	}
 }
