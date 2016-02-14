@@ -26,7 +26,7 @@ public class XMLConfigurationProviderTest {
       prov.init(conf);
       prov.load();
       Assert.assertEquals(1, conf.getChainConfigs().size());
-      Assert.assertEquals("main-chain", conf.getChainConfigs().iterator().next().getName());
+      Assert.assertEquals("default", conf.getChainConfigs().iterator().next().getName());
    }
 
    @Test
