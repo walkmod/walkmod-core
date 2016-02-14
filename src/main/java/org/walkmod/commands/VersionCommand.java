@@ -22,7 +22,7 @@ public class VersionCommand implements Command {
 
 	@Override
 	public void execute() throws Exception {
-		System.out.println("Walkmod version \"2.2.0\"");
+		System.out.println("Walkmod version \"2.3.0\"");
 		System.out.println("Java version: " + System.getProperty("java.version"));
 		System.out.println("Java Home: " + System.getProperty("java.home"));
 		System.out.println("OS: " + System.getProperty("os.name") + ", Version: " + System.getProperty("os.version"));

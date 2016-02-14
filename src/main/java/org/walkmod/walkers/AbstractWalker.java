@@ -40,337 +40,348 @@ import org.walkmod.merger.Mergeable;
 
 public abstract class AbstractWalker implements ChainWalker {
 
-	public static final String NAMESPACE_SEPARATOR = "::";
+   public static final String NAMESPACE_SEPARATOR = "::";
 
-	private List<Object> visitor;
+   private List<Object> visitor;
 
-	private Object writer;
+   private Object writer;
 
-	private Resource<?> resource;
+   private Resource<?> resource;
 
-	private String rootNamespace;
+   private String rootNamespace;
 
-	private ChainConfig chainConfig;
+   private ChainConfig chainConfig;
 
-	private Set<Object> visitedElements;
+   private Set<Object> visitedElements;
 
-	private Collection<VisitorMessage> visitorMessages;
+   private Collection<VisitorMessage> visitorMessages;
 
-	private static Logger log = Logger.getLogger(AbstractWalker.class);
+   private static Logger log = Logger.getLogger(AbstractWalker.class);
 
-	public static final String ORIGINAL_FILE_KEY = "original_file_key";
+   public static final String ORIGINAL_FILE_KEY = "original_file_key";
 
-	public AbstractWalker() {
-		this.visitedElements = new HashSet<Object>();
-		this.visitorMessages = new LinkedList<VisitorMessage>();
-	}
+   private List<String> constraintProviders = null;
 
-	@Override
-	public void setVisitors(List<Object> visitor) {
-		this.visitor = visitor;
-	}
+   public AbstractWalker() {
+      this.visitedElements = new HashSet<Object>();
+      this.visitorMessages = new LinkedList<VisitorMessage>();
+   }
 
-	protected void visit(Object element, List<Object> visitors, List<TransformationConfig> transformations,
-			VisitorContext context) throws Exception {
-		if (rootNamespace != null && !"".equals(rootNamespace)) {
-			String qualifiedName = getResource().getNearestNamespace(element, NAMESPACE_SEPARATOR);
-			if (rootNamespace.startsWith(qualifiedName)) {
-				return;
-			}
-		}
-		if (visitors.isEmpty()) {
-			context.addResultNode(element);
-		} else {
-			int index = 0;
-			for (Object visitor : visitors) {
-				boolean isMergeable = transformations.get(index).isMergeable();
-				String mergePolicy = transformations.get(index).getMergePolicy();
-				if (mergePolicy != null) {
-					isMergeable = true;
-				}
-				if (isMergeable && mergePolicy == null) {
-					mergePolicy = "default";
-				}
-				Method[] methods = visitor.getClass().getMethods();
-				List<Object> restVisitors = visitors.subList(index + 1, visitors.size());
-				List<TransformationConfig> restTransformations = transformations.subList(index + 1,
-						transformations.size());
-				Set<String> visitedTypes = new HashSet<String>();
-				for (int j = 0; j < methods.length; j++) {
-					if (methods[j].getName().equals("visit")) {
-						Class<?> type = methods[j].getParameterTypes()[0];
-						if ((!visitedTypes.contains(element.getClass().getName())) && type.isInstance(element)) {
-							visitedTypes.add(type.getName());
-							int paramsLength = methods[j].getParameterTypes().length;
-							Object[] params = new Object[paramsLength];
-							params[0] = element;
-							VisitorContext args = new VisitorContext(getChainConfig());
-							args.putAll(context);
-							if (paramsLength == 2) {
-								params[1] = args;
-							}
-							methods[j].invoke(visitor, params);
-							context.getVisitorMessages().addAll(args.getVisitorMessages());
-							MergeEngine me = null;
-							if (isMergeable) {
-								me = chainConfig.getConfiguration().getMergeEngine(mergePolicy);
-							}
-							if (args.hasResultNodes()) {
+   @Override
+   public void setVisitors(List<Object> visitor) {
+      this.visitor = visitor;
+   }
 
-								Iterator<Object> it = args.getResultNodes().iterator();
+   @Override
+   public void setConstraintProviders(List<String> constraints) {
+      this.constraintProviders = constraints;
+   }
 
-								while (it.hasNext()) {
-									Object currentArg = it.next();
-									if (isMergeable) {
-										currentArg = merge(currentArg, me, context);
-									}
+   @Override
+   public List<String> getConstraintProviders() {
+      return constraintProviders;
+   }
 
-									context.addResultNode(currentArg);
+   protected void visit(Object element, List<Object> visitors, List<TransformationConfig> transformations,
+         VisitorContext context) throws Exception {
+      if (rootNamespace != null && !"".equals(rootNamespace)) {
+         String qualifiedName = getResource().getNearestNamespace(element, NAMESPACE_SEPARATOR);
+         if (rootNamespace.startsWith(qualifiedName)) {
+            return;
+         }
+      }
+      if (visitors.isEmpty()) {
+         context.addResultNode(element);
+      } else {
+         int index = 0;
+         for (Object visitor : visitors) {
+            boolean isMergeable = transformations.get(index).isMergeable();
+            String mergePolicy = transformations.get(index).getMergePolicy();
+            if (mergePolicy != null) {
+               isMergeable = true;
+            }
+            if (isMergeable && mergePolicy == null) {
+               mergePolicy = "default";
+            }
+            Method[] methods = visitor.getClass().getMethods();
+            List<Object> restVisitors = visitors.subList(index + 1, visitors.size());
+            List<TransformationConfig> restTransformations = transformations.subList(index + 1, transformations.size());
+            Set<String> visitedTypes = new HashSet<String>();
+            for (int j = 0; j < methods.length; j++) {
+               if (methods[j].getName().equals("visit")) {
+                  Class<?> type = methods[j].getParameterTypes()[0];
+                  if ((!visitedTypes.contains(element.getClass().getName())) && type.isInstance(element)) {
+                     visitedTypes.add(type.getName());
+                     int paramsLength = methods[j].getParameterTypes().length;
+                     Object[] params = new Object[paramsLength];
+                     params[0] = element;
+                     VisitorContext args = new VisitorContext(getChainConfig());
+                     args.putAll(context);
+                     if (paramsLength == 2) {
+                        params[1] = args;
+                     }
+                     methods[j].invoke(visitor, params);
+                     context.getVisitorMessages().addAll(args.getVisitorMessages());
+                     MergeEngine me = null;
+                     if (isMergeable) {
+                        me = chainConfig.getConfiguration().getMergeEngine(mergePolicy);
+                     }
+                     if (args.hasResultNodes()) {
 
-									visit(currentArg, restVisitors, restTransformations, context);
-									return;
+                        Iterator<Object> it = args.getResultNodes().iterator();
 
-								}
-							} else {
-								context.addResultNode(element);
-							}
-						}
-					}
-				}
-				index++;
-			}
-		}
-	}
+                        while (it.hasNext()) {
+                           Object currentArg = it.next();
+                           if (isMergeable) {
+                              currentArg = merge(currentArg, me, context);
+                           }
 
-	protected abstract Object getSourceNode(Object targetNode);
+                           context.addResultNode(currentArg);
 
-	protected void visit(Object element) throws Exception {
-		VisitorContext context = new VisitorContext(getChainConfig());
-		visit(element, context);
-		addVisitorMessages(context);
-	}
+                           visit(currentArg, restVisitors, restTransformations, context);
+                           return;
 
-	protected void visit(Object element, VisitorContext vc) throws Exception {
-		Collection<TransformationConfig> colTransformations = getChainConfig().getWalkerConfig().getTransformations();
-		List<TransformationConfig> transformations;
-		if (colTransformations instanceof List) {
-			transformations = getChainConfig().getWalkerConfig().getTransformations();
-		} else {
-			transformations = new LinkedList<TransformationConfig>(colTransformations);
-		}
-		visit(element, getVisitors(), transformations, vc);
-		if (vc.getResultNodes() != null) {
-			writeAll(vc.getResultNodes());
-		}
-	}
+                        }
+                     } else {
+                        context.addResultNode(element);
+                     }
+                  }
+               }
+            }
+            index++;
+         }
+      }
+   }
 
-	protected void writeAll(Collection<Object> elements) throws Exception {
-		if (elements != null) {
-			Iterator<Object> it = elements.iterator();
-			while (it.hasNext()) {
-				write(it.next());
-			}
-		}
-	}
+   protected abstract Object getSourceNode(Object targetNode);
 
-	protected void write(Object element) throws Exception {
-		write(element, null);
-	}
+   protected void visit(Object element) throws Exception {
+      VisitorContext context = new VisitorContext(getChainConfig());
+      visit(element, context);
+      addVisitorMessages(context);
+   }
 
-	protected void write(Object element, VisitorContext vc) throws Exception {
-		Method[] methods = writer.getClass().getMethods();
-		for (int j = 0; j < methods.length; j++) {
-			if (methods[j].getName().equals("write")) {
-				Class<?> type = methods[j].getParameterTypes()[0];
-				int paramsLength = methods[j].getParameterTypes().length;
-				Object[] params = new Object[paramsLength];
-				params[0] = element;
-				if (paramsLength == 2) {
-					params[1] = vc;
-				}
-				if (type.isInstance(element)) {
-					methods[j].invoke(writer, params);
-				}
-			}
-		}
-	}
+   protected void visit(Object element, VisitorContext vc) throws Exception {
+      Collection<TransformationConfig> colTransformations = getChainConfig().getWalkerConfig().getTransformations();
+      List<TransformationConfig> transformations;
+      if (colTransformations instanceof List) {
+         transformations = getChainConfig().getWalkerConfig().getTransformations();
+      } else {
+         transformations = new LinkedList<TransformationConfig>(colTransformations);
+      }
+      visit(element, getVisitors(), transformations, vc);
+      if (vc.getResultNodes() != null) {
+         writeAll(vc.getResultNodes());
+      }
+   }
 
-	public boolean isVisitable(Object element) throws Exception {
-		if (rootNamespace != null && !"".equals(rootNamespace)) {
-			String qualifiedName = getResource().getNearestNamespace(element, NAMESPACE_SEPARATOR);
-			if (!qualifiedName.startsWith(rootNamespace)) {
-				return false;
-			}
-		}
-		return visitedElements.add(element);
-	}
+   protected void writeAll(Collection<Object> elements) throws Exception {
+      if (elements != null) {
+         Iterator<Object> it = elements.iterator();
+         while (it.hasNext()) {
+            write(it.next());
+         }
+      }
+   }
 
-	@Override
-	public List<Object> getVisitors() {
-		return visitor;
-	}
+   protected void write(Object element) throws Exception {
+      write(element, null);
+   }
 
-	@Override
-	public void setResource(Resource<?> resource) {
-		this.resource = resource;
-	}
+   protected void write(Object element, VisitorContext vc) throws Exception {
+      Method[] methods = writer.getClass().getMethods();
+      for (int j = 0; j < methods.length; j++) {
+         if (methods[j].getName().equals("write")) {
+            Class<?> type = methods[j].getParameterTypes()[0];
+            int paramsLength = methods[j].getParameterTypes().length;
+            Object[] params = new Object[paramsLength];
+            params[0] = element;
+            if (paramsLength == 2) {
+               params[1] = vc;
+            }
+            if (type.isInstance(element)) {
+               methods[j].invoke(writer, params);
+            }
+         }
+      }
+   }
 
-	public Resource<?> getResource() {
-		return resource;
-	}
+   public boolean isVisitable(Object element) throws Exception {
+      if (rootNamespace != null && !"".equals(rootNamespace)) {
+         String qualifiedName = getResource().getNearestNamespace(element, NAMESPACE_SEPARATOR);
+         if (!qualifiedName.startsWith(rootNamespace)) {
+            return false;
+         }
+      }
+      return visitedElements.add(element);
+   }
 
-	public Set<Object> getVisitedElements() {
-		return visitedElements;
-	}
+   @Override
+   public List<Object> getVisitors() {
+      return visitor;
+   }
 
-	public void setVisitedElements(Set<Object> visitedElements) {
-		this.visitedElements = visitedElements;
-	}
+   @Override
+   public void setResource(Resource<?> resource) {
+      this.resource = resource;
+   }
 
-	@Override
-	public void setRootNamespace(String namespace) {
-		this.rootNamespace = namespace;
-	}
+   public Resource<?> getResource() {
+      return resource;
+   }
 
-	public String getRootNamespace() {
-		return rootNamespace;
-	}
+   public Set<Object> getVisitedElements() {
+      return visitedElements;
+   }
 
-	public void walk(Object element) throws Exception {
-		if (element != null) {
-			Collection<java.lang.Class<?>> types = new LinkedList<Class<?>>();
-			types.add(element.getClass());
-			Queue<java.lang.Class<?>> interfaces = new ConcurrentLinkedQueue<java.lang.Class<?>>(types);
-			Collection<java.lang.Class<?>> visitedTypes = new LinkedList<java.lang.Class<?>>();
-			while (interfaces.size() > 0) {
-				java.lang.Class<?> type = interfaces.poll();
-				if (visitedTypes.add(type)) {
-					try {
-						Method m = this.getClass().getMethod("accept", type);
-						m.invoke(this, element);
-						interfaces.addAll(Arrays.asList(type.getInterfaces()));
-					} catch (NoSuchMethodException e) {
-					}
-				}
-			}
-		}
-	}
+   public void setVisitedElements(Set<Object> visitedElements) {
+      this.visitedElements = visitedElements;
+   }
 
-	@Override
-	public void execute() throws Exception {
-		Iterator<?> it = getResource().iterator();
-		while (it.hasNext()) {
-			Object current = it.next();
-			try {
-				walk(current);
-			} catch (WalkModException e) {
-				log.error(e.getMessage());
-			}
-		}
-	}
+   @Override
+   public void setRootNamespace(String namespace) {
+      this.rootNamespace = namespace;
+   }
 
-	@Override
-	public void setWriter(Object writer) {
-		this.writer = writer;
-	}
+   public String getRootNamespace() {
+      return rootNamespace;
+   }
 
-	public Object getWriter() {
-		return writer;
-	}
+   public void walk(Object element) throws Exception {
+      if (element != null) {
+         Collection<java.lang.Class<?>> types = new LinkedList<Class<?>>();
+         types.add(element.getClass());
+         Queue<java.lang.Class<?>> interfaces = new ConcurrentLinkedQueue<java.lang.Class<?>>(types);
+         Collection<java.lang.Class<?>> visitedTypes = new LinkedList<java.lang.Class<?>>();
+         while (interfaces.size() > 0) {
+            java.lang.Class<?> type = interfaces.poll();
+            if (visitedTypes.add(type)) {
+               try {
+                  Method m = this.getClass().getMethod("accept", type);
+                  m.invoke(this, element);
+                  interfaces.addAll(Arrays.asList(type.getInterfaces()));
+               } catch (NoSuchMethodException e) {
+               }
+            }
+         }
+      }
+   }
 
-	public ChainConfig getChainConfig() {
-		return chainConfig;
-	}
+   @Override
+   public void execute() throws Exception {
+      Iterator<?> it = getResource().iterator();
+      while (it.hasNext()) {
+         Object current = it.next();
+         try {
+            walk(current);
+         } catch (WalkModException e) {
+            log.error(e.getMessage());
+         }
+      }
+   }
 
-	public void setChainConfig(ChainConfig chainConfig) {
-		this.chainConfig = chainConfig;
-	}
+   @Override
+   public void setWriter(Object writer) {
+      this.writer = writer;
+   }
 
-	public Collection<VisitorMessage> getVisitorMessages() {
-		return visitorMessages;
-	}
+   public Object getWriter() {
+      return writer;
+   }
 
-	protected void addVisitorMessages(VisitorContext ctx) {
-		Collection<String> messages = ctx.getVisitorMessages();
-		String location = getLocation(ctx);
-		for (String message : messages) {
-			VisitorMessage m = new VisitorMessage(location, message);
-			this.visitorMessages.add(m);
-		}
-	}
+   public ChainConfig getChainConfig() {
+      return chainConfig;
+   }
 
-	protected abstract String getLocation(VisitorContext ctx);
+   public void setChainConfig(ChainConfig chainConfig) {
+      this.chainConfig = chainConfig;
+   }
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected Object merge(Object object, MergeEngine mergeEngine, VisitorContext vc) {
+   public Collection<VisitorMessage> getVisitorMessages() {
+      return visitorMessages;
+   }
 
-		Object local = null;
-		Collection<Object> rnodes = vc.getResultNodes();
-		boolean previousResult = false;
-		Iterator<Object> it = rnodes.iterator();
-		if (object instanceof IdentificableNode) {
-			local = null;
-			Comparator cmp = ((IdentificableNode) object).getIdentityComparator();
-			boolean deleted = false;
-			while (it.hasNext() && local == null) {
-				Object current = it.next();
-				if (current == object) {
-					it.remove();
-					deleted = true;
-				} else if (object.getClass().equals(current.getClass())) {
-					if (cmp.compare(current, object) == 0) {
-						if (deleted) {
-							local = object;
-							object = current;
-						} else {
-							local = current;
-						}
-					}
-				}
-			}
-		} else {
-			it = rnodes.iterator();
-			while (it.hasNext() && local == null) {
-				Object current = it.next();
-				if (current == object) {
-					it.remove();
-				} else if (current.equals(object)) {
-					local = current;
-				}
-			}
-		}
-		previousResult = local != null;
-		if (!previousResult) {
-			local = getSourceNode(object);
-		}
+   protected void addVisitorMessages(VisitorContext ctx) {
+      Collection<String> messages = ctx.getVisitorMessages();
+      String location = getLocation(ctx);
+      for (String message : messages) {
+         VisitorMessage m = new VisitorMessage(location, message);
+         this.visitorMessages.add(m);
+      }
+   }
 
-		if (local != null) {
-			if (object instanceof Mergeable) {
+   protected abstract String getLocation(VisitorContext ctx);
 
-				((Mergeable) local).merge(object, mergeEngine);
+   @SuppressWarnings({ "rawtypes", "unchecked" })
+   protected Object merge(Object object, MergeEngine mergeEngine, VisitorContext vc) {
 
-				if (previousResult) {
-					it.remove();
-				}
+      Object local = null;
+      Collection<Object> rnodes = vc.getResultNodes();
+      boolean previousResult = false;
+      Iterator<Object> it = rnodes.iterator();
+      if (object instanceof IdentificableNode) {
+         local = null;
+         Comparator cmp = ((IdentificableNode) object).getIdentityComparator();
+         boolean deleted = false;
+         while (it.hasNext() && local == null) {
+            Object current = it.next();
+            if (current == object) {
+               it.remove();
+               deleted = true;
+            } else if (object.getClass().equals(current.getClass())) {
+               if (cmp.compare(current, object) == 0) {
+                  if (deleted) {
+                     local = object;
+                     object = current;
+                  } else {
+                     local = current;
+                  }
+               }
+            }
+         }
+      } else {
+         it = rnodes.iterator();
+         while (it.hasNext() && local == null) {
+            Object current = it.next();
+            if (current == object) {
+               it.remove();
+            } else if (current.equals(object)) {
+               local = current;
+            }
+         }
+      }
+      previousResult = local != null;
+      if (!previousResult) {
+         local = getSourceNode(object);
+      }
 
-				return local;
+      if (local != null) {
+         if (object instanceof Mergeable) {
 
-			} else {
-				if (previousResult) {
-					it.remove();
-					// vc.addResultNode(object);
-				}
-				return object;
-			}
-		}
-		if (previousResult) {
-			it.remove();
-		}
-		return local;
-	}
+            ((Mergeable) local).merge(object, mergeEngine);
 
-	@Override
-	public boolean hasChanges() {
-		return !(getNumModifications() == 0 && getNumAdditions() == 0 && getNumDeletions() == 0);
-	}
+            if (previousResult) {
+               it.remove();
+            }
+
+            return local;
+
+         } else {
+            if (previousResult) {
+               it.remove();
+               // vc.addResultNode(object);
+            }
+            return object;
+         }
+      }
+      if (previousResult) {
+         it.remove();
+      }
+      return local;
+   }
+
+   @Override
+   public boolean hasChanges() {
+      return !(getNumModifications() == 0 && getNumAdditions() == 0 && getNumDeletions() == 0);
+   }
 }

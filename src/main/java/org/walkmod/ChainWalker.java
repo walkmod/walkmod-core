@@ -33,6 +33,10 @@ public interface ChainWalker extends ParserAware {
 	public void setRootNamespace(String namespace);
 
 	public void setChainConfig(ChainConfig ac);
+	
+	public void setConstraintProviders(List<String> constraints);
+	
+	public List<String> getConstraintProviders();
 
 	public String getRootNamespace();
 
