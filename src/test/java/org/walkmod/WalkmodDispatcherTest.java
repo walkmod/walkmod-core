@@ -313,26 +313,25 @@ public class WalkmodDispatcherTest extends AbstractWalkmodExecutionTest {
 
    }
 
-   
    public void testTemplate() throws Exception {
       File tmp = new File("src/test/resources/add-template").getCanonicalFile();
       tmp.mkdirs();
       File walkmodCfg = new File(tmp, "walkmod.xml");
       walkmodCfg.delete();
-    
+
       String code = "package foo; public class Bar { public String bar; }";
       File srcDir = new File(tmp, "src/main/java/foo");
       srcDir.mkdirs();
       File srcFile = new File(srcDir, "Foo.java").getAbsoluteFile();
       FileUtils.write(srcFile, code);
       String templateFile = new File(tmp, "jpa-id.groovy").getAbsolutePath();
-      
+
       String userDir = new File(System.getProperty("user.dir")).getCanonicalPath();
       System.setProperty("user.dir", tmp.getAbsolutePath());
 
       try {
-        
-         run(new String[] { "add", "--isMergeable", "--name=jpa-id", "-Dtemplates=[\""+templateFile+"\"]",
+
+         run(new String[] { "add", "--isMergeable", "--name=jpa-id", "-Dtemplates=[\"" + templateFile + "\"]",
                "template" });
          String aux = run(new String[] { "apply", "-e" });
          System.out.println(aux);
@@ -343,6 +342,23 @@ public class WalkmodDispatcherTest extends AbstractWalkmodExecutionTest {
          System.setProperty("user.dir", userDir);
       }
 
+   }
+
+   @Test
+   public void testAddMvnConfProviderWithExtraArgs() throws Exception {
+      File tmp = new File("src/test/resources/add-mvn").getCanonicalFile();
+      tmp.mkdirs();
+      File walkmodCfg = new File(tmp, "walkmod.xml");
+      walkmodCfg.delete();
+      String userDir = new File(System.getProperty("user.dir")).getCanonicalPath();
+      System.setProperty("user.dir", tmp.getAbsolutePath());
+      try {
+         run(new String[] { "add-provider", "-DmavenArgs=\"-Dversion=11.0 -Drelease=0\"", "maven" });
+      } finally {
+         System.setProperty("user.dir", userDir);
+      }
+      String cfg = FileUtils.readFileToString(walkmodCfg);
+      Assert.assertTrue(cfg.contains("mavenArgs"));
    }
 
 }

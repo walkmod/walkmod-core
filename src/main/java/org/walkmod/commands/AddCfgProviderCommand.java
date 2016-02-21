@@ -15,74 +15,75 @@
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.commands;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.walkmod.OptionsBuilder;
 import org.walkmod.WalkModFacade;
-import org.walkmod.conf.entities.JSONConfigParser;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.impl.ProviderConfigImpl;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.fasterxml.jackson.databind.JsonNode;
 
 @Parameters(separators = "=", commandDescription = "Adds a configuration provider.")
 public class AddCfgProviderCommand implements Command {
 
-	@Parameter(arity = 1, description = "The configuration provider type identifier", required = true)
-	private List<String> type;
+   @Parameter(arity = 1, description = "The configuration provider type identifier", required = true)
+   private List<String> type;
 
-	@Parameter(names = "--params", description = "Transformation parameters as JSON object", converter = JSONConverter.class)
-	private JsonNode params;
+   @DynamicParameter(names = "-D", description = "Dynamic transformation parameters go here")
+   private Map<String, String> params = new HashMap<String, String>();
 
-	private JCommander command;
+   private JCommander command;
 
-	@Parameter(names = "--help", help = true, hidden = true)
-	private boolean help;
+   @Parameter(names = "--help", help = true, hidden = true)
+   private boolean help;
 
-	@Parameter(names = { "--recursive", "-R" }, description = "Adds the provider to all submodules")
-	private boolean recursive = false;
+   @Parameter(names = { "--recursive", "-R" }, description = "Adds the provider to all submodules")
+   private boolean recursive = false;
 
-	@Parameter(names = { "-e", "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
-	private Boolean printErrors = false;
+   @Parameter(names = { "-e",
+         "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
+   private Boolean printErrors = false;
 
-	public AddCfgProviderCommand(JCommander command) {
-		this.command = command;
-	}
+   public AddCfgProviderCommand(JCommander command) {
+      this.command = command;
+   }
 
-	public AddCfgProviderCommand(String type, JsonNode params) {
-		this.type = new LinkedList<String>();
-		this.type.add(type);
-		this.params = params;
-	}
+   public AddCfgProviderCommand(String type, Map<String, String> params) {
+      this.type = new LinkedList<String>();
+      this.type.add(type);
+      this.params = params;
+   }
 
-	public ProviderConfig build() throws Exception {
-		ProviderConfig prov = new ProviderConfigImpl();
+   public ProviderConfig build() throws Exception {
+      ProviderConfig prov = new ProviderConfigImpl();
 
-		prov.setType(type.get(0));
+      prov.setType(type.get(0));
 
-		if (params != null) {
-			JSONConfigParser parser = new JSONConfigParser();
+      if (params != null) {
 
-			prov.setParameters(parser.getParams(params));
-		}
+         prov.setParameters(new HashMap<String, Object>(params));
+      }
 
-		return prov;
-	}
+      return prov;
+   }
 
-	@Override
-	public void execute() throws Exception {
-		if (help) {
-			command.usage("add-provider");
-		} else {
+   @Override
+   public void execute() throws Exception {
+      if (help) {
+         command.usage("add-provider");
+      } else {
 
-			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
-			facade.addProviderConfig(build(), recursive);
-		}
+         WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
+         facade.addProviderConfig(build(), recursive);
+      }
 
-	}
+   }
 
 }
