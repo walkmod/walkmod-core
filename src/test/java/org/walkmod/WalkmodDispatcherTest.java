@@ -289,46 +289,60 @@ public class WalkmodDispatcherTest extends AbstractWalkmodExecutionTest {
    @Test
    public void testScript() throws Exception {
       File tmp = new File("src/test/resources/add-script").getAbsoluteFile();
-      File scriptPath = new File("src/test/resources/scripts/myscript.groovy").getAbsoluteFile();
+      tmp.mkdirs();
+      File walkmodCfg = new File(tmp, "walkmod.xml");
+      walkmodCfg.delete();
+      String scriptPath = new File("src/test/resources/scripts/myscript.groovy").getAbsolutePath();
       String code = "public class Foo { public String bar; }";
       File srcDir = new File(tmp, "src/main/java");
       srcDir.mkdirs();
-      FileUtils.write(new File(srcDir, "Foo.java"), code);
+      File srcFile = new File(srcDir, "Foo.java").getAbsoluteFile();
+      FileUtils.write(srcFile, code);
 
-      String userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+      String userDir = new File(System.getProperty("user.dir")).getCanonicalPath();
       System.setProperty("user.dir", tmp.getAbsolutePath());
 
       try {
-         run(new String[] { "add", "--name=private-fields", "-Dlocation=" + scriptPath.getAbsolutePath(), "script" });
+         run(new String[] { "add", "--name=private-fields", "-Dlocation=" + scriptPath, "script" });
          run(new String[] { "apply" });
+         String newContent = FileUtils.readFileToString(srcFile);
+         Assert.assertTrue(newContent.contains("private String"));
       } finally {
          System.setProperty("user.dir", userDir);
       }
-      String newContent = FileUtils.readFileToString(new File(srcDir, "Foo.java"));
-      Assert.assertTrue(newContent.contains("private String"));
+
    }
 
-   @Test
+   
    public void testTemplate() throws Exception {
-      File tmp = new File("src/test/resources/add-template").getAbsoluteFile();
-      File scriptPath = new File("src/test/resources/templates/jpa-id.groovy").getAbsoluteFile();
+      File tmp = new File("src/test/resources/add-template").getCanonicalFile();
+      tmp.mkdirs();
+      File walkmodCfg = new File(tmp, "walkmod.xml");
+      walkmodCfg.delete();
+    
       String code = "package foo; public class Bar { public String bar; }";
       File srcDir = new File(tmp, "src/main/java/foo");
       srcDir.mkdirs();
-      FileUtils.write(new File(srcDir, "Foo.java"), code);
-
-      String userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+      File srcFile = new File(srcDir, "Foo.java").getAbsoluteFile();
+      FileUtils.write(srcFile, code);
+      String templateFile = new File(tmp, "jpa-id.groovy").getAbsolutePath();
+      
+      String userDir = new File(System.getProperty("user.dir")).getCanonicalPath();
       System.setProperty("user.dir", tmp.getAbsolutePath());
-      String content = null;
+
       try {
-         run(new String[] { "add", "--isMergeable", "--name=jpa-id",
-            "-Dtemplates=[\"" + scriptPath.getAbsolutePath() + "\"]", "template" });
-         content = run(new String[] { "apply" });
+        
+         run(new String[] { "add", "--isMergeable", "--name=jpa-id", "-Dtemplates=[\""+templateFile+"\"]",
+               "template" });
+         String aux = run(new String[] { "apply", "-e" });
+         System.out.println(aux);
+         String newContent = FileUtils.readFileToString(srcFile);
+         System.out.println(newContent);
+         Assert.assertTrue(newContent.contains("@Id"));
       } finally {
          System.setProperty("user.dir", userDir);
       }
-      String newContent = FileUtils.readFileToString(new File(srcDir, "Foo.java"));
-      Assert.assertTrue(newContent.contains("@Id"));
+
    }
 
 }

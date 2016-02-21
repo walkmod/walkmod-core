@@ -1,0 +1,6 @@
+<!DOCTYPE walkmod PUBLIC "-//WALKMOD//DTD" "http://www.walkmod.com/dtd/walkmod-1.1.dtd">
+<walkmod>
+    <transformation name="private-fields" type="script">
+        <param name="location">/Users/rpau/walkmodhub/walkmod-core/src/test/resources/scripts/myscript.groovy</param>
+    </transformation>
+</walkmod>
