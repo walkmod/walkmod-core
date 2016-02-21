@@ -2,6 +2,8 @@ package org.walkmod.conf.providers;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -221,6 +223,34 @@ public class XMLConfigurationProviderTest {
          String content = FileUtils.readFileToString(xml);
 
          Assert.assertTrue(content.contains("imports-cleaner") && content.contains("src"));
+
+      } finally {
+         xml.delete();
+      }
+
+   }
+
+   @Test
+   public void testAddExternalTransformation() throws Exception {
+      File aux = new File("src/test/resources/xml");
+      aux.mkdirs();
+      File xml = new File(aux, "walkmod.xml");
+      XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
+      try {
+         prov.createConfig();
+         AddTransformationCommand command = new AddTransformationCommand("com.metricstream:metricstream:AddCurlyBraces",
+               null, false, null, null, null, null, false);
+         prov.addTransformationConfig(null, null, command.buildTransformationCfg(), false, null, null);
+
+         prov.load();
+         Collection<PluginConfig> plugins = prov.getConfiguration().getPlugins();
+         boolean containsMetricStream = false;
+         Iterator<PluginConfig> it = plugins.iterator();
+         while(it.hasNext() && !containsMetricStream){
+            PluginConfig next = it.next();
+            containsMetricStream = next.getGroupId().equals("com.metricstream") && next.getArtifactId().equals("walkmod-metricstream-plugin");
+         }
+         Assert.assertTrue(containsMetricStream);
 
       } finally {
          xml.delete();
@@ -1088,8 +1118,8 @@ public class XMLConfigurationProviderTest {
 
    @Test
    public void testAddParamToTheImplicitWriter() throws Exception {
-      AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null,
-            null, null, false);
+      AddTransformationCommand command = new AddTransformationCommand("imports-cleaner", null, false, null, null, null,
+            null, false);
       File aux = new File("src/test/resources/xmlwriter");
       if (aux.exists()) {
          FileUtils.deleteDirectory(aux);
@@ -1099,17 +1129,17 @@ public class XMLConfigurationProviderTest {
       XMLConfigurationProvider prov = new XMLConfigurationProvider(xml.getPath(), false);
       try {
          prov.createConfig();
-         
+
          TransformationConfig transfCfg = command.buildTransformationCfg();
          prov.addTransformationConfig(null, null, transfCfg, false, null, null);
-         
+
          prov.addConfigurationParameter("formatter", "formatter.xml", "eclipse-writer", "writer", null, null, false);
-         
+
          String output = FileUtils.readFileToString(xml);
          System.out.println(output);
 
          Assert.assertTrue(output.contains("formatter"));
-         
+
       } finally {
          FileUtils.deleteDirectory(aux);
       }

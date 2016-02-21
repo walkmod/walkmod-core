@@ -1,6 +1,6 @@
-<!DOCTYPE walkmod PUBLIC "-//WALKMOD//DTD" "http://www.walkmod.com/dtd/walkmod-1.0.dtd">
+<!DOCTYPE walkmod PUBLIC "-//WALKMOD//DTD" "http://www.walkmod.com/dtd/walkmod-1.1.dtd">
 <walkmod>
-	<transformation type="walkmod:commons:scripting">
+	<transformation type="script">
 		<param name="language">groovy </param>
 		<param name="location"> myscript.groovy </param>
 	</transformation>
