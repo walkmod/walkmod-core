@@ -81,6 +81,7 @@ public class VisitorMessagesWriter implements ChainWriter {
 						log.info(message);
 					}
 				}
+				Summary.getInstance().addFile(out);
 			}
 		}
 

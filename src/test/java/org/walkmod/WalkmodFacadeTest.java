@@ -206,8 +206,8 @@ public class WalkmodFacadeTest {
 		WalkModFacade facade = new WalkModFacade(cfg, OptionsBuilder.options().executionDirectory(executionDir)
 				.printErrors(true), null);
 		List<File> result = facade.check();
-		// check does not produce changes
-		assertThat(result.size(), Matchers.is(0));
+		
+		assertThat(result.size(), Matchers.is(2));
 
 		FileUtils.deleteDirectory(new File("module1/src"));
 		FileUtils.deleteDirectory(new File("module2/src"));
@@ -299,5 +299,33 @@ public class WalkmodFacadeTest {
 		Assert.assertEquals(path, System.getProperty("user.dir"));
 
 	}
+	
+	
+	@Test
+   public void facadeWithExecutionDirCheck() throws Exception {
+      String execDir = System.getProperty("user.dir");
+      File executionDir = new File("src/test/resources/testFiles");
+
+      File srcDir = new File(executionDir, "src/main/java");
+
+      srcDir.mkdirs();
+
+      FileUtils.write(new File(srcDir, "Bar.java"), "public class Bar { private int foo; }");
+
+      String path1 = new File(".").getCanonicalPath();
+      WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options().executionDirectory(executionDir)
+            .printErrors(true), null);
+
+      List<File> result = facade.check();
+      assertThat(result.get(0), Matchers.notNullValue());
+
+      String path = new File(".").getCanonicalPath();
+      assertThat(path, Matchers.equalTo(path1));
+
+      result.get(0).delete();
+      Assert.assertEquals(execDir, System.getProperty("user.dir"));
+   }
+	
+	
 
 }

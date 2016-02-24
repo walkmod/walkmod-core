@@ -360,5 +360,29 @@ public class WalkmodDispatcherTest extends AbstractWalkmodExecutionTest {
       String cfg = FileUtils.readFileToString(walkmodCfg);
       Assert.assertTrue(cfg.contains("mavenArgs"));
    }
+   
+   @Test
+   public void testDifferentDirectories() throws Exception {
+      File tmp = new File("src/test/resources/different-folders").getCanonicalFile();
+      File producedOutput = new File(tmp, "src/main/java-out/Foo.java");
+      if(producedOutput.exists()){
+         producedOutput.delete();
+      }
+      
+      String userDir = new File(System.getProperty("user.dir")).getCanonicalPath();
+      System.setProperty("user.dir", tmp.getAbsolutePath());
+      String code ="";
+      try {
+         code = run(new String[] { "apply", "-e"});
+      } finally {
+         System.setProperty("user.dir", userDir);
+      }
+      producedOutput = producedOutput.getCanonicalFile();
+      
+      System.out.println(code);
+      Assert.assertTrue(producedOutput.exists());
+      producedOutput.delete();
+   }
+
 
 }

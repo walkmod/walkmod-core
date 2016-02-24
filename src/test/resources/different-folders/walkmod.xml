@@ -1,0 +1,8 @@
+<!DOCTYPE walkmod PUBLIC "-//WALKMOD//DTD" "http://www.walkmod.com/dtd/walkmod-1.1.dtd">
+<walkmod>
+    <chain name="default">
+        <reader path="src/main/java"/>
+        <transformation type="override"/>
+        <writer path="src/main/java-out" type="javalang:string-writer"/>
+    </chain>
+</walkmod>
