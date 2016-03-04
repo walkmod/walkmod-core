@@ -52,157 +52,160 @@ import de.vandermeer.asciitable.v2.V2_AsciiTable;
 @Parameters(separators = "=", commandDescription = "Shows the available walkmod plugins created by the community.")
 public class PrintPluginsCommand implements Command, AsciiTableAware {
 
-	public final static String MVN_SEARCH_URL = "https://search.maven.org/solrsearch/select?q=walkmod&&rows=50&&wt=json";
+   public final static String MVN_SEARCH_URL = "https://search.maven.org/solrsearch/select?q=walkmod&&rows=50&&wt=json";
 
-	public final static String ARTIFACT_DETAILS_URL = "https://search.maven.org/remotecontent?filepath=";
+   public final static String ARTIFACT_DETAILS_URL = "https://search.maven.org/remotecontent?filepath=";
 
-	@Parameter(names = "--help", help = true, hidden = true)
-	private boolean help;
+   @Parameter(names = "--help", help = true, hidden = true)
+   private boolean help;
 
-	private JCommander command;
+   private JCommander command;
 
-	private V2_AsciiTable at = null;
+   private V2_AsciiTable at = null;
 
-	public PrintPluginsCommand(JCommander command) {
-		this.command = command;
-	}
+   public PrintPluginsCommand(JCommander command) {
+      this.command = command;
+   }
 
-	public void execute() {
-		if (help) {
-			command.usage("init");
-		} else {
-			try {
-				WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
-				Configuration cfg = facade.getConfiguration();
+   public void execute() {
+      if (help) {
+         command.usage("init");
+      } else {
+         try {
+            WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+            Configuration cfg = facade.getConfiguration();
 
-				Collection<PluginConfig> installedPlugins = null;
-				if (cfg != null) {
-					installedPlugins = cfg.getPlugins();
-				}
-				URL searchURL = new URL(MVN_SEARCH_URL);
-				InputStream is = null;
-				Map<String, Boolean> installedList = new LinkedHashMap<String, Boolean>();
-				Map<String, String> pluginsList = new LinkedHashMap<String, String>();
-				Map<String, String> pluginsURLs = new LinkedHashMap<String, String>();
-				try {
-					is = searchURL.openStream();
+            Collection<PluginConfig> installedPlugins = null;
+            if (cfg != null) {
+               installedPlugins = cfg.getPlugins();
+            }
+            URL searchURL = new URL(MVN_SEARCH_URL);
+            InputStream is = null;
+            Map<String, Boolean> installedList = new LinkedHashMap<String, Boolean>();
+            Map<String, String> pluginsList = new LinkedHashMap<String, String>();
+            Map<String, String> pluginsURLs = new LinkedHashMap<String, String>();
+            try {
+               is = searchURL.openStream();
 
-					String content = readInputStreamAsString(is);
-					DefaultJSONParser parser = new DefaultJSONParser(content);
-					JSONObject object = parser.parseObject();
-					parser.close();
+               String content = readInputStreamAsString(is);
+               DefaultJSONParser parser = new DefaultJSONParser(content);
+               JSONObject object = parser.parseObject();
+               parser.close();
 
-					JSONArray artifactList = (object.getJSONObject("response")).getJSONArray("docs");
+               JSONArray artifactList = (object.getJSONObject("response")).getJSONArray("docs");
 
-					for (int i = 0; i < artifactList.size(); i++) {
-						JSONObject artifact = artifactList.getJSONObject(i);
-						String artifactId = artifact.getString("a");
-						if (artifactId.startsWith("walkmod-") && artifactId.endsWith("-plugin")) {
-							String groupId = artifact.getString("g");
-							String latestVersion = artifact.getString("latestVersion");
-							String pom = artifactId + "-" + latestVersion + ".pom";
-							String directory = groupId.replaceAll("\\.", "/");
+               for (int i = 0; i < artifactList.size(); i++) {
+                  JSONObject artifact = artifactList.getJSONObject(i);
+                  String artifactId = artifact.getString("a");
+                  if (artifactId.startsWith("walkmod-") && artifactId.endsWith("-plugin")) {
+                     String groupId = artifact.getString("g");
+                     String latestVersion = artifact.getString("latestVersion");
+                     String pom = artifactId + "-" + latestVersion + ".pom";
+                     String directory = groupId.replaceAll("\\.", "/");
 
-							URL artifactDetailsURL = new URL(ARTIFACT_DETAILS_URL + directory + "/" + artifactId + "/"
-									+ latestVersion + "/" + pom);
+                     URL artifactDetailsURL = new URL(
+                           ARTIFACT_DETAILS_URL + directory + "/" + artifactId + "/" + latestVersion + "/" + pom);
 
-							InputStream projectIs = artifactDetailsURL.openStream();
+                     InputStream projectIs = null;
+                     try {
+                        projectIs = artifactDetailsURL.openStream();
+                     } catch (Exception e) {
+                     }
+                     if (projectIs != null) {
+                        try {
+                           DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                           DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                           Document doc = dBuilder.parse(projectIs);
 
-							try {
-								DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-								DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-								Document doc = dBuilder.parse(projectIs);
+                           NodeList nList = doc.getElementsByTagName("description");
+                           String description = "unavailable description";
+                           if (nList.getLength() == 1) {
+                              description = nList.item(0).getTextContent();
+                           }
+                           String id = "";
+                           if (!groupId.equals("org.walkmod")) {
+                              id = groupId + ":";
+                           }
+                           id += artifactId.substring("walkmod-".length(), artifactId.length() - "-plugin".length());
 
-								NodeList nList = doc.getElementsByTagName("description");
-								String description = "unavailable description";
-								if (nList.getLength() == 1) {
-									description = nList.item(0).getTextContent();
-								}
-								String id = "";
-								if (!groupId.equals("org.walkmod")) {
-									id = groupId + ":";
-								}
-								id += artifactId.substring("walkmod-".length(),
-										artifactId.length() - "-plugin".length());
+                           if (Character.isLowerCase(description.charAt(0))) {
+                              description = Character.toUpperCase(description.charAt(0))
+                                    + description.substring(1, description.length());
+                           }
+                           if (!description.endsWith(".")) {
+                              description = description + ".";
+                           }
+                           pluginsList.put(id, description);
+                           nList = doc.getChildNodes().item(0).getChildNodes();
+                           int max = nList.getLength();
+                           String url = "unavailable url";
 
-								if (Character.isLowerCase(description.charAt(0))) {
-									description = Character.toUpperCase(description.charAt(0))
-											+ description.substring(1, description.length());
-								}
-								if (!description.endsWith(".")) {
-									description = description + ".";
-								}
-								pluginsList.put(id, description);
-								nList = doc.getChildNodes().item(0).getChildNodes();
-								int max = nList.getLength();
-								String url = "unavailable url";
+                           for (int j = 0; j < max; j++) {
+                              String name = nList.item(j).getNodeName();
+                              if (name.equals("url")) {
+                                 url = nList.item(j).getTextContent();
+                                 j = max;
+                              }
+                           }
 
-								for (int j = 0; j < max; j++) {
-									String name = nList.item(j).getNodeName();
-									if (name.equals("url")) {
-										url = nList.item(j).getTextContent();
-										j = max;
-									}
-								}
+                           pluginsURLs.put(id, url);
 
-								pluginsURLs.put(id, url);
+                           PluginConfig equivalentPluginCfg = new PluginConfigImpl();
+                           equivalentPluginCfg.setGroupId(groupId);
+                           equivalentPluginCfg.setArtifactId(artifactId);
 
-								PluginConfig equivalentPluginCfg = new PluginConfigImpl();
-								equivalentPluginCfg.setGroupId(groupId);
-								equivalentPluginCfg.setArtifactId(artifactId);
+                           boolean isInstalled = (installedPlugins != null
+                                 && installedPlugins.contains(equivalentPluginCfg));
 
-								boolean isInstalled = (installedPlugins != null && installedPlugins
-										.contains(equivalentPluginCfg));
+                           installedList.put(id, isInstalled);
 
-								installedList.put(id, isInstalled);
+                        } finally {
+                           projectIs.close();
+                        }
+                     }
+                  }
+               }
+            } finally {
+               is.close();
+            }
+            Set<String> keys = pluginsList.keySet();
+            List<String> sortedKeys = new LinkedList<String>(keys);
+            Collections.sort(sortedKeys);
 
-							} finally {
-								projectIs.close();
-							}
-						}
-					}
-				} finally {
-					is.close();
-				}
-				Set<String> keys = pluginsList.keySet();
-				List<String> sortedKeys = new LinkedList<String>(keys);
-				Collections.sort(sortedKeys);
+            at = new V2_AsciiTable();
+            at.addRule();
+            at.addRow("PLUGIN NAME (ID)", "RDY", "DESCRIPTION");
+            at.addStrongRule();
+            for (String key : sortedKeys) {
+               String installed = "";
+               if (installedList.get(key)) {
+                  installed = "*";
+               }
+               at.addRow(key, installed, pluginsList.get(key) + "\n\nURL:" + pluginsURLs.get(key));
+               at.addRule();
+            }
 
-				at = new V2_AsciiTable();
-				at.addRule();
-				at.addRow("PLUGIN NAME (ID)", "RDY", "DESCRIPTION");
-				at.addStrongRule();
-				for (String key : sortedKeys) {
-					String installed = "";
-					if (installedList.get(key)) {
-						installed = "*";
-					}
-					at.addRow(key, installed, pluginsList.get(key)+"\n\nURL:"+pluginsURLs.get(key));
-					at.addRule();
-				}
-				
+         } catch (Exception e) {
+            throw new WalkModException("Invalid plugins URL", e);
+         }
+      }
+   }
 
-			} catch (Exception e) {
-				throw new WalkModException("Invalid plugins URL", e);
-			}
-		}
-	}
+   private String readInputStreamAsString(InputStream is) throws IOException {
+      InputStreamReader reader = new InputStreamReader(is);
+      BufferedReader br = new BufferedReader(reader);
+      String line = br.readLine();
+      String response = "";
+      while (line != null) {
+         response += line + '\n';
+         line = br.readLine();
+      }
+      return response;
+   }
 
-	private String readInputStreamAsString(InputStream is) throws IOException {
-		InputStreamReader reader = new InputStreamReader(is);
-		BufferedReader br = new BufferedReader(reader);
-		String line = br.readLine();
-		String response = "";
-		while (line != null) {
-			response += line + '\n';
-			line = br.readLine();
-		}
-		return response;
-	}
-
-	@Override
-	public V2_AsciiTable getTable() {
-		return at;
-	}
+   @Override
+   public V2_AsciiTable getTable() {
+      return at;
+   }
 
 }

@@ -880,9 +880,9 @@ public class WalkModFacade {
 			int num = 0;
 			Iterator<ChainConfig> it = tcgfs.iterator();
 			int pos = 1;
+			
 			while (it.hasNext()) {
 				ChainConfig tcfg = it.next();
-
 				if (tcgfs.size() > 1) {
 					if (options.isVerbose()) {
 						String label = "";
@@ -958,6 +958,16 @@ public class WalkModFacade {
 					}
 					return;
 				}
+				
+				if(!it.hasNext()){
+              
+               if(tcgfs.size() >= pos){
+                  LinkedList<ChainConfig> aux = new LinkedList<ChainConfig>(tcgfs);
+                  it = aux.listIterator(pos-1);
+                 
+               }
+            }
+            
 			}
 
 			if (options.isVerbose()) {
@@ -1021,7 +1031,20 @@ public class WalkModFacade {
 			}
 			int num = 0;
 			try {
+			   int size = conf.getChainConfigs().size();
 				ap.execute();
+				
+				//we check if some other chain config has been added and execute them
+				if(conf.getChainConfigs().size() > size){
+				   LinkedList<ChainConfig> aux = new LinkedList<ChainConfig>(conf.getChainConfigs());
+				   Iterator<ChainConfig> it = aux.listIterator(size);
+				   while(it.hasNext()){
+				      ChainConfig tcfg = it.next();
+				      ChainAdapter auxAp = apf.createChainProxy(conf, tcfg.getName());
+				      auxAp.execute();
+				   }
+				}
+				
 				num = ap.getWalkerAdapter().getWalker().getNumModifications();
 				if (options.isVerbose()) {
 					endTime = System.currentTimeMillis();
