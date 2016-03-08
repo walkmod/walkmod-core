@@ -71,6 +71,12 @@ public class AbstractChainConfigurationProvider {
          if (gradle.exists()) {
             init = new InitializerConfigImpl();
             init.setType("gradle-initializer");
+         }else{
+             gradle = new File("build.gradle");
+             if (gradle.exists()) {
+                 init = new InitializerConfigImpl();
+                 init.setType("gradle-initializer");
+             }
          }
       }
       if (init != null) {
