@@ -69,18 +69,9 @@ public abstract class AbstractFileWriter implements ChainWriter {
 
 	public void write(Object n, VisitorContext vc) throws Exception {
 
-		File out = null;
-		boolean createdEmptyFile = false;
-		if (vc != null) {
-			out = (File) vc.get(AbstractWalker.ORIGINAL_FILE_KEY);
-		}
-		if (out == null) {
-			log.debug("Creating the target source file. This is not the original source file.");
-			out = createOutputDirectory(n);
-			createdEmptyFile = true;
-		} else {
-			log.debug("The system will overwrite the original source file.");
-		}
+		File out = createOutputDirectory(n);
+		boolean createdEmptyFile = (out.length() == 0);
+		
 		boolean write = true;
 		if (out != null) {
 			log.debug("Analyzing exclude and include rules");

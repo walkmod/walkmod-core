@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class WalkmodDispatcherTest extends AbstractWalkmodExecutionTest {
@@ -382,6 +383,34 @@ public class WalkmodDispatcherTest extends AbstractWalkmodExecutionTest {
       System.out.println(code);
       Assert.assertTrue(producedOutput.exists());
       producedOutput.delete();
+   }
+   
+   @Ignore
+   public void testDifferentFormatsForDifferentDirs() throws Exception{
+      
+      File tmp = new File("src/test/resources/formatters").getCanonicalFile();
+      File producedOutput = new File(tmp, "src/main/java-out/Foo.java");
+      if(producedOutput.exists()){
+         producedOutput.delete();
+      }
+      
+      String userDir = new File(System.getProperty("user.dir")).getCanonicalPath();
+      System.setProperty("user.dir", tmp.getAbsolutePath());
+    
+      try {
+         run(new String[] { "apply", "-e"});
+      } finally {
+         System.setProperty("user.dir", userDir);
+      }
+      producedOutput = producedOutput.getCanonicalFile();
+      
+      
+      Assert.assertTrue(producedOutput.exists());
+      
+      String contents = FileUtils.readFileToString(producedOutput);
+    
+      producedOutput.delete();
+      Assert.assertTrue(contents.startsWith("\n\n\npublic class Foo {"));
    }
 
 
