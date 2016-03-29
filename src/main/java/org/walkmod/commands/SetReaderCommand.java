@@ -71,7 +71,12 @@ public class SetReaderCommand implements Command {
          jcommander.usage("set-reader");
       } else {
          WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
-         facade.setReader(chain, readerType.get(0), path, recursive, params);
+         if(readerType != null){
+            facade.setReader(chain, readerType.get(0), path, recursive, params);
+         }
+         else{
+            facade.setReader(chain, null, path, recursive, params);
+         }
       }
    }
 

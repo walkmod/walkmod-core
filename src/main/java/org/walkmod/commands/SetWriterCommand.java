@@ -72,7 +72,12 @@ public class SetWriterCommand implements Command {
          jcommander.usage("set-writer");
       } else {
          WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().printErrors(printErrors));
-         facade.setWriter(chain, writerType.get(0), path, recursive, params);
+         if(writerType != null){
+            facade.setWriter(chain, writerType.get(0), path, recursive, params);
+         }
+         else{
+            facade.setWriter(chain, null, path, recursive, params);
+         }
       }
    }
 
