@@ -14,7 +14,7 @@ This respository contains the core library to load the configuration files and a
 and required to build plugins. Anyway, you can use this library to help us to create a Walkmod ecosystem where other development tools
 (i.e Eclipse, Maven) can execute walkmod in an embedded mode instead of forcing a manual installation.
 
-The https://github.com/rpau/walkmod-cmd[walkmod-cmd] project is just the responsible to build the tool - a zip file which all walkmod libraries, the default 
+The [https://github.com/rpau/walkmod-cmd](walkmod-cmd) project is just the responsible to build the tool - a zip file which all walkmod libraries, the default 
 configuration and the scripts to execute walkmod. 
 
 ## Usage
