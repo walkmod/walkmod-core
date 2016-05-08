@@ -1,13 +1,12 @@
 :project-full-path: rpau/walkmod-core
 
-walkmod-core
-============
-Raquel Pau <raquelpau@gmail.com>
+# walkmod-core
 
-image:https://travis-ci.org/walkmod/walkmod-core.svg?branch=master["Build Status", link="https://travis-ci.org/walkmod/walkmod-core"]
-image:https://badges.gitter.im/Join Chat.svg["Chat",link="https://gitter.im/{project-full-path}?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
-image:https://ci.appveyor.com/api/projects/status/2q35s9gt9bqaw558/branch/dev?svg=true["Windows Build Status", link="https://ci.appveyor.com/project/rpau/walkmod-core"]
-image:http://walkmod.com/pulls/rpau/walkmod-core/master/status.svg["Code Status", link="http://walkmod.com/rpau/"]
+[![Build Status][https://travis-ci.org/walkmod/walkmod-core.svg?branch=master]](https://travis-ci.org/walkmod/walkmod-core)
+[![Chat][https://badges.gitter.im/Join Chat.svg]](https://gitter.im/{project-full-path}?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Windows Build Status](https://ci.appveyor.com/api/projects/status/2q35s9gt9bqaw558/branch/dev?svg=true)](https://ci.appveyor.com/project/rpau/walkmod-core)
+[![Code Status](http://walkmod.com/pulls/rpau/test/master/status.svg)](http://walkmod.com/rpau/)
+image:http://walkmod.com/pulls/rpau/walkmod-core/master/status.svg["Code Status", link="http://walkmod.com"]
 
 This project, called http://www.walkmod.com[walkmod], is an open source tool to apply coding conventions. Walkmod can support with 
 any programming language if a set of interfaces are implemented as a third party plugin. The first (and current)
@@ -21,21 +20,21 @@ and required to build plugins. Anyway, you can use this library to help us to cr
 The https://github.com/rpau/walkmod-cmd[walkmod-cmd] project is just the responsible to build the tool - a zip file which all walkmod libraries, the default 
 configuration and the scripts to execute walkmod. 
 
-== Usage
+## Usage
 
 You just need the following dependency:
 
-----
+``
 <dependency>
     <groupId>org.walkmod</groupId>
     <artifactId>walkmod-core</artifactId>
     <version>2.2.0</version>
 </dependency>
-----
+```
 
 The `org.walkmod.WalkmodFacade` can help you to invoke the walkmod commands by API.
 
-== Contributing
+`## Contributing
 
 If you want to hack on this, fork it, improve it and send me a pull request.
 
