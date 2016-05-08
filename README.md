@@ -1,5 +1,3 @@
-:project-full-path: rpau/walkmod-core
-
 # walkmod-core
 
 [![Build Status](https://travis-ci.org/walkmod/walkmod-core.svg?branch=master)](https://travis-ci.org/walkmod/walkmod-core)
@@ -7,10 +5,10 @@
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/2q35s9gt9bqaw558/branch/dev?svg=true)](https://ci.appveyor.com/project/rpau/walkmod-core)
 [![Code Status](http://walkmod.com/pulls/rpau/test/master/status.svg)](http://walkmod.com/rpau/)
 
-This project, called http://www.walkmod.com[walkmod], is an open source tool to apply coding conventions. Walkmod can support with 
+This project, called [http://www.walkmod.com](walkmod), is an open source tool to apply coding conventions. Walkmod can support with 
 any programming language if a set of interfaces are implemented as a third party plugin. The first (and current)
 supported language is Java. So, walkmod is completely modularized and you can extend their features (like Maven), 
-by plugins (see http://walkmod.com/pluginslist[plugins] ). 
+by plugins (see [http://walkmod.com/pluginslist](plugins]) ). 
 
 This respository contains the core library to load the configuration files and apply a chain of code transformations ( file by file ) 
 and required to build plugins. Anyway, you can use this library to help us to create a Walkmod ecosystem where other development tools
