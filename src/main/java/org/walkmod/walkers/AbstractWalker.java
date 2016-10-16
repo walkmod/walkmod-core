@@ -171,15 +171,19 @@ public abstract class AbstractWalker implements ChainWalker {
       }
       visit(element, getVisitors(), transformations, vc);
       if (vc.getResultNodes() != null) {
-         writeAll(vc.getResultNodes());
+         writeAll(vc.getResultNodes(), vc);
       }
    }
 
    protected void writeAll(Collection<Object> elements) throws Exception {
+      writeAll(elements, null);
+   }
+   
+   protected void writeAll(Collection<Object> elements, VisitorContext vc) throws Exception {
       if (elements != null) {
          Iterator<Object> it = elements.iterator();
          while (it.hasNext()) {
-            write(it.next());
+            write(it.next(), vc);
          }
       }
    }
