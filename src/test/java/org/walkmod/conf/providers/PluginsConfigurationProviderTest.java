@@ -20,7 +20,7 @@ public class PluginsConfigurationProviderTest {
 		provider.load();
 		Collection<PluginConfig> plugins = conf.getPlugins();
 		Assert.assertNotNull(plugins);
-		Assert.assertEquals(2, plugins.size());
+		Assert.assertEquals(1, plugins.size());
 	}
 
 	@Test
