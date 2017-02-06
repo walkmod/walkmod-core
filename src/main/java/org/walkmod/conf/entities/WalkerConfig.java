@@ -25,7 +25,7 @@ public interface WalkerConfig {
 	public String getType();
 
 	public void setType(String type);
-
+	
 	public List<TransformationConfig> getTransformations();
 
 	public void setTransformations(List<TransformationConfig> transformations);

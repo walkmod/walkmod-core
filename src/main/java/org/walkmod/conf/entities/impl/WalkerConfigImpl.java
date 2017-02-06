@@ -16,6 +16,7 @@
 
 package org.walkmod.conf.entities.impl;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.walkmod.ChainWalker;
@@ -26,85 +27,97 @@ import org.walkmod.conf.entities.WalkerConfig;
 
 public class WalkerConfigImpl implements WalkerConfig {
 
-	private String type;
+    private String type;
 
-	private List<TransformationConfig> transformations;
+    private List<TransformationConfig> transformations;
 
-	private Map<String, Object> params;
+    private Map<String, Object> params;
 
-	private String rootNamespace;
+    private String rootNamespace;
 
-	private ChainConfig architectureConfig;
+    private ChainConfig architectureConfig;
 
-	private ChainWalker walker;
+    private ChainWalker walker;
 
-	private ParserConfig parserConfig;
+    private ParserConfig parserConfig;
 
-	@Override
-	public String getType() {
-		return type;
-	}
+    public WalkerConfigImpl() {
 
-	@Override
-	public void setType(String type) {
-		this.type = type;
-	}
+    }
 
-	@Override
-	public List<TransformationConfig> getTransformations() {
-		return transformations;
-	}
+    public WalkerConfigImpl(TransformationConfig tc) {
+        transformations = new LinkedList<TransformationConfig>();
+        transformations.add(tc);
+        parserConfig = new ParserConfigImpl();
+    }
 
-	@Override
-	public void setTransformations(List<TransformationConfig> transformations) {
-		this.transformations = transformations;
-	}
+    @Override
+    public String getType() {
+        return type;
+    }
 
-	@Override
-	public Map<String, Object> getParams() {
-		return params;
-	}
+    @Override
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	@Override
-	public void setParams(Map<String, Object> params) {
-		this.params = params;
-	}
+    @Override
+    public List<TransformationConfig> getTransformations() {
+        return transformations;
+    }
 
-	@Override
-	public String getRootNamespace() {
-		return rootNamespace;
-	}
+    @Override
+    public void setTransformations(List<TransformationConfig> transformations) {
+        this.transformations = transformations;
+    }
 
-	@Override
-	public void setRootNamespace(String rootNamespace) {
-		this.rootNamespace = rootNamespace;
-	}
+    @Override
+    public Map<String, Object> getParams() {
+        return params;
+    }
 
-	@Override
-	public void setChainConfig(ChainConfig architectureConfig) {
-		this.architectureConfig = architectureConfig;
-	}
+    @Override
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
 
-	@Override
-	public ChainConfig getChainConfig() {
-		return architectureConfig;
-	}
+    @Override
+    public String getRootNamespace() {
+        return rootNamespace;
+    }
 
-	public ChainWalker getWalker() {
-		return walker;
-	}
+    @Override
+    public void setRootNamespace(String rootNamespace) {
+        this.rootNamespace = rootNamespace;
+    }
 
-	public void setWalker(ChainWalker walker) {
-		this.walker = walker;
-	}
+    @Override
+    public void setChainConfig(ChainConfig architectureConfig) {
+        this.architectureConfig = architectureConfig;
+    }
 
-	@Override
-	public void setParserConfig(ParserConfig parserConfig) {
-		this.parserConfig = parserConfig;
-	}
+    @Override
+    public ChainConfig getChainConfig() {
+        return architectureConfig;
+    }
 
-	@Override
-	public ParserConfig getParserConfig() {
-		return parserConfig;
-	}
+    public ChainWalker getWalker() {
+        return walker;
+    }
+
+    public void setWalker(ChainWalker walker) {
+        this.walker = walker;
+    }
+
+    @Override
+    public void setParserConfig(ParserConfig parserConfig) {
+        this.parserConfig = parserConfig;
+    }
+
+    @Override
+    public ParserConfig getParserConfig() {
+        return parserConfig;
+    }
+
+   
 }

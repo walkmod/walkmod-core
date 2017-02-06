@@ -107,6 +107,20 @@ public class OptionsBuilder {
 		options.setVerbose(verbose);
 		return this;
 	}
+	
+	/**
+     * Sets the path option
+     *
+     * @param path
+     *            directory to read and write from
+     * @return updated OptionBuilder instance
+     *
+     * @see Options#VERBOSE
+     */
+    public OptionsBuilder path(String path) {
+        options.setPath(path);
+        return this;
+    }
 
 	/**
 	 * Sets the printErrors option
@@ -162,6 +176,17 @@ public class OptionsBuilder {
 	public OptionsBuilder excludes(String... excludes) {
 		options.setExcludes(excludes);
 		return this;
+	}
+	
+	/**
+	 * Seths the dynamic arguments
+	 * @param dynamicArgs
+	 *     Map of dynamic arguments
+	 * @return Options#DYNAMIC_ARGS
+	 */
+	public OptionsBuilder dynamicArgs(Map<String, Object> dynamicArgs){
+	    options.setDynamicArgs(dynamicArgs);
+	    return this;
 	}
 
 	/**

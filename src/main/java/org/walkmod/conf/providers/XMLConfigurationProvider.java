@@ -624,13 +624,15 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	public void load() throws ConfigurationException {
 		Map<String, Object> params = getParams(document.getDocumentElement());
 		configuration.setParameters(params);
-		inferInitializers(configuration);
+		configuration.prepareInitializers();
+		
 		loadModules();
 		loadPlugins();
 		loadProviders();
 		loadMergePolicies();
 		loadChains();
-		inferPlugins(configuration);
+		configuration.preparePlugins();
+		
 	}
 
 	private void loadModules() {

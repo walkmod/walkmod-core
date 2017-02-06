@@ -39,6 +39,18 @@ public class ChainConfigImpl implements ChainConfig {
 	private WriterConfig writerConfig;
 
 	private WalkerConfig walkerConfig;
+	
+	public ChainConfigImpl(){
+	    
+	}
+	
+	public ChainConfigImpl(TransformationConfig tc){
+	    walkerConfig = new WalkerConfigImpl(tc);
+	    walkerConfig.setChainConfig(this);
+	    name = tc.getType();
+	    model = new ReaderConfig();
+	    writerConfig = new WriterConfigImpl();
+	}
 
 	public String getName() {
 		return name;
@@ -102,5 +114,18 @@ public class ChainConfigImpl implements ChainConfig {
 	public WriterConfig getWriterConfig() {
 		return writerConfig;
 	}
+
+    @Override
+    public void setPath(String path) {
+       if(model == null){
+           setReaderConfig(new ReaderConfig());
+          
+       }
+       model.setPath(path);
+       if(writerConfig == null){
+           setWriterConfig(new WriterConfigImpl());
+       }
+       writerConfig.setPath(path);
+    }
 
 }

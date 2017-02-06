@@ -1,0 +1,8 @@
+<!DOCTYPE walkmod PUBLIC "-//WALKMOD//DTD" "http://www.walkmod.com/dtd/walkmod-1.1.dtd">
+<walkmod>
+    <conf-providers>
+        <conf-provider type="maven">
+            <param name="mavenArgs">"-Dversion=11.0 -Drelease=0"</param>
+        </conf-provider>
+    </conf-providers>
+</walkmod>

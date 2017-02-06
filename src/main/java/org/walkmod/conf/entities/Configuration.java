@@ -21,64 +21,86 @@ import java.util.Map;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.walkmod.WalkmodCommand;
+import org.walkmod.ChainAdapterFactory;
+import org.walkmod.Options;
+import org.walkmod.conf.ExecutionModeEnum;
 import org.walkmod.merger.MergeEngine;
 import org.walkmod.walkers.VisitorMessage;
 
 public interface Configuration {
 
-	public Map<String, Object> getParameters();
+    public Map<String, Object> getParameters();
 
-	public void setParameters(Map<String, Object> parameters);
+    public void setParameters(Map<String, Object> parameters);
 
-	public Collection<ChainConfig> getChainConfigs();
+    public Collection<ChainConfig> getChainConfigs();
 
-	public Collection<PluginConfig> getPlugins();
+    public Collection<PluginConfig> getPlugins();
 
-	public void setPlugins(Collection<PluginConfig> plugins);
+    public void setPlugins(Collection<PluginConfig> plugins);
 
-	public void setChainConfigs(Collection<ChainConfig> chainConfigs);
+    public void setChainConfigs(Collection<ChainConfig> chainConfigs);
 
-	public boolean addChainConfig(ChainConfig architecture);
+    public boolean addChainConfig(ChainConfig architecture);
+    
+    public ChainConfig getChainConfig(String chainConfig);
 
-	public void setBeanFactory(BeanFactory beanFactory);
-	
-	public void setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry);
+    public void setBeanFactory(BeanFactory beanFactory);
 
-	public Object getBean(String name, Map<?, ?> parameters);
+    public void setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry);
 
-	public Collection<VisitorMessage> getVisitorMessages();
+    public Object getBean(String name, Map<?, ?> parameters);
 
-	public ClassLoader getClassLoader();
+    public Collection<VisitorMessage> getVisitorMessages();
 
-	public void setClassLoader(ClassLoader classLoader);
+    public ClassLoader getClassLoader();
 
-	public Collection<MergePolicyConfig> getMergePolicies();
+    public void setClassLoader(ClassLoader classLoader);
 
-	public void setMergePolicies(Collection<MergePolicyConfig> mergePolicies);
+    public Collection<MergePolicyConfig> getMergePolicies();
 
-	public void setMergeEngines(Map<String, MergeEngine> mergeEngines);
+    public void setMergePolicies(Collection<MergePolicyConfig> mergePolicies);
 
-	public MergeEngine getMergeEngine(String name);
+    public void setMergeEngines(Map<String, MergeEngine> mergeEngines);
 
-	public void populate(Object element, Map<?, ?> parameters);
+    public MergeEngine getMergeEngine(String name);
 
-	public String getDefaultLanguage();
+    public void populate(Object element, Map<?, ?> parameters);
 
-	public void setDefaultLanguage(String language);
+    public String getDefaultLanguage();
 
-	public Collection<ProviderConfig> getProviderConfigurations();
+    public void setDefaultLanguage(String language);
 
-	public void setProviderConfigurations(Collection<ProviderConfig> providers);
-	
-	public void setModules(List<String> modules);
-	
-	public List<String> getModules();
-	
-	public void setInitializers(List<InitializerConfig> initializers);
-	
-	public List<InitializerConfig> getInitializers();
+    public Collection<ProviderConfig> getProviderConfigurations();
 
-	public boolean containsBean(String beanId);
-	
-	public List<BeanDefinition> getAvailableBeans(PluginConfig pc);
+    public void setProviderConfigurations(Collection<ProviderConfig> providers);
+
+    public void setModules(List<String> modules);
+
+    public List<String> getModules();
+
+    public void setInitializers(List<InitializerConfig> initializers);
+
+    public List<InitializerConfig> getInitializers();
+
+    public boolean containsBean(String beanId);
+
+    public List<BeanDefinition> getAvailableBeans(PluginConfig pc);
+
+    public ExecutionModeEnum getExecutionMode();
+
+    public void setExecutionMode(ExecutionModeEnum mode);
+    
+    public void prepareInitializers();
+    
+    public void preparePlugins();
+
+    public void executeModuleChains(Options options, WalkmodCommand command, String... chains) throws Exception;
+
+    public void executeAllChains(Options options, ChainAdapterFactory apf);
+
+    public void executeChain(String userDir, Options options, ChainAdapterFactory apf, String name);
+    
+    public void execute(String userDir, Options options, String...chains);
 }

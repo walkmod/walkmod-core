@@ -26,6 +26,7 @@ import org.walkmod.conf.entities.impl.ConfigurationImpl;
 import org.walkmod.conf.providers.LanguageConfigurationProvider;
 import org.walkmod.conf.providers.PluginsConfigurationProvider;
 import org.walkmod.conf.providers.SpringConfigurationProvider;
+import org.walkmod.conf.providers.WritersConfigurationProvider;
 import org.walkmod.conf.providers.XMLConfigurationProvider;
 import org.walkmod.conf.providers.YAMLConfigurationProvider;
 import org.walkmod.impl.DefaultConfigurationAdapter;
@@ -40,17 +41,28 @@ public class ConfigurationManager {
 		setConfiguration(conf);
 	}
 	
-	public ConfigurationManager(Configuration conf, ConfigurationProvider... configurationProviders) {
+	public ConfigurationManager(Configuration conf, boolean execute, ConfigurationProvider... configurationProviders) {
 		setConfiguration(conf);
-		this.configurationProviders.add(new PluginsConfigurationProvider());
-		if (configurationProviders != null) {
-			for (ConfigurationProvider cp : configurationProviders) {
-				this.configurationProviders.add(cp);
-			}
-		}
-		this.configurationProviders.add(new LanguageConfigurationProvider());
-		this.configurationProviders.add(new SpringConfigurationProvider());
-		
+		addProviders(execute, configurationProviders);
+	}
+	
+	private void addProviders(boolean execute, ConfigurationProvider... configurationProviders){
+	    this.configurationProviders.add(new PluginsConfigurationProvider());
+        if (configurationProviders != null) {
+            for (ConfigurationProvider cp : configurationProviders) {
+                this.configurationProviders.add(cp);
+            }
+        }
+        this.configurationProviders.add(new LanguageConfigurationProvider());
+        this.configurationProviders.add(new WritersConfigurationProvider());
+        // the class loader can be modified before
+        this.configurationProviders.add(new SpringConfigurationProvider());
+        if (execute) {
+            executeConfigurationProviders();
+            ConfigurationAdapter ca = new DefaultConfigurationAdapter();
+            ca.setConfiguration(configuration);
+            ca.prepare();
+        }
 	}
 
 	public ConfigurationManager(File walkmodcfg, boolean execute, ConfigurationProvider... configurationProviders) {
@@ -60,26 +72,15 @@ public class ConfigurationManager {
 		} else {
 			this.configurationProviders.add(new YAMLConfigurationProvider(walkmodcfg.getAbsolutePath()));
 		}
-		this.configurationProviders.add(new PluginsConfigurationProvider());
-		if (configurationProviders != null) {
-			for (ConfigurationProvider cp : configurationProviders) {
-				this.configurationProviders.add(cp);
-			}
-		}
-		this.configurationProviders.add(new LanguageConfigurationProvider());
-		// the class loader can be modified before
-		this.configurationProviders.add(new SpringConfigurationProvider());
-		if (execute) {
-			executeConfigurationProviders();
-			ConfigurationAdapter ca = new DefaultConfigurationAdapter();
-			ca.setConfiguration(configuration);
-			ca.prepare();
-		}
+		addProviders(execute, configurationProviders);
 	}
 
 	public ConfigurationManager(File walkmodcfg, ConfigurationProvider... configurationProviders) {
 		this(walkmodcfg, true, configurationProviders);
 	}
+	public ConfigurationManager(Configuration walkmodcfg, ConfigurationProvider... configurationProviders) {
+        this(walkmodcfg, true, configurationProviders);
+    }
 
 	public ConfigurationManager(ConfigurationProvider... configurationProviders) {
 		this(new File("walkmod.xml"), configurationProviders);

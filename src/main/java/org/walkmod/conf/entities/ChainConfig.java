@@ -42,4 +42,6 @@ public interface ChainConfig {
 	public void setWriterConfig(WriterConfig wc);
 
 	public WriterConfig getWriterConfig();
+	
+	public void setPath(String path);
 }

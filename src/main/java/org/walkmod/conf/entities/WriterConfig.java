@@ -20,27 +20,35 @@ import org.walkmod.ChainWriter;
 
 public interface WriterConfig {
 
-	public String getPath();
+    public String getPath();
 
-	public void setPath(String path);
+    public void setPath(String path);
 
-	public String getType();
+    public String getType();
 
-	public void setType(String type);
+    public void setType(String type);
 
-	public ChainWriter getModelWriter();
+    public void setPatcherType(String type);
 
-	public void setModelWriter(ChainWriter modelWriter);
+    public String getPatcherType();
 
-	public Map<String, Object> getParams();
+    public ChainWriter getModelWriter();
 
-	public void setParams(Map<String, Object> params);
+    public void setModelWriter(ChainWriter modelWriter);
 
-	public void setExcludes(String[] excludes);
+    public Map<String, Object> getParams();
 
-	public String[] getExcludes();
+    public void setParams(Map<String, Object> params);
 
-	public void setIncludes(String[] includes);
+    public void setExcludes(String[] excludes);
 
-	public String[] getIncludes();
+    public String[] getExcludes();
+
+    public void setIncludes(String[] includes);
+
+    public String[] getIncludes();
+
+    public boolean isPatchWriter();
+
+    public void isPatchWriter(boolean isPatchWriter);
 }

@@ -15,95 +15,129 @@
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.commands;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.walkmod.OptionsBuilder;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.Parameter;
 
 public class AbstractChainCommand {
 
-	@Parameter(names = "--help", help = true, hidden = true)
-	private boolean help;
+    @Parameter(names = "--help", help = true, hidden = true)
+    private boolean help;
 
-	@Parameter(names = "--offline", description = "Resolves the walkmod plugins and their dependencies in offline mode")
-	private boolean offline = false;
+    @Parameter(names = "--offline", description = "Resolves the walkmod plugins and their dependencies in offline mode")
+    private boolean offline = false;
 
-	@Parameter(names = { "-e", "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
-	private Boolean showException = null;
+    @Parameter(names = { "-e",
+            "--verbose" }, description = "Prints the stacktrace of the produced error during the execution")
+    private Boolean showException = null;
 
-	@Parameter(names = { "-i", "--includes" }, description = "Defines a subset of files of the reader path to include")
-	private ArrayList<String> includes = null;
+    @Parameter(names = { "-i", "--includes" }, description = "Defines a subset of files of the reader path to include")
+    private ArrayList<String> includes = null;
 
-	@Parameter(names = { "-x", "--excludes" }, description = "Defines a subset of files of the reader path to exclude")
-	private ArrayList<String> excludes = null;
+    @Parameter(names = { "-x", "--excludes" }, description = "Defines a subset of files of the reader path to exclude")
+    private ArrayList<String> excludes = null;
 
-	@Parameter(description = "[chains to execute]")
-	private List<String> parameters = new ArrayList<String>();
-	
-	public boolean isHelpNeeded(){
-		return help;
-	}
+    @Parameter(names = { "-p", "--path" }, description = "Overrides the reader and writer paths of the selected chains")
+    private String path = null;
 
-	public boolean isOffline() {
-		return offline;
-	}
+    @DynamicParameter(names = "-D", description = "Dynamic parameters")
+    private Map<String, String> dynamicParams = new HashMap<String, String>();
 
-	public void setOffline(boolean offline) {
-		this.offline = offline;
-	}
+    @Parameter(description = "[chains to execute. If the chain does not exists, it dynamically creates one with a transformation with the same name]")
+    private List<String> parameters = new ArrayList<String>();
 
-	public Boolean getShowException() {
-		return showException;
-	}
+    public boolean isHelpNeeded() {
+        return help;
+    }
 
-	public void setShowException(Boolean showException) {
-		this.showException = showException;
-	}
+    public boolean isOffline() {
+        return offline;
+    }
 
-	public ArrayList<String> getIncludes() {
-		return includes;
-	}
+    public void setOffline(boolean offline) {
+        this.offline = offline;
+    }
 
-	public void setIncludes(ArrayList<String> includes) {
-		this.includes = includes;
-	}
+    public Boolean getShowException() {
+        return showException;
+    }
 
-	public ArrayList<String> getExcludes() {
-		return excludes;
-	}
+    public void setShowException(Boolean showException) {
+        this.showException = showException;
+    }
 
-	public void setExcludes(ArrayList<String> excludes) {
-		this.excludes = excludes;
-	}
+    public ArrayList<String> getIncludes() {
+        return includes;
+    }
 
-	public List<String> getParameters() {
-		return parameters;
-	}
+    public void setIncludes(ArrayList<String> includes) {
+        this.includes = includes;
+    }
 
-	public void setParameters(List<String> parameters) {
-		this.parameters = parameters;
-	}
+    public ArrayList<String> getExcludes() {
+        return excludes;
+    }
 
-	public OptionsBuilder buildOptions() {
-		String[] includesArray = null;
-		String[] excludesArray = null;
+    public void setExcludes(ArrayList<String> excludes) {
+        this.excludes = excludes;
+    }
 
-		if (includes != null && !includes.isEmpty()) {
-			includesArray = new String[includes.size()];
-			includes.toArray(includesArray);
-		}
-		if (excludes != null && !excludes.isEmpty()) {
-			excludesArray = new String[excludes.size()];
-			excludes.toArray(excludesArray);
-		}
+    public List<String> getParameters() {
+        return parameters;
+    }
 
-		offline = (offline == true);
-		showException = showException != null && (showException == true);
-		return OptionsBuilder.options().verbose(true).offline(offline).printErrors(showException)
-				.includes(includesArray).excludes(excludesArray);
+    public void setParameters(List<String> parameters) {
+        this.parameters = parameters;
+    }
 
-	}
+    public Map<String, String> getDynamicParams() {
+        return dynamicParams;
+    }
+
+    public void setDynamicParams(Map<String, String> dynamicParams) {
+        this.dynamicParams = dynamicParams;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+
+    public OptionsBuilder buildOptions() {
+        String[] includesArray = null;
+        String[] excludesArray = null;
+
+        if (includes != null && !includes.isEmpty()) {
+            includesArray = new String[includes.size()];
+            includes.toArray(includesArray);
+        }
+        if (excludes != null && !excludes.isEmpty()) {
+            excludesArray = new String[excludes.size()];
+            excludes.toArray(excludesArray);
+        }
+
+        offline = (offline == true);
+        showException = showException != null && (showException == true);
+        Map<String, Object> dynamicArgs = new HashMap<String, Object>();
+        dynamicArgs.putAll(dynamicParams);
+
+        return OptionsBuilder.options().verbose(true).offline(offline).printErrors(showException)
+                .includes(includesArray).excludes(excludesArray).dynamicArgs(dynamicArgs).path(path);
+        
+     
+
+    }
 
 }

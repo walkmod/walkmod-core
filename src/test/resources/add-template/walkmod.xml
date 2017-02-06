@@ -1,0 +1,6 @@
+<!DOCTYPE walkmod PUBLIC "-//WALKMOD//DTD" "http://www.walkmod.com/dtd/walkmod-1.1.dtd">
+<walkmod>
+    <transformation isMergeable="true" name="jpa-id" type="template">
+        <param name="templates">["/Users/rpau/walkmodhub/walkmod-core/src/test/resources/add-template/jpa-id.groovy"]</param>
+    </transformation>
+</walkmod>

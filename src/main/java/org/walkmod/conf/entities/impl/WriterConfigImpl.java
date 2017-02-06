@@ -21,76 +21,101 @@ import org.walkmod.conf.entities.WriterConfig;
 
 public class WriterConfigImpl implements WriterConfig {
 
-	private String path;
+    private String path;
 
-	private String type;
+    private String type;
 
-	private String[] excludes;
+    private String[] excludes;
 
-	private String[] includes;
+    private String[] includes;
 
-	private Map<String, Object> params;
+    private Map<String, Object> params;
 
-	private ChainWriter modelWriter;
+    private ChainWriter modelWriter;
 
-	@Override
-	public String getPath() {
-		return path;
-	}
+    private boolean isPatchWriter = false;
 
-	@Override
-	public void setPath(String path) {
-		this.path = path;
-	}
+    private String patcherType;
 
-	@Override
-	public String getType() {
-		return type;
-	}
+    @Override
+    public String getPath() {
+        return path;
+    }
 
-	@Override
-	public void setType(String type) {
-		this.type = type;
-	}
+    @Override
+    public void setPath(String path) {
+        this.path = path;
+    }
 
-	@Override
-	public Map<String, Object> getParams() {
-		return params;
-	}
+    @Override
+    public String getType() {
+        return type;
+    }
 
-	@Override
-	public void setParams(Map<String, Object> params) {
-		this.params = params;
-	}
+    @Override
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	@Override
-	public ChainWriter getModelWriter() {
-		return modelWriter;
-	}
+    @Override
+    public Map<String, Object> getParams() {
+        return params;
+    }
 
-	@Override
-	public void setModelWriter(ChainWriter modelWriter) {
-		this.modelWriter = modelWriter;
-	}
+    @Override
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
 
-	@Override
-	public void setExcludes(String[] excludes) {
-		this.excludes = excludes;
-	}
+    @Override
+    public ChainWriter getModelWriter() {
+        return modelWriter;
+    }
 
-	@Override
-	public String[] getExcludes() {
+    @Override
+    public void setModelWriter(ChainWriter modelWriter) {
+        this.modelWriter = modelWriter;
+    }
 
-		return excludes;
-	}
+    @Override
+    public void setExcludes(String[] excludes) {
+        this.excludes = excludes;
+    }
 
-	@Override
-	public void setIncludes(String[] includes) {
-		this.includes = includes;
-	}
+    @Override
+    public String[] getExcludes() {
 
-	@Override
-	public String[] getIncludes() {
-		return includes;
-	}
+        return excludes;
+    }
+
+    @Override
+    public void setIncludes(String[] includes) {
+        this.includes = includes;
+    }
+
+    @Override
+    public String[] getIncludes() {
+        return includes;
+    }
+
+    @Override
+    public boolean isPatchWriter() {
+        return isPatchWriter;
+    }
+
+    @Override
+    public void isPatchWriter(boolean isPatchWriter) {
+        this.isPatchWriter = isPatchWriter;
+    }
+
+    @Override
+    public void setPatcherType(String type) {
+        this.patcherType = type;
+    }
+
+    @Override
+    public String getPatcherType() {
+
+        return patcherType;
+    }
 }

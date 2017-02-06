@@ -31,6 +31,12 @@ public class TransformationConfigImpl implements TransformationConfig {
 	private boolean isMergeable = false;
 
 	private String mergePolicy;
+	
+	public TransformationConfigImpl(){}
+	
+	public TransformationConfigImpl(String type){
+	    setType(type);
+	}
 
 	public String getName() {
 		return name;

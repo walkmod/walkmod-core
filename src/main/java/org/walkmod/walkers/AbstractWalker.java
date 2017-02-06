@@ -139,9 +139,8 @@ public abstract class AbstractWalker implements ChainWalker {
                            context.addResultNode(currentArg);
 
                            visit(currentArg, restVisitors, restTransformations, context);
-                           return;
-
                         }
+                        return;
                      } else {
                         context.addResultNode(element);
                      }

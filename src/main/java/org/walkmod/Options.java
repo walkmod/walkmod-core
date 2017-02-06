@@ -67,6 +67,16 @@ public class Options {
 	 * (String) File extension of the walkmod configuration
 	 */
 	public static final String CONFIGURATION_FILE_FORMAT = "format";
+	
+	/**
+     * (Map) Extra arguments for the executed components
+     */
+    public static final String DYNAMIC_ARGS = "dynamic_args";
+    
+    /**
+     * (String) Selected path value for the reader and writer
+     */
+    public static final String CHAIN_PATH = "chain_path";
 
 	/**
 	 * Stored options
@@ -103,6 +113,7 @@ public class Options {
 			if (!options.containsKey(CONFIGURATION_FILE_FORMAT)) {
 				setConfigurationFormat("xml");
 			}
+			
 		} else {
 			setOffline(false);
 			setVerbose(true);
@@ -142,6 +153,18 @@ public class Options {
 		return value != null && (Boolean) value;
 
 	}
+	
+	public String getPath(){
+	    Object path = this.options.get(CHAIN_PATH);
+	    if(path != null){
+	        return path.toString();
+	    }
+	    return null;
+	}
+	
+	public void setPath(String path){
+	    this.options.put(CHAIN_PATH, path);
+	}
 
 	public void setVerbose(boolean verbose) {
 		this.options.put(VERBOSE, Boolean.valueOf(verbose));
@@ -158,6 +181,15 @@ public class Options {
 
 	public void setExecutionDirectory(File executionDirectory) {
 		options.put(EXECUTION_DIRECTORY, executionDirectory);
+	}
+	
+	public void setDynamicArgs(Map<String, Object> dynamicArgs){
+	    options.put(DYNAMIC_ARGS, dynamicArgs);
+	}
+	
+	public Map<String, Object> getDynamicArgs(){
+	    Object value = options.get(DYNAMIC_ARGS);
+	    return  (Map<String, Object>) value;
 	}
 
 	public File getExecutionDirectory() {
