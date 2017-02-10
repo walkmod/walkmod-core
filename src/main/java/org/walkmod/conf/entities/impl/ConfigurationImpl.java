@@ -48,6 +48,7 @@ import org.walkmod.WalkmodCommand;
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.ExecutionModeEnum;
 import org.walkmod.conf.Initializer;
+import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.conf.entities.BeanDefinition;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
@@ -98,7 +99,7 @@ public class ConfigurationImpl implements Configuration {
         this.parameters = new LinkedHashMap<String, Object>();
         this.chainConfigs = new LinkedHashMap<String, ChainConfig>();
         this.mergeEngines = new LinkedHashMap<String, MergeEngine>();
-
+        this.plugins = new LinkedList<PluginConfig>();
         this.beanFactory = null;
         this.defaultLanguage = null;
     }
@@ -211,8 +212,16 @@ public class ConfigurationImpl implements Configuration {
         setPlugins(pluginCfg);
 
     }
-
-    private void composeName(String type, HashSet<String> plugins) {
+    
+    public PluginConfig resolvePlugin(String type){
+        String name = pluginName(type);
+        if(name != null){
+            return new PluginConfigImpl(name);
+        }
+        return null;
+    }
+    
+    private String pluginName(String type){
         if (type != null && !type.startsWith("walkmod:commons")) {
             String[] parts = type.split(":");
             if (parts.length == 3) {
@@ -222,13 +231,23 @@ public class ConfigurationImpl implements Configuration {
                 if (!parts[1].endsWith("-plugin")) {
                     parts[1] = parts[1] + "-plugin";
                 }
-                plugins.add(parts[0] + ":" + parts[1]);
+                return parts[0] + ":" + parts[1];
             } else if (parts.length <= 2) {
                 String aux = parts[0].trim();
                 if (aux.length() > 0) {
-                    plugins.add("org.walkmod:walkmod-" + aux + "-plugin");
+                    return "org.walkmod:walkmod-" + aux + "-plugin";
                 }
             }
+        }
+        return null;
+    }
+
+    private void composeName(String type, HashSet<String> plugins) {
+        
+        String pluginName = pluginName(type);
+        
+        if(pluginName != null){
+            plugins.add(pluginName);
         }
     }
 
@@ -844,6 +863,27 @@ public class ConfigurationImpl implements Configuration {
             setInitializers(list);
         }
 
+    }
+
+    @Override
+    public void runInitializers(ProjectConfigurationProvider cfgProvider) throws Exception {
+        List<InitializerConfig> initializers = getInitializers();
+
+        if (initializers != null) {
+            for (InitializerConfig initCfg : initializers) {
+                String beanId = initCfg.getPluginGroupId() + ":walkmod-" + initCfg.getPluginArtifactId()
+                        + "-plugin:" + initCfg.getType();
+
+                if (containsBean(beanId)) {
+
+                    Object o = getBean(beanId, initCfg.getParams());
+                    if (o != null && o instanceof Initializer) {
+                        ((Initializer) o).execute(cfgProvider);
+                    }
+                }
+            }
+        }
+        
     }
 
 }

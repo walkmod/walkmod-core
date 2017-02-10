@@ -33,21 +33,21 @@ import org.walkmod.impl.DefaultConfigurationAdapter;
 
 public class ConfigurationManager {
 
-	private Configuration configuration;
+    private Configuration configuration;
 
-	private List<ConfigurationProvider> configurationProviders = new LinkedList<ConfigurationProvider>();
+    private List<ConfigurationProvider> configurationProviders = new LinkedList<ConfigurationProvider>();
 
-	public ConfigurationManager(Configuration conf) {
-		setConfiguration(conf);
-	}
-	
-	public ConfigurationManager(Configuration conf, boolean execute, ConfigurationProvider... configurationProviders) {
-		setConfiguration(conf);
-		addProviders(execute, configurationProviders);
-	}
-	
-	private void addProviders(boolean execute, ConfigurationProvider... configurationProviders){
-	    this.configurationProviders.add(new PluginsConfigurationProvider());
+    public ConfigurationManager(Configuration conf) {
+        setConfiguration(conf);
+    }
+
+    public ConfigurationManager(Configuration conf, boolean execute, ConfigurationProvider... configurationProviders) {
+        setConfiguration(conf);
+        addProviders(execute, configurationProviders);
+    }
+
+    private void addProviders(boolean execute, ConfigurationProvider... configurationProviders) {
+        this.configurationProviders.add(new PluginsConfigurationProvider());
         if (configurationProviders != null) {
             for (ConfigurationProvider cp : configurationProviders) {
                 this.configurationProviders.add(cp);
@@ -63,103 +63,113 @@ public class ConfigurationManager {
             ca.setConfiguration(configuration);
             ca.prepare();
         }
-	}
+    }
 
-	public ConfigurationManager(File walkmodcfg, boolean execute, ConfigurationProvider... configurationProviders) {
-		setConfiguration(new ConfigurationImpl());
-		if (walkmodcfg.getName().endsWith(".xml")) {
-			this.configurationProviders.add(new XMLConfigurationProvider(walkmodcfg.getAbsolutePath(), false));
-		} else {
-			this.configurationProviders.add(new YAMLConfigurationProvider(walkmodcfg.getAbsolutePath()));
-		}
-		addProviders(execute, configurationProviders);
-	}
+    public ConfigurationManager(File walkmodcfg, boolean execute, ConfigurationProvider... configurationProviders) {
+        setConfiguration(new ConfigurationImpl());
+        if (walkmodcfg.getName().endsWith(".xml")) {
+            this.configurationProviders.add(new XMLConfigurationProvider(walkmodcfg.getAbsolutePath(), false));
+        } else {
+            this.configurationProviders.add(new YAMLConfigurationProvider(walkmodcfg.getAbsolutePath()));
+        }
+        addProviders(execute, configurationProviders);
+    }
 
-	public ConfigurationManager(File walkmodcfg, ConfigurationProvider... configurationProviders) {
-		this(walkmodcfg, true, configurationProviders);
-	}
-	public ConfigurationManager(Configuration walkmodcfg, ConfigurationProvider... configurationProviders) {
+    public ConfigurationManager(File walkmodcfg, ConfigurationProvider... configurationProviders) {
         this(walkmodcfg, true, configurationProviders);
     }
 
-	public ConfigurationManager(ConfigurationProvider... configurationProviders) {
-		this(new File("walkmod.xml"), configurationProviders);
-	}
+    public ConfigurationManager(Configuration walkmodcfg, ConfigurationProvider... configurationProviders) {
+        this(walkmodcfg, true, configurationProviders);
+    }
 
-	public ProjectConfigurationProvider getProjectConfigurationProvider() {
-		Iterator<ConfigurationProvider> it = configurationProviders.iterator();
-		while (it.hasNext()) {
-			ConfigurationProvider current = it.next();
-			if (current instanceof ProjectConfigurationProvider) {
-				return (ProjectConfigurationProvider) current;
-			}
-		}
-		return null;
-	}
+    public ConfigurationManager(ConfigurationProvider... configurationProviders) {
+        this(new File("walkmod.xml"), configurationProviders);
+    }
 
-	public void setConfiguration(Configuration configuration) {
-		this.configuration = configuration;
-	}
+    public ProjectConfigurationProvider getProjectConfigurationProvider() {
+        Iterator<ConfigurationProvider> it = configurationProviders.iterator();
+        while (it.hasNext()) {
+            ConfigurationProvider current = it.next();
+            if (current instanceof ProjectConfigurationProvider) {
+                return (ProjectConfigurationProvider) current;
+            }
+        }
+        return null;
+    }
 
-	public Configuration getConfiguration() {
-		return configuration;
-	}
+    public void runProjectConfigurationInitializers() throws Exception {
+        ProjectConfigurationProvider cfgProvider = getProjectConfigurationProvider();
+        if (cfgProvider != null) {
+            cfgProvider.createConfig();
 
-	public void executeConfigurationProviders() {
-		Iterator<ConfigurationProvider> it = configurationProviders.iterator();
-		while (it.hasNext()) {
-			ConfigurationProvider current = it.next();
-			current.init(getConfiguration());
-			current.load();
-		}
-	}
+            executeConfigurationProviders();
+            configuration.runInitializers(cfgProvider);
+        }
+    }
 
-	/**
-	 * Get the current list of ConfigurationProviders. If no custom
-	 * ConfigurationProviders have been added, this method will return a list
-	 * containing only the default ConfigurationProvider,
-	 * XMLConfigurationProvider. if a custom ConfigurationProvider has been
-	 * added, then the XmlConfigurationProvider must be added by hand.
-	 * 
-	 * @return the list of registered ConfigurationProvider objects
-	 * @see ConfigurationProvider
-	 * 
-	 */
-	public List<ConfigurationProvider> getConfigurationProviders() {
-		return configurationProviders;
-	}
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
 
-	/**
-	 * Set the list of configuration providers
-	 *
-	 * @param configurationProviders
-	 *            the ConfigurationProvider to register
-	 */
-	public void setConfigurationProviders(List<ConfigurationProvider> configurationProviders) {
-		this.configurationProviders = configurationProviders;
-	}
+    public Configuration getConfiguration() {
+        return configuration;
+    }
 
-	/**
-	 * Adds a configuration provider to the List of ConfigurationProviders. a
-	 * given ConfigurationProvider may be added more than once
-	 *
-	 * @param provider
-	 *            the ConfigurationProvider to register
-	 */
-	public void addConfigurationProvider(ConfigurationProvider provider) {
-		if (!configurationProviders.contains(provider)) {
-			configurationProviders.add(provider);
-		}
-	}
+    public void executeConfigurationProviders() {
+        Iterator<ConfigurationProvider> it = configurationProviders.iterator();
+        while (it.hasNext()) {
+            ConfigurationProvider current = it.next();
+            current.init(getConfiguration());
+            current.load();
+        }
+    }
 
-	public void clearConfigurationProviders() {
-		configurationProviders.clear();
-	}
+    /**
+     * Get the current list of ConfigurationProviders. If no custom ConfigurationProviders have been
+     * added, this method will return a list containing only the default ConfigurationProvider,
+     * XMLConfigurationProvider. if a custom ConfigurationProvider has been added, then the
+     * XmlConfigurationProvider must be added by hand.
+     * 
+     * @return the list of registered ConfigurationProvider objects
+     * @see ConfigurationProvider
+     * 
+     */
+    public List<ConfigurationProvider> getConfigurationProviders() {
+        return configurationProviders;
+    }
 
-	/**
-	 * Destroy its managing Configuration instance
-	 */
-	public void destroyConfiguration() {
-		configuration = null;
-	}
+    /**
+     * Set the list of configuration providers
+     *
+     * @param configurationProviders
+     *            the ConfigurationProvider to register
+     */
+    public void setConfigurationProviders(List<ConfigurationProvider> configurationProviders) {
+        this.configurationProviders = configurationProviders;
+    }
+
+    /**
+     * Adds a configuration provider to the List of ConfigurationProviders. a given
+     * ConfigurationProvider may be added more than once
+     *
+     * @param provider
+     *            the ConfigurationProvider to register
+     */
+    public void addConfigurationProvider(ConfigurationProvider provider) {
+        if (!configurationProviders.contains(provider)) {
+            configurationProviders.add(provider);
+        }
+    }
+
+    public void clearConfigurationProviders() {
+        configurationProviders.clear();
+    }
+
+    /**
+     * Destroy its managing Configuration instance
+     */
+    public void destroyConfiguration() {
+        configuration = null;
+    }
 }

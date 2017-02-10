@@ -46,8 +46,8 @@ public abstract class AbstractPatchWriter extends AbstractFileWriter {
 	}
 
 	@Override
-	protected Writer getWriter(File out) throws UnsupportedEncodingException, FileNotFoundException {
-		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream("walkmod.patch", true), getEncoding()));
+	protected Writer getWriter(File out) throws Exception {
+		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("walkmod.patch").getCanonicalFile(), true), getEncoding()));
 	}
 
 	public void setPatchPerChange(boolean patchPerChange) {

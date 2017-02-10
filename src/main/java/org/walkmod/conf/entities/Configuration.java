@@ -25,6 +25,7 @@ import org.walkmod.WalkmodCommand;
 import org.walkmod.ChainAdapterFactory;
 import org.walkmod.Options;
 import org.walkmod.conf.ExecutionModeEnum;
+import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.merger.MergeEngine;
 import org.walkmod.walkers.VisitorMessage;
 
@@ -93,6 +94,10 @@ public interface Configuration {
     public void setExecutionMode(ExecutionModeEnum mode);
     
     public void prepareInitializers();
+    
+    public void runInitializers(ProjectConfigurationProvider cfgProvider) throws Exception;
+    
+    public PluginConfig resolvePlugin(String type);
     
     public void preparePlugins();
 

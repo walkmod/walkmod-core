@@ -107,7 +107,7 @@ public abstract class AbstractFileWriter implements ChainWriter {
         return vc.get("append") == null || !Boolean.TRUE.equals(vc.get("append"));   
     }
     
-    protected Writer getWriter(File out) throws UnsupportedEncodingException, FileNotFoundException{
+    protected Writer getWriter(File out) throws Exception{
         return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(out), getEncoding()));
     }
     

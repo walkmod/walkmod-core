@@ -27,21 +27,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.walkmod.conf.ConfigurationManager;
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.ExecutionModeEnum;
-import org.walkmod.conf.Initializer;
 import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.conf.entities.BeanDefinition;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
-import org.walkmod.conf.entities.InitializerConfig;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
+import org.walkmod.conf.entities.impl.ChainConfigImpl;
 import org.walkmod.conf.entities.impl.ConfigurationImpl;
+import org.walkmod.conf.entities.impl.TransformationConfigImpl;
 import org.walkmod.conf.providers.DynamicConfigurationProvider;
+import org.walkmod.conf.providers.DynamicModulesConfigurationProvider;
 import org.walkmod.conf.providers.ExecutionModeProvider;
 import org.walkmod.conf.providers.IvyConfigurationProvider;
 import org.walkmod.exceptions.InvalidConfigurationException;
@@ -145,7 +147,7 @@ public class WalkModFacade {
             public void execute(Options options, File executionDir, String... chains) throws Exception {
                 WalkModFacade facade = new WalkModFacade(null,
                         OptionsBuilder.options(options.asMap()).executionDirectory(executionDir), null);
-               
+
                 result.addAll(facade.apply(chains));
             }
         }, ExecutionModeEnum.APPLY, chains);
@@ -189,15 +191,22 @@ public class WalkModFacade {
         return config;
     }
 
+   
+
     private Configuration createConfig(String[] chains, ConfigurationProvider... cp)
             throws InvalidConfigurationException {
         Configuration config = new ConfigurationImpl();
         try {
-            ConfigurationProvider first = new DynamicConfigurationProvider(options, chains);
-            first.init(config);
-            first.load();
+            DynamicConfigurationProvider prov = new DynamicConfigurationProvider(options, chains);
+            prov.init(config);
+            prov.load();
 
             ConfigurationManager cfgManager = new ConfigurationManager(config, cp);
+
+            DynamicModulesConfigurationProvider prov2 = new DynamicModulesConfigurationProvider();
+            prov2.init(config);
+            prov2.load();
+
             config = cfgManager.getConfiguration();
             config.setParameters(options.getDynamicArgs());
 
@@ -225,7 +234,7 @@ public class WalkModFacade {
             public void execute(Options options, File executionDir, String... chains) throws Exception {
                 WalkModFacade facade = new WalkModFacade(null,
                         OptionsBuilder.options(options.asMap()).executionDirectory(executionDir), null);
-                
+
                 result.addAll(facade.patch(chains));
             }
         }, ExecutionModeEnum.PATCH, chains);
@@ -248,6 +257,7 @@ public class WalkModFacade {
         } else {
 
             config = createConfig(chains, locateConfigurationProvider(),
+
                     new ExecutionModeProvider(execMode));
         }
         try {
@@ -256,8 +266,8 @@ public class WalkModFacade {
             System.setProperty("user.dir", userDir);
             if (options.isVerbose()) {
                 if (!options.isPrintErrors()) {
-                    log.error(cfg.getAbsolutePath()
-                            + " is invalid. Please, execute walkmod with -e to see the details.");
+                    log.error(
+                            cfg.getAbsolutePath() + " is invalid. Please, execute walkmod with -e to see the details.");
                 } else {
                     log.error("Invalid configuration", e);
                 }
@@ -288,7 +298,6 @@ public class WalkModFacade {
      */
     public List<File> check(String... chains) throws InvalidConfigurationException {
 
-        
         final List<File> result = new LinkedList<File>();
 
         run(result, new WalkmodCommand() {
@@ -296,13 +305,13 @@ public class WalkModFacade {
             public void execute(Options options, File executionDir, String... chains) throws Exception {
                 WalkModFacade facade = new WalkModFacade(null,
                         OptionsBuilder.options(options.asMap()).executionDirectory(executionDir), null);
-                
+
                 result.addAll(facade.check(chains));
             }
         }, ExecutionModeEnum.CHECK, chains);
 
         return result;
-        
+
     }
 
     /**
@@ -319,30 +328,9 @@ public class WalkModFacade {
 
             ConfigurationManager manager = new ConfigurationManager(cfg, false, locateConfigurationProvider());
 
-            ProjectConfigurationProvider cfgProvider = manager.getProjectConfigurationProvider();
             try {
-                cfgProvider.createConfig();
 
-                manager.executeConfigurationProviders();
-
-                Configuration conf = manager.getConfiguration();
-
-                List<InitializerConfig> initializers = conf.getInitializers();
-
-                if (initializers != null) {
-                    for (InitializerConfig initCfg : initializers) {
-                        String beanId = initCfg.getPluginGroupId() + ":walkmod-" + initCfg.getPluginArtifactId()
-                                + "-plugin:" + initCfg.getType();
-
-                        if (conf.containsBean(beanId)) {
-
-                            Object o = conf.getBean(beanId, initCfg.getParams());
-                            if (o != null && o instanceof Initializer) {
-                                ((Initializer) o).execute(cfgProvider);
-                            }
-                        }
-                    }
-                }
+                manager.runProjectConfigurationInitializers();
 
                 if (options.isVerbose()) {
                     log.info("CONFIGURATION FILE [" + cfg.getAbsolutePath() + "] CREATION COMPLETE");

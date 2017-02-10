@@ -21,49 +21,56 @@ import org.walkmod.conf.ConfigurationException;
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
+import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.impl.ChainConfigImpl;
 import org.walkmod.conf.entities.impl.TransformationConfigImpl;
 
 public class DynamicConfigurationProvider implements ConfigurationProvider {
 
-	private Configuration configuration;
+    private Configuration config;
+    private String[] chains;
+    private Options options;
 
-	private Options options;
+    public DynamicConfigurationProvider(Options options, String... chains) {
+        this.options = options;
+        this.chains = chains;
+    }
 
-	private String[] chains;
+    @Override
+    public void init(Configuration configuration) {
+        this.config = configuration;
+    }
 
-	public DynamicConfigurationProvider(Options options, String... chains) {
-		this.options = options;
-		this.chains = chains;
-	}
+    @Override
+    public void load() throws ConfigurationException {
+        config.prepareInitializers();
+        if (chains != null) {
+            for (String chain : chains) {
+                if (StringUtils.isNotEmpty(chain)) {
+                    PluginConfig plugin = config.resolvePlugin(chain);
+                    config.getPlugins().add(plugin);
+                }
+            }
+            config.preparePlugins();
+        }
+        String path = options.getPath();
 
-	@Override
-	public void init(Configuration configuration) {
-		this.configuration = configuration;
-	}
-
-	@Override
-	public void load() throws ConfigurationException {
-		String path = options.getPath();
-		configuration.prepareInitializers();
-		if (chains != null) {
-			for (String chain : chains) {
-				if (StringUtils.isNotEmpty(chain)) {
-					ChainConfig cc = configuration.getChainConfig(chain);
-					if (cc == null) {
-						cc = new ChainConfigImpl(new TransformationConfigImpl(chain));
-						configuration.addChainConfig(cc);
-					}
-				}
-			}
-			configuration.preparePlugins();
-
-		}
-		if (StringUtils.isNotEmpty(path)) {
-			for (ChainConfig cc : configuration.getChainConfigs()) {
-				cc.setPath(path);
-			}
-		}
-	}
+        if (chains != null) {
+            for (String chain : chains) {
+                if (StringUtils.isNotEmpty(chain)) {
+                    ChainConfig cc = config.getChainConfig(chain);
+                    if (cc == null) {
+                        cc = new ChainConfigImpl(new TransformationConfigImpl(chain));
+                        config.addChainConfig(cc);
+                    }
+                }
+            }
+        }
+        if (StringUtils.isNotEmpty(path)) {
+            for (ChainConfig cc : config.getChainConfigs()) {
+                cc.setPath(path);
+            }
+        }
+    }
 
 }
