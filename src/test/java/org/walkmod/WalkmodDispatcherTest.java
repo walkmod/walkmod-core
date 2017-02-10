@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class WalkmodDispatcherTest extends AbstractWalkmodExecutionTest {
@@ -155,7 +156,7 @@ public class WalkmodDispatcherTest extends AbstractWalkmodExecutionTest {
         }
     }
 
-    @Test
+    @Ignore
     public void testPatchWithoutConfig() throws Exception {
         File tmp = new File("src/test/resources/multimodulewithoutconfig");
         String userDir = new File(System.getProperty("user.dir")).getAbsolutePath();
