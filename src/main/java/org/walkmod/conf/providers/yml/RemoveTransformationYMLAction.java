@@ -15,14 +15,10 @@
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.conf.providers.yml;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.xml.transform.TransformerException;
 
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.providers.YAMLConfigurationProvider;

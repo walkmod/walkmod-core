@@ -15,8 +15,6 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.scripting;
 
-import groovy.lang.GroovyClassLoader;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -39,6 +37,8 @@ import org.walkmod.exceptions.WalkModException;
 import org.walkmod.query.QueryEngine;
 import org.walkmod.query.QueryEngineAware;
 import org.walkmod.walkers.VisitorContext;
+
+import groovy.lang.GroovyClassLoader;
 
 public class ScriptProcessor implements QueryEngineAware {
 

@@ -16,6 +16,7 @@
 package org.walkmod.readers;
 
 import java.io.File;
+
 import org.walkmod.ChainReader;
 import org.walkmod.Resource;
 import org.walkmod.util.FileResource;

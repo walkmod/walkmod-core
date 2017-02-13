@@ -17,7 +17,6 @@ package org.walkmod.conf.providers;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.ParseException;

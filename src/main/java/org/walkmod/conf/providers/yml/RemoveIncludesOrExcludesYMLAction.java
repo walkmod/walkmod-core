@@ -21,10 +21,8 @@ import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.providers.YAMLConfigurationProvider;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 
 public class RemoveIncludesOrExcludesYMLAction extends AbstractYMLConfigurationAction {
 

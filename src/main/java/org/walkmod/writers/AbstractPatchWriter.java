@@ -17,10 +17,8 @@ package org.walkmod.writers;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
 import org.walkmod.walkers.VisitorContext;

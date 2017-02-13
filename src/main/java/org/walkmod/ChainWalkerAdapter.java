@@ -16,6 +16,7 @@
 package org.walkmod;
 
 import java.util.Collection;
+
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.WalkerConfig;
 import org.walkmod.exceptions.WalkModException;

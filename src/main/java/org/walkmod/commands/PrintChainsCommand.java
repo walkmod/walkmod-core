@@ -16,7 +16,6 @@
 package org.walkmod.commands;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;

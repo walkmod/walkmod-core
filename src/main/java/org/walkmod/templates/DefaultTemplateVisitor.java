@@ -15,10 +15,6 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.templates;
 
-import groovy.io.PlatformLineWriter;
-import groovy.text.GStringTemplateEngine;
-import groovy.text.Template;
-
 import java.io.File;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -34,6 +30,10 @@ import org.walkmod.walkers.ParseException;
 import org.walkmod.walkers.Parser;
 import org.walkmod.walkers.ParserAware;
 import org.walkmod.walkers.VisitorContext;
+
+import groovy.io.PlatformLineWriter;
+import groovy.text.GStringTemplateEngine;
+import groovy.text.Template;
 
 public class DefaultTemplateVisitor implements TemplatesAware, ParserAware {
 

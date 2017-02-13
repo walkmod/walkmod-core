@@ -15,23 +15,25 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.query;
 
-import groovy.lang.GroovyClassLoader;
-
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
 import org.apache.log4j.Logger;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.scripting.ScriptProcessor;
 import org.walkmod.walkers.VisitorContext;
+
+import groovy.lang.GroovyClassLoader;
 
 public class ScriptingQueryEngine implements QueryEngine {
 

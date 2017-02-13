@@ -32,7 +32,6 @@ import org.w3c.dom.NodeList;
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
-import org.walkmod.conf.entities.impl.ChainConfigImpl;
 import org.walkmod.conf.entities.impl.ConfigurationImpl;
 import org.walkmod.conf.providers.XMLConfigurationProvider;
 

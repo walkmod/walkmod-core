@@ -18,15 +18,16 @@ package org.walkmod.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.walkmod.ChainAdapter;
 import org.walkmod.ChainInvocation;
 import org.walkmod.ChainReader;
-import org.walkmod.ChainWriter;
-import org.walkmod.Resource;
 import org.walkmod.ChainWalker;
 import org.walkmod.ChainWalkerAdapter;
+import org.walkmod.ChainWriter;
+import org.walkmod.Resource;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.ReaderConfig;
 import org.walkmod.conf.entities.WalkerConfig;

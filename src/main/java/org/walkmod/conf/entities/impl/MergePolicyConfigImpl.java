@@ -16,6 +16,7 @@
 package org.walkmod.conf.entities.impl;
 
 import java.util.Map;
+
 import org.walkmod.conf.entities.MergePolicyConfig;
 
 public class MergePolicyConfigImpl implements MergePolicyConfig {

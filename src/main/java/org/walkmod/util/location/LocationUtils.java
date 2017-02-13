@@ -15,17 +15,18 @@
  along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.util.location;
 
-import org.w3c.dom.Element;
-import org.walkmod.util.ClassLoaderUtil;
-import org.walkmod.util.location.LocationAttributes;
-import org.xml.sax.Locator;
-import org.xml.sax.SAXParseException;
-import javax.xml.transform.SourceLocator;
-import javax.xml.transform.TransformerException;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.transform.SourceLocator;
+import javax.xml.transform.TransformerException;
+
+import org.w3c.dom.Element;
+import org.walkmod.util.ClassLoaderUtil;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXParseException;
 
 public class LocationUtils {
 

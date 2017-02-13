@@ -19,6 +19,7 @@ package org.walkmod.conf.entities.impl;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import org.walkmod.ChainWalker;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.ParserConfig;

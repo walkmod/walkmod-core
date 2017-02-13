@@ -35,7 +35,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.walkmod.conf.ConfigurationException;
 import org.walkmod.conf.ConfigurationProvider;
-import org.walkmod.conf.ExecutionModeEnum;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.MergePolicyConfig;

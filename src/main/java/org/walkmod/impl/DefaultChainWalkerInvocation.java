@@ -17,9 +17,9 @@ package org.walkmod.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.walkmod.ChainWalker;
 import org.walkmod.ChainWalkerAdapter;
 import org.walkmod.ChainWalkerInvocation;
-import org.walkmod.ChainWalker;
 import org.walkmod.exceptions.WalkModException;
 
 public class DefaultChainWalkerInvocation implements ChainWalkerInvocation {

@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.walkmod.conf.ConfigurationManager;
 import org.walkmod.conf.ConfigurationProvider;
@@ -39,9 +38,7 @@ import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.PluginConfig;
 import org.walkmod.conf.entities.ProviderConfig;
 import org.walkmod.conf.entities.TransformationConfig;
-import org.walkmod.conf.entities.impl.ChainConfigImpl;
 import org.walkmod.conf.entities.impl.ConfigurationImpl;
-import org.walkmod.conf.entities.impl.TransformationConfigImpl;
 import org.walkmod.conf.providers.DynamicConfigurationProvider;
 import org.walkmod.conf.providers.DynamicModulesConfigurationProvider;
 import org.walkmod.conf.providers.ExecutionModeProvider;

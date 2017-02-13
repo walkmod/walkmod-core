@@ -16,6 +16,7 @@
 package org.walkmod;
 
 import java.util.Map;
+
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.exceptions.WalkModException;
 

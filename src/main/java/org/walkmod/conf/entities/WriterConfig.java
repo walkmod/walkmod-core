@@ -16,6 +16,7 @@
 package org.walkmod.conf.entities;
 
 import java.util.Map;
+
 import org.walkmod.ChainWriter;
 
 public interface WriterConfig {

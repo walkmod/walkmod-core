@@ -25,7 +25,6 @@ import org.walkmod.commands.AddCfgProviderCommand;
 import org.walkmod.commands.AddExcludesCommand;
 import org.walkmod.commands.AddIncludesCommand;
 import org.walkmod.commands.AddModuleCommand;
-import org.walkmod.commands.AddParamCommand;
 import org.walkmod.commands.AddPluginCommand;
 import org.walkmod.commands.AddTransformationCommand;
 import org.walkmod.commands.ApplyCommand;

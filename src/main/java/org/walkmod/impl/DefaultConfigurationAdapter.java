@@ -18,6 +18,7 @@ package org.walkmod.impl;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.walkmod.ConfigurationAdapter;
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.Configuration;

@@ -47,6 +47,10 @@ public class PatchCommand extends AbstractChainCommand implements Command {
         if (isHelpNeeded()) {
             command.usage("patch");
         } else {
+            String path = getPath();
+            if(path == null){
+                setPath(".");
+            }
             Map<String, String> dynParams = getDynamicParams();
             dynParams.put("patchPerFile", Boolean.toString(patchPerFile));
             dynParams.put("patchPerChange", Boolean.toString(patchPerChange));

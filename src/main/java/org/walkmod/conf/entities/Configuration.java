@@ -21,9 +21,9 @@ import java.util.Map;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.walkmod.WalkmodCommand;
 import org.walkmod.ChainAdapterFactory;
 import org.walkmod.Options;
+import org.walkmod.WalkmodCommand;
 import org.walkmod.conf.ExecutionModeEnum;
 import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.merger.MergeEngine;

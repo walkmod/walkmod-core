@@ -17,6 +17,7 @@ package org.walkmod.walkers;
 
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.log4j.Logger;
 
 public class ChangeLogPrinter {
