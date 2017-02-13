@@ -194,6 +194,9 @@ public class WalkModFacade {
             throws InvalidConfigurationException {
         Configuration config = new ConfigurationImpl();
         try {
+            if(options.getPath() == null){
+                options.setPath(".");
+            }
             DynamicConfigurationProvider prov = new DynamicConfigurationProvider(options, chains);
             prov.init(config);
             prov.load();

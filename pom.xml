@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.walkmod</groupId>
 	<artifactId>walkmod-core</artifactId>
-	<version>3.0.3</version>
+	<version>3.0.4</version>
 	<url>https://github.com/rpau/walkmod-core</url>
 	<licenses>
 		<license>
