@@ -1,4 +1,4 @@
-<!DOCTYPE walkmod PUBLIC "-//WALKMOD//DTD" "http://www.walkmod.com/dtd/walkmod-1.0.dtd">
+<!DOCTYPE walkmod PUBLIC "-//WALKMOD//DTD" "http://www.walkmod.com/dtd/walkmod-1.1.dtd">
 <walkmod>
     <plugins>
         <plugin artifactId="walkmod-license-applier-plugin" groupId="org.walkmod" version="[2.0, 3.0)"/>
