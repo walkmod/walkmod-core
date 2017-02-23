@@ -1,39 +1,44 @@
-# walkmod-core
+walkmod: The Fixer of Java Coding Style Issues [![Build Status](https://travis-ci.org/walkmod/walkmod-core.svg branch=master)](https://travis-ci.org/walkmod/walkmod-core) [![Chat](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/{project-full-path}?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Windows Build Status](https://ci.appveyor.com/api/projects/status/2q35s9gt9bqaw558/branch/dev?svg=true)](https://ci.appveyor.com/project/rpau/walkmod-core)
+==============================================
 
-[![Build Status](https://travis-ci.org/walkmod/walkmod-core.svg?branch=master)](https://travis-ci.org/walkmod/walkmod-core)
-[![Chat](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/{project-full-path}?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Windows Build Status](https://ci.appveyor.com/api/projects/status/2q35s9gt9bqaw558/branch/dev?svg=true)](https://ci.appveyor.com/project/rpau/walkmod-core)
+WalkMod, is an open source tool to share and apply code conventions by automatic quick fixes for coding style issues. 
+
+WalkMod is *language agnostic* and *platform agnostic*, since it can be extended to support multiple programming languages and runs in any platform, since it is coded in Java. However, the only current supported programming language is Java.
+
+WalkMod began as an open source framework to run code transformations. It benefits directly from the experience
+accumulated over several years of large-scale projects to support multiple quick fixes for existing static code analysis tools.
 
 <p align="center">
   <img src="http://walkmod.com/public/docs/assets/img/demo/logo-mask.png" alt="WalkMod logo"/>
 </p>
 
-This project, called [http://www.walkmod.com](walkmod), is an open source tool to fix coding style issues. Walkmod can support with any programming language if a set of interfaces are implemented as a third party plugin. The first (and current)
-supported language is Java. So, walkmod is completely modularized and you can extend their features (like Maven), 
-by plugins (see [http://walkmod.com/pluginslist](plugins]) ). 
+Getting started
+===============
+Docker can be installed either on your computer or in any CI tool to ensure your code style before merging changes. To get started, [check out the installation instructions in the documentation](https://docs.walkmod.com#installation).
 
-This repository contains the core library to load the configuration files and apply a chain of code transformations ( file by file ) 
-and required to build plugins. Anyway, you can use this library to help us to create a Walkmod ecosystem where other development tools
-(i.e Eclipse, Maven) can execute walkmod in an embedded mode instead of forcing a manual installation.
+Usage examples
+==============
 
-The [https://github.com/rpau/walkmod-cmd](walkmod-cmd) project is just the responsible to build the tool - a zip file which all walkmod libraries, the default 
-configuration and the scripts to execute walkmod. 
+WalkMod can be used to run short-lived commands or by using an static configuration.
 
-## Usage
+You can find a [list of real-world
+examples](http://docs.walkmod.com#quickfixes) in the
+documentation.
 
-You just need the following dependency:
+Under the hood
+--------------
 
-```
-<dependency>
-    <groupId>org.walkmod</groupId>
-    <artifactId>walkmod-core</artifactId>
-    <version>3.0.4</version>
-</dependency>
-```
+Under the hood, WalkMod is built on the following components:
 
-The `org.walkmod.WalkmodFacade` can help you to invoke the walkmod commands by API.
+* The [ivy](http://ant.apache.org/ivy/) engine to download plugins from Maven repositories.
+* The [Spring Framework](http://spring.io/) to support IoC.
 
-## Contributing
+
+Contributing to WalkMod
+=======================
+
+Want to hack on WalkMod? Awesome! The `org.walkmod.WalkmodFacade` can help you to 
+invoke the available commands by API.
 
 If you want to hack on this, fork it, improve it and send me a pull request.
 
