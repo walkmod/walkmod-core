@@ -3,14 +3,14 @@
 [![Build Status](https://travis-ci.org/walkmod/walkmod-core.svg?branch=master)](https://travis-ci.org/walkmod/walkmod-core)
 [![Chat](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/{project-full-path}?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/2q35s9gt9bqaw558/branch/dev?svg=true)](https://ci.appveyor.com/project/rpau/walkmod-core)
-[![Code Status](http://walkmod.com/pulls/rpau/test/master/status.svg)](http://walkmod.com/rpau/)
 
-This project, called [http://www.walkmod.com](walkmod), is an open source tool to apply coding conventions. Walkmod can support with 
-any programming language if a set of interfaces are implemented as a third party plugin. The first (and current)
+![Image of WalkMod](http://walkmod.com/public/docs/assets/img/demo/logo-mask.png)
+
+This project, called [http://www.walkmod.com](walkmod), is an open source tool to fix coding style issues. Walkmod can support with any programming language if a set of interfaces are implemented as a third party plugin. The first (and current)
 supported language is Java. So, walkmod is completely modularized and you can extend their features (like Maven), 
 by plugins (see [http://walkmod.com/pluginslist](plugins]) ). 
 
-This respository contains the core library to load the configuration files and apply a chain of code transformations ( file by file ) 
+This repository contains the core library to load the configuration files and apply a chain of code transformations ( file by file ) 
 and required to build plugins. Anyway, you can use this library to help us to create a Walkmod ecosystem where other development tools
 (i.e Eclipse, Maven) can execute walkmod in an embedded mode instead of forcing a manual installation.
 
@@ -25,7 +25,7 @@ You just need the following dependency:
 <dependency>
     <groupId>org.walkmod</groupId>
     <artifactId>walkmod-core</artifactId>
-    <version>2.2.0</version>
+    <version>3.0.4</version>
 </dependency>
 ```
 
