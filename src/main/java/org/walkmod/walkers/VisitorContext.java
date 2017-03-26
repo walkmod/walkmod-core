@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,11 +47,7 @@ public class VisitorContext extends HashMap<String, Object> {
 	}
 
 	public boolean addResultNode(Object node) {
-		if (!super.containsKey(KEY_AST_RESULT_NODES)) {
-			super.put(KEY_AST_RESULT_NODES, new LinkedList<Object>());
-		}
-		@SuppressWarnings("unchecked")
-		Collection<Object> collection = (Collection<Object>) get(KEY_AST_RESULT_NODES);
+		Collection<Object> collection = getOrCreateAstResultNodes();
 		Iterator<Object> it = collection.iterator();
 		while (it.hasNext()) {
 			if (it.next() == node) {
@@ -61,15 +58,26 @@ public class VisitorContext extends HashMap<String, Object> {
 	}
 
 	public boolean addAllResultNodes(Collection<Object> nodes) {
-		if (!super.containsKey(KEY_AST_RESULT_NODES)) {
-			super.put(KEY_AST_RESULT_NODES, new LinkedList<Object>());
-		}
-		Collection<Object> collection = (Collection<Object>) get(KEY_AST_RESULT_NODES);
+		Collection<Object> collection = getOrCreateAstResultNodes();
 		boolean added = false;
 		for (Object o : nodes) {
 			added = addResultNode(o) || added;
 		}
 		return added;
+	}
+
+	private Collection<Object> getOrCreateAstResultNodes() {
+		Collection<Object> result = getAstResultNodeListOrNull();
+		if (result == null) {
+			result = new LinkedList<Object>();
+			super.put(KEY_AST_RESULT_NODES, result);
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Collection<Object> getAstResultNodeListOrNull() {
+		return (Collection<Object>) super.get(KEY_AST_RESULT_NODES);
 	}
 
 	@Override
@@ -90,17 +98,15 @@ public class VisitorContext extends HashMap<String, Object> {
 
 	@SuppressWarnings("unchecked")
 	public Collection<Object> getResultNodes() {
-		Collection<Object> result;
-		if (super.containsKey(KEY_AST_RESULT_NODES)) {
-			result = (Collection<Object>) get(KEY_AST_RESULT_NODES);
-		} else {
-			result = Collections.EMPTY_LIST;
-		}
-		return result;
+		Collection<Object> result = getAstResultNodeListOrNull();
+		return result != null
+				? Collections.unmodifiableCollection(new ArrayList<Object>(result))
+				: Collections.EMPTY_LIST;
 	}
 
 	public boolean hasResultNodes() {
-		return !getResultNodes().isEmpty();
+		Collection<Object> result = getAstResultNodeListOrNull();
+		return result != null && !result.isEmpty();
 	}
 
 	public ChainConfig getArchitectureConfig() {
@@ -145,3 +151,4 @@ public class VisitorContext extends HashMap<String, Object> {
 		}
 	}
 }
+
