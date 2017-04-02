@@ -37,6 +37,9 @@ public class PrintChainsCommand implements Command, AsciiTableAware{
 	@Parameter(names = "--help", help = true, hidden = true)
 	private boolean help;
 
+	@Parameter(names = { "-f", "--config" }, description = "Specifies the configuration file.")
+	private String configurationFile = null;
+
 	private JCommander command;
 	
 	private V2_AsciiTable at = null;
@@ -53,7 +56,7 @@ public class PrintChainsCommand implements Command, AsciiTableAware{
 		if (help) {
 			command.usage("chains");
 		} else {
-			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options());
+			WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().configurationFile(configurationFile).build());
 			Configuration cfg = facade.getConfiguration();
 			at = new V2_AsciiTable();
 			at.addRule();
