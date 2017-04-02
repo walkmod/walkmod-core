@@ -64,6 +64,11 @@ public class Options {
 	public static final String EXECUTION_DIRECTORY = "execution_directory";
 
 	/**
+	 * (File, optional) Name of the walkmod configuration file
+	 */
+	public static final String CONFIGURATION_FILE = "config_file";
+
+	/**
 	 * (String) File extension of the walkmod configuration
 	 */
 	public static final String CONFIGURATION_FILE_FORMAT = "format";
@@ -123,12 +128,12 @@ public class Options {
 		}
 	}
 
+	/* @Nullable */ public File getConfigurationFile() {
+		return (File) this.options.get(CONFIGURATION_FILE);
+	}
+
 	public String getConfigurationFormat() {
-		Object value = this.options.get(CONFIGURATION_FILE_FORMAT);
-		if (value == null) {
-			value = "xml";
-		}
-		return value.toString();
+		return this.options.get(CONFIGURATION_FILE_FORMAT).toString();
 	}
 
 	public boolean isOffline() {

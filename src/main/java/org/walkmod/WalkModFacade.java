@@ -95,7 +95,7 @@ public class WalkModFacade {
      */
     public WalkModFacade(Options options) {
 
-        this(null, options, null);
+        this(options.getConfigurationFile(), options, null);
     }
 
     /**
@@ -103,13 +103,29 @@ public class WalkModFacade {
      *  @param walkmodCfg
      *            Walkmod configuration file. If null, file named 'walkmod.xml' is searched at the
      *            root.
-     * @param options
+     * @param optionsArg
      *            Map of option. See {@link Options} and {@link OptionsBuilder} for available
      *            options and default values.
      * @param configurationProvider
- *            Configuration provider responsible for the resolution of plugins (used to use
+     *            Configuration provider responsible for the resolution of plugins (used to use
+     * @deprecated use constructor with Options parameter
      */
-    public WalkModFacade(File walkmodCfg, Options optionsArg, ConfigurationProvider configurationProvider) {
+    public WalkModFacade(/* @Nullable */ File walkmodCfg, OptionsBuilder optionsArg, ConfigurationProvider configurationProvider) {
+        this(walkmodCfg, optionsArg.build(), configurationProvider);
+    }
+
+    /**
+     * Initalizes a Walkmod service
+     *  @param walkmodCfg
+     *            Walkmod configuration file. If null, file named 'walkmod.xml' is searched at the
+     *            root.
+     * @param optionsArg
+     *            Map of option. See {@link Options} and {@link OptionsBuilder} for available
+     *            options and default values.
+     * @param configurationProvider
+     *            Configuration provider responsible for the resolution of plugins (used to use
+     */
+    public WalkModFacade(/* @Nullable */ File walkmodCfg, Options optionsArg, ConfigurationProvider configurationProvider) {
 
         this.options = optionsArg;
 
@@ -152,9 +168,7 @@ public class WalkModFacade {
         run(result, new WalkmodCommand() {
             @Override
             public void execute(Options options, File executionDir, String... chains) throws Exception {
-                WalkModFacade facade = new WalkModFacade(null,
-                        OptionsBuilder.options(options).executionDirectory(executionDir).build(),
-                        null);
+                WalkModFacade facade = new WalkModFacade(OptionsBuilder.options(options).executionDirectory(executionDir).build());
 
                 result.addAll(facade.apply(chains));
             }
@@ -240,9 +254,7 @@ public class WalkModFacade {
         run(result, new WalkmodCommand() {
             @Override
             public void execute(Options options, File executionDir, String... chains) throws Exception {
-                WalkModFacade facade = new WalkModFacade(null,
-                        OptionsBuilder.options(options).executionDirectory(executionDir).build(),
-                        null);
+                WalkModFacade facade = new WalkModFacade(OptionsBuilder.options(options).executionDirectory(executionDir).build());
 
                 result.addAll(facade.patch(chains));
             }
@@ -312,9 +324,7 @@ public class WalkModFacade {
         run(result, new WalkmodCommand() {
             @Override
             public void execute(Options options, File executionDir, String... chains) throws Exception {
-                WalkModFacade facade = new WalkModFacade(null,
-                        OptionsBuilder.options(options).executionDirectory(executionDir).build(),
-                        null);
+                WalkModFacade facade = new WalkModFacade(OptionsBuilder.options(options).executionDirectory(executionDir).build());
 
                 result.addAll(facade.check(chains));
             }
@@ -586,9 +596,7 @@ public class WalkModFacade {
                                 log.info("** MODULE " + aux.getAbsoluteFile() + " [ok] **");
                             }
 
-                            WalkModFacade facade = new WalkModFacade(null,
-                                    OptionsBuilder.options(options).executionDirectory(aux).build(),
-                                    null);
+                            WalkModFacade facade = new WalkModFacade(OptionsBuilder.options(options).executionDirectory(aux).build());
                             facade.install();
                         } else {
                             log.error("The module " + aux.getAbsolutePath() + " is not an existing directory");

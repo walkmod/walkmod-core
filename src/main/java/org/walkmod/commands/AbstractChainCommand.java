@@ -30,6 +30,9 @@ public class AbstractChainCommand {
     @Parameter(names = "--help", help = true, hidden = true)
     private boolean help;
 
+    @Parameter(names = { "-f", "--config" }, description = "Specifies the configuration file.")
+    private String configurationFile = null;
+
     @Parameter(names = "--offline", description = "Resolves the walkmod plugins and their dependencies in offline mode")
     private boolean offline = false;
 
@@ -118,7 +121,8 @@ public class AbstractChainCommand {
                 .includes(includes)
                 .excludes(excludes)
                 .dynamicArgs(dynamicParams)
-                .path(path);
+                .path(path)
+                .configurationFile(configurationFile);
     }
 
 }
