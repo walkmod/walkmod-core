@@ -112,30 +112,13 @@ public class AbstractChainCommand {
         this.path = path;
     }
 
-
     public OptionsBuilder buildOptions() {
-        String[] includesArray = null;
-        String[] excludesArray = null;
-
-        if (includes != null && !includes.isEmpty()) {
-            includesArray = new String[includes.size()];
-            includes.toArray(includesArray);
-        }
-        if (excludes != null && !excludes.isEmpty()) {
-            excludesArray = new String[excludes.size()];
-            excludes.toArray(excludesArray);
-        }
-
-        offline = (offline == true);
-        showException = showException != null && (showException == true);
-        Map<String, Object> dynamicArgs = new HashMap<String, Object>();
-        dynamicArgs.putAll(dynamicParams);
-
-        return OptionsBuilder.options().verbose(true).offline(offline).printErrors(showException)
-                .includes(includesArray).excludes(excludesArray).dynamicArgs(dynamicArgs).path(path);
-        
-     
-
+        return OptionsBuilder.options().verbose(true).offline(offline)
+                .printErrors(showException != null && showException)
+                .includes(includes)
+                .excludes(excludes)
+                .dynamicArgs(dynamicParams)
+                .path(path);
     }
 
 }

@@ -16,6 +16,12 @@
 package org.walkmod;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,26 +36,49 @@ import java.util.Map;
  * @author abelsromero
  */
 public class OptionsBuilder {
+	private static final String DEFAULT_PATH = ".";
 
 	/**
-	 * Options instance
+	 * Collected options
 	 */
-	private Options options;
+	private final Map<String, Object> options = new HashMap<String, Object>();
 
 	/**
 	 * Creates an OptionBuilder with the default options
 	 */
 	private OptionsBuilder() {
-		options = new Options();
+		this(Collections.<String, Object>emptyMap());
 
 	}
 
 	/**
 	 * Creates an OptionBuilder with the initialization options
 	 */
-	private OptionsBuilder(Map<String, Object> options) {
-		this.options = new Options(options);
+	private OptionsBuilder(Map<String, Object> optionsArg) {
+		// default values
+		options.put(Options.OFFLINE, false);
+		options.put(Options.VERBOSE, true);
+		options.put(Options.PRINT_ERRORS, false);
+		options.put(Options.THROW_EXCEPTION, false);
+		options.put(Options.EXECUTION_DIRECTORY, defaultExecutionDirectory());
+		options.put(Options.CONFIGURATION_FILE_FORMAT, "xml");
+		options.put(Options.CHAIN_PATH, DEFAULT_PATH);
+		options.putAll(optionsArg);
+	}
 
+	private static File defaultExecutionDirectory() {
+		return new File(System.getProperty("user.dir"));
+	}
+
+	/**
+	 * Creates an Options instance with the default options:
+	 *
+	 * See {@link #options()}
+	 *
+	 * @return options builder instance
+	 */
+	public static Options defaultOptions() {
+		return options().build();
 	}
 
 	/**
@@ -69,7 +98,7 @@ public class OptionsBuilder {
 	}
 
 	/**
-	 * Creates an OptionBuilder instance with the default options:
+	 * Creates an OptionBuilder instance with the given options:
 	 *
 	 * @param options
 	 *            Map of starting options. See {@link Options} for available
@@ -82,6 +111,19 @@ public class OptionsBuilder {
 	}
 
 	/**
+	 * Creates an OptionBuilder instance with the given options:
+	 *
+	 * @param options
+	 *            Map of starting options. See {@link Options} for available
+	 *            keys
+	 *
+	 * @return options builder instance
+	 */
+	public static OptionsBuilder options(Options options) {
+		return new OptionsBuilder(options.asMap());
+	}
+
+	/**
 	 * Sets the offline option
 	 *
 	 * @param offline
@@ -90,7 +132,7 @@ public class OptionsBuilder {
 	 * @see Options#OFFLINE
 	 */
 	public OptionsBuilder offline(boolean offline) {
-		options.setOffline(offline);
+		options.put(Options.OFFLINE, offline);
 		return this;
 	}
 
@@ -104,12 +146,12 @@ public class OptionsBuilder {
 	 * @see Options#VERBOSE
 	 */
 	public OptionsBuilder verbose(boolean verbose) {
-		options.setVerbose(verbose);
+		options.put(Options.VERBOSE, verbose);
 		return this;
 	}
 	
 	/**
-     * Sets the path option
+     * Sets the path option. Null value resets to default value.
      *
      * @param path
      *            directory to read and write from
@@ -118,8 +160,8 @@ public class OptionsBuilder {
      * @see Options#VERBOSE
      */
     public OptionsBuilder path(String path) {
-        options.setPath(path);
-        return this;
+		options.put(Options.CHAIN_PATH, path != null ? path : DEFAULT_PATH);
+		return this;
     }
 
 	/**
@@ -132,7 +174,7 @@ public class OptionsBuilder {
 	 * @see Options#PRINT_ERRORS
 	 */
 	public OptionsBuilder printErrors(boolean printErrors) {
-		options.setPrintErrors(printErrors);
+		options.put(Options.PRINT_ERRORS, printErrors);
 		return this;
 	}
 
@@ -146,12 +188,12 @@ public class OptionsBuilder {
 	 * @see Options#PRINT_ERRORS
 	 */
 	public OptionsBuilder throwException(boolean throwException) {
-		options.setThrowException(throwException);
+		this.options.put(Options.THROW_EXCEPTION, throwException);
 		return this;
 	}
 
 	/**
-	 * Sets the includes option
+	 * Adds to the includes option
 	 *
 	 * @param includes
 	 *            List of included paths
@@ -159,13 +201,36 @@ public class OptionsBuilder {
 	 *
 	 * @see Options#INCLUDES
 	 */
+	@SuppressWarnings("unchecked")
 	public OptionsBuilder includes(String... includes) {
-		options.setIncludes(includes);
+		return includes != null ? includes(Arrays.asList(includes)) : this;
+	}
+
+	/**
+	 * Adds to the includes option
+	 *
+	 * @param includes
+	 *            List of included paths
+	 * @return updated OptionBuilder instance
+	 *
+	 * @see Options#INCLUDES
+	 */
+	@SuppressWarnings("unchecked")
+	public OptionsBuilder includes(/* @Nullable */ Collection<String> includes) {
+
+		if (includes != null && !includes.isEmpty()) {
+			if (!options.containsKey(Options.INCLUDES)) {
+				options.put(Options.INCLUDES, new ArrayList<Object>());
+			}
+
+			List<Object> allIncludes = (List<Object>) options.get(Options.INCLUDES);
+			allIncludes.addAll(includes);
+		}
 		return this;
 	}
 
 	/**
-	 * Sets the excludes
+	 * Adds to the excluded option
 	 *
 	 * @param excludes
 	 *            List of excluded paths
@@ -174,19 +239,43 @@ public class OptionsBuilder {
 	 * @see Options#EXCLUDES
 	 */
 	public OptionsBuilder excludes(String... excludes) {
-		options.setExcludes(excludes);
+		return excludes != null ? excludes(Arrays.asList(excludes)) : this;
+	}
+
+	/**
+	 * Adds to the excluded option
+	 *
+	 * @param excludes
+	 *            List of excluded paths
+	 * @return updated OptionBuilder instance
+	 *
+	 * @see Options#EXCLUDES
+	 */
+	public OptionsBuilder excludes(/* @Nullable */ Collection<String> excludes) {
+
+		if (excludes != null && !excludes.isEmpty()) {
+			if (!options.containsKey(Options.EXCLUDES)) {
+				options.put(Options.EXCLUDES, new ArrayList<Object>());
+			}
+
+			List<Object> allIncludes = (List<Object>) options.get(Options.EXCLUDES);
+			allIncludes.addAll(excludes);
+		}
 		return this;
 	}
-	
+
 	/**
 	 * Seths the dynamic arguments
 	 * @param dynamicArgs
 	 *     Map of dynamic arguments
 	 * @return Options#DYNAMIC_ARGS
 	 */
-	public OptionsBuilder dynamicArgs(Map<String, Object> dynamicArgs){
-	    options.setDynamicArgs(dynamicArgs);
-	    return this;
+	public OptionsBuilder dynamicArgs(Map<String, ?> dynamicArgs){
+		final Map<String, Object> m = dynamicArgs != null
+				? Collections.unmodifiableMap(new HashMap<String, Object>(dynamicArgs))
+				: Collections.<String, Object>emptyMap();
+		options.put(Options.DYNAMIC_ARGS, m);
+		return this;
 	}
 
 	/**
@@ -199,7 +288,7 @@ public class OptionsBuilder {
 	 * @see Options#EXECUTION_DIRECTORY
 	 */
 	public OptionsBuilder executionDirectory(File executionDirectory) {
-		options.setExecutionDirectory(executionDirectory);
+		options.put(Options.EXECUTION_DIRECTORY, executionDirectory != null ? executionDirectory : defaultExecutionDirectory());
 		return this;
 	}
 	
@@ -213,25 +302,23 @@ public class OptionsBuilder {
 	 * @see Options#CONFIGURATION_FILE_FORMAT
 	 */
 	public OptionsBuilder configurationFormat(String configurationFormat){
-		options.setConfigurationFormat(configurationFormat);
+		String aux = configurationFormat.toLowerCase().trim();
+		if(aux.equals("yaml") || aux.equals("json")){
+			aux = "yml";
+		}
+		if (aux.equals("xml") || aux.equals("yml")) {
+			options.put(Options.CONFIGURATION_FILE_FORMAT, aux);
+		} else {
+			throw new IllegalArgumentException("The configuration format "+aux+" is not supported");
+		}
 		return this;
 	}
 
 	/**
 	 * 
-	 * @return the current built options
+	 * @return the current immutable built options
 	 */
 	public Options build() {
-		return options;
+		return new Options(options);
 	}
-
-	/**
-	 * Returns the stored options as a Map&lt;String,Object&gt;
-	 *
-	 * @return map with options
-	 */
-	public Map<String, Object> asMap() {
-		return options.asMap();
-	}
-
 }

@@ -5,9 +5,9 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class OptionsTest {
 
     @Test
     public void options_initialize_default_values() {
-        Options options = new Options();
+        Options options = OptionsBuilder.options().build();
         
         assertThat(options.isOffline(), is(false));
         assertThat(options.isVerbose(), is(true));
@@ -37,104 +37,112 @@ public class OptionsTest {
         myOptions.put(Options.THROW_EXCEPTION, true);
         myOptions.put(Options.INCLUDES, Arrays.asList("one/path", "two/path", "three/path"));
 
-        Options _options = new Options(myOptions);
+        Options _options = OptionsBuilder.options(myOptions).build();
         Map<String,Object> options = _options.asMap();
-        assertThat(options.values().size(), is(7)); //default values(6) + includes
-        assertThat(_options.getIncludes().size(), is(3));
+        assertThat(options.values().size(), is(8)); //default values(6) + includes
         assertThat(_options.isOffline(), is(true));
-        assertThat(_options.getConfigurationFormat(), is("xml"));
+        assertThat(_options.isVerbose(), is(true));
+        assertThat(_options.isPrintErrors(), is(false));
         assertThat(_options.isThrowException(), is(true));
+        assertThat(_options.getExecutionDirectory(), is(new File(System.getProperty("user.dir"))));
+        assertThat(_options.getIncludes().size(), is(3));
+        assertThat(_options.getConfigurationFormat(), is("xml"));
         assertThat(_options.getIncludes(), contains("one/path", "two/path", "three/path"));
+        assertThat(_options.getPath(), is("."));
     }
 
     @Test
     public void offline_option_setter_works() {
-        Options options = new Options();
+        OptionsBuilder ob = OptionsBuilder.options();
        
-        options.setOffline(true);
-        assertThat(options.isOffline(), is(true));
+        ob.offline(true);
+        assertThat(ob.build().isOffline(), is(true));
 
-        options.setOffline(false);
-        assertThat(options.isOffline(), is(false));
+        ob.offline(false);
+        assertThat(ob.build().isOffline(), is(false));
     }
 
     @Test
     public void verbose_option_setter_works() {
-        Options options = new Options();
-      
-        options.setVerbose(true);
-        assertThat(options.isVerbose(), is(true));
+        OptionsBuilder ob = OptionsBuilder.options();
 
-        options.setVerbose(false);
-        assertThat(options.isVerbose(), is(false));
+        ob.verbose(true);
+        assertThat(ob.build().isVerbose(), is(true));
+
+        ob.verbose(false);
+        assertThat(ob.build().isVerbose(), is(false));
     }
 
     @Test
     public void printErrors_option_setter_works() {
-        Options options = new Options();
+        OptionsBuilder ob = OptionsBuilder.options();
        
-        options.setPrintErrors(true);
-        assertThat(options.isPrintErrors(), is(true));
+        ob.printErrors(true);
+        assertThat(ob.build().isPrintErrors(), is(true));
 
-        options.setPrintErrors(false);
-        assertThat(options.isPrintErrors(), is(false));
+        ob.printErrors(false);
+        assertThat(ob.build().isPrintErrors(), is(false));
     }
 
     @Test
     public void throwsException_option_setter_works() {
-        Options options = new Options();
+        OptionsBuilder ob = OptionsBuilder.options();
         
-        options.setThrowException(true);
-        assertThat(options.isThrowException(), is(true));
+        ob.throwException(true);
+        assertThat(ob.build().isThrowException(), is(true));
 
-        options.setThrowException(false);
-        assertThat(options.isThrowException(), is(false));
+        ob.throwException(false);
+        assertThat(ob.build().isThrowException(), is(false));
     }
 
     @Test
     public void include_option_setter_multiple_works() {
-        Options options = new Options();
-        Object previousValue = options.getIncludes();
+        OptionsBuilder ob = OptionsBuilder.options();
+        Object previousValue = ob.build().getIncludes();
         assertThat(previousValue, is(nullValue()));
 
-        options.setIncludes("one", "two", "path/three");
+        ob.includes("one", "two", "path/three");
+        final Options options = ob.build();
         assertThat(options.getIncludes().size(), is(3));
         assertThat(options.getIncludes(), contains("one", "two", "path/three"));
     }
 
     @Test
     public void include_option_setter_one_by_one_works() {
-        Options options = new Options();
-        Object previousValue = options.getIncludes();
+        OptionsBuilder ob = OptionsBuilder.options();
+        Object previousValue = ob.build().getIncludes();
         assertThat(previousValue, is(nullValue()));
 
-        options.setIncludes("one");
-        options.setIncludes("two");
-        options.setIncludes( "path/three");
+        ob.includes("one");
+        ob.includes("two");
+        ob.includes( "path/three");
+        final Options options = ob.build();
         assertThat(options.getIncludes().size(), is(3));
         assertThat(options.getIncludes(), contains("one", "two", "path/three"));
     }
 
     @Test
     public void exclude_option_setter_multiple_works() {
-        Options options = new Options();
-        Object previousValue = options.getExcludes();
+        OptionsBuilder ob = OptionsBuilder.options();
+        Object previousValue = ob.build().getExcludes();
         assertThat(previousValue, is(nullValue()));
 
-        options.setExcludes("one", "two", "path/three");
+        ob.excludes("one", "two", "path/three");
+        final Options options = ob.build();
         assertThat(options.getExcludes().size(), is(3));
         assertThat(options.getExcludes(), contains("one", "two", "path/three"));
     }
 
     @Test
     public void exclude_option_setter_one_by_one_works() {
-        Options options = new Options();
-        Object previousValue = options.getExcludes();
+        OptionsBuilder ob = OptionsBuilder.options();
+        Object previousValue = ob.build().getExcludes();
         assertThat(previousValue, is(nullValue()));
 
-        options.setExcludes("one");
-        options.setExcludes("two");
-        options.setExcludes("path/three");
+        ob.excludes("one");
+        ob.excludes("two");
+        ob.excludes("path/three");
+        final Options options = ob.build();
         assertThat(options.getExcludes().size(), is(3));
         assertThat(options.getExcludes(), contains("one", "two", "path/three"));
     }

@@ -59,7 +59,7 @@ public class WalkModFacade {
 
     private static final String DEFAULT_WALKMOD_FILE_NAME = "walkmod";
 
-    private Options options;
+    private final Options options;
 
     private String userDir = ".";
 
@@ -79,29 +79,39 @@ public class WalkModFacade {
      * @param optionsBuilder
      *            Map of option. See {@link Options} and {@link OptionsBuilder} for available
      *            options and default values.
+     * @deprecated use {@link #WalkModFacade(Options)}
      */
     public WalkModFacade(OptionsBuilder optionsBuilder) {
 
-        this(null, optionsBuilder, null);
+        this(null, optionsBuilder.build(), null);
     }
 
     /**
      * Initalizes a Walkmod service
      *
-     * @param walkmodCfg
+     * @param options
+     *            Map of option. See {@link Options} and {@link OptionsBuilder} for available
+     *            options and default values.
+     */
+    public WalkModFacade(Options options) {
+
+        this(null, options, null);
+    }
+
+    /**
+     * Initalizes a Walkmod service
+     *  @param walkmodCfg
      *            Walkmod configuration file. If null, file named 'walkmod.xml' is searched at the
      *            root.
-     * @param optionsBuilder
+     * @param options
      *            Map of option. See {@link Options} and {@link OptionsBuilder} for available
      *            options and default values.
      * @param configurationProvider
-     *            Configuration provider responsible for the resolution of plugins (used to use
-     *            custom classloading strategies). If null Ivy is used.
+ *            Configuration provider responsible for the resolution of plugins (used to use
      */
-    public WalkModFacade(File walkmodCfg, OptionsBuilder optionsBuilder, ConfigurationProvider configurationProvider) {
+    public WalkModFacade(File walkmodCfg, Options optionsArg, ConfigurationProvider configurationProvider) {
 
-        // process options
-        options = optionsBuilder.build();
+        this.options = optionsArg;
 
         if (walkmodCfg != null) {
             this.cfg = walkmodCfg.getAbsoluteFile();
@@ -143,7 +153,8 @@ public class WalkModFacade {
             @Override
             public void execute(Options options, File executionDir, String... chains) throws Exception {
                 WalkModFacade facade = new WalkModFacade(null,
-                        OptionsBuilder.options(options.asMap()).executionDirectory(executionDir), null);
+                        OptionsBuilder.options(options).executionDirectory(executionDir).build(),
+                        null);
 
                 result.addAll(facade.apply(chains));
             }
@@ -180,7 +191,7 @@ public class WalkModFacade {
         try {
             ConfigurationManager cfgManager = new ConfigurationManager(cfg, cp);
             config = cfgManager.getConfiguration();
-            config.setParameters(options.getDynamicArgs());
+            config.setParameters(options.getMutableCopyOfDynamicArgs());
 
         } catch (Exception e) {
             printConfigError(e);
@@ -194,9 +205,6 @@ public class WalkModFacade {
             throws InvalidConfigurationException {
         Configuration config = new ConfigurationImpl();
         try {
-            if(options.getPath() == null){
-                options.setPath(".");
-            }
             DynamicConfigurationProvider prov = new DynamicConfigurationProvider(options, chains);
             prov.init(config);
             prov.load();
@@ -208,7 +216,7 @@ public class WalkModFacade {
             prov2.load();
 
             config = cfgManager.getConfiguration();
-            config.setParameters(options.getDynamicArgs());
+            config.setParameters(options.getMutableCopyOfDynamicArgs());
 
         } catch (Exception e) {
             printConfigError(e);
@@ -233,7 +241,8 @@ public class WalkModFacade {
             @Override
             public void execute(Options options, File executionDir, String... chains) throws Exception {
                 WalkModFacade facade = new WalkModFacade(null,
-                        OptionsBuilder.options(options.asMap()).executionDirectory(executionDir), null);
+                        OptionsBuilder.options(options).executionDirectory(executionDir).build(),
+                        null);
 
                 result.addAll(facade.patch(chains));
             }
@@ -304,7 +313,8 @@ public class WalkModFacade {
             @Override
             public void execute(Options options, File executionDir, String... chains) throws Exception {
                 WalkModFacade facade = new WalkModFacade(null,
-                        OptionsBuilder.options(options.asMap()).executionDirectory(executionDir), null);
+                        OptionsBuilder.options(options).executionDirectory(executionDir).build(),
+                        null);
 
                 result.addAll(facade.check(chains));
             }
@@ -577,7 +587,8 @@ public class WalkModFacade {
                             }
 
                             WalkModFacade facade = new WalkModFacade(null,
-                                    OptionsBuilder.options(options.asMap()).executionDirectory(aux), null);
+                                    OptionsBuilder.options(options).executionDirectory(aux).build(),
+                                    null);
                             facade.install();
                         } else {
                             log.error("The module " + aux.getAbsolutePath() + " is not an existing directory");
