@@ -66,7 +66,7 @@ public class WalkModFacade {
     /**
      * Walkmod configuration file
      */
-    private File cfg;
+    private final File cfg;
 
     /**
      * Initializes the configuration of the walkmod context (e.g. classpath)
@@ -83,7 +83,7 @@ public class WalkModFacade {
      */
     public WalkModFacade(OptionsBuilder optionsBuilder) {
 
-        this(null, optionsBuilder.build(), null);
+        this(optionsBuilder.build());
     }
 
     /**
