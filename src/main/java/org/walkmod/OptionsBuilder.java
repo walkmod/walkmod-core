@@ -294,6 +294,7 @@ public class OptionsBuilder {
 	
 	/**
 	 * Sets the configuration format (xml or yml)
+	 *
 	 * @param configurationFormat
 	 * 			configuration format (file extension)
 	 * 
@@ -310,6 +311,22 @@ public class OptionsBuilder {
 			options.put(Options.CONFIGURATION_FILE_FORMAT, aux);
 		} else {
 			throw new IllegalArgumentException("The configuration format "+aux+" is not supported");
+		}
+		return this;
+	}
+
+	/**
+	 * Sets the walkmod configuration file.
+	 *
+	 * @return updated OptionBuilder instance
+	 *
+	 * @see Options#CONFIGURATION_FILE
+	 */
+	public OptionsBuilder configurationFile(String configFile) {
+		if (configFile != null) {
+			options.put(Options.CONFIGURATION_FILE, new File(configFile));
+		} else {
+			options.remove(Options.CONFIGURATION_FILE);
 		}
 		return this;
 	}

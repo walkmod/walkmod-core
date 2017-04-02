@@ -27,7 +27,7 @@ public class OptionsTest {
         assertThat(options.isThrowException(), is(false));
         assertThat(options.getExcludes(), is(nullValue()));
         assertThat(options.getIncludes(), is(nullValue()));
-       
+        assertThat(options.getConfigurationFile(), is(nullValue()));
     }
 
     @Test
@@ -233,4 +233,15 @@ public class OptionsTest {
         assertThat(options.getExcludes(), contains("three","four"));
     }
 
+
+    @Test
+    public void configuration_file_setter_works() {
+        OptionsBuilder ob = OptionsBuilder.options();
+
+        ob.configurationFile("file.xml");
+        assertThat(ob.build().getConfigurationFile(), is(new File("file.xml")));
+
+        ob.configurationFile(null);
+        assertThat(ob.build().getConfigurationFile(), is(nullValue()));
+    }
 }

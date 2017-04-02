@@ -26,21 +26,18 @@ public class WalkmodFacadeTest {
 
 	@Test(expected = NullPointerException.class)
 	public void facade_does_not_support_null_optionsBuilder() {
-		WalkModFacade facade = new WalkModFacade(null, null, null);
+		new WalkModFacade(null, (OptionsBuilder) null, null);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void facade_does_not_support_null_options() {
+		new WalkModFacade(null, (Options) null, null);
 	}
 
 	@Test
 	public void facade_minimum_parameters() {
 		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.defaultOptions(), null);
-		assertThat(facade, is(not(nullValue())));
-
-		File cfg = getValue(facade, "cfg", File.class);
-		assertThat(cfg.getAbsolutePath(), equalTo(new File("walkmod.xml").getAbsolutePath()));
-
-		assertDefaultOptions(facade);
-
-		ConfigurationProvider configProvider = getValue(facade, "configurationProvider", ConfigurationProvider.class);
-		assertThat(configProvider, is(nullValue()));
+		assertFacadeWithCfgFile(facade, "walkmod.xml");
 	}
 
 	@Test
@@ -48,6 +45,18 @@ public class WalkmodFacadeTest {
 		// Note that the constructor does not validate that the file exists
 		String fileName = "test/any_file.xml";
 		WalkModFacade facade = new WalkModFacade(new File(fileName), OptionsBuilder.defaultOptions(), null);
+		assertFacadeWithCfgFile(facade, fileName);
+	}
+
+	@Test
+	public void facade_with_cfg_file_via_command_line() {
+		// Note that the constructor does not validate that the file exists
+		String fileName = "test/any_file.xml";
+		WalkModFacade facade = new WalkModFacade(OptionsBuilder.options().configurationFile(fileName).build());
+		assertFacadeWithCfgFile(facade, fileName);
+	}
+
+	private void assertFacadeWithCfgFile(WalkModFacade facade, String fileName) {
 		assertThat(facade, is(not(nullValue())));
 
 		File cfg = getValue(facade, "cfg", File.class);
