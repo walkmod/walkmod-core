@@ -31,7 +31,7 @@ public class WalkmodFacadeTest {
 
 	@Test
 	public void facade_minimum_parameters() {
-		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options(), null);
+		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.defaultOptions(), null);
 		assertThat(facade, is(not(nullValue())));
 
 		File cfg = getValue(facade, "cfg", File.class);
@@ -47,7 +47,7 @@ public class WalkmodFacadeTest {
 	public void facade_with_cfg_file() {
 		// Note that the constructor does not validate that the file exists
 		String fileName = "test/any_file.xml";
-		WalkModFacade facade = new WalkModFacade(new File(fileName), OptionsBuilder.options(), null);
+		WalkModFacade facade = new WalkModFacade(new File(fileName), OptionsBuilder.defaultOptions(), null);
 		assertThat(facade, is(not(nullValue())));
 
 		File cfg = getValue(facade, "cfg", File.class);
@@ -63,7 +63,7 @@ public class WalkmodFacadeTest {
 	public void facade_with_configuration_provider() {
 		// Note that the constructor does not validate if the file exists
 		String fileName = "test/any_file.xml";
-		WalkModFacade facade = new WalkModFacade(new File(fileName), OptionsBuilder.options(),
+		WalkModFacade facade = new WalkModFacade(new File(fileName), OptionsBuilder.defaultOptions(),
 				new MockConfigurationProvider());
 		assertThat(facade, is(not(nullValue())));
 
@@ -86,7 +86,7 @@ public class WalkmodFacadeTest {
 		OptionsBuilder options = OptionsBuilder.options().includes(includes).excludes(excludes).printErrors(true)
 				.throwException(true);
 
-		WalkModFacade facade = new WalkModFacade(null, options, null);
+		WalkModFacade facade = new WalkModFacade(null, options.build(), null);
 		assertThat(facade, is(not(nullValue())));
 
 		File cfg = getValue(facade, "cfg", File.class);
@@ -149,7 +149,7 @@ public class WalkmodFacadeTest {
 
 		String path1 = new File(".").getCanonicalPath();
 		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options().executionDirectory(executionDir)
-				.printErrors(true), null);
+				.printErrors(true).build(), null);
 
 		List<File> result = facade.apply();
 		assertThat(result.get(0), Matchers.notNullValue());
@@ -164,7 +164,7 @@ public class WalkmodFacadeTest {
 	@Test
 	public void facadeExecutionLocally() throws Exception {
 		String path = System.getProperty("user.dir");
-		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options().printErrors(true), null);
+		WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options().printErrors(true).build(), null);
 		List<File> result = facade.check();
 		assertThat(result, Matchers.notNullValue());
 		Assert.assertEquals(path, System.getProperty("user.dir"));
@@ -180,7 +180,7 @@ public class WalkmodFacadeTest {
 		File cfg = new File("src/test/resources/testFiles/walkmod.xml");
 
 		WalkModFacade facade = new WalkModFacade(cfg, OptionsBuilder.options().executionDirectory(executionDir)
-				.printErrors(true), null);
+				.printErrors(true).build(), null);
 		List<File> result = facade.apply();
 		assertThat(result.get(0), Matchers.notNullValue());
 		result.get(0).delete();
@@ -204,7 +204,7 @@ public class WalkmodFacadeTest {
 		File cfg = new File("src/test/resources/multimodule/walkmod.xml");
 
 		WalkModFacade facade = new WalkModFacade(cfg, OptionsBuilder.options().executionDirectory(executionDir)
-				.printErrors(true), null);
+				.printErrors(true).build(), null);
 		List<File> result = facade.check();
 		
 		assertThat(result.size(), Matchers.is(2));
@@ -235,7 +235,7 @@ public class WalkmodFacadeTest {
 		File cfg = new File("src/test/resources/multimodule/walkmod.xml");
 
 		WalkModFacade facade = new WalkModFacade(cfg, OptionsBuilder.options().executionDirectory(executionDir)
-				.printErrors(true), null);
+				.printErrors(true).build(), null);
 		List<File> result = facade.apply();
 		// check does not produce changes
 		assertThat(result.size(), Matchers.is(2));
@@ -267,7 +267,7 @@ public class WalkmodFacadeTest {
 		File cfg = new File("src/test/resources/multimodule/walkmod.xml");
 
 		WalkModFacade facade = new WalkModFacade(cfg, OptionsBuilder.options().executionDirectory(executionDir)
-				.printErrors(true), null);
+				.printErrors(true).build(), null);
 		facade.install();
 		
 		FileUtils.deleteDirectory(new File("module1/src"));
@@ -291,7 +291,7 @@ public class WalkmodFacadeTest {
 		File cfg = new File("src/test/resources/simple/walkmod.yml");
 
 		WalkModFacade facade = new WalkModFacade(cfg, OptionsBuilder.options().executionDirectory(executionDir)
-				.printErrors(true), null);
+				.printErrors(true).build(), null);
 		facade.check();
 		
 		Assert.assertTrue(true);
@@ -314,7 +314,7 @@ public class WalkmodFacadeTest {
 
       String path1 = new File(".").getCanonicalPath();
       WalkModFacade facade = new WalkModFacade(null, OptionsBuilder.options().executionDirectory(executionDir)
-            .printErrors(true), null);
+            .printErrors(true).build(), null);
 
       List<File> result = facade.check();
       assertThat(result.get(0), Matchers.notNullValue());
