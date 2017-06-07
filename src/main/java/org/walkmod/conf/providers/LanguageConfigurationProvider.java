@@ -35,6 +35,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.walkmod.conf.ConfigurationException;
 import org.walkmod.conf.ConfigurationProvider;
+import org.walkmod.conf.DomConstants;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.MergePolicyConfig;
@@ -82,6 +83,7 @@ public class LanguageConfigurationProvider implements ConfigurationProvider {
         this.suffixFileName = suffixFileName;
         this.errorIfMissing = errorIfMissing;
         Map<String, String> mappings = new HashMap<String, String>();
+        mappings.putAll(DomConstants.WALKMOD_DTD_MAPPINGS);
         mappings.put("-//WALKMOD//WalkMod 1.0//EN", "walkmod-lang-1.1.dtd");
         setDtdMappings(mappings);
     }

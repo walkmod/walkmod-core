@@ -45,6 +45,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.walkmod.conf.ConfigurationException;
+import org.walkmod.conf.DomConstants;
 import org.walkmod.conf.ProjectConfigurationProvider;
 import org.walkmod.conf.entities.ChainConfig;
 import org.walkmod.conf.entities.Configuration;
@@ -124,10 +125,7 @@ public class XMLConfigurationProvider extends AbstractChainConfigurationProvider
 	public XMLConfigurationProvider(String configFileName, boolean errorIfMissing) {
 		this.configFileName = configFileName;
 		this.errorIfMissing = errorIfMissing;
-		Map<String, String> mappings = new HashMap<String, String>();
-		mappings.put("-//WALKMOD//DTD//1.0", "walkmod-1.0.dtd");
-		mappings.put("-//WALKMOD//DTD//1.1", "walkmod-1.1.dtd");
-		setDtdMappings(mappings);
+		setDtdMappings(DomConstants.WALKMOD_DTD_MAPPINGS);
 	}
 
 	public void setDtdMappings(Map<String, String> mappings) {
