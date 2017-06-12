@@ -320,6 +320,9 @@ public class DomHelper {
 				String val = dtdMappings.get(publicId).toString();
 				return new InputSource(ClassLoaderUtil.getResourceAsStream(val, DomHelper.class));
 			}
+			if (systemId != null) {
+				return new InputSource(systemId);
+			}
 			return null;
 		}
 
