@@ -1,5 +1,7 @@
-walkmod: The Fixer of Java Coding Style Issues [![Build Status](https://travis-ci.org/walkmod/walkmod-core.svg?branch=master)](https://travis-ci.org/walkmod/walkmod-core) [![Chat](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/{project-full-path}?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Windows Build Status](https://ci.appveyor.com/api/projects/status/2q35s9gt9bqaw558/branch/dev?svg=true)](https://ci.appveyor.com/project/rpau/walkmod-core)
-==============================================
+[![Build Status](https://travis-ci.org/walkmod/walkmod-core.svg?branch=master)](https://travis-ci.org/walkmod/walkmod-core) [![Windows Build Status](https://ci.appveyor.com/api/projects/status/2q35s9gt9bqaw558/branch/dev?svg=true)](https://ci.appveyor.com/project/rpau/walkmod-core)
+
+walkmod: To Fix Java Static Coding Analysis Issues 
+==================================================
 
 WalkMod, is an open source tool to share and apply code conventions by automatic quick fixes for coding style issues. 
 
