@@ -147,7 +147,7 @@ public class WalkModFacade {
      */
     private ConfigurationProvider locateConfigurationProvider() {
         if (configurationProvider == null)
-            return new IvyConfigurationProvider(options.isOffline());
+            return new IvyConfigurationProvider(options.isOffline(), options.isVerbose());
         else
             return configurationProvider;
     }
@@ -570,7 +570,7 @@ public class WalkModFacade {
                 log.info(cfg.getAbsoluteFile() + " [ok]");
             }
             // Uses Ivy always
-            ConfigurationProvider cp = new IvyConfigurationProvider(options.isOffline());
+            ConfigurationProvider cp = new IvyConfigurationProvider(options.isOffline(), options.isVerbose());
             if (options.isVerbose()) {
                 log.info("** THE PLUGIN INSTALLATION STARTS **");
                 System.out.print("----------------------------------------");

@@ -39,6 +39,8 @@ import org.apache.ivy.core.settings.IvySettings;
 import org.apache.ivy.plugins.matcher.ExactPatternMatcher;
 import org.apache.ivy.plugins.matcher.PatternMatcher;
 import org.apache.ivy.plugins.parser.xml.XmlModuleDescriptorWriter;
+import org.apache.ivy.util.DefaultMessageLogger;
+import org.apache.ivy.util.Message;
 import org.walkmod.conf.ConfigurationException;
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.Configuration;
@@ -68,17 +70,37 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 
 	private static final Log LOG = LogFactory.getLog(IvyConfigurationProvider.class);
 
+	private boolean verbose = false;
+
 	public IvyConfigurationProvider() {
 		this(false);
 	}
 
 	public IvyConfigurationProvider(boolean isOffLine) {
+		this(isOffLine, false);
+	}
+
+	public IvyConfigurationProvider(boolean isOffLine, boolean verbose) {
 		setOffLine(isOffLine);
+		setVerbose(verbose);
+	}
+
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
 	}
 
 	@Override
 	public void init(Configuration configuration) {
 		this.configuration = configuration;
+	}
+
+
+	private void applyVerbose() {
+		if(verbose) {
+			Message.setDefaultLogger(new DefaultMessageLogger(Message.MSG_INFO));
+		} else {
+			Message.setDefaultLogger(new DefaultMessageLogger(Message.MSG_ERR));
+		}
 	}
 
 	/**
@@ -121,6 +143,8 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 
 		ivyfile = File.createTempFile("ivy", ".xml");
 		ivyfile.deleteOnExit();
+
+		applyVerbose();
 
 		String[] confs = new String[] { "default" };
 		resolveOptions = new ResolveOptions().setConfs(confs);
