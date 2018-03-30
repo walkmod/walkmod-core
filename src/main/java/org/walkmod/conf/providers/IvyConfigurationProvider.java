@@ -20,11 +20,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.ParseException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,13 +50,19 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 
 	private boolean isOffLine;
 
-	private Ivy ivy = null;
+	private static Ivy ivy = null;
 
 	private File ivyfile;
 
 	private ResolveOptions resolveOptions;
 
 	private DefaultModuleDescriptor md;
+
+	private Set<String> artifacts = new HashSet<String>();
+
+	private static Set<String> lastResolvedArtifacts = new HashSet<String>();
+
+	private static Collection<File> artifactFiles = new LinkedList<File>();
 
 	private static final String IVY_SETTINGS_FILE = "ivysettings.xml";
 
@@ -93,26 +95,29 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 	 *             classpath
 	 */
 	public void initIvy() throws ParseException, IOException, ConfigurationException {
-		// creates clear ivy settings
-		IvySettings ivySettings = new IvySettings();
-		File settingsFile = new File(IVY_SETTINGS_FILE);
-		if (settingsFile.exists()) {
-			ivySettings.load(settingsFile);
-		} else {
-			URL settingsURL = ClassLoader.getSystemResource(IVY_SETTINGS_FILE);
-			if (settingsURL == null) {
-				// file not found in System classloader, we try the current one
-				settingsURL = this.getClass().getClassLoader().getResource(IVY_SETTINGS_FILE);
-				// extra validation to avoid uncontrolled NullPointerException
-				// when invoking toURI()
-				if (settingsURL == null)
-					throw new ConfigurationException("Ivy settings file (" + IVY_SETTINGS_FILE
-							+ ") could not be found in classpath");
+
+		if (ivy == null) {
+			// creates clear ivy settings
+			IvySettings ivySettings = new IvySettings();
+			File settingsFile = new File(IVY_SETTINGS_FILE);
+			if (settingsFile.exists()) {
+				ivySettings.load(settingsFile);
+			} else {
+				URL settingsURL = ClassLoader.getSystemResource(IVY_SETTINGS_FILE);
+				if (settingsURL == null) {
+					// file not found in System classloader, we try the current one
+					settingsURL = this.getClass().getClassLoader().getResource(IVY_SETTINGS_FILE);
+					// extra validation to avoid uncontrolled NullPointerException
+					// when invoking toURI()
+					if (settingsURL == null)
+						throw new ConfigurationException("Ivy settings file (" + IVY_SETTINGS_FILE
+								+ ") could not be found in classpath");
+				}
+				ivySettings.load(settingsURL);
 			}
-			ivySettings.load(settingsURL);
+			// creates an Ivy instance with settings
+			ivy = Ivy.newInstance(ivySettings);
 		}
-		// creates an Ivy instance with settings
-		ivy = Ivy.newInstance(ivySettings);
 
 		ivyfile = File.createTempFile("ivy", ".xml");
 		ivyfile.deleteOnExit();
@@ -183,6 +188,9 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 	}
 
 	public void addArtifact(String groupId, String artifactId, String version) throws Exception {
+
+		artifacts.add(groupId+":"+artifactId+":"+version);
+
 		String[] dep = null;
 		dep = new String[] { groupId, artifactId, version };
 		if (md == null) {
@@ -201,6 +209,13 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 	public Collection<File> resolveArtifacts() throws Exception {
 
 		if (ivy != null) {
+
+			if(lastResolvedArtifacts.isEmpty() || !lastResolvedArtifacts.containsAll(artifacts)) {
+				lastResolvedArtifacts = artifacts;
+			} else {
+				return artifactFiles;
+			}
+
 			XmlModuleDescriptorWriter.write(md, ivyfile);
 			ResolveReport report = ivy.resolve(ivyfile.toURL(), resolveOptions);
 
@@ -212,8 +227,11 @@ public class IvyConfigurationProvider implements ConfigurationProvider {
 					result.add(item.getLocalFile());
 
 				}
+				artifactFiles = result;
 				return result;
 			} else {
+
+				artifactFiles.clear();
 				List problems = report.getAllProblemMessages();
 				if (problems == null || problems.isEmpty()) {
 					throw new ConfigurationException("Ivy can not resolve the artifacts. Undefined cause");
